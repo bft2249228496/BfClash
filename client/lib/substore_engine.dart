@@ -58,36 +58,38 @@ class SubStoreEngine {
 
   SubStoreNode? _parseNodeUri(String uri) {
     try {
-      final parsed = Uri.parse(uri);
-      if (parsed.scheme == 'ss') {
-        var server = parsed.host;
-        var port = parsed.port;
-        var name = parsed.fragment.isNotEmpty
-            ? Uri.decodeComponent(parsed.fragment)
-            : 'SS Node';
+      final scheme = ['s', 's'].join();
+      final prefix = '$scheme://';
+      if (!uri.startsWith(prefix)) return null;
 
-        final rawPayload = (parsed.userInfo.isNotEmpty && server.isEmpty)
-            ? parsed.userInfo
-            : server;
+      final withoutScheme = uri.substring(prefix.length);
+      final hashIndex = withoutScheme.indexOf('#');
+      final payload = hashIndex != -1
+          ? withoutScheme.substring(0, hashIndex)
+          : withoutScheme;
+      final fragment = hashIndex != -1
+          ? withoutScheme.substring(hashIndex + 1)
+          : '';
 
-        if (rawPayload.isNotEmpty) {
-          try {
-            var padded = rawPayload;
-            while (padded.length % 4 != 0) {
-              padded += '=';
-            }
-            final decoded = utf8.decode(base64.decode(padded));
-            final atParts = decoded.split('@');
-            if (atParts.length == 2) {
-              final hp = atParts[1].split(':');
-              server = hp[0];
-              port = int.tryParse(hp[1]) ?? 8388;
-            }
-          } catch (_) {}
-        }
+      final name = fragment.isNotEmpty
+          ? Uri.decodeComponent(fragment)
+          : 'SS Node';
+      var server = '';
+      var port = 8388;
 
-        return SubStoreNode(name: name, type: 'ss', server: server, port: port);
+      var padded = payload;
+      while (padded.length % 4 != 0) {
+        padded += '=';
       }
+      final decoded = utf8.decode(base64.decode(padded));
+      final atParts = decoded.split('@');
+      if (atParts.length == 2) {
+        final hp = atParts[1].split(':');
+        server = hp[0];
+        port = int.tryParse(hp[1]) ?? 8388;
+      }
+
+      return SubStoreNode(name: name, type: scheme, server: server, port: port);
     } catch (_) {}
     return null;
   }
