@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules/
+client/.dart_tool/
+client/build/
+client/.flutter-plugins-dependencies
+client/android/.gradle/
+client/android/local.properties
+client/android/key.properties
+*.jks
+*.keystore
