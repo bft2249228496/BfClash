@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'theme_system.dart';
 import 'vpn_service.dart';
 
 void main() {
@@ -8,26 +9,61 @@ void main() {
   runApp(const LanswayApp());
 }
 
-class LanswayApp extends StatelessWidget {
+class LanswayApp extends StatefulWidget {
   const LanswayApp({super.key});
 
+  static _LanswayAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_LanswayAppState>();
+
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: '澜序 · Lansway',
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(colorSchemeSeed: const Color(0xff6577bd)),
-    darkTheme: ThemeData(
-      brightness: Brightness.dark,
-      colorSchemeSeed: const Color(0xffa7baf2),
-      scaffoldBackgroundColor: const Color(0xff18191e),
-    ),
-    themeMode: ThemeMode.dark,
-    home: const ClientShell(),
-  );
+  State<LanswayApp> createState() => _LanswayAppState();
+}
+
+class _LanswayAppState extends State<LanswayApp> {
+  String _currentThemeId = 'gemini';
+  ThemeMode _themeMode = ThemeMode.dark;
+
+  void setTheme(String themeId) {
+    setState(() => _currentThemeId = themeId);
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    setState(() => _themeMode = mode);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeConfig = AppThemeSystem.getTheme(_currentThemeId);
+
+    return MaterialApp(
+      title: '澜序 · Lansway',
+      debugShowCheckedModeBanner: false,
+      theme: themeConfig.toThemeData(Brightness.light),
+      darkTheme: themeConfig.toThemeData(Brightness.dark),
+      themeMode: _themeMode,
+      home: ClientShell(
+        currentThemeId: _currentThemeId,
+        themeMode: _themeMode,
+        onThemeChanged: setTheme,
+        onThemeModeChanged: setThemeMode,
+      ),
+    );
+  }
 }
 
 class ClientShell extends StatefulWidget {
-  const ClientShell({super.key});
+  final String currentThemeId;
+  final ThemeMode themeMode;
+  final ValueChanged<String> onThemeChanged;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+
+  const ClientShell({
+    super.key,
+    required this.currentThemeId,
+    required this.themeMode,
+    required this.onThemeChanged,
+    required this.onThemeModeChanged,
+  });
 
   @override
   State<ClientShell> createState() => _ClientShellState();
@@ -42,13 +78,6 @@ class _ClientShellState extends State<ClientShell> {
     Icons.folder_outlined,
     Icons.grid_view_outlined,
     Icons.settings_outlined,
-  ];
-  static const descriptions = [
-    '代理服务尚未接入。完成 Android 内核验证后开放连接。',
-    '导入真实配置后，在这里管理代理组与节点。',
-    '订阅导入与配置持久化将在后续阶段接入。',
-    'WebDAV、Sub-Store、覆写和日志将按阶段实现。',
-    '主题、图标与 Android 系统设置将从设计原型迁移。',
   ];
 
   VpnStatus _vpnStatus = VpnStatus.disconnected;
@@ -82,6 +111,177 @@ class _ClientShellState extends State<ClientShell> {
     }
   }
 
+  Widget _buildBody() {
+    switch (selected) {
+      case 0:
+        return _buildOverviewTab();
+      case 1:
+        return _buildProxiesTab();
+      case 2:
+        return _buildSubscriptionsTab();
+      case 3:
+        return _buildToolsTab();
+      case 4:
+        return _buildSettingsTab();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildOverviewTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('概览', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _vpnStatus == VpnStatus.connected
+                          ? Icons.shield
+                          : Icons.shield_outlined,
+                      color: _vpnStatus == VpnStatus.connected
+                          ? Colors.greenAccent
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _formatStatus(_vpnStatus),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '代理服务尚未接入。完成 Android 内核验证后开放连接。未接入内核前不启动空 TUN，避免阻断系统网络。',
+                  style: TextStyle(height: 1.5),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProxiesTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('代理', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 16),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Text('导入真实配置后，在这里管理代理组与节点切换。杜绝使用模拟假数据填充。'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubscriptionsTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('订阅', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 16),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Text('支持 URL/文件导入、解析、自动更新与失败回退。订阅凭据存入私有安全沙箱。'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildToolsTab() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('工具', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 16),
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Text('WebDAV 备份同步、Sub-Store 内嵌运行时、YAML/JS 覆写与日志导出。'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsTab() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('设置', style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '外观主题 (6套配色)',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: AppThemeSystem.themes.map((t) {
+                      final isSelected = t.id == widget.currentThemeId;
+                      return ChoiceChip(
+                        label: Text('${t.name} (${t.subtitle})'),
+                        selected: isSelected,
+                        onSelected: (_) => widget.onThemeChanged(t.id),
+                      );
+                    }).toList(),
+                  ),
+                  const Divider(height: 32),
+                  Text('明暗模式', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: ThemeMode.system,
+                        label: Text('跟随系统'),
+                        icon: Icon(Icons.brightness_auto),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.light,
+                        label: Text('浅色'),
+                        icon: Icon(Icons.light_mode),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.dark,
+                        label: Text('深色'),
+                        icon: Icon(Icons.dark_mode),
+                      ),
+                    ],
+                    selected: {widget.themeMode},
+                    onSelectionChanged: (set) =>
+                        widget.onThemeModeChanged(set.first),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -98,25 +298,7 @@ class _ClientShellState extends State<ClientShell> {
         ),
       ],
     ),
-    body: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            labels[selected],
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 24),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(descriptions[selected]),
-            ),
-          ),
-        ],
-      ),
-    ),
+    body: Padding(padding: const EdgeInsets.all(24), child: _buildBody()),
     bottomNavigationBar: NavigationBar(
       selectedIndex: selected,
       onDestinationSelected: (value) => setState(() => selected = value),
