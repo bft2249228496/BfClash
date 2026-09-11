@@ -34,7 +34,7 @@ class ThemeConfig {
       brightness: brightness,
       colorSchemeSeed: primary,
       scaffoldBackgroundColor: bg,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: card,
         elevation: 0,
         shape: RoundedRectangleBorder(

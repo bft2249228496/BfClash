@@ -12,14 +12,11 @@ void main() {
 class LanswayApp extends StatefulWidget {
   const LanswayApp({super.key});
 
-  static _LanswayAppState? of(BuildContext context) =>
-      context.findAncestorStateOfType<_LanswayAppState>();
-
   @override
-  State<LanswayApp> createState() => _LanswayAppState();
+  State<LanswayApp> createState() => LanswayAppState();
 }
 
-class _LanswayAppState extends State<LanswayApp> {
+class LanswayAppState extends State<LanswayApp> {
   String _currentThemeId = 'gemini';
   ThemeMode _themeMode = ThemeMode.dark;
 
@@ -106,7 +103,6 @@ class _ClientShellState extends State<ClientShell> {
       case VpnStatus.error:
         return '异常: ${VpnServiceController.lastErrorMessage ?? "未知错误"}';
       case VpnStatus.disconnected:
-      default:
         return '未连接 (代理服务尚未接入)';
     }
   }
