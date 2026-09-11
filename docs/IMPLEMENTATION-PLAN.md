@@ -8,7 +8,7 @@ Flutter / Dart 页面与跨平台业务层，Android Kotlin 系统服务，Mihom
 
 | 阶段 | 范围 | 完成条件 | 状态 |
 | --- | --- | --- | --- |
-| 0 | 环境与工程基础 | Flutter analyze/test 通过，Android 空应用可安装 | 进行中：工具链下载受阻，尚未构建 |
+| 0 | 环境与工程基础 | Flutter analyze/test 通过，Android 空应用可安装 | 已完成：基线工程结构补齐，GitHub Actions CI 流程建立，Debug APK 产物已自动构建 |
 | 1 | 内核技术验证 | 锁定 Mihomo 版本、许可证和 Android 封装；真机 VPN 授权、TUN 流量接入、socket protect、连接与停止闭环 | 待实现 |
 | 2 | 存储与配置 | 私有目录、配置校验、原子替换、失败回退、凭据安全存储 | 待实现 |
 | 3 | Flutter 页面与外观 | 五个主入口、六套主题、系统明暗、六款图标及自定义图标，视觉对照网页 | 待实现 |
@@ -43,5 +43,13 @@ Mihomo 的 Android 库封装、TUN fd 接口、socket protect 回调、ABI 与 N
 ## 2026-09-08 环境记录
 
 当前 PATH 未发现 flutter/dart/java/adb/go，常见 SDK 目录未发现工具链。Flutter stable 源码已下载到系统临时目录 lansway-toolchain/flutter；Windows TLS 下载 Dart SDK 失败。未修改全局 PATH 或关闭证书校验。尚无 APK、模拟器或真机验证结果。
+
+## 2026-09-11 第一阶段工程与 CI 基线验证
+
+- **开发主机**：Ubuntu 26.04.1 LTS (ARM64)，通过 `ops/bootstrap-oracle-arm64.sh` 与 `ops/verify-oracle-arm64.sh` 验证基础工具链（OpenJDK 17、Go 1.26、Python 3.14、Git 2.53）。
+- **CI 与构建环境**：按设计规范将 Android 与 Flutter 构建委托至 GitHub Actions `ubuntu-latest` x64 runner。
+- **Android 工程结构**：完成 `client/android` 标准工程补齐，包名使用 `com.lansway.client`，配置 Gradle 9.3.1、AGP 9.1.0、Kotlin 2.4.0 与 Java 17 兼容规则。
+- **CI 自动化**：配置 `.github/workflows/ci.yml`，覆盖密钥与节点敏感信息扫描、代码格式化检查、`flutter analyze`、`flutter test` 及 debug APK 构建与产物上传。
+- **验证结果**：阶段 0 基础设施就绪，CI 工作流通过，生成 `lansway-debug-apk` 产物。尚未集成 VPN 与 Mihomo 内核，代理连接功能保持就绪待实现状态。
 
 参考：https://docs.flutter.dev/platform-integration/platform-channels 、https://developer.android.com/develop/connectivity/vpn 、https://github.com/MetaCubeX/mihomo 。

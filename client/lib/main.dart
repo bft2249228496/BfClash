@@ -30,8 +30,13 @@ class ClientShell extends StatefulWidget {
 class _ClientShellState extends State<ClientShell> {
   int selected = 0;
   static const labels = ['概览', '代理', '订阅', '工具', '设置'];
-  static const icons = [Icons.home_outlined, Icons.route_outlined,
-    Icons.folder_outlined, Icons.grid_view_outlined, Icons.settings_outlined];
+  static const icons = [
+    Icons.home_outlined,
+    Icons.route_outlined,
+    Icons.folder_outlined,
+    Icons.grid_view_outlined,
+    Icons.settings_outlined,
+  ];
   static const descriptions = [
     '代理服务尚未接入。完成 Android 内核验证后开放连接。',
     '导入真实配置后，在这里管理代理组与节点。',
@@ -45,18 +50,33 @@ class _ClientShellState extends State<ClientShell> {
     appBar: AppBar(title: const Text('澜序 · Lansway')),
     body: Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(labels[selected], style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 24),
-        Card(child: Padding(padding: const EdgeInsets.all(24),
-          child: Text(descriptions[selected]))),
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            labels[selected],
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(descriptions[selected]),
+            ),
+          ),
+        ],
+      ),
     ),
     bottomNavigationBar: NavigationBar(
       selectedIndex: selected,
       onDestinationSelected: (value) => setState(() => selected = value),
-      destinations: List.generate(labels.length, (index) => NavigationDestination(
-        icon: Icon(icons[index]), label: labels[index])),
+      destinations: List.generate(
+        labels.length,
+        (index) => NavigationDestination(
+          icon: Icon(icons[index]),
+          label: labels[index],
+        ),
+      ),
     ),
   );
 }
