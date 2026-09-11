@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - dev
       - 'feat/**'
       - 'fix/**'
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   secret-scan:
@@ -21,7 +23,6 @@ jobs:
       - name: Scan for sensitive patterns
         run: |
           echo "Scanning workspace for leaked secrets and private configs..."
-          # Check for private keys, tokens, sensitive credentials
           FOUND=0
           if grep -rnEI '(ghp_[A-Za-z0-9_]{36}|BEGIN (RSA|EC|OPENSSH|DSA) PRIVATE KEY|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})' --exclude-dir={.git,build} .; then
             echo "Potential secret found!"
@@ -51,8 +52,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Flutter (stable)
-        uses: actions/setup-flutter@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
