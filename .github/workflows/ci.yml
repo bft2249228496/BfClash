@@ -1,4 +1,4 @@
-name: CI Baseline
+name: CI Baseline & Release
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
       - dev
       - 'feat/**'
       - 'fix/**'
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -90,3 +92,30 @@ jobs:
           name: lansway-debug-apk
           path: client/build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
+
+  release:
+    name: Auto Release
+    needs: [secret-scan, build-and-test]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Debug APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lansway-debug-apk
+          path: release-artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          files: |
+            release-artifacts/app-debug.apk
+          draft: false
+          prerelease: false
+          generate_release_notes: true
