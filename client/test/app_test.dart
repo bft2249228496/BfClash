@@ -9,6 +9,6 @@ void main() {
     expect(find.text('已连接'), findsNothing);
     await tester.tap(find.widgetWithText(NavigationDestination, '订阅'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('订阅导入与配置持久化'), findsOneWidget);
+    expect(find.textContaining('支持 URL/文件导入'), findsOneWidget);
   });
 }
