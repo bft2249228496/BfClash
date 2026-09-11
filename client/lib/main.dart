@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const LanswayApp());
+import 'vpn_service.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  VpnServiceController.initialize();
+  runApp(const LanswayApp());
+}
 
 class LanswayApp extends StatelessWidget {
   const LanswayApp({super.key});
@@ -45,9 +51,53 @@ class _ClientShellState extends State<ClientShell> {
     '主题、图标与 Android 系统设置将从设计原型迁移。',
   ];
 
+  VpnStatus _vpnStatus = VpnStatus.disconnected;
+
+  @override
+  void initState() {
+    super.initState();
+    _vpnStatus = VpnServiceController.currentStatus;
+    VpnServiceController.statusStream.listen((status) {
+      if (mounted) {
+        setState(() {
+          _vpnStatus = status;
+        });
+      }
+    });
+  }
+
+  String _formatStatus(VpnStatus status) {
+    switch (status) {
+      case VpnStatus.connecting:
+        return '正在连接...';
+      case VpnStatus.connected:
+        return '已连接';
+      case VpnStatus.disconnecting:
+        return '正在断开...';
+      case VpnStatus.error:
+        return '异常: ${VpnServiceController.lastErrorMessage ?? "未知错误"}';
+      case VpnStatus.disconnected:
+      default:
+        return '未连接 (代理服务尚未接入)';
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('澜序 · Lansway')),
+    appBar: AppBar(
+      title: const Text('澜序 · Lansway'),
+      actions: [
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Text(
+              _formatStatus(_vpnStatus),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        ),
+      ],
+    ),
     body: Padding(
       padding: const EdgeInsets.all(24),
       child: Column(

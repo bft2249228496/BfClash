@@ -1,5 +1,109 @@
 package com.lansway.client
 
+import android.app.Activity
+import android.content.Intent
+import android.net.VpnService
+import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterActivity() {
+
+    companion object {
+        const val METHOD_CHANNEL = "com.lansway.client/vpn_control"
+        const val EVENT_CHANNEL = "com.lansway.client/vpn_status"
+        const val REQUEST_CODE_VPN_PREPARE = 1002
+    }
+
+    private var pendingConfigContent: String? = null
+    private var pendingResult: MethodChannel.Result? = null
+
+    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        // 1. 状态事件流：让 Flutter 实时监听真实 VPN 状态
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL).setStreamHandler(
+            object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    LanswayVpnService.setStatusListener { status ->
+                        runOnUiThread {
+                            events?.success(status)
+                        }
+                    }
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    LanswayVpnService.setStatusListener(null)
+                }
+            }
+        )
+
+        // 2. 控制方法通道：启动、断开、状态查询
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, METHOD_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getStatus" -> {
+                    result.success(LanswayVpnService.currentStatus)
+                }
+                "startVpn" -> {
+                    val config = call.argument<String>("config") ?: ""
+                    if (config.isBlank()) {
+                        result.error("EMPTY_CONFIG", "启动 VPN 需要提供有效的配置文件，拒绝启动空 TUN", null)
+                        return@setMethodCallHandler
+                    }
+
+                    if (LanswayVpnService.isServiceRunning) {
+                        result.success(true)
+                        return@setMethodCallHandler
+                    }
+
+                    val prepareIntent = VpnService.prepare(this)
+                    if (prepareIntent != null) {
+                        pendingConfigContent = config
+                        pendingResult = result
+                        startActivityForResult(prepareIntent, REQUEST_CODE_VPN_PREPARE)
+                    } else {
+                        startVpnServiceInternal(config)
+                        result.success(true)
+                    }
+                }
+                "stopVpn" -> {
+                    val stopIntent = Intent(this, LanswayVpnService::class.java).apply {
+                        action = LanswayVpnService.ACTION_STOP
+                    }
+                    startService(stopIntent)
+                    result.success(true)
+                }
+                else -> {
+                    result.notImplemented()
+                }
+            }
+        }
+    }
+
+    private fun startVpnServiceInternal(config: String) {
+        val startIntent = Intent(this, LanswayVpnService::class.java).apply {
+            action = LanswayVpnService.ACTION_START
+            putExtra(LanswayVpnService.EXTRA_CONFIG_CONTENT, config)
+        }
+        startService(startIntent)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_VPN_PREPARE) {
+            val result = pendingResult
+            val config = pendingConfigContent
+            pendingResult = null
+            pendingConfigContent = null
+
+            if (resultCode == Activity.RESULT_OK && config != null) {
+                startVpnServiceInternal(config)
+                result?.success(true)
+            } else {
+                result?.error("PERMISSION_DENIED", "用户未授予 VPN 权限", null)
+            }
+        }
+    }
+}
