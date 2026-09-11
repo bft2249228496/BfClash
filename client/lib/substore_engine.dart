@@ -61,25 +61,44 @@ class SubStoreEngine {
     try {
       final parsed = Uri.parse(uri);
       if (parsed.scheme == 'ss') {
-        final userInfo = parsed.userInfo;
         var server = parsed.host;
         var port = parsed.port;
         var name = parsed.fragment.isNotEmpty
             ? Uri.decodeComponent(parsed.fragment)
             : 'SS Node';
 
-        if (userInfo.isNotEmpty && server.isEmpty) {
-          // 处理 Base64 编码的 userInfo: host:port
+        // 处理标准 ss://BASE64(method:password@host:port) 格式
+        if (parsed.userInfo.isNotEmpty && server.isEmpty) {
           try {
-            final decodedUser = utf8.decode(base64.decode(userInfo));
-            final parts = decodedUser.split('@');
-            if (parts.length == 2) {
-              final hp = parts[1].split(':');
+            var userStr = parsed.userInfo;
+            while (userStr.length % 4 != 0) {
+              userStr += '=';
+            }
+            final decodedUser = utf8.decode(base64.decode(userStr));
+            final atParts = decodedUser.split('@');
+            if (atParts.length == 2) {
+              final hp = atParts[1].split(':');
+              server = hp[0];
+              port = int.tryParse(hp[1]) ?? 8388;
+            }
+          } catch (_) {}
+        } else if (server.isNotEmpty && server.contains('=')) {
+          // 处理 ss://BASE64#name 这种将全部 payload 放在 host 区域的格式
+          try {
+            var hostStr = server;
+            while (hostStr.length % 4 != 0) {
+              hostStr += '=';
+            }
+            final decodedPayload = utf8.decode(base64.decode(hostStr));
+            final atParts = decodedPayload.split('@');
+            if (atParts.length == 2) {
+              final hp = atParts[1].split(':');
               server = hp[0];
               port = int.tryParse(hp[1]) ?? 8388;
             }
           } catch (_) {}
         }
+
         return SubStoreNode(name: name, type: 'ss', server: server, port: port);
       }
     } catch (_) {}
