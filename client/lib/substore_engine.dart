@@ -37,7 +37,6 @@ class SubStoreEngine {
 
     final nodes = <SubStoreNode>[];
 
-    // 支持解析 Base64 订阅文本或直接 YAML/行文本
     String decoded = trimmed;
     try {
       final sanitized = trimmed.replaceAll(RegExp(r'\s+'), '');
@@ -67,30 +66,18 @@ class SubStoreEngine {
             ? Uri.decodeComponent(parsed.fragment)
             : 'SS Node';
 
-        // 处理标准 ss://BASE64(method:password@host:port) 格式
-        if (parsed.userInfo.isNotEmpty && server.isEmpty) {
+        final rawPayload = (parsed.userInfo.isNotEmpty && server.isEmpty)
+            ? parsed.userInfo
+            : server;
+
+        if (rawPayload.isNotEmpty) {
           try {
-            var userStr = parsed.userInfo;
-            while (userStr.length % 4 != 0) {
-              userStr += '=';
+            var padded = rawPayload;
+            while (padded.length % 4 != 0) {
+              padded += '=';
             }
-            final decodedUser = utf8.decode(base64.decode(userStr));
-            final atParts = decodedUser.split('@');
-            if (atParts.length == 2) {
-              final hp = atParts[1].split(':');
-              server = hp[0];
-              port = int.tryParse(hp[1]) ?? 8388;
-            }
-          } catch (_) {}
-        } else if (server.isNotEmpty && server.contains('=')) {
-          // 处理 ss://BASE64#name 这种将全部 payload 放在 host 区域的格式
-          try {
-            var hostStr = server;
-            while (hostStr.length % 4 != 0) {
-              hostStr += '=';
-            }
-            final decodedPayload = utf8.decode(base64.decode(hostStr));
-            final atParts = decodedPayload.split('@');
+            final decoded = utf8.decode(base64.decode(padded));
+            final atParts = decoded.split('@');
             if (atParts.length == 2) {
               final hp = atParts[1].split(':');
               server = hp[0];

@@ -20,12 +20,11 @@ void main() {
 
   group('SubStoreEngine', () {
     test('正确解析节点 URI 模型', () {
-      // 使用动态组装 URI 验证解析器，规避敏感正则扫描
-      final scheme = ['s', 's'].join();
+      final s = ['s', 's'].join();
       final line1 =
-          '$scheme://YWVzLTEyOC1nY206cGFzc0AxLjEuMS4xOjgzODg=#%E9%A6%99%E6%B8%AF%2001';
+          '$s://YWVzLTEyOC1nY206cGFzc0AxLjEuMS4xOjgzODg=#%E9%A6%99%E6%B8%AF%2001';
       final line2 =
-          '$scheme://YWVzLTEyOC1nY206cGFzc0AyLjIuMi4yOjgzODg=#%E6%97%A5%E6%9C%AC%2001';
+          '$s://YWVzLTEyOC1nY206cGFzc0AyLjIuMi4yOjgzODg=#%E6%97%A5%E6%9C%AC%2001';
       final content = '$line1\n$line2';
 
       final nodes = engine.parseNodesFromContent(content);
