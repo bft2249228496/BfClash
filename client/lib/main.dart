@@ -118,7 +118,7 @@ class _ClientShellState extends State<ClientShell> {
         _showUpdateDialog(release);
       } else if (manual) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('当前已是最新版本 (${UpdateManager.currentVersion})')),
+          SnackBar(content: const Text('当前已是最新版本 (${UpdateManager.currentVersion})')),
         );
       }
     } catch (_) {
@@ -265,6 +265,14 @@ class _ClientShellState extends State<ClientShell> {
   VpnStatus _vpnStatus = VpnStatus.disconnected;
   OutboundModeType _currentMode = OutboundModeType.rule;
 
+  Future<void> _toggleVpn() async {
+    if (_vpnStatus == VpnStatus.connected) {
+      await VpnServiceController.stopVpn();
+    } else {
+      await VpnServiceController.startVpn(profileContent: '');
+    }
+  }
+
   // 状态模块
   late Directory _storageDir;
   late SubscriptionManager _subManager;
@@ -407,68 +415,6 @@ class _ClientShellState extends State<ClientShell> {
       default:
         return const SizedBox.shrink();
     }
-  }
-
-  Widget _buildOverviewTab() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('概览', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        _vpnStatus == VpnStatus.connected
-                            ? Icons.shield
-                            : Icons.shield_outlined,
-                        color: _vpnStatus == VpnStatus.connected
-                            ? Colors.greenAccent
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _formatStatus(_vpnStatus),
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _parsedNodes.isNotEmpty
-                        ? '当前选中节点：${_selectedNodeName ?? "未指定"}。\n支持在【代理】页手动测速切换，或在【订阅】管理更多节点。'
-                        : '暂无可用节点。请前往【订阅】页添加订阅或点击右上角刷新拉取节点。',
-                    style: const TextStyle(height: 1.5),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.route_outlined),
-              title: Text('代理节点 (${_parsedNodes.length})'),
-              subtitle: Text(
-                _selectedNodeName != null
-                    ? '当前: $_selectedNodeName'
-                    : '点击前往选择节点',
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => setState(() => selected = 1),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildProxiesTab() {

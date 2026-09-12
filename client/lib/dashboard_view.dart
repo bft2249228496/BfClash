@@ -29,16 +29,16 @@ class _DashboardViewState extends State<DashboardView> {
   int _secondsElapsed = 79390; // 模拟或真实持续计时
   String _intranetIp = '192.168.2.118';
   String _outboundIp = '207.57.143.112';
-  String _outboundCountry = '🇺🇸';
+  final String _outboundCountry = '🇺🇸';
   bool _isDetectingIp = false;
 
   // 速度波形与流量
   final List<double> _speedHistory = [2, 5, 8, 45, 12, 8, 38, 15, 3, 2, 1, 1, 2];
   double _upSpeed = 0.0;
   double _downSpeed = 0.0;
-  double _upTrafficMb = 476.5;
-  double _downTrafficGb = 7.1;
-  double _memoryMb = 310.9;
+  final double _upTrafficMb = 476.5;
+  final double _downTrafficGb = 7.1;
+  final double _memoryMb = 310.9;
 
   @override
   void initState() {
@@ -358,7 +358,7 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           Row(
             children: [
-              const Icon(Icons.devices, size: 18, color: Colors.blueAccent),
+              const const Icon(Icons.devices, size: 18, color: Colors.blueAccent),
               const SizedBox(width: 8),
               const Text(
                 '内网 IP',
@@ -462,7 +462,7 @@ class _DashboardViewState extends State<DashboardView> {
                   painter: _DonutChartPainter(
                     upFraction: 0.25,
                     downFraction: 0.75,
-                    upColor: primaryColor.withOpacity(0.5),
+                    upColor: primaryColor.withValues(alpha: 0.5),
                     downColor: primaryColor,
                   ),
                 ),
@@ -478,7 +478,7 @@ class _DashboardViewState extends State<DashboardView> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.5),
+                            color: primaryColor.withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -553,7 +553,7 @@ class _DashboardViewState extends State<DashboardView> {
                 scale: 0.85,
                 child: Switch(
                   value: isConnected,
-                  activeColor: primaryColor,
+                  activeThumbColor: primaryColor,
                   onChanged: (_) => widget.onToggleVpn(),
                 ),
               ),
@@ -662,7 +662,7 @@ class _DashboardViewState extends State<DashboardView> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor.withOpacity(0.2) : Colors.transparent,
+          color: isSelected ? activeColor.withValues(alpha: 0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -720,8 +720,8 @@ class _SpeedChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          lineColor.withOpacity(0.35),
-          lineColor.withOpacity(0.0),
+          lineColor.withValues(alpha: 0.35),
+          lineColor.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;
