@@ -14,6 +14,7 @@ class MainActivity : FlutterActivity() {
     companion object {
         const val METHOD_CHANNEL = "com.lansway.client/vpn_control"
         const val EVENT_CHANNEL = "com.lansway.client/vpn_status"
+        const val INSTALL_CHANNEL = "com.lansway.client/app_installer"
         const val REQUEST_CODE_VPN_PREPARE = 1002
     }
 
@@ -78,6 +79,40 @@ class MainActivity : FlutterActivity() {
                 else -> {
                     result.notImplemented()
                 }
+            }
+        }
+
+        // 3. 应用在线更新安装通道
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, INSTALL_CHANNEL).setMethodCallHandler { call, result ->
+            if (call.method == "installApk") {
+                val filePath = call.argument<String>("filePath")
+                if (filePath.isNullOrBlank()) {
+                    result.error("INVALID_PATH", "APK 路径为空", null)
+                    return@setMethodCallHandler
+                }
+                try {
+                    val file = java.io.File(filePath)
+                    if (!file.exists()) {
+                        result.error("FILE_NOT_FOUND", "APK 文件不存在: $filePath", null)
+                        return@setMethodCallHandler
+                    }
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        val uri = androidx.core.content.FileProvider.getUriForFile(
+                            this@MainActivity,
+                            "${applicationContext.packageName}.fileprovider",
+                            file
+                        )
+                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    startActivity(intent)
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("INSTALL_ERROR", e.message, null)
+                }
+            } else {
+                result.notImplemented()
             }
         }
     }

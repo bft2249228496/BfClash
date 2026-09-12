@@ -1,3 +1,5 @@
+import 'update_checker.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,11 +13,12 @@ import 'substore_engine.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   VpnServiceController.initialize();
-  runApp(const LanswayApp());
+  runApp(const LanswayApp(autoCheckUpdate: true));
 }
 
 class LanswayApp extends StatefulWidget {
-  const LanswayApp({super.key});
+  final bool autoCheckUpdate;
+  const LanswayApp({super.key, this.autoCheckUpdate = false});
 
   @override
   State<LanswayApp> createState() => LanswayAppState();
@@ -44,6 +47,7 @@ class LanswayAppState extends State<LanswayApp> {
       darkTheme: themeConfig.toThemeData(Brightness.dark),
       themeMode: _themeMode,
       home: ClientShell(
+        autoCheckUpdate: widget.autoCheckUpdate,
         currentThemeId: _currentThemeId,
         themeMode: _themeMode,
         onThemeChanged: setTheme,
@@ -54,6 +58,7 @@ class LanswayAppState extends State<LanswayApp> {
 }
 
 class ClientShell extends StatefulWidget {
+  final bool autoCheckUpdate;
   final String currentThemeId;
   final ThemeMode themeMode;
   final ValueChanged<String> onThemeChanged;
@@ -61,6 +66,7 @@ class ClientShell extends StatefulWidget {
 
   const ClientShell({
     super.key,
+    this.autoCheckUpdate = false,
     required this.currentThemeId,
     required this.themeMode,
     required this.onThemeChanged,
@@ -72,6 +78,141 @@ class ClientShell extends StatefulWidget {
 }
 
 class _ClientShellState extends State<ClientShell> {
+  bool _isCheckingUpdate = false;
+
+  Future<void> _checkAppUpdate({bool manual = false}) async {
+    if (_isCheckingUpdate) return;
+    setState(() => _isCheckingUpdate = true);
+    try {
+      final release = await UpdateManager.checkUpdate();
+      if (!mounted) return;
+      if (release != null) {
+        _showUpdateDialog(release);
+      } else if (manual) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('当前已是最新版本 (${UpdateManager.currentVersion})')),
+        );
+      }
+    } catch (_) {
+      if (manual && mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('检查更新失败，请检查网络连接')));
+      }
+    } finally {
+      if (mounted) setState(() => _isCheckingUpdate = false);
+    }
+  }
+
+  void _showUpdateDialog(ReleaseInfo release) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        double downloadProgress = 0.0;
+        bool isDownloading = false;
+        String statusText = '发现新版本 ${release.tagName}';
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  const Icon(Icons.system_update, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Text('版本更新 (${release.tagName})'),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('更新说明：', style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 4),
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 180),
+                    child: SingleChildScrollView(
+                      child: Text(
+                        release.body.trim().isEmpty
+                            ? '日常功能优化与缺陷修复。'
+                            : release.body.trim(),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
+                  if (isDownloading) ...[
+                    const SizedBox(height: 16),
+                    LinearProgressIndicator(
+                      value: downloadProgress > 0 ? downloadProgress : null,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      statusText,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                if (!isDownloading)
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('稍后再说'),
+                  ),
+                FilledButton(
+                  onPressed: isDownloading
+                      ? null
+                      : () async {
+                          if (release.apkDownloadUrl.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('未找到适用的安装包资产')),
+                            );
+                            return;
+                          }
+                          setDialogState(() {
+                            isDownloading = true;
+                            statusText = '正在下载安装包...';
+                          });
+                          try {
+                            final file = await UpdateManager.downloadApk(
+                              release.apkDownloadUrl,
+                              onProgress: (p, received, total) {
+                                setDialogState(() {
+                                  downloadProgress = p;
+                                  final recMb = (received / (1024 * 1024))
+                                      .toStringAsFixed(1);
+                                  final totalMb = (total / (1024 * 1024))
+                                      .toStringAsFixed(1);
+                                  statusText =
+                                      '下载中: $recMb MB / $totalMb MB (${(p * 100).toInt()}%)';
+                                });
+                              },
+                            );
+                            setDialogState(() {
+                              statusText = '下载完成，正在启动安装...';
+                            });
+                            await UpdateManager.installApk(file.path);
+                          } catch (e) {
+                            setDialogState(() {
+                              isDownloading = false;
+                              statusText = '下载失败，请重试';
+                            });
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('下载失败: $e')),
+                              );
+                            }
+                          }
+                        },
+                  child: Text(isDownloading ? '更新中...' : '立即更新'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   int selected = 0;
   static const labels = ['概览', '代理', '订阅', '工具', '设置'];
   static const icons = [
@@ -119,6 +260,11 @@ class _ClientShellState extends State<ClientShell> {
     _subManager = SubscriptionManager(storageDir: _storageDir);
     _subStore = SubStoreEngine(workDir: _storageDir);
     _loadSubscriptions();
+    if (widget.autoCheckUpdate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _checkAppUpdate(manual: false);
+      });
+    }
   }
 
   Future<void> _loadSubscriptions() async {
@@ -497,8 +643,22 @@ class _ClientShellState extends State<ClientShell> {
   }
 
   void _showAddSubscriptionDialog() {
-    final nameCtrl = TextEditingController(text: '我的订阅');
+    final nameCtrl = TextEditingController();
     final urlCtrl = TextEditingController();
+
+    urlCtrl.addListener(() {
+      final url = urlCtrl.text.trim();
+      if (url.isNotEmpty &&
+          (nameCtrl.text.isEmpty || nameCtrl.text == '我的订阅')) {
+        final autoName = SubscriptionManager.extractSubscriptionName(
+          url,
+          defaultName: '',
+        );
+        if (autoName.isNotEmpty) {
+          nameCtrl.text = autoName;
+        }
+      }
+    });
 
     showDialog(
       context: context,
@@ -539,7 +699,9 @@ class _ClientShellState extends State<ClientShell> {
               }
               Navigator.pop(ctx);
               final sub = await _subManager.addSubscription(
-                name: name.isEmpty ? '我的订阅' : name,
+                name: name.isEmpty
+                    ? SubscriptionManager.extractSubscriptionName(url)
+                    : name,
                 url: url,
               );
               await _loadSubscriptions();
@@ -671,6 +833,39 @@ class _ClientShellState extends State<ClientShell> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('设置', style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('关于与更新', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.info_outline),
+                    title: const Text('当前版本'),
+                    subtitle: Text(
+                      '${UpdateManager.currentVersion} (Official Release)',
+                    ),
+                    trailing: FilledButton.tonal(
+                      onPressed: _isCheckingUpdate
+                          ? null
+                          : () => _checkAppUpdate(manual: true),
+                      child: _isCheckingUpdate
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('检查新版本'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           Card(
             child: Padding(
