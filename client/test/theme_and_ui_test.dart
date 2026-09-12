@@ -32,7 +32,7 @@ void main() {
     expect(find.textContaining('明暗模式'), findsOneWidget);
 
     // 验证能够点击切换主题
-    final draculaChip = find.widgetWithText(ChoiceChip, 'Dracula (午夜紫调)');
+    final draculaChip = find.widgetWithText(ChoiceChip, 'Dracula (霓虹暗紫)');
     expect(draculaChip, findsOneWidget);
     await tester.tap(draculaChip);
     await tester.pump();

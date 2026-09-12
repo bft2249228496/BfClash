@@ -28,12 +28,38 @@ class LanswayAppState extends State<LanswayApp> {
   String _currentThemeId = 'gemini';
   ThemeMode _themeMode = ThemeMode.dark;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await AppThemeSystem.loadPreferences();
+    if (prefs != null && mounted) {
+      setState(() {
+        if (prefs['themeId'] != null) {
+          _currentThemeId = prefs['themeId'] as String;
+        }
+        if (prefs['mode'] != null) {
+          final modeName = prefs['mode'] as String;
+          _themeMode = ThemeMode.values.firstWhere(
+            (m) => m.name == modeName,
+            orElse: () => ThemeMode.dark,
+          );
+        }
+      });
+    }
+  }
+
   void setTheme(String themeId) {
     setState(() => _currentThemeId = themeId);
+    AppThemeSystem.savePreferences(_currentThemeId, _themeMode);
   }
 
   void setThemeMode(ThemeMode mode) {
     setState(() => _themeMode = mode);
+    AppThemeSystem.savePreferences(_currentThemeId, _themeMode);
   }
 
   @override
@@ -41,6 +67,7 @@ class LanswayAppState extends State<LanswayApp> {
     final themeConfig = AppThemeSystem.getTheme(_currentThemeId);
 
     return MaterialApp(
+      
       title: '澜序 · Lansway',
       debugShowCheckedModeBanner: false,
       theme: themeConfig.toThemeData(Brightness.light),
@@ -884,9 +911,26 @@ class _ClientShellState extends State<ClientShell> {
                     children: AppThemeSystem.themes.map((t) {
                       final isSelected = t.id == widget.currentThemeId;
                       return ChoiceChip(
+                        avatar: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: t.accent,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                         label: Text('${t.name} (${t.subtitle})'),
                         selected: isSelected,
-                        onSelected: (_) => widget.onThemeChanged(t.id),
+                        selectedColor: t.accent.withAlpha(50),
+                        side: BorderSide(
+                          color: isSelected ? t.accent : Theme.of(context).dividerColor.withAlpha(50),
+                          width: isSelected ? 1.8 : 1.0,
+                        ),
+                        onSelected: (selected) {
+                          if (selected || t.id != widget.currentThemeId) {
+                            widget.onThemeChanged(t.id);
+                          }
+                        },
                       );
                     }).toList(),
                   ),
