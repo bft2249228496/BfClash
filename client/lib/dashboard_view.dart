@@ -358,7 +358,7 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           Row(
             children: [
-              const const Icon(Icons.devices, size: 18, color: Colors.blueAccent),
+              const Icon(Icons.devices, size: 18, color: Colors.blueAccent),
               const SizedBox(width: 8),
               const Text(
                 '内网 IP',

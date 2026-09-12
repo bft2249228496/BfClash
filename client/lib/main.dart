@@ -269,7 +269,18 @@ class _ClientShellState extends State<ClientShell> {
     if (_vpnStatus == VpnStatus.connected) {
       await VpnServiceController.stopVpn();
     } else {
-      await VpnServiceController.startVpn(profileContent: '');
+      final config = _subscriptions.isNotEmpty && _subscriptions.first.content.trim().isNotEmpty
+          ? _subscriptions.first.content
+          : 'port: 7890\nsocks-port: 7891\nmode: rule\n';
+      try {
+        await VpnServiceController.startVpn(config);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('启动 VPN 失败: \$e')),
+          );
+        }
+      }
     }
   }
 
