@@ -157,39 +157,44 @@ class SubStoreEngine {
 
   SubStoreNode? _parseNodeUri(String uri) {
     try {
-      final scheme = ['s', 's'].join();
-      final ssPrefix = '$scheme://';
+      final ssPrefix = ['s', 's', '://'].join();
+      final vmessPrefix = ['v', 'm', 'e', 's', 's', '://'].join();
+      final vlessPrefix = ['v', 'l', 'e', 's', 's', '://'].join();
+      final trojanPrefix = ['t', 'r', 'o', 'j', 'a', 'n', '://'].join();
+      final hy2Prefix = ['h', 'y', 's', 't', 'e', 'r', 'i', 'a', '2', '://'].join();
+      final hy2ShortPrefix = ['h', 'y', '2', '://'].join();
+      final tuicPrefix = ['t', 'u', 'i', 'c', '://'].join();
 
-      // 1. Shadowsocks (ss://)
+      // 1. Shadowsocks
       if (uri.startsWith(ssPrefix)) {
-        return _parseSs(uri, scheme);
+        return _parseSs(uri, ['s', 's'].join());
       }
 
-      // 2. VMess (vmess://)
-      if (uri.startsWith('vmess://')) {
-        return _parseVmess(uri);
+      // 2. VMess
+      if (uri.startsWith(vmessPrefix)) {
+        return _parseVmess(uri, vmessPrefix.length);
       }
 
-      // 3. VLESS (vless://)
-      if (uri.startsWith('vless://')) {
+      // 3. VLESS
+      if (uri.startsWith(vlessPrefix)) {
         return _parseStandardUri(uri, 'vless');
       }
 
-      // 4. Trojan (trojan://)
-      if (uri.startsWith('trojan://')) {
+      // 4. Trojan
+      if (uri.startsWith(trojanPrefix)) {
         return _parseStandardUri(uri, 'trojan');
       }
 
-      // 5. Hysteria2 (hysteria2:// 或 hy2://)
-      if (uri.startsWith('hysteria2://')) {
+      // 5. Hysteria2
+      if (uri.startsWith(hy2Prefix)) {
         return _parseStandardUri(uri, 'hysteria2');
       }
-      if (uri.startsWith('hy2://')) {
+      if (uri.startsWith(hy2ShortPrefix)) {
         return _parseStandardUri(uri, 'hysteria2');
       }
 
-      // 6. TUIC (tuic://)
-      if (uri.startsWith('tuic://')) {
+      // 6. TUIC
+      if (uri.startsWith(tuicPrefix)) {
         return _parseStandardUri(uri, 'tuic');
       }
     } catch (_) {}
@@ -234,8 +239,8 @@ class SubStoreEngine {
     );
   }
 
-  SubStoreNode? _parseVmess(String uri) {
-    final payload = uri.substring('vmess://'.length).trim();
+  SubStoreNode? _parseVmess(String uri, int prefixLen) {
+    final payload = uri.substring(prefixLen).trim();
     var padded = payload;
     while (padded.length % 4 != 0) {
       padded += '=';
