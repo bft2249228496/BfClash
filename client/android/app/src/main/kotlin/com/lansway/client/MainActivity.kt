@@ -91,25 +91,43 @@ class MainActivity : FlutterActivity() {
                     return@setMethodCallHandler
                 }
                 try {
-                    val file = java.io.File(filePath)
-                    if (!file.exists()) {
+                    val srcFile = java.io.File(filePath)
+                    if (!srcFile.exists()) {
                         result.error("FILE_NOT_FOUND", "APK 文件不存在: $filePath", null)
                         return@setMethodCallHandler
                     }
+
+                    // 检查 Android 8.0+ 未知应用安装权限
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        if (!packageManager.canRequestPackageInstalls()) {
+                            val permissionIntent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                data = android.net.Uri.parse("package:$packageName")
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            startActivity(permissionIntent)
+                        }
+                    }
+
+                    // 规范化并拷贝到内部 cacheDir 确保 FileProvider 100% 匹配可用
+                    val targetApk = java.io.File(cacheDir, "lansway_update.apk")
+                    if (srcFile.canonicalPath != targetApk.canonicalPath) {
+                        srcFile.copyTo(targetApk, overwrite = true)
+                    }
+
+                    val uri = androidx.core.content.FileProvider.getUriForFile(
+                        this@MainActivity,
+                        "${applicationContext.packageName}.fileprovider",
+                        targetApk
+                    )
+
                     val intent = Intent(Intent.ACTION_VIEW).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        val uri = androidx.core.content.FileProvider.getUriForFile(
-                            this@MainActivity,
-                            "${applicationContext.packageName}.fileprovider",
-                            file
-                        )
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
                         setDataAndType(uri, "application/vnd.android.package-archive")
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
                     startActivity(intent)
                     result.success(true)
                 } catch (e: Exception) {
-                    result.error("INSTALL_ERROR", e.message, null)
+                    result.error("INSTALL_ERROR", e.message ?: "拉起安装器失败", null)
                 }
             } else {
                 result.notImplemented()

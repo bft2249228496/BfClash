@@ -217,11 +217,22 @@ class _ClientShellState extends State<ClientShell> {
                             setDialogState(() {
                               statusText = '下载完成，正在启动安装...';
                             });
-                            await UpdateManager.installApk(file.path);
+                            final installSuccess = await UpdateManager.installApk(file.path);
+                            if (!installSuccess) {
+                              setDialogState(() {
+                                isDownloading = false;
+                                statusText = '已拉起或需授权安装未知应用，若未弹出请重试';
+                              });
+                            } else {
+                              setDialogState(() {
+                                isDownloading = false;
+                                statusText = '安装包已拉起，请在系统弹窗中确认安装';
+                              });
+                            }
                           } catch (e) {
                             setDialogState(() {
                               isDownloading = false;
-                              statusText = '下载失败，请重试';
+                              statusText = '安装失败: $e';
                             });
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
