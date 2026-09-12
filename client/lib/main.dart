@@ -497,8 +497,22 @@ class _ClientShellState extends State<ClientShell> {
   }
 
   void _showAddSubscriptionDialog() {
-    final nameCtrl = TextEditingController(text: '我的订阅');
+    final nameCtrl = TextEditingController();
     final urlCtrl = TextEditingController();
+
+    urlCtrl.addListener(() {
+      final url = urlCtrl.text.trim();
+      if (url.isNotEmpty &&
+          (nameCtrl.text.isEmpty || nameCtrl.text == '我的订阅')) {
+        final autoName = SubscriptionManager.extractSubscriptionName(
+          url,
+          defaultName: '',
+        );
+        if (autoName.isNotEmpty) {
+          nameCtrl.text = autoName;
+        }
+      }
+    });
 
     showDialog(
       context: context,
@@ -539,7 +553,9 @@ class _ClientShellState extends State<ClientShell> {
               }
               Navigator.pop(ctx);
               final sub = await _subManager.addSubscription(
-                name: name.isEmpty ? '我的订阅' : name,
+                name: name.isEmpty
+                    ? SubscriptionManager.extractSubscriptionName(url)
+                    : name,
                 url: url,
               );
               await _loadSubscriptions();

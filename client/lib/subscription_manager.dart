@@ -119,7 +119,9 @@ class SubscriptionManager {
     final id = 'sub_${DateTime.now().millisecondsSinceEpoch}';
     final sub = SubscriptionInfo(
       id: id,
-      name: name.trim().isEmpty ? '我的订阅' : name.trim(),
+      name: (name.trim().isEmpty || name.trim() == '我的订阅')
+          ? extractSubscriptionName(trimmedUrl)
+          : name.trim(),
       url: trimmedUrl,
       lastUpdated: DateTime.now(),
     );
@@ -202,5 +204,53 @@ class SubscriptionManager {
       final contentFile = File('${storageDir.path}/sub_$id.yaml');
       await contentFile.writeAsString(content);
     }
+  }
+
+  static String extractSubscriptionName(String url, {String? defaultName}) {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return defaultName ?? '我的订阅';
+    try {
+      final uri = Uri.parse(trimmed);
+      // 1. 检查 query 参数中的名称/文件名参数
+      for (var key in ['name', 'filename', 'title', 'tag']) {
+        if (uri.queryParameters.containsKey(key)) {
+          final val = uri.queryParameters[key]?.trim();
+          if (val != null && val.isNotEmpty) {
+            return Uri.decodeComponent(val);
+          }
+        }
+      }
+
+      // 2. 从 path 中提取最后一个非空 segment 作为文件名
+      final segments = uri.pathSegments
+          .where((s) => s.trim().isNotEmpty)
+          .toList();
+      if (segments.isNotEmpty) {
+        var filename = segments.last.trim();
+        for (var ext in ['.yaml', '.yml', '.txt', '.json', '.conf']) {
+          if (filename.toLowerCase().endsWith(ext)) {
+            filename = filename.substring(0, filename.length - ext.length);
+            break;
+          }
+        }
+        if (filename.isNotEmpty &&
+            ![
+              'raw',
+              'get',
+              'sub',
+              'subscribe',
+              'link',
+              'config',
+            ].contains(filename.toLowerCase())) {
+          return Uri.decodeComponent(filename);
+        }
+      }
+
+      // 3. 回退为 host
+      if (uri.host.isNotEmpty) {
+        return uri.host;
+      }
+    } catch (_) {}
+    return defaultName ?? '我的订阅';
   }
 }
