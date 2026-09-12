@@ -226,7 +226,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Widget _buildNetworkSpeedCard(Color cardBg, Color primaryColor) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -288,7 +288,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Widget _buildOutboundModeCard(Color cardBg, Color primaryColor) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -348,7 +348,7 @@ class _DashboardViewState extends State<DashboardView> {
   Widget _buildIntranetIpCard(Color cardBg) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -383,7 +383,7 @@ class _DashboardViewState extends State<DashboardView> {
   Widget _buildNetworkDetectionCard(Color cardBg) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -433,7 +433,7 @@ class _DashboardViewState extends State<DashboardView> {
   Widget _buildTrafficUsageCard(Color cardBg, Color primaryColor) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -477,7 +477,7 @@ class _DashboardViewState extends State<DashboardView> {
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: primaryColor.withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
@@ -492,7 +492,7 @@ class _DashboardViewState extends State<DashboardView> {
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: primaryColor,
                             shape: BoxShape.circle,
                           ),
@@ -529,7 +529,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Widget _buildVpnCard(Color cardBg, Color primaryColor, bool isConnected) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -566,7 +566,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Widget _buildMemoryCard(Color cardBg) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
       ),
@@ -575,7 +575,7 @@ class _DashboardViewState extends State<DashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Icon(Icons.memory_outlined, size: 18, color: Colors.orangeAccent),
               SizedBox(width: 6),
               Text('内存信息', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -599,7 +599,7 @@ class _DashboardViewState extends State<DashboardView> {
           flex: 1,
           child: Container(
             height: 52,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: const Color(0xFF2A2834),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -622,7 +622,7 @@ class _DashboardViewState extends State<DashboardView> {
             borderRadius: BorderRadius.circular(16),
             child: Container(
               height: 52,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: isConnected ? const Color(0xFF7A68A7) : const Color(0xFF3B3948),
                 borderRadius: BorderRadius.circular(16),
               ),

@@ -271,9 +271,9 @@ class _ClientShellState extends State<ClientShell> {
     } else {
       String config = 'port: 7890\nsocks-port: 7891\nmode: rule\n';
       if (_subscriptions.isNotEmpty) {
-        final subFile = _subManager.getSubscriptionFile(_subscriptions.first.id);
-        if (subFile.existsSync()) {
-          final content = subFile.readAsStringSync();
+        final rawFile = File('\${_storageDir.path}/\${_subscriptions.first.id}.yaml');
+        if (rawFile.existsSync()) {
+          final content = rawFile.readAsStringSync();
           if (content.trim().isNotEmpty) {
             config = content;
           }
