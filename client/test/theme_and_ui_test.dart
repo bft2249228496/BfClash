@@ -22,7 +22,7 @@ void main() {
 
   testWidgets('五个主入口导航与设置页主题切换交互', (tester) async {
     await tester.pumpWidget(const LanswayApp());
-    expect(find.text('概览'), findsAtLeastNWidgets(1));
+    expect(find.text('仪表盘'), findsAtLeastNWidgets(1));
 
     // 切换至设置页
     await tester.tap(find.widgetWithText(NavigationDestination, '设置'));

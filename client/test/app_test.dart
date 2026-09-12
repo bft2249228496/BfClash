@@ -7,8 +7,8 @@ void main() {
     await tester.pumpWidget(const LanswayApp());
     expect(find.text('已连接'), findsNothing);
     expect(find.textContaining('未连接'), findsAtLeastNWidgets(1));
-    await tester.tap(find.widgetWithText(NavigationDestination, '订阅'));
+    await tester.tap(find.widgetWithText(NavigationDestination, '配置'));
     await tester.pump();
-    expect(find.textContaining('订阅'), findsAtLeastNWidgets(1));
+    expect(find.textContaining('配置'), findsAtLeastNWidgets(1));
   });
 }
