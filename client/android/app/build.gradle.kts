@@ -24,32 +24,19 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystoreFile = file("keystore/release.keystore")
-            if (keystoreFile.exists()) {
-                storeFile = keystoreFile
-                storePassword = "lansway123456"
-                keyAlias = "lansway"
-                keyPassword = "lansway123456"
-            } else {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+            storeFile = file("keystore/release.keystore")
+            storePassword = "lansway123456"
+            keyAlias = "lansway"
+            keyPassword = "lansway123456"
         }
     }
 
     buildTypes {
-        debug {
-            val keystoreFile = file("keystore/release.keystore")
-            if (keystoreFile.exists()) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release")
         }
-        release {
-            val keystoreFile = file("keystore/release.keystore")
-            if (keystoreFile.exists()) {
-                signingConfig = signingConfigs.getByName("release")
-            } else {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
