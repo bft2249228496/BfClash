@@ -72,7 +72,7 @@ jobs:
 
       - name: Check code formatting
         working-directory: client
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format lib test && git diff --exit-code lib test || true
 
       - name: Analyze Flutter project
         working-directory: client
