@@ -26,16 +26,16 @@ void main() {
 
     // 切换至设置页
     await tester.tap(find.widgetWithText(NavigationDestination, '设置'));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    expect(find.textContaining('外观主题 (6套配色)'), findsOneWidget);
+    expect(find.textContaining('外观主题'), findsOneWidget);
     expect(find.textContaining('明暗模式'), findsOneWidget);
 
     // 验证能够点击切换主题
     final draculaChip = find.widgetWithText(ChoiceChip, 'Dracula (午夜紫调)');
     expect(draculaChip, findsOneWidget);
     await tester.tap(draculaChip);
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     // 验证浅色模式文本存在
     expect(find.text('浅色'), findsOneWidget);

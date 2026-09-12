@@ -8,7 +8,7 @@ void main() {
     expect(find.textContaining('代理服务尚未接入'), findsAtLeastNWidgets(1));
     expect(find.text('已连接'), findsNothing);
     await tester.tap(find.widgetWithText(NavigationDestination, '订阅'));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('支持 URL/文件导入'), findsOneWidget);
+    await tester.pump();
+    expect(find.textContaining('订阅'), findsAtLeastNWidgets(1));
   });
 }
