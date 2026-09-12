@@ -56,7 +56,7 @@ class SubStoreEngine {
       return decodedYamlNodes;
     }
 
-    // 3. 按行解析多协议节点 URI (vmess://, vless://, ss://, trojan://, hy2://, tuic://)
+    // 3. 按行解析多协议节点 URI
     final nodes = <SubStoreNode>[];
     final lines = const LineSplitter().convert(decoded);
     for (var line in lines) {
