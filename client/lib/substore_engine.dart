@@ -36,7 +36,8 @@ class SubStoreEngine {
     if (trimmed.isEmpty) return [];
 
     // 1. 优先尝试解析 Clash / Mihomo YAML 格式
-    if (trimmed.contains('proxies:')) {
+    final lowerTrimmed = trimmed.toLowerCase();
+    if (lowerTrimmed.contains('proxies:') || lowerTrimmed.contains('proxy:')) {
       final yamlNodes = _parseClashYaml(trimmed);
       if (yamlNodes.isNotEmpty) {
         return yamlNodes;
@@ -54,7 +55,8 @@ class SubStoreEngine {
     } catch (_) {}
 
     // 再次检查解码后是否为 YAML
-    if (decoded.contains('proxies:')) {
+    final lowerDecoded = decoded.toLowerCase();
+    if (lowerDecoded.contains('proxies:') || lowerDecoded.contains('proxy:')) {
       final yamlNodes = _parseClashYaml(decoded);
       if (yamlNodes.isNotEmpty) {
         return yamlNodes;
@@ -73,31 +75,18 @@ class SubStoreEngine {
     return nodes;
   }
 
-  /// 纯 Dart 轻量解析 Clash / Mihomo 的 proxies 列表
+  /// 纯 Dart 鲁棒解析 Clash / Mihomo 的 proxies 列表（同时支持 flow-style 行内 JSON 映射和 block-style 缩进映射）
   List<SubStoreNode> _parseClashYaml(String yamlContent) {
     final nodes = <SubStoreNode>[];
     final lines = const LineSplitter().convert(yamlContent);
 
     bool inProxies = false;
-    Map<String, dynamic>? currentNode;
+    Map<String, dynamic>? currentBlockNode;
 
-    void flushCurrentNode() {
-      if (currentNode != null) {
-        final name = (currentNode!['name'] as String?)?.trim() ?? '';
-        final type = (currentNode!['type'] as String?)?.trim() ?? 'unknown';
-        final server = (currentNode!['server'] as String?)?.trim() ?? '';
-        final port = (currentNode!['port'] as num?)?.toInt() ?? 0;
-
-        if (name.isNotEmpty && server.isNotEmpty && port > 0) {
-          nodes.add(SubStoreNode(
-            name: name,
-            type: type,
-            server: server,
-            port: port,
-            raw: currentNode!,
-          ));
-        }
-        currentNode = null;
+    void flushBlockNode() {
+      if (currentBlockNode != null) {
+        _addNodeIfValid(currentBlockNode!, nodes);
+        currentBlockNode = null;
       }
     }
 
@@ -105,48 +94,143 @@ class SubStoreEngine {
       final trimmed = line.trim();
       if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
 
-      if (line.startsWith('proxies:')) {
+      final lowerTrimmed = trimmed.toLowerCase();
+      if (lowerTrimmed.startsWith('proxies:') || lowerTrimmed.startsWith('proxy:')) {
+        flushBlockNode();
         inProxies = true;
         continue;
       }
 
       // 如果退出了 proxies 顶级字段（遇到没有缩进的其它顶级 key）
       if (inProxies && !line.startsWith(' ') && !line.startsWith('\t')) {
-        flushCurrentNode();
+        flushBlockNode();
         inProxies = false;
         continue;
       }
 
       if (inProxies) {
+        // Pattern 1: Flow-style YAML 节点:
+        // - {name: ..., type: ..., server: ..., port: ...}
+        if (trimmed.startsWith('-') && trimmed.contains('{') && trimmed.endsWith('}')) {
+          flushBlockNode();
+          final map = _parseFlowStyleMap(trimmed);
+          if (map != null) {
+            _addNodeIfValid(map, nodes);
+          }
+          continue;
+        }
+
+        // Pattern 2: Block style YAML 节点:
+        // - name: "HK 01"
+        //   type: ss
+        //   server: 1.1.1.1
+        //   port: 8388
         if (trimmed.startsWith('- ')) {
-          flushCurrentNode();
-          currentNode = <String, dynamic>{};
+          flushBlockNode();
+          currentBlockNode = <String, dynamic>{};
           final rest = trimmed.substring(2).trim();
-          _parseInlineKeyValue(rest, currentNode!);
-        } else if (currentNode != null && trimmed.contains(':')) {
-          _parseInlineKeyValue(trimmed, currentNode!);
+          _parseKeyValue(rest, currentBlockNode!);
+        } else if (currentBlockNode != null && trimmed.contains(':')) {
+          _parseKeyValue(trimmed, currentBlockNode!);
         }
       }
     }
 
-    flushCurrentNode();
+    flushBlockNode();
     return nodes;
   }
 
-  void _parseInlineKeyValue(String text, Map<String, dynamic> target) {
+  void _addNodeIfValid(Map<String, dynamic> raw, List<SubStoreNode> list) {
+    final name = (raw['name'] as String?)?.trim() ?? '';
+    final type = (raw['type'] as String?)?.trim() ?? 'unknown';
+    final server = (raw['server'] as String?)?.trim() ?? '';
+    final port = (raw['port'] as num?)?.toInt() ?? 0;
+
+    if (name.isNotEmpty && server.isNotEmpty && port > 0) {
+      list.add(SubStoreNode(
+        name: name,
+        type: type,
+        server: server,
+        port: port,
+        raw: raw,
+      ));
+    }
+  }
+
+  Map<String, dynamic>? _parseFlowStyleMap(String line) {
+    var s = line.trim();
+    if (s.startsWith('-')) {
+      s = s.substring(1).trim();
+    }
+    if (s.startsWith('{') && s.endsWith('}')) {
+      s = s.substring(1, s.length - 1).trim();
+    } else {
+      return null;
+    }
+
+    final target = <String, dynamic>{};
+    final parts = _splitByTopLevelComma(s);
+    for (var part in parts) {
+      _parseKeyValue(part, target);
+    }
+    return target;
+  }
+
+  List<String> _splitByTopLevelComma(String s) {
+    final result = <String>[];
+    var sb = StringBuffer();
+    bool inSingle = false;
+    bool inDouble = false;
+    int braceDepth = 0;
+    int bracketDepth = 0;
+
+    for (int i = 0; i < s.length; i++) {
+      final c = s[i];
+      if (c == "'" && !inDouble) {
+        inSingle = !inSingle;
+        sb.write(c);
+      } else if (c == '"' && !inSingle) {
+        inDouble = !inDouble;
+        sb.write(c);
+      } else if (!inSingle && !inDouble) {
+        if (c == '{') braceDepth++;
+        if (c == '}') braceDepth--;
+        if (c == '[') bracketDepth++;
+        if (c == ']') bracketDepth--;
+
+        if (c == ',' && braceDepth == 0 && bracketDepth == 0) {
+          result.add(sb.toString().trim());
+          sb.clear();
+        } else {
+          sb.write(c);
+        }
+      } else {
+        sb.write(c);
+      }
+    }
+    if (sb.isNotEmpty) {
+      result.add(sb.toString().trim());
+    }
+    return result;
+  }
+
+  void _parseKeyValue(String text, Map<String, dynamic> target) {
     final colonIdx = text.indexOf(':');
     if (colonIdx == -1) return;
 
-    final key = text.substring(0, colonIdx).trim().replaceAll("'", "").replaceAll('"', '');
-    var val = text.substring(colonIdx + 1).trim();
+    var key = text.substring(0, colonIdx).trim();
+    if ((key.startsWith("'") && key.endsWith("'")) ||
+        (key.startsWith('"') && key.endsWith('"'))) {
+      key = key.substring(1, key.length - 1);
+    }
 
-    // 去除两端引号
+    var val = text.substring(colonIdx + 1).trim();
     if ((val.startsWith("'") && val.endsWith("'")) ||
         (val.startsWith('"') && val.endsWith('"'))) {
       val = val.substring(1, val.length - 1);
     }
 
-    if (key == 'port') {
+    if (key == 'port' || key == 'alterId') {
       target[key] = int.tryParse(val) ?? 0;
     } else if (val == 'true' || val == 'false') {
       target[key] = val == 'true';
