@@ -7,7 +7,6 @@ import 'vpn_service.dart';
 import 'subscription_manager.dart';
 import 'webdav_backup.dart';
 import 'substore_engine.dart';
-import 'kernel_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
