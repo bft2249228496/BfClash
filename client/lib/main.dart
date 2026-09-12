@@ -1,3 +1,4 @@
+import 'dashboard_view.dart';
 import 'update_checker.dart';
 
 import 'dart:io';
@@ -252,7 +253,7 @@ class _ClientShellState extends State<ClientShell> {
   }
 
   int selected = 0;
-  static const labels = ['概览', '代理', '订阅', '工具', '设置'];
+  static const labels = ['仪表盘', '代理', '配置', '工具', '设置'];
   static const icons = [
     Icons.home_outlined,
     Icons.route_outlined,
@@ -262,6 +263,7 @@ class _ClientShellState extends State<ClientShell> {
   ];
 
   VpnStatus _vpnStatus = VpnStatus.disconnected;
+  OutboundModeType _currentMode = OutboundModeType.rule;
 
   // 状态模块
   late Directory _storageDir;
@@ -380,7 +382,20 @@ class _ClientShellState extends State<ClientShell> {
   Widget _buildBody() {
     switch (selected) {
       case 0:
-        return _buildOverviewTab();
+        return DashboardView(
+          vpnStatus: _vpnStatus,
+          onToggleVpn: _toggleVpn,
+          currentMode: _currentMode,
+          onModeChanged: (mode) {
+            setState(() => _currentMode = mode);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('已切换出站模式为: ${mode == OutboundModeType.rule ? "规则" : (mode == OutboundModeType.global ? "全局" : "直连")}'),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          },
+        );
       case 1:
         return _buildProxiesTab();
       case 2:
