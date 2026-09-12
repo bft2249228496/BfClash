@@ -269,9 +269,16 @@ class _ClientShellState extends State<ClientShell> {
     if (_vpnStatus == VpnStatus.connected) {
       await VpnServiceController.stopVpn();
     } else {
-      final config = _subscriptions.isNotEmpty && _subscriptions.first.content.trim().isNotEmpty
-          ? _subscriptions.first.content
-          : 'port: 7890\nsocks-port: 7891\nmode: rule\n';
+      String config = 'port: 7890\nsocks-port: 7891\nmode: rule\n';
+      if (_subscriptions.isNotEmpty) {
+        final subFile = _subManager.getSubscriptionFile(_subscriptions.first.id);
+        if (subFile.existsSync()) {
+          final content = subFile.readAsStringSync();
+          if (content.trim().isNotEmpty) {
+            config = content;
+          }
+        }
+      }
       try {
         await VpnServiceController.startVpn(config);
       } catch (e) {
