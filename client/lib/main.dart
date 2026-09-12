@@ -6,11 +6,6 @@ import 'theme_system.dart';
 import 'vpn_service.dart';
 import 'subscription_manager.dart';
 import 'webdav_backup.dart';
-import 'substore_engine.dart';
-import 'rules_and_overrides.dart';
-import 'android_capabilities.dart';
-import 'smart_core.dart';
-import 'kernel_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -115,16 +110,16 @@ class _ClientShellState extends State<ClientShell> {
     });
 
     final tempDir = Directory.systemTemp.createTempSync('lansway_runtime_');
-    _subManager = SubscriptionManager(workDir: tempDir);
+    _subManager = SubscriptionManager(storageDir: tempDir);
     _loadSubscriptions();
   }
 
   Future<void> _loadSubscriptions() async {
     setState(() => _isLoadingSubs = true);
-    final list = await _subManager.loadSubscriptions();
+    await _subManager.load();
     if (mounted) {
       setState(() {
-        _subscriptions = list;
+        _subscriptions = _subManager.subscriptions;
         _isLoadingSubs = false;
       });
     }
@@ -367,12 +362,10 @@ class _ClientShellState extends State<ClientShell> {
                 return;
               }
               Navigator.pop(ctx);
-              final sub = SubscriptionInfo(
-                id: 'sub_${DateTime.now().millisecondsSinceEpoch}',
+              await _subManager.addSubscription(
                 name: name.isEmpty ? '我的订阅' : name,
                 url: url,
               );
-              await _subManager.saveSubscription(sub);
               await _loadSubscriptions();
             },
             child: const Text('导入'),
@@ -383,7 +376,7 @@ class _ClientShellState extends State<ClientShell> {
   }
 
   Future<void> _deleteSubscription(String id) async {
-    await _subManager.deleteSubscription(id);
+    await _subManager.removeSubscription(id);
     await _loadSubscriptions();
   }
 
@@ -459,12 +452,12 @@ class _ClientShellState extends State<ClientShell> {
             ),
           ),
           const SizedBox(height: 16),
-          Card(
+          const Card(
             child: ListTile(
-              leading: const Icon(Icons.filter_alt_outlined),
-              title: const Text('Sub-Store 节点过滤与重命名'),
-              subtitle: const Text('已内嵌支持正则表达式与关键词分组过滤'),
-              trailing: const Icon(Icons.check_circle, color: Colors.green),
+              leading: Icon(Icons.filter_alt_outlined),
+              title: Text('Sub-Store 节点过滤与重命名'),
+              subtitle: Text('已内嵌支持正则表达式与关键词分组过滤'),
+              trailing: Icon(Icons.check_circle, color: Colors.green),
             ),
           ),
         ],
