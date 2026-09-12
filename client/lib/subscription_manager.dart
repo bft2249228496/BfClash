@@ -12,6 +12,7 @@ class SubscriptionInfo {
   final DateTime? expireDate;
   final bool autoUpdate;
   final int updateIntervalHours;
+  final int nodeCount;
 
   const SubscriptionInfo({
     required this.id,
@@ -24,6 +25,7 @@ class SubscriptionInfo {
     this.expireDate,
     this.autoUpdate = true,
     this.updateIntervalHours = 24,
+    this.nodeCount = 0,
   });
 
   Map<String, dynamic> toJson() => {
@@ -37,6 +39,7 @@ class SubscriptionInfo {
     'expireDate': expireDate?.toIso8601String(),
     'autoUpdate': autoUpdate,
     'updateIntervalHours': updateIntervalHours,
+    'nodeCount': nodeCount,
   };
 
   factory SubscriptionInfo.fromJson(Map<String, dynamic> json) =>
@@ -56,6 +59,7 @@ class SubscriptionInfo {
         autoUpdate: json['autoUpdate'] as bool? ?? true,
         updateIntervalHours:
             (json['updateIntervalHours'] as num?)?.toInt() ?? 24,
+        nodeCount: (json['nodeCount'] as num?)?.toInt() ?? 0,
       );
 
   String get formattedTraffic {
@@ -153,5 +157,50 @@ class SubscriptionManager {
       }
     }
     return result;
+  }
+
+  Future<String> fetchSubscriptionContent(String url) async {
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(seconds: 15);
+    try {
+      final request = await client.getUrl(Uri.parse(url));
+      request.headers.set('User-Agent', 'ClashMeta/1.19.30 Lansway/0.1.2');
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final body = await response.transform(utf8.decoder).join();
+        return body;
+      } else {
+        throw Exception('HTTP ${response.statusCode}');
+      }
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<void> updateSubscriptionContent(
+    String id,
+    String content,
+    int count,
+  ) async {
+    final idx = _subscriptions.indexWhere((s) => s.id == id);
+    if (idx != -1) {
+      final old = _subscriptions[idx];
+      _subscriptions[idx] = SubscriptionInfo(
+        id: old.id,
+        name: old.name,
+        url: old.url,
+        lastUpdated: DateTime.now(),
+        uploadBytes: old.uploadBytes,
+        downloadBytes: old.downloadBytes,
+        totalBytes: old.totalBytes,
+        expireDate: old.expireDate,
+        autoUpdate: old.autoUpdate,
+        updateIntervalHours: old.updateIntervalHours,
+        nodeCount: count,
+      );
+      await save();
+      final contentFile = File('${storageDir.path}/sub_$id.yaml');
+      await contentFile.writeAsString(content);
+    }
   }
 }

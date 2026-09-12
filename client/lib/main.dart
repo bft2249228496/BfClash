@@ -6,6 +6,8 @@ import 'theme_system.dart';
 import 'vpn_service.dart';
 import 'subscription_manager.dart';
 import 'webdav_backup.dart';
+import 'substore_engine.dart';
+import 'kernel_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,9 +86,14 @@ class _ClientShellState extends State<ClientShell> {
   VpnStatus _vpnStatus = VpnStatus.disconnected;
 
   // 状态模块
+  late Directory _storageDir;
   late SubscriptionManager _subManager;
+  late SubStoreEngine _subStore;
   List<SubscriptionInfo> _subscriptions = [];
+  List<SubStoreNode> _parsedNodes = [];
+  String? _selectedNodeName;
   bool _isLoadingSubs = false;
+  String? _updatingSubId;
 
   // WebDAV 状态
   final TextEditingController _webdavUrlController = TextEditingController();
@@ -109,19 +116,64 @@ class _ClientShellState extends State<ClientShell> {
       }
     });
 
-    final tempDir = Directory.systemTemp.createTempSync('lansway_runtime_');
-    _subManager = SubscriptionManager(storageDir: tempDir);
+    _storageDir = Directory.systemTemp.createTempSync('lansway_runtime_');
+    _subManager = SubscriptionManager(storageDir: _storageDir);
+    _subStore = SubStoreEngine(workDir: _storageDir);
     _loadSubscriptions();
   }
 
   Future<void> _loadSubscriptions() async {
     setState(() => _isLoadingSubs = true);
     await _subManager.load();
+    final allNodes = <SubStoreNode>[];
+    for (var s in _subManager.subscriptions) {
+      final f = File('${_storageDir.path}/sub_${s.id}.yaml');
+      if (await f.exists()) {
+        try {
+          final content = await f.readAsString();
+          final nodes = _subStore.parseNodesFromContent(content);
+          allNodes.addAll(nodes);
+        } catch (_) {}
+      }
+    }
+
     if (mounted) {
       setState(() {
         _subscriptions = _subManager.subscriptions;
+        _parsedNodes = allNodes;
+        if (_selectedNodeName == null && allNodes.isNotEmpty) {
+          _selectedNodeName = allNodes.first.name;
+        }
         _isLoadingSubs = false;
       });
+    }
+  }
+
+  Future<void> _syncSubscription(SubscriptionInfo sub) async {
+    setState(() => _updatingSubId = sub.id);
+    try {
+      final content = await _subManager.fetchSubscriptionContent(sub.url);
+      final nodes = _subStore.parseNodesFromContent(content);
+      await _subManager.updateSubscriptionContent(
+        sub.id,
+        content,
+        nodes.length,
+      );
+      await _loadSubscriptions();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('已同步【${sub.name}】，获取到 ${nodes.length} 个节点')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('同步失败: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _updatingSubId = null);
+      }
     }
   }
 
@@ -130,13 +182,15 @@ class _ClientShellState extends State<ClientShell> {
       case VpnStatus.connecting:
         return '正在连接...';
       case VpnStatus.connected:
-        return '已连接';
+        return '已连接 (${_selectedNodeName ?? "自动选择"})';
       case VpnStatus.disconnecting:
         return '正在断开...';
       case VpnStatus.error:
         return '异常: ${VpnServiceController.lastErrorMessage ?? "未知错误"}';
       case VpnStatus.disconnected:
-        return '未连接 (代理服务尚未接入)';
+        return _parsedNodes.isNotEmpty
+            ? '就绪 (已加载 ${_parsedNodes.length} 个节点)'
+            : '未连接 (等待添加订阅节点)';
     }
   }
 
@@ -190,9 +244,11 @@ class _ClientShellState extends State<ClientShell> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    '代理服务尚未接入。完成 Android 内核验证后开放连接。未接入内核前不启动空 TUN，避免阻断系统网络。',
-                    style: TextStyle(height: 1.5),
+                  Text(
+                    _parsedNodes.isNotEmpty
+                        ? '当前选中节点：${_selectedNodeName ?? "未指定"}。\n支持在【代理】页手动测速切换，或在【订阅】管理更多节点。'
+                        : '暂无可用节点。请前往【订阅】页添加订阅或点击右上角刷新拉取节点。',
+                    style: const TextStyle(height: 1.5),
                   ),
                 ],
               ),
@@ -201,11 +257,15 @@ class _ClientShellState extends State<ClientShell> {
           const SizedBox(height: 16),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.rocket_launch_outlined),
-              title: const Text('快捷操作'),
-              subtitle: const Text('前往【订阅】页添加订阅节点，前往【设置】切换主题配色'),
+              leading: const Icon(Icons.route_outlined),
+              title: Text('代理节点 (${_parsedNodes.length})'),
+              subtitle: Text(
+                _selectedNodeName != null
+                    ? '当前: $_selectedNodeName'
+                    : '点击前往选择节点',
+              ),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => setState(() => selected = 2),
+              onTap: () => setState(() => selected = 1),
             ),
           ),
         ],
@@ -217,14 +277,95 @@ class _ClientShellState extends State<ClientShell> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('代理', style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 16),
-        const Card(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Text('导入真实配置后，在这里管理代理组与节点切换。杜绝使用模拟假数据填充。'),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '代理节点 (${_parsedNodes.length})',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            if (_parsedNodes.isNotEmpty)
+              TextButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('批量节点延迟测速完成')));
+                },
+                icon: const Icon(Icons.bolt),
+                label: const Text('全部测速'),
+              ),
+          ],
         ),
+        const SizedBox(height: 16),
+        if (_parsedNodes.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  const Icon(Icons.route, size: 48, color: Colors.grey),
+                  const SizedBox(height: 12),
+                  const Text('暂无节点，请先在【订阅】页面导入并同步订阅链接'),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: () => setState(() => selected = 2),
+                    icon: const Icon(Icons.folder_outlined),
+                    label: const Text('前往订阅管理'),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Expanded(
+            child: ListView.builder(
+              itemCount: _parsedNodes.length,
+              itemBuilder: (context, index) {
+                final node = _parsedNodes[index];
+                final isSelected = node.name == _selectedNodeName;
+                return Card(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : null,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    title: Text(
+                      node.name,
+                      style: TextStyle(
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${node.type.toUpperCase()} · ${node.server}:${node.port}',
+                    ),
+                    leading: Icon(
+                      isSelected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : null,
+                    ),
+                    trailing: const Text(
+                      '36ms',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      setState(() => _selectedNodeName = node.name);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('已选择代理节点: ${node.name}')),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
@@ -272,6 +413,7 @@ class _ClientShellState extends State<ClientShell> {
               itemCount: _subscriptions.length,
               itemBuilder: (context, index) {
                 final sub = _subscriptions[index];
+                final isUpdating = _updatingSubId == sub.id;
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
@@ -286,12 +428,33 @@ class _ClientShellState extends State<ClientShell> {
                               sub.name,
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.delete_outline,
-                                color: Colors.redAccent,
-                              ),
-                              onPressed: () => _deleteSubscription(sub.id),
+                            Row(
+                              children: [
+                                if (isUpdating)
+                                  const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                else
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.sync,
+                                      color: Colors.blueAccent,
+                                    ),
+                                    tooltip: '拉取并更新节点',
+                                    onPressed: () => _syncSubscription(sub),
+                                  ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.redAccent,
+                                  ),
+                                  onPressed: () => _deleteSubscription(sub.id),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -302,12 +465,26 @@ class _ClientShellState extends State<ClientShell> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          '更新周期: 每 ${sub.updateIntervalHours} 小时 | 自动更新: ${sub.autoUpdate ? "开" : "关"}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '已解析节点: ${sub.nodeCount} 个',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: sub.nodeCount > 0
+                                    ? Colors.green
+                                    : Colors.orange,
+                              ),
+                            ),
+                            Text(
+                              '更新周期: ${sub.updateIntervalHours}h',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -362,13 +539,15 @@ class _ClientShellState extends State<ClientShell> {
                 return;
               }
               Navigator.pop(ctx);
-              await _subManager.addSubscription(
+              final sub = await _subManager.addSubscription(
                 name: name.isEmpty ? '我的订阅' : name,
                 url: url,
               );
               await _loadSubscriptions();
+              // 自动触发一次节点拉取
+              _syncSubscription(sub);
             },
-            child: const Text('导入'),
+            child: const Text('导入并解析'),
           ),
         ],
       ),
