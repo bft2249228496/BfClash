@@ -41,7 +41,9 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
       height: getWidgetHeight(1),
       child: CommonCard(
         radius: AppCorner.lg,
-        onPressed: () {},
+        onPressed: () {
+          ref.read(networkDetectionProvider.notifier).startCheck();
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

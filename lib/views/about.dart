@@ -50,7 +50,7 @@ class AboutView extends ConsumerWidget {
         ListItem(
           title: const Text('Telegram'),
           onTap: () {
-            dialogs.openUrl('https://t.me/FlClash');
+            dialogs.openUrl('https://t.me/bf2249');
           },
           trailing: const Icon(Icons.launch),
         ),
@@ -76,33 +76,21 @@ class AboutView extends ConsumerWidget {
   }
 
   List<Widget> _buildContributorsSection(AppLocalizations appLocalizations) {
-    const contributors = [
-      Contributor(
-        avatar: 'assets/images/avatar/june2.jpg',
-        name: 'June2',
-        link: 'https://t.me/Jibadong',
-      ),
-      Contributor(
-        avatar: 'assets/images/avatar/arue.jpg',
-        name: 'Arue',
-        link: 'https://t.me/xrcm6868',
-      ),
-    ];
     return generateSection(
       separated: false,
-      title: appLocalizations.otherContributors,
+      title: '作者',
       items: [
         ListItem(
-          title: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Wrap(
-              spacing: 24,
-              children: [
-                for (final contributor in contributors)
-                  Avatar(contributor: contributor),
-              ],
-            ),
+          title: const Text('不负 (Gu Ao)'),
+          subtitle: const Text('https://github.com/bft2249228496'),
+          leading: const CircleAvatar(
+            backgroundColor: Color(0xFF6366F1),
+            child: Icon(Icons.person, color: Colors.white),
           ),
+          trailing: const Icon(Icons.launch),
+          onTap: () {
+            dialogs.openUrl('https://github.com/bft2249228496');
+          },
         ),
       ],
     );
