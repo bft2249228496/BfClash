@@ -7,19 +7,19 @@
         android:scaleX="0.72"
         android:scaleY="0.72"
         android:translateX="15.12"
-        android:translateY="7.2">
+        android:translateY="7.92">
         <path
-            android:pathData="M46,33 L58,40"
+            android:pathData="M46,35 L62,44"
             android:strokeColor="#38BDF8"
             android:strokeWidth="10"
             android:strokeLineCap="round" />
         <path
-            android:pathData="M38,50 L66,66"
+            android:pathData="M40,51 L68,67"
             android:strokeColor="#818CF8"
             android:strokeWidth="10"
             android:strokeLineCap="round" />
         <path
-            android:pathData="M29,68 L79,97"
+            android:pathData="M34,70 L74,93"
             android:strokeColor="#C084FC"
             android:strokeWidth="10"
             android:strokeLineCap="round" />

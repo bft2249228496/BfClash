@@ -57,7 +57,7 @@ void main() {
     expect(_androidDoubleAttribute(vector, 'group', 'scaleX'), 0.72);
     expect(_androidDoubleAttribute(vector, 'group', 'scaleY'), 0.72);
     expect(_androidDoubleAttribute(vector, 'group', 'translateX'), 15.12);
-    expect(_androidDoubleAttribute(vector, 'group', 'translateY'), 7.2);
+    expect(_androidDoubleAttribute(vector, 'group', 'translateY'), 7.92);
   });
 
   test('TV adaptive launcher icon stays centered in the safe zone', () {
@@ -94,7 +94,7 @@ void main() {
     );
 
     // Conservative bounds of the current logo, including the curved caps.
-    const logoBounds = ui.Rect.fromLTRB(24, 28, 84, 102);
+    const logoBounds = ui.Rect.fromLTRB(29, 30, 79, 98);
     final transformedBounds = ui.Rect.fromLTRB(
       (logoBounds.left * scaleX + translateX) / viewportWidth * 108,
       (logoBounds.top * scaleY + translateY) / viewportHeight * 108,
