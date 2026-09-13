@@ -1,46 +1,140 @@
-# 澜序 Lansway · Android 界面原型
+<div>
 
-参考 Clash Party 信息结构的独立 Android 界面概念，不是官方客户端。
+[**简体中文**](README_zh_CN.md)
 
-使用 Node.js 22 或更高版本，运行 `node server.cjs`，打开 http://127.0.0.1:5173 。无构建步骤、无运行依赖。
+</div>
 
-品牌名称和图标由环境配置控制：将 `.env.example` 复制为 `.env`，按需修改以下字段。
+> Lansway is based on the GPL-3.0 FlClash project and keeps its complete multi-platform proxy feature set while providing independent branding and releases.
 
-```dotenv
-APP_NAME="澜序"
-APP_NAME_EN="Lansway"
-APP_ICON="/assets/lansway.svg"
-APP_THEME="gemini"
-APP_COLOR_MODE="dark"
+## 澜序 Lansway
+
+[![Downloads](https://img.shields.io/github/downloads/bft2249228496/clash-self/total?style=flat-square&logo=github)](https://github.com/bft2249228496/clash-self/releases/)[![Last Version](https://img.shields.io/github/release/bft2249228496/clash-self/all.svg?style=flat-square)](https://github.com/bft2249228496/clash-self/releases/)[![License](https://img.shields.io/github/license/bft2249228496/clash-self?style=flat-square)](LICENSE)
+
+[![Channel](https://img.shields.io/badge/Telegram-Channel-blue?style=flat-square&logo=telegram)](https://github.com/bft2249228496/clash-self)
+
+A multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free.
+
+on Desktop:
+<p style="text-align: center;">
+    <img alt="desktop" src="snapshots/desktop.gif">
+</p>
+
+on Mobile:
+<p style="text-align: center;">
+    <img alt="mobile" src="snapshots/mobile.gif">
+</p>
+
+## Features
+
+✈️ Multi-platform: Android, Windows, macOS and Linux
+
+💻 Adaptive multiple screen sizes, Multiple color themes available
+
+💡 Based on Material You Design, [Surfboard](https://github.com/getsurfboard/surfboard)-like UI
+
+☁️ Supports data sync via WebDAV
+
+✨ Support subscription link, Dark mode
+
+## Use
+
+### Linux
+
+⚠️ Make sure to install the following dependencies before using them
+
+   ```bash
+    sudo apt-get install libayatana-appindicator3-dev
+   ```
+
+### Android
+
+Support the following actions
+
+   ```bash
+    com.lansway.client.action.START
+    
+    com.lansway.client.action.STOP
+    
+    com.lansway.client.action.TOGGLE
+   ```
+
+## Download
+
+<a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="snapshots/get-it-on-fdroid.svg" width="200px"/></a> <a href="https://github.com/bft2249228496/clash-self/releases"><img alt="Get it on GitHub" src="snapshots/get-it-on-github.svg" width="200px"/></a>
+
+### Homebrew
+
+```bash
+brew tap chen08209/tap
+brew install --cask flclash
 ```
 
-`APP_NAME` 是中文显示名称，`APP_NAME_EN` 是英文名称，`APP_ICON` 是应用图标路径。将自定义 SVG、PNG、WebP 等图片放入 `assets/`，再填写对应的 `/assets/文件名.svg` 路径；默认图标为 `assets/lansway.svg`。
+## Build
 
-`APP_THEME` 控制默认主题，默认 `gemini`；`APP_COLOR_MODE` 控制默认明暗模式，支持 `light`、`dark`、`system`，默认 `dark`，无效值回退到 `dark`。
+1. Update submodules
+   ```bash
+   git submodule update --init --recursive
+   ```
 
-| `APP_THEME` | 显示名称 |
-| --- | --- |
-| `gemini` | Gemini · 星夜蓝紫 |
-| `slate` | Slate · 雾灰留白 |
-| `dracula` | Dracula · 午夜紫调 |
-| `rose` | 樱霞 |
-| `ember` | 日落 |
-| `ocean` | 海盐 |
+2. Install `Flutter` and `Golang` environment
 
-每套主题都有深浅两种配色，在「设置 → 主题与外观」中即时切换，并自动保存到当前浏览器。已保存的个人外观优先于环境默认；修改环境默认后，可在该页点击「恢复默认」重新采用环境配置。未知主题回退为 Gemini。
+3. Build Application
 
-配置优先级为：同名系统环境变量 → 项目 `.env` → 默认值。空白配置使用默认值。修改 `.env` 后刷新页面即可生效；修改系统环境变量后，需要重启 `node server.cjs`。`.env` 已被 Git 忽略，`.env.example` 保留为可提交的配置模板。
+    - android
 
-页面通过 `/brand-config.js` 读取服务器生成的品牌配置，只公开这五个字段；`.env`、服务器源码和项目文档不作为静态文件对外提供。请通过上述 HTTP 地址预览，直接双击 `index.html` 或使用其他静态服务器无法加载这套环境配置。
+        1. Install `Android SDK`, `Android NDK`
 
-可通过系统环境变量 `PORT` 更换预览端口，例如在 PowerShell 中先运行 `$env:PORT = '5174'`，再运行 `node server.cjs`。服务仅监听本机 `127.0.0.1`。
+        2. Set `ANDROID_NDK` environment variable
 
-包含概览、代理节点、订阅管理、工具箱、偏好设置五个主入口。工具箱包含 Sub-Store、WebDAV、规则、覆写、外部资源、连接、日志与内核设置，并有 DNS、TUN、端口控制及 Android 集成等子页面。
+        3. Run build script
 
-支持模拟连接切换、节点选择、订阅添加、WebDAV 配置 / 备份记录 / 选择范围恢复、Sub-Store 输出加入订阅、配置和覆写文本草稿、规则 / 连接 / 日志筛选。所有网络数据均为演示，没有接入 VPN 服务、代理内核、Sub-Store 或 WebDAV；不存储凭据、不执行脚本。页面刷新后恢复网络示例状态；品牌读取环境配置，主题偏好保留。
+           ```bash
+           dart setup.dart android
+           ```
 
-完整范围、平台适配和待细化项见 [FEATURE-SCOPE.md](FEATURE-SCOPE.md)。该清单用于后续逐项对齐，不代表当前已实现与 Clash Party 全量功能一致。
+    - windows
 
-桌面展示设计预览，手机浏览器显示全屏移动布局。
+        1. Requires a Windows client
 
-应用图标默认使用「序列」。在「设置 → 主题与外观 → 应用图标」可选择六款内置图标，或上传不超过 2 MB 的 PNG、JPG、WebP、SVG 图片。上传图片会等比缩放到 256 × 256 的透明画布，转为 PNG，仅保存在当前浏览器，不上传服务器。个人选择优先于 APP_ICON；「恢复默认图标」重新采用 APP_ICON 配置。此设置改变页面标识和网站图标，未接入 Android 系统桌面图标。
+        2. Install `GCC`, `Inno Setup`
+
+        3. Run build script
+
+           ```bash
+           dart setup.dart windows
+           ```
+
+    - linux
+
+        1. Requires a Linux client
+
+        2. Dependencies are auto-installed by setup script, or manually:
+           ```bash
+           sudo apt-get install -y libayatana-appindicator3-dev
+           ```
+
+        3. Run build script
+
+           ```bash
+           dart setup.dart linux
+           ```
+
+    - macOS
+
+        1. Requires a macOS client
+
+        2. Run build script
+
+           ```bash
+           dart setup.dart macos
+           ```
+
+## Star
+
+The easiest way to support developers is to click on the star (⭐) at the top of the page.
+
+<p style="text-align: center;">
+    <a href="https://api.star-history.com/svg?repos=bft2249228496/clash-self&Date">
+        <img alt="start" width=50% src="https://api.star-history.com/svg?repos=bft2249228496/clash-self&Date"/>
+    </a>
+</p>
