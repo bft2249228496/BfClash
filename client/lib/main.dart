@@ -118,7 +118,7 @@ class _ClientShellState extends State<ClientShell> {
         _showUpdateDialog(release);
       } else if (manual) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text('当前已是最新版本 (${UpdateManager.currentVersion})')),
+          SnackBar(content: Text('当前已是最新版本 (${UpdateManager.currentVersion})')),
         );
       }
     } catch (_) {

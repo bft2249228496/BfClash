@@ -29,16 +29,16 @@ class _DashboardViewState extends State<DashboardView> {
   int _secondsElapsed = 0; // 模拟或真实持续计时
   String _intranetIp = '192.168.2.118';
   String _outboundIp = '--';
-  String _outboundCountry = '🌐';
+  final String _outboundCountry = '🌐';
   bool _isDetectingIp = false;
 
   // 速度波形与流量
   final List<double> _speedHistory = [2, 5, 8, 45, 12, 8, 38, 15, 3, 2, 1, 1, 2];
   double _upSpeed = 0.0;
   double _downSpeed = 0.0;
-  double _upTrafficMb = 0.0;
-  double _downTrafficGb = 0.0;
-  double _memoryMb = 0.0;
+  final double _upTrafficMb = 0.0;
+  final double _downTrafficGb = 0.0;
+  final double _memoryMb = 0.0;
 
   @override
   void initState() {
@@ -397,7 +397,7 @@ class _DashboardViewState extends State<DashboardView> {
               Row(
                 children: [
                   Text(_outboundCountry, style: const TextStyle(fontSize: 16)),
-                  const SizedBox(width: 6),
+                  const const SizedBox(width: 6),
                   const Text(
                     '网络检测',
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
@@ -482,7 +482,7 @@ class _DashboardViewState extends State<DashboardView> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const const SizedBox(width: 6),
                         const Text('上传', style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
@@ -497,7 +497,7 @@ class _DashboardViewState extends State<DashboardView> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const const SizedBox(width: 6),
                         const Text('下载', style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
@@ -540,7 +540,7 @@ class _DashboardViewState extends State<DashboardView> {
           Row(
             children: [
               Icon(Icons.vpn_lock_outlined, size: 18, color: primaryColor),
-              const SizedBox(width: 6),
+              const const SizedBox(width: 6),
               const Text('VPN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
@@ -576,9 +576,9 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           Row(
             children: [
-              Icon(Icons.memory_outlined, size: 18, color: Colors.orangeAccent),
-              SizedBox(width: 6),
-              Text('内存信息', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Icon(Icons.memory_outlined, size: 18, color: Colors.orangeAccent),
+              const SizedBox(width: 6),
+              const Text('内存信息', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
           const SizedBox(height: 16),

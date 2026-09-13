@@ -8,6 +8,7 @@ class SubStoreNode {
   final String server;
   final int port;
   final Map<String, dynamic> raw;
+  final int delay;
 
   const SubStoreNode({
     required this.name,
@@ -15,6 +16,7 @@ class SubStoreNode {
     required this.server,
     required this.port,
     this.raw = const {},
+    this.delay = 0,
   });
 
   Map<String, dynamic> toMihomoYamlMap() {
