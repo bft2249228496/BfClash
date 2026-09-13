@@ -356,9 +356,9 @@ class _DashboardViewState extends State<DashboardView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.devices, size: 18, color: Colors.blueAccent),
+              Icon(Icons.devices, size: 18, color: Colors.blueAccent),
               const SizedBox(width: 8),
               const Text(
                 '内网 IP',
@@ -397,7 +397,7 @@ class _DashboardViewState extends State<DashboardView> {
               Row(
                 children: [
                   Text(_outboundCountry, style: const TextStyle(fontSize: 16)),
-                  const const SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   const Text(
                     '网络检测',
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
@@ -482,7 +482,7 @@ class _DashboardViewState extends State<DashboardView> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const const SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         const Text('上传', style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
@@ -497,7 +497,7 @@ class _DashboardViewState extends State<DashboardView> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const const SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         const Text('下载', style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
@@ -540,7 +540,7 @@ class _DashboardViewState extends State<DashboardView> {
           Row(
             children: [
               Icon(Icons.vpn_lock_outlined, size: 18, color: primaryColor),
-              const const SizedBox(width: 6),
+              const SizedBox(width: 6),
               const Text('VPN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
           ),
@@ -574,9 +574,9 @@ class _DashboardViewState extends State<DashboardView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.memory_outlined, size: 18, color: Colors.orangeAccent),
+              Icon(Icons.memory_outlined, size: 18, color: Colors.orangeAccent),
               const SizedBox(width: 6),
               const Text('内存信息', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ],
