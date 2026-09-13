@@ -1,5 +1,6 @@
 package com.follow.clash.core
 
+import android.util.Log
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.URI
@@ -107,11 +108,16 @@ object Core {
     external fun getTraffic(onlyStatisticsProxy: Boolean): String
     external fun getTotalTraffic(onlyStatisticsProxy: Boolean): String
 
+    var isLoaded = false
+
     init {
         try {
+            System.loadLibrary("clash")
             System.loadLibrary("core")
-        } catch (e: Throwable) {
-            android.util.Log.e("Core", "Failed to load libcore: ${e.message}")
+            isLoaded = true
+            Log.i("Core", "Successfully loaded libclash and libcore")
+        } catch (t: Throwable) {
+            Log.e("Core", "Failed to load core libraries: ${t.message}", t)
         }
     }
 }

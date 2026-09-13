@@ -269,16 +269,31 @@ class _ClientShellState extends State<ClientShell> {
     if (_vpnStatus == VpnStatus.connected) {
       await VpnServiceController.stopVpn();
     } else {
-      String config = 'port: 7890\nsocks-port: 7891\nmode: rule\n';
+      String config = '';
       if (_subscriptions.isNotEmpty) {
-        final rawFile = File('\${_storageDir.path}/\${_subscriptions.first.id}.yaml');
-        if (rawFile.existsSync()) {
-          final content = rawFile.readAsStringSync();
-          if (content.trim().isNotEmpty) {
-            config = content;
+        // 优先读取 sub_{id}.yaml，兼容 {id}.yaml
+        for (var s in _subscriptions) {
+          final f1 = File('\${_storageDir.path}/sub_\${s.id}.yaml');
+          final f2 = File('\${_storageDir.path}/\${s.id}.yaml');
+          if (f1.existsSync()) {
+            final c = f1.readAsStringSync();
+            if (c.trim().isNotEmpty) { config = c; break; }
+          } else if (f2.existsSync()) {
+            final c = f2.readAsStringSync();
+            if (c.trim().isNotEmpty) { config = c; break; }
           }
         }
       }
+
+      if (config.trim().isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('请先在【配置】页面添加并同步有效订阅配置')),
+          );
+        }
+        return;
+      }
+
       try {
         await VpnServiceController.startVpn(config);
       } catch (e) {

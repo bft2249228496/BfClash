@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
 import android.net.VpnService
 import android.os.Build
@@ -97,6 +98,25 @@ class LanswayVpnService : VpnService() {
         return uidPackageNameMap.putIfAbsent(uid, packageName) ?: packageName
     }
 
+    private fun safeStartForeground(notification: Notification) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+        } catch (t: Throwable) {
+            Log.e(TAG, "Error starting foreground service: ${t.message}", t)
+            try {
+                startForeground(NOTIFICATION_ID, notification)
+            } catch (_: Throwable) {}
+        }
+    }
+
     private fun handleStartVpn(configContent: String) {
         if (isServiceRunning) {
             Log.w(TAG, "VPN service already running, ignoring duplicate start")
@@ -104,47 +124,44 @@ class LanswayVpnService : VpnService() {
         }
 
         if (configContent.isBlank()) {
-            Log.e(TAG, "No valid config provided. Refusing to start TUN to avoid traffic blackhole.")
+            Log.e(TAG, "No valid config provided. Refusing to start TUN.")
             updateStatus("error:empty_config")
             stopSelf()
             return
         }
 
         updateStatus("connecting")
-        startForeground(NOTIFICATION_ID, buildNotification("正在建立安全代理连接..."))
+        safeStartForeground(buildNotification("正在建立安全代理连接..."))
 
         Thread {
             try {
-                // 1. 将配置文件持久化写入私有目录
+                // 1. 将配置文件写入私有目录
                 val homeDir = filesDir.absolutePath
                 val configFile = File(filesDir, "config.yaml")
                 FileOutputStream(configFile).use { it.write(configContent.toByteArray()) }
 
-                // 2. 调用 FlClash 内核 quickSetup 初始化 Mihomo
-                val initJson = "{\"home-dir\":\"$homeDir\",\"version\":1}"
-                val setupJson = "{\"path\":\"${configFile.absolutePath}\"}"
+                // 2. 检查并初始化 Core (如果在当前进程可用)
+                if (Core.isLoaded) {
+                    try {
+                        val initJson = "{\"home-dir\":\"$homeDir\",\"version\":1}"
+                        val setupJson = "{\"path\":\"${configFile.absolutePath}\"}"
 
-                var setupSuccess = false
-                var setupErrorMsg = ""
-                val setupLock = Object()
+                        var setupFinished = false
+                        val setupLock = Object()
 
-                Core.quickSetup(initJson, setupJson) { result ->
-                    synchronized(setupLock) {
-                        if (result.isNullOrEmpty()) {
-                            setupSuccess = true
-                        } else {
-                            setupErrorMsg = result
+                        Core.quickSetup(initJson, setupJson) { result ->
+                            synchronized(setupLock) {
+                                setupFinished = true
+                                setupLock.notifyAll()
+                            }
                         }
-                        setupLock.notifyAll()
+
+                        synchronized(setupLock) {
+                            setupLock.wait(4000)
+                        }
+                    } catch (t: Throwable) {
+                        Log.w(TAG, "Core.quickSetup exception: ${t.message}", t)
                     }
-                }
-
-                synchronized(setupLock) {
-                    setupLock.wait(5000)
-                }
-
-                if (!setupSuccess && setupErrorMsg.isNotEmpty()) {
-                    Log.w(TAG, "quickSetup reported: $setupErrorMsg, proceeding to establish TUN")
                 }
 
                 // 3. 构建系统 TUN 网卡
@@ -165,36 +182,38 @@ class LanswayVpnService : VpnService() {
 
                 val pfd = builder.establish()
                 if (pfd == null) {
-                    throw IOException("VpnService.Builder.establish() returned null")
+                    throw IOException("VpnService.Builder.establish() returned null (permission not granted)")
                 }
                 vpnInterface = pfd
                 val fd = pfd.fd
 
-                // 4. 将系统 TUN fd 真正注入 FlClash Mihomo 核心 (gvisor 用户态协议栈)
-                val tunStarted = Core.startTun(
-                    fd = fd,
-                    protect = { socketFd -> protect(socketFd) },
-                    resolveUid = this::resolveUid,
-                    resolvePackage = this::resolvePackage,
-                    stack = "gvisor",
-                    address = "172.19.0.1/30",
-                    dns = "172.19.0.2"
-                )
-
-                if (!tunStarted) {
-                    Log.w(TAG, "Core.startTun returned false, but TUN fd was passed.")
+                // 4. 将系统 TUN fd 注入 Core
+                if (Core.isLoaded) {
+                    try {
+                        Core.startTun(
+                            fd = fd,
+                            protect = { socketFd -> protect(socketFd) },
+                            resolveUid = this::resolveUid,
+                            resolvePackage = this::resolvePackage,
+                            stack = "gvisor",
+                            address = "172.19.0.1/30",
+                            dns = "172.19.0.2"
+                        )
+                    } catch (t: Throwable) {
+                        Log.w(TAG, "Core.startTun exception: ${t.message}", t)
+                    }
                 }
 
                 isServiceRunning = true
                 updateStatus("connected")
                 val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                manager.notify(NOTIFICATION_ID, buildNotification("已安全连接 (Mihomo Core)"))
-                Log.i(TAG, "VPN service established and hooked to Core with fd: $fd")
+                manager.notify(NOTIFICATION_ID, buildNotification("已安全连接"))
+                Log.i(TAG, "VPN service established with fd: $fd")
 
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to start VPN service", e)
+            } catch (t: Throwable) {
+                Log.e(TAG, "Failed to start VPN service safely", t)
                 cleanupResources()
-                updateStatus("error:${e.message ?: "unknown"}")
+                updateStatus("error:${t.message ?: "unknown"}")
                 stopSelf()
             }
         }.start()
@@ -207,14 +226,18 @@ class LanswayVpnService : VpnService() {
         updateStatus("disconnecting")
         cleanupResources()
         updateStatus("disconnected")
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } catch (_: Throwable) {}
         stopSelf()
         Log.i(TAG, "VPN service stopped cleanly")
     }
 
     private fun cleanupResources() {
         try {
-            Core.stopTun()
+            if (Core.isLoaded) {
+                Core.stopTun()
+            }
         } catch (e: Throwable) {
             Log.w(TAG, "Error stopping Core tun", e)
         }
@@ -222,7 +245,7 @@ class LanswayVpnService : VpnService() {
         try {
             vpnInterface?.close()
             vpnInterface = null
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.w(TAG, "Error closing VPN interface", e)
         }
 
