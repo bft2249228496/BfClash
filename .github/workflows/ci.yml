@@ -110,12 +110,18 @@ jobs:
           name: lansway-debug-apk
           path: release-artifacts
 
+      - name: Rename Release Asset with Version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          mv release-artifacts/app-debug.apk "release-artifacts/lansway-${VERSION}-android.apk"
+          ls -la release-artifacts/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref_name }}
           files: |
-            release-artifacts/app-debug.apk
+            release-artifacts/lansway-*.apk
           draft: false
           prerelease: false
           generate_release_notes: true

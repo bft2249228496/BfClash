@@ -47,7 +47,7 @@ class ReleaseInfo {
 }
 
 class UpdateManager {
-  static const String currentVersion = 'v0.2.3';
+  static const String currentVersion = 'v0.2.4';
   static const String repo = 'bft2249228496/clash-self';
   static const MethodChannel _installChannel = MethodChannel(
     'com.lansway.client/app_installer',
