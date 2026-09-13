@@ -180,6 +180,10 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 result.success(openAppSettings())
             }
 
+            "installApk" -> {
+                result.success(installApk(call.argument<String>("path")))
+            }
+
             "didCrashOnPreviousExecution" -> reply(result) {
                 GlobalState.didCrashOnPreviousExecution()
             }
@@ -260,6 +264,43 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             activity.startActivity(intent)
             true
         } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun installApk(path: String?): Boolean {
+        val activity = activity ?: return false
+        if (path.isNullOrBlank()) return false
+        val source = java.io.File(path)
+        if (!source.isFile) return false
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                !activity.packageManager.canRequestPackageInstalls()
+            ) {
+                activity.startActivity(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = "package:${activity.packageName}".toUri()
+                    },
+                )
+            }
+            val target = java.io.File(activity.cacheDir, "lansway_update.apk")
+            if (source.canonicalPath != target.canonicalPath) {
+                source.copyTo(target, overwrite = true)
+            }
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                activity,
+                "${activity.packageName}.fileprovider",
+                target,
+            )
+            activity.startActivity(
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                },
+            )
+            true
+        } catch (error: Exception) {
+            GlobalState.log("Failed to launch APK installer: $error")
             false
         }
     }

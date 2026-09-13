@@ -135,11 +135,15 @@ class CommonAction extends _$CommonAction {
         cancelText: isUser ? null : currentAppLocalizations.noLongerRemind,
       );
       if (res == true) {
-        unawaited(
-          launchUrl(
-            Uri.parse('https://github.com/$repository/releases/latest'),
-          ),
-        );
+        if (system.isAndroid) {
+          unawaited(_installAndroidUpdate(data));
+        } else {
+          unawaited(
+            launchUrl(
+              Uri.parse('https://github.com/$repository/releases/latest'),
+            ),
+          );
+        }
       } else if (!isUser && res == false) {
         ref
             .read(appSettingProvider.notifier)
@@ -152,6 +156,74 @@ class CommonAction extends _$CommonAction {
           message: TextSpan(text: currentAppLocalizations.checkUpdateError),
         ),
       );
+    }
+  }
+
+  Future<void> _installAndroidUpdate(Map<String, dynamic> release) async {
+    final url = await androidUpdateDownloadUrl(release);
+    if (url == null) {
+      await launchUrl(
+        Uri.parse('https://github.com/$repository/releases/latest'),
+      );
+      return;
+    }
+    final context = globalState.navigatorKey.currentContext!;
+    if (!context.mounted) return;
+    final progress = ValueNotifier<double?>(null);
+    final dialogFuture = showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: Text(currentAppLocalizations.discoverNewVersion),
+          content: ValueListenableBuilder<double?>(
+            valueListenable: progress,
+            builder: (_, value, _) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(value: value),
+                const SizedBox(height: 12),
+                Text(
+                  value == null
+                      ? currentAppLocalizations.download
+                      : '${(value * 100).round()}%',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    try {
+      final file = await downloadAndroidUpdate(
+        request.dio,
+        url,
+        onProgress: (received, total) {
+          progress.value = total > 0 ? received / total : null;
+        },
+      );
+      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+      await dialogFuture;
+      final installed = await app?.installApk(file.path) ?? false;
+      if (!installed) {
+        await launchUrl(
+          Uri.parse('https://github.com/$repository/releases/latest'),
+        );
+      }
+    } catch (error) {
+      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+      await dialogFuture;
+      commonPrint.log(
+        'Android update failed: ${compactError(error)}',
+        logLevel: LogLevel.warning,
+      );
+      dialogs.showNotifier(
+        userFacingErrorMessage(error, currentAppLocalizations),
+        level: MessageLevel.error,
+      );
+    } finally {
+      progress.dispose();
     }
   }
 }
