@@ -68,8 +68,12 @@ class MainActivity : FlutterActivity() {
                         pendingResult = result
                         startActivityForResult(prepareIntent, REQUEST_CODE_VPN_PREPARE)
                     } else {
-                        startVpnServiceInternal(config)
-                        result.success(true)
+                        val ok = startVpnServiceInternal(config)
+                        if (ok) {
+                            result.success(true)
+                        } else {
+                            result.error("START_FAILED", "启动底层 VPN 失败，请检查系统权限", null)
+                        }
                     }
                 }
                 "stopVpn" -> {
@@ -138,12 +142,22 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun startVpnServiceInternal(config: String) {
-        val startIntent = Intent(this, LanswayVpnService::class.java).apply {
-            action = LanswayVpnService.ACTION_START
-            putExtra(LanswayVpnService.EXTRA_CONFIG_CONTENT, config)
+    private fun startVpnServiceInternal(config: String): Boolean {
+        return try {
+            val startIntent = Intent(this, LanswayVpnService::class.java).apply {
+                action = LanswayVpnService.ACTION_START
+                putExtra(LanswayVpnService.EXTRA_CONFIG_CONTENT, config)
+            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                androidx.core.content.ContextCompat.startForegroundService(this, startIntent)
+            } else {
+                startService(startIntent)
+            }
+            true
+        } catch (t: Throwable) {
+            android.util.Log.e("MainActivity", "Failed to start VPN service: ${t.message}", t)
+            false
         }
-        startService(startIntent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

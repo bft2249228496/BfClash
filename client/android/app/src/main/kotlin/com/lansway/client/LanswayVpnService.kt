@@ -1,5 +1,7 @@
 package com.lansway.client
 
+import com.lansway.client.R
+
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -306,9 +308,9 @@ class LanswayVpnService : VpnService() {
         return builder
             .setContentTitle("澜序 · Lansway")
             .setContentText(contentText)
-            .setSmallIcon(android.R.drawable.ic_lock_lock)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "断开连接", stopPendingIntent)
+            
             .setOngoing(true)
             .build()
     }
