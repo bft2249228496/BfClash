@@ -1113,9 +1113,14 @@ class _ClientShellState extends State<ClientShell> {
         Center(
           child: Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Text(
-              _formatStatus(_vpnStatus),
-              style: Theme.of(context).textTheme.bodySmall,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 180),
+              child: Text(
+                _formatStatus(_vpnStatus),
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),
