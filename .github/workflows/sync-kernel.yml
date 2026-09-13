@@ -1,0 +1,48 @@
+name: Sync Upstream Kernel
+
+on:
+  schedule:
+    # 每天凌晨 04:00 (UTC 20:00) 自动检测上游内核更新
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-kernel
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Submodule
+        id: update
+        run: |
+          git submodule update --remote --merge core/Clash.Meta
+          if git diff --quiet core/Clash.Meta; then
+            echo "has_update=false" >> $GITHUB_OUTPUT
+            echo "Kernel is already up to date."
+          else
+            echo "has_update=true" >> $GITHUB_OUTPUT
+            SUBMODULE_COMMIT=$(git -C core/Clash.Meta rev-parse --short HEAD)
+            echo "submodule_commit=$SUBMODULE_COMMIT" >> $GITHUB_OUTPUT
+            echo "New kernel commit detected: $SUBMODULE_COMMIT"
+          fi
+
+      - name: Commit and Push Kernel Update
+        if: steps.update.outputs.has_update == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add core/Clash.Meta
+          git commit -m "chore(core): sync upstream Clash.Meta kernel (${{ steps.update.outputs.submodule_commit }})"
+          git push origin main

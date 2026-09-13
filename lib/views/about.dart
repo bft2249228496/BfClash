@@ -63,6 +63,7 @@ class AboutView extends ConsumerWidget {
         ),
         ListItem(
           title: Text(appLocalizations.core),
+          subtitle: const Text('Mihomo (Clash.Meta) v0.6.0 (70f0570)'),
           onTap: () {
             dialogs.openUrl(
               'https://github.com/chen08209/Clash.Meta/tree/FlClash',
