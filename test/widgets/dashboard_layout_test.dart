@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../helpers/test_app.dart';
 
 void main() {
-  testWidgets('dashboard expands from 4 to 8 columns at 480 logical pixels', (
+  testWidgets('dashboard uses 12 columns from 480 logical pixels', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(511, 1000);
@@ -38,17 +38,17 @@ void main() {
 
     final grid = find.byType(Grid);
     expect(tester.getSize(grid).width, 479);
-    expect(tester.widget<Grid>(grid).crossAxisCount, 4);
+    expect(tester.widget<Grid>(grid).crossAxisCount, 8);
 
     tester.view.physicalSize = const Size(512, 1000);
     await tester.pump();
 
     expect(tester.getSize(grid).width, 480);
-    expect(tester.widget<Grid>(grid).crossAxisCount, 8);
+    expect(tester.widget<Grid>(grid).crossAxisCount, 12);
     expect(tester.takeException(), null);
   });
 
-  testWidgets('dashboard limits a wide grid to 12 roomy centered columns', (
+  testWidgets('dashboard limits a wide grid to 16 centered columns', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1600, 1000);
@@ -75,9 +75,9 @@ void main() {
     await tester.pump();
 
     final grid = find.byType(Grid);
-    expect(tester.widget<Grid>(grid).crossAxisCount, 12);
-    expect(tester.getSize(grid).width, 960);
-    expect(tester.getTopLeft(grid).dx, 320);
+    expect(tester.widget<Grid>(grid).crossAxisCount, 16);
+    expect(tester.getSize(grid).width, 1120);
+    expect(tester.getTopLeft(grid).dx, 240);
     expect(tester.takeException(), null);
   });
 }
