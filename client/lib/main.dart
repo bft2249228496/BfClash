@@ -273,8 +273,8 @@ class _ClientShellState extends State<ClientShell> {
       if (_subscriptions.isNotEmpty) {
         // 优先读取 sub_{id}.yaml，兼容 {id}.yaml
         for (var s in _subscriptions) {
-          final f1 = File('\${_storageDir.path}/sub_\${s.id}.yaml');
-          final f2 = File('\${_storageDir.path}/\${s.id}.yaml');
+          final f1 = File('${_storageDir.path}/sub_${s.id}.yaml');
+          final f2 = File('${_storageDir.path}/${s.id}.yaml');
           if (f1.existsSync()) {
             final c = f1.readAsStringSync();
             if (c.trim().isNotEmpty) { config = c; break; }
