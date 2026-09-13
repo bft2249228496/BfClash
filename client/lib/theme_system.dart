@@ -215,8 +215,15 @@ class AppThemeSystem {
   /// 本地持久化保存主题配置
   static Future<void> savePreferences(String themeId, ThemeMode mode) async {
     try {
-      final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? Directory.systemTemp.path;
-    final file = File('$home/.lansway_theme_pref.json');
+      Directory baseDir = Directory.systemTemp;
+    if (Platform.isAndroid) {
+      try {
+        final filesDir = Directory('${Directory.systemTemp.parent.path}/files');
+        if (!filesDir.existsSync()) filesDir.createSync(recursive: true);
+        baseDir = filesDir;
+      } catch (_) {}
+    }
+    final file = File('${baseDir.path}/lansway_theme_pref.json');
       final data = {
         'themeId': themeId,
         'mode': mode.name,
@@ -228,8 +235,15 @@ class AppThemeSystem {
   /// 读取本地保存的主题配置
   static Future<Map<String, dynamic>?> loadPreferences() async {
     try {
-      final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? Directory.systemTemp.path;
-    final file = File('$home/.lansway_theme_pref.json');
+      Directory baseDir = Directory.systemTemp;
+    if (Platform.isAndroid) {
+      try {
+        final filesDir = Directory('${Directory.systemTemp.parent.path}/files');
+        if (!filesDir.existsSync()) filesDir.createSync(recursive: true);
+        baseDir = filesDir;
+      } catch (_) {}
+    }
+    final file = File('${baseDir.path}/lansway_theme_pref.json');
       if (await file.exists()) {
         final content = await file.readAsString();
         return json.decode(content) as Map<String, dynamic>;

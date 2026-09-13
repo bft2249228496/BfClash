@@ -322,12 +322,8 @@ class _ClientShellState extends State<ClientShell> {
       }
     });
 
-    // 1. 先使用稳定的默认持久化路径同步初始化
-    final defaultHome = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '.';
-    _storageDir = Directory('$defaultHome/.lansway_data');
-    if (!_storageDir.existsSync()) {
-      _storageDir.createSync(recursive: true);
-    }
+    // 1. 安全初始化持久化目录：在 Android 上解析真实的 files 目录，避免在根目录创建失败 (errno = 30 Read-only file system)
+    _storageDir = _resolveInitialStorageDir();
     _subManager = SubscriptionManager(storageDir: _storageDir);
     _subStore = SubStoreEngine(workDir: _storageDir);
 
@@ -340,7 +336,35 @@ class _ClientShellState extends State<ClientShell> {
     }
   }
 
-    Future<void> _initPersistentStorageAndLoad() async {
+      static Directory _resolveInitialStorageDir() {
+    if (Platform.isAndroid) {
+      try {
+        final cacheDir = Directory.systemTemp;
+        final appDir = cacheDir.parent;
+        final filesDir = Directory('${appDir.path}/files');
+        if (!filesDir.existsSync()) {
+          filesDir.createSync(recursive: true);
+        }
+        return filesDir;
+      } catch (_) {
+        return Directory.systemTemp;
+      }
+    }
+    final home = Platform.environment['HOME'] ??
+        Platform.environment['USERPROFILE'] ??
+        Directory.systemTemp.path;
+    final dir = Directory('$home/.lansway_data');
+    if (!dir.existsSync()) {
+      try {
+        dir.createSync(recursive: true);
+      } catch (_) {
+        return Directory.systemTemp;
+      }
+    }
+    return dir;
+  }
+
+  Future<void> _initPersistentStorageAndLoad() async {
     try {
       final appStoragePath = await VpnServiceController.getStorageDirectory();
       if (appStoragePath != null && appStoragePath.isNotEmpty) {
