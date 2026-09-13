@@ -89,7 +89,9 @@ void main() {
     testWidgets('shows and applies the restored Ocean preset', (tester) async {
       await pumpThemeView(tester);
 
-      expect(find.text('Lansway Themes'), findsOneWidget);
+      expect(find.text('Lansway Themes'), findsNothing);
+      expect(find.text('Theme color'), findsOneWidget);
+      expect(find.text('Custom'), findsOneWidget);
       final ocean = find.text('Ocean');
       await tester.ensureVisible(ocean);
       await tester.tap(ocean);

@@ -163,7 +163,10 @@ class _LanswayPresetItem extends ConsumerWidget {
     final brightness = Theme.of(context).brightness;
     return SliverToBoxAdapter(
       child: ItemCard(
-        info: const Info(label: 'Lansway Themes', iconData: Icons.auto_awesome),
+        info: Info(
+          label: context.appLocalizations.themeColor,
+          iconData: Icons.auto_awesome,
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: LayoutBuilder(
@@ -392,7 +395,12 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
       ),
     );
     final primaryColor = themeColors.primaryColor;
-    final primaryColors = [null, ...themeColors.primaryColors];
+    final primaryColors = [
+      null,
+      ...themeColors.primaryColors.where(
+        (color) => lanswayThemePresetFor(Color(color)) == null,
+      ),
+    ];
     final schemeVariant = themeColors.schemeVariant;
     final isEquals = themeColors.isDefault;
 
@@ -408,10 +416,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
           return true;
         },
         child: ItemCard(
-          info: Info(
-            label: appLocalizations.themeColor,
-            iconData: Icons.palette,
-          ),
+          info: Info(label: appLocalizations.custom, iconData: Icons.palette),
           actions: genActions([
             if (_removablePrimaryColor == null)
               FilledButton(
