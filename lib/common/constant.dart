@@ -9,7 +9,7 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:material_ui/material_ui.dart';
 
-const appName = 'Lansway';
+const appName = 'BfClash';
 const appHelperService = 'FlClashHelperService';
 const coreManifestName = 'manifest.json';
 const coreName = 'clash.meta';
@@ -109,7 +109,7 @@ const proxiesListStoreKey = PageStorageKey<String>('proxies_list');
 const toolsStoreKey = PageStorageKey<String>('tools');
 const profilesStoreKey = PageStorageKey<String>('profiles');
 
-const defaultPrimaryColor = lanswayGeminiColor;
+const defaultPrimaryColor = bfclashGeminiColor;
 
 double getWidgetHeight(num lines) {
   final space = 14.mAp;
@@ -124,12 +124,12 @@ const pausedMaxRequestsLength = maxRequestsLength * 2;
 const trafficSampleLength = 30;
 
 const defaultPrimaryColors = [
-  lanswayGeminiColor,
-  lanswaySlateColor,
-  lanswayDraculaColor,
-  lanswaySakuraColor,
-  lanswaySunsetColor,
-  lanswayOceanColor,
+  bfclashGeminiColor,
+  bfclashSlateColor,
+  bfclashDraculaColor,
+  bfclashSakuraColor,
+  bfclashSunsetColor,
+  bfclashOceanColor,
 ];
 
 const scriptTemplate = '''

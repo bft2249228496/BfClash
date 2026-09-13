@@ -48,13 +48,13 @@ ColorScheme genColorScheme(
       Brightness.light => dynamicColor.lightSeed,
       Brightness.dark => dynamicColor.darkSeed,
     };
-    return buildLanswayColorScheme(
+    return buildBfClashColorScheme(
       color: seed ?? dynamicColor.accentColor,
       brightness: brightness,
       variant: themeSetting.schemeVariant,
     );
   }
-  return buildLanswayColorScheme(
+  return buildBfClashColorScheme(
     color: color ?? Color(themeSetting.primaryColor!),
     brightness: brightness,
     variant: themeSetting.schemeVariant,

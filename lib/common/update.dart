@@ -62,7 +62,7 @@ Future<File> downloadAndroidUpdate(
   void Function(int received, int total)? onProgress,
 }) async {
   final directory = await getTemporaryDirectory();
-  final file = File('${directory.path}/lansway_update.apk');
+  final file = File('${directory.path}/bfclash_update.apk');
   if (await file.exists()) await file.delete();
   await dio.download(
     url,

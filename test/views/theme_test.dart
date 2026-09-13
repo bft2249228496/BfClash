@@ -85,11 +85,11 @@ void main() {
     });
   });
 
-  group('Lansway theme presets', () {
+  group('BfClash theme presets', () {
     testWidgets('shows and applies the restored Ocean preset', (tester) async {
       await pumpThemeView(tester);
 
-      expect(find.text('Lansway Themes'), findsNothing);
+      expect(find.text('BfClash Themes'), findsNothing);
       expect(find.text('Theme color'), findsOneWidget);
       expect(find.text('Custom'), findsOneWidget);
       final ocean = find.text('Ocean');
@@ -97,7 +97,7 @@ void main() {
       await tester.tap(ocean);
       await tester.pumpAndSettle();
 
-      expect(readTheme().primaryColor, lanswayOceanColor);
+      expect(readTheme().primaryColor, bfclashOceanColor);
       expect(readTheme().schemeVariant, DynamicSchemeVariant.content);
     });
   });

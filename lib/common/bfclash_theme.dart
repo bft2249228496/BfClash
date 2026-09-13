@@ -1,14 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 
-const lanswayGeminiColor = 0xFF818CF8;
-const lanswaySlateColor = 0xFF94A3B8;
-const lanswayDraculaColor = 0xFFC084FC;
-const lanswaySakuraColor = 0xFFFB7185;
-const lanswaySunsetColor = 0xFFFB923C;
-const lanswayOceanColor = 0xFF38BDF8;
+const bfclashGeminiColor = 0xFF818CF8;
+const bfclashSlateColor = 0xFF94A3B8;
+const bfclashDraculaColor = 0xFFC084FC;
+const bfclashSakuraColor = 0xFFFB7185;
+const bfclashSunsetColor = 0xFFFB923C;
+const bfclashOceanColor = 0xFF38BDF8;
 
-class LanswayThemePreset {
-  const LanswayThemePreset({
+class BfClashThemePreset {
+  const BfClashThemePreset({
     required this.id,
     required this.name,
     required this.subtitle,
@@ -47,12 +47,12 @@ class LanswayThemePreset {
       brightness == Brightness.dark ? borderDark : borderLight;
 }
 
-const lanswayThemePresets = <LanswayThemePreset>[
-  LanswayThemePreset(
+const bfclashThemePresets = <BfClashThemePreset>[
+  BfClashThemePreset(
     id: 'gemini',
     name: 'Gemini',
     subtitle: '星夜蓝紫',
-    selectionValue: lanswayGeminiColor,
+    selectionValue: bfclashGeminiColor,
     primaryDark: Color(0xFF818CF8),
     backgroundDark: Color(0xFF0B0F19),
     cardDark: Color(0xFF111827),
@@ -62,11 +62,11 @@ const lanswayThemePresets = <LanswayThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFE2E8F0),
   ),
-  LanswayThemePreset(
+  BfClashThemePreset(
     id: 'slate',
     name: 'Slate',
     subtitle: '极客石墨',
-    selectionValue: lanswaySlateColor,
+    selectionValue: bfclashSlateColor,
     primaryDark: Color(0xFFCBD5E1),
     backgroundDark: Color(0xFF0F172A),
     cardDark: Color(0xFF1E293B),
@@ -76,11 +76,11 @@ const lanswayThemePresets = <LanswayThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFE2E8F0),
   ),
-  LanswayThemePreset(
+  BfClashThemePreset(
     id: 'dracula',
     name: 'Dracula',
     subtitle: '霓虹暗紫',
-    selectionValue: lanswayDraculaColor,
+    selectionValue: bfclashDraculaColor,
     primaryDark: Color(0xFFC084FC),
     backgroundDark: Color(0xFF140D24),
     cardDark: Color(0xFF22173B),
@@ -90,11 +90,11 @@ const lanswayThemePresets = <LanswayThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFF3E8FF),
   ),
-  LanswayThemePreset(
+  BfClashThemePreset(
     id: 'sakura',
     name: 'Sakura',
     subtitle: '柔和樱霞',
-    selectionValue: lanswaySakuraColor,
+    selectionValue: bfclashSakuraColor,
     primaryDark: Color(0xFFFB7185),
     backgroundDark: Color(0xFF1F0C16),
     cardDark: Color(0xFF2F1322),
@@ -104,11 +104,11 @@ const lanswayThemePresets = <LanswayThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFFFE4E6),
   ),
-  LanswayThemePreset(
+  BfClashThemePreset(
     id: 'sunset',
     name: 'Sunset',
     subtitle: '落日暖橘',
-    selectionValue: lanswaySunsetColor,
+    selectionValue: bfclashSunsetColor,
     primaryDark: Color(0xFFFB923C),
     backgroundDark: Color(0xFF1C1209),
     cardDark: Color(0xFF2D1A0B),
@@ -118,11 +118,11 @@ const lanswayThemePresets = <LanswayThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFFFEDD5),
   ),
-  LanswayThemePreset(
+  BfClashThemePreset(
     id: 'ocean',
     name: 'Ocean',
     subtitle: '清透海盐',
-    selectionValue: lanswayOceanColor,
+    selectionValue: bfclashOceanColor,
     primaryDark: Color(0xFF38BDF8),
     backgroundDark: Color(0xFF061626),
     cardDark: Color(0xFF0C243C),
@@ -134,19 +134,19 @@ const lanswayThemePresets = <LanswayThemePreset>[
   ),
 ];
 
-LanswayThemePreset? lanswayThemePresetFor(Color color) {
-  for (final preset in lanswayThemePresets) {
+BfClashThemePreset? bfclashThemePresetFor(Color color) {
+  for (final preset in bfclashThemePresets) {
     if (preset.selectionValue == color.toARGB32()) return preset;
   }
   return null;
 }
 
-ColorScheme buildLanswayColorScheme({
+ColorScheme buildBfClashColorScheme({
   required Color color,
   required Brightness brightness,
   required DynamicSchemeVariant variant,
 }) {
-  final preset = lanswayThemePresetFor(color);
+  final preset = bfclashThemePresetFor(color);
   if (preset == null) {
     return ColorScheme.fromSeed(
       seedColor: color,

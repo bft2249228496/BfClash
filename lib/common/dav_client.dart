@@ -32,6 +32,8 @@ class DAVClient {
 
   String get root => '/$appName';
 
+  static const legacyRoot = '/Lansway';
+
   String get backupFile => '$root/$fileName';
 
   Future<bool> backup(String localFilePath) async {
@@ -42,7 +44,13 @@ class DAVClient {
 
   Future<bool> restore() async {
     final backupFilePath = await appPath.backupFilePath;
-    final bytes = await client.get(backupFile);
+    Uint8List bytes;
+    try {
+      bytes = await client.get(backupFile);
+    } on DAVException catch (error) {
+      if (error.statusCode != 404 || root == legacyRoot) rethrow;
+      bytes = await client.get('$legacyRoot/$fileName');
+    }
     await io.File(backupFilePath).safeWriteAsBytes(bytes);
     return true;
   }

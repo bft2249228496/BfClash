@@ -283,7 +283,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                     },
                 )
             }
-            val target = java.io.File(activity.cacheDir, "lansway_update.apk")
+            val target = java.io.File(activity.cacheDir, "bfclash_update.apk")
             if (source.canonicalPath != target.canonicalPath) {
                 source.copyTo(target, overwrite = true)
             }

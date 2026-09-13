@@ -1,4 +1,4 @@
-display_name: FlClash
+display_name: BfClash
 
 packager: chen08209
 packagerEmail: chen08209@gmail.com
@@ -34,14 +34,16 @@ supported_mime_type:
   - x-scheme-handler/clash
   - x-scheme-handler/clashmeta
   - x-scheme-handler/flclash
+  - x-scheme-handler/lansway
+  - x-scheme-handler/bfclash
 
 keywords:
-  - FlClash
+  - BfClash
   - Clash
   - ClashMeta
   - Proxy
 
-generic_name: FlClash
+generic_name: BfClash
 
 group: Applications/Internet
 

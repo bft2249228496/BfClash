@@ -20,7 +20,7 @@ export 'input_limits.dart';
 export 'iterable.dart';
 export 'javascript.dart';
 export 'keyboard.dart';
-export 'lansway_theme.dart';
+export 'bfclash_theme.dart';
 export 'l10n_labels.dart';
 export 'layout.dart';
 export 'link.dart';

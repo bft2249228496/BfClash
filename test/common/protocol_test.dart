@@ -20,35 +20,36 @@ void main() {
   group('LinuxProtocolRegistrationPlan', () {
     const plan = LinuxProtocolRegistrationPlan(
       schemes: protocolSchemes,
-      executable: '/home/me/Apps/FlClash.AppImage',
+      executable: '/home/me/Apps/BfClash.AppImage',
       applicationsDir: '/home/me/.local/share/applications',
     );
 
     test('writes a hidden desktop entry claiming every scheme', () {
       expect(
         plan.desktopPath,
-        '/home/me/.local/share/applications/flclash-url-handler.desktop',
+        '/home/me/.local/share/applications/bfclash-url-handler.desktop',
       );
       expect(
         plan.desktopEntry,
         '[Desktop Entry]\n'
         'Type=Application\n'
-        'Name=FlClash\n'
+        'Name=BfClash\n'
         'NoDisplay=true\n'
-        'Exec="/home/me/Apps/FlClash.AppImage" %u\n'
+        'Exec="/home/me/Apps/BfClash.AppImage" %u\n'
         'MimeType=x-scheme-handler/clash;x-scheme-handler/clashmeta;'
-        'x-scheme-handler/flclash;x-scheme-handler/lansway;\n',
+        'x-scheme-handler/flclash;x-scheme-handler/lansway;x-scheme-handler/bfclash;\n',
       );
     });
 
     test('makes the entry the default handler for every scheme', () {
       expect(plan.xdgMimeArguments, [
         'default',
-        'flclash-url-handler.desktop',
+        'bfclash-url-handler.desktop',
         'x-scheme-handler/clash',
         'x-scheme-handler/clashmeta',
         'x-scheme-handler/flclash',
         'x-scheme-handler/lansway',
+        'x-scheme-handler/bfclash',
       ]);
     });
 

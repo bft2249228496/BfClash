@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
 concurrency:
-  group: lansway-android
+  group: bfclash-android
   cancel-in-progress: true
 permissions:
   contents: read
@@ -34,8 +34,8 @@ jobs:
       - run: flutter analyze --no-fatal-infos
       - name: Test
         run: |
-          cp pubspec.yaml /tmp/lansway-pubspec.yaml
-          trap 'cp /tmp/lansway-pubspec.yaml pubspec.yaml' EXIT
+          cp pubspec.yaml /tmp/bfclash-pubspec.yaml
+          trap 'cp /tmp/bfclash-pubspec.yaml pubspec.yaml' EXIT
           yq -i '.hooks.user_defines.setup.build_assets = false | .hooks.user_defines.rust_api.build_assets = false' pubspec.yaml
           flutter test --reporter compact
       - name: Build
@@ -44,15 +44,15 @@ jobs:
           set +e
           mkdir -p android/app/keystore
           git show 8303c19:client/android/app/keystore/release.keystore > android/app/keystore/release.keystore
-          git show 8303c19:client/android/app/build.gradle.kts > /tmp/lansway-legacy-signing.gradle.kts
-          export LANSWAY_STORE_PASSWORD=$(grep -m1 storePassword /tmp/lansway-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
-          export LANSWAY_KEY_ALIAS=$(grep -m1 keyAlias /tmp/lansway-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
-          export LANSWAY_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/lansway-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          git show 8303c19:client/android/app/build.gradle.kts > /tmp/bfclash-legacy-signing.gradle.kts
+          export LANSWAY_STORE_PASSWORD=$(grep -m1 storePassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          export LANSWAY_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          export LANSWAY_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           test -n "$LANSWAY_STORE_PASSWORD" -a -n "$LANSWAY_KEY_ALIAS" -a -n "$LANSWAY_KEY_PASSWORD"
-          dart setup.dart android --env stable -v 2>&1 | tee /tmp/lansway-android-build.log
+          dart setup.dart android --env stable -v 2>&1 | tee /tmp/bfclash-android-build.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
-            diagnostic=$(grep -Ei "error:|exception:|failed|failure|what went wrong|could not|no such file|not found" /tmp/lansway-android-build.log | tail -n 12 | paste -sd " " - | sed "s/%/%25/g")
+            diagnostic=$(grep -Ei "error:|exception:|failed|failure|what went wrong|could not|no such file|not found" /tmp/bfclash-android-build.log | tail -n 12 | paste -sd " " - | sed "s/%/%25/g")
             echo "::error title=Android build diagnostic::${diagnostic:-Build failed without a matching diagnostic line}"
           fi
           exit "$status"
@@ -62,7 +62,7 @@ jobs:
           find dist -type f -name '*.apk' -exec cp {} release/ \;
           test -n "$(find release -maxdepth 1 -type f -name '*.apk' -print -quit)"
       - uses: actions/upload-artifact@v4
-        with: {name: lansway-android, path: 'release/*.apk'}
+        with: {name: bfclash-android, path: 'release/*.apk'}
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
@@ -70,6 +70,6 @@ jobs:
     permissions: {contents: write}
     steps:
       - uses: actions/download-artifact@v4
-        with: {name: lansway-android, path: release}
+        with: {name: bfclash-android, path: release}
       - uses: softprops/action-gh-release@v2
         with: {files: 'release/*.apk', generate_release_notes: true}

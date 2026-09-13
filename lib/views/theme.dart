@@ -40,7 +40,7 @@ class ThemeView extends StatelessWidget {
         slivers: [
           _ThemeModeItem(),
           SliverToBoxAdapter(child: SizedBox(height: 16)),
-          _LanswayPresetItem(),
+          _BfClashPresetItem(),
           SliverToBoxAdapter(child: SizedBox(height: 16)),
           _PrimaryColorItem(),
           SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -152,8 +152,8 @@ class _ThemeModeItem extends ConsumerWidget {
   }
 }
 
-class _LanswayPresetItem extends ConsumerWidget {
-  const _LanswayPresetItem();
+class _BfClashPresetItem extends ConsumerWidget {
+  const _BfClashPresetItem();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -178,7 +178,7 @@ class _LanswayPresetItem extends ConsumerWidget {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  for (final preset in lanswayThemePresets)
+                  for (final preset in bfclashThemePresets)
                     SizedBox(
                       width: tileWidth,
                       height: 84,
@@ -398,7 +398,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final primaryColors = [
       null,
       ...themeColors.primaryColors.where(
-        (color) => lanswayThemePresetFor(Color(color)) == null,
+        (color) => bfclashThemePresetFor(Color(color)) == null,
       ),
     ];
     final schemeVariant = themeColors.schemeVariant;

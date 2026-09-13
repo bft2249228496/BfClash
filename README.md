@@ -4,9 +4,9 @@
 
 </div>
 
-> Lansway is based on the GPL-3.0 FlClash project and keeps its complete multi-platform proxy feature set while providing independent branding and releases.
+> BfClash is based on the GPL-3.0 FlClash project and keeps its complete multi-platform proxy feature set while providing independent branding and releases.
 
-## 澜序 Lansway
+## BfClash
 
 [![Downloads](https://img.shields.io/github/downloads/bft2249228496/clash-self/total?style=flat-square&logo=github)](https://github.com/bft2249228496/clash-self/releases/)[![Last Version](https://img.shields.io/github/release/bft2249228496/clash-self/all.svg?style=flat-square)](https://github.com/bft2249228496/clash-self/releases/)[![License](https://img.shields.io/github/license/bft2249228496/clash-self?style=flat-square)](LICENSE)
 

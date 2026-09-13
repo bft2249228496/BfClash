@@ -1,5 +1,5 @@
-display_name: FlClash
-package_name: FlClash
+display_name: BfClash
+package_name: bfclash
 maintainer:
   name: chen08209
   email: chen08209@gmail.com
@@ -26,14 +26,16 @@ supported_mime_type:
   - x-scheme-handler/clash
   - x-scheme-handler/clashmeta
   - x-scheme-handler/flclash
+  - x-scheme-handler/lansway
+  - x-scheme-handler/bfclash
 
 keywords:
-  - FlClash
+  - BfClash
   - Clash
   - ClashMeta
   - Proxy
 
-generic_name: FlClash
+generic_name: BfClash
 
 categories:
   - Network

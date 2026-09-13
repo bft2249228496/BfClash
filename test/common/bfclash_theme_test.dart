@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
-  test('restores the six Lansway theme presets', () {
-    expect(lanswayThemePresets.map((preset) => preset.id), [
+  test('restores the six BfClash theme presets', () {
+    expect(bfclashThemePresets.map((preset) => preset.id), [
       'gemini',
       'slate',
       'dracula',
@@ -13,19 +13,19 @@ void main() {
       'ocean',
     ]);
     expect(
-      lanswayThemePresets.map((preset) => preset.selectionValue).toSet(),
-      hasLength(lanswayThemePresets.length),
+      bfclashThemePresets.map((preset) => preset.selectionValue).toSet(),
+      hasLength(bfclashThemePresets.length),
     );
   });
 
-  test('Gemini preserves the original Lansway surfaces', () {
-    final dark = buildLanswayColorScheme(
-      color: const Color(lanswayGeminiColor),
+  test('Gemini preserves the original BfClash surfaces', () {
+    final dark = buildBfClashColorScheme(
+      color: const Color(bfclashGeminiColor),
       brightness: Brightness.dark,
       variant: DynamicSchemeVariant.content,
     );
-    final light = buildLanswayColorScheme(
-      color: const Color(lanswayGeminiColor),
+    final light = buildBfClashColorScheme(
+      color: const Color(bfclashGeminiColor),
       brightness: Brightness.light,
       variant: DynamicSchemeVariant.content,
     );
@@ -36,12 +36,12 @@ void main() {
   });
 
   test('custom colors still use Material color generation', () {
-    final scheme = buildLanswayColorScheme(
+    final scheme = buildBfClashColorScheme(
       color: const Color(0xFF00FF00),
       brightness: Brightness.light,
       variant: DynamicSchemeVariant.content,
     );
     expect(scheme.brightness, Brightness.light);
-    expect(lanswayThemePresetFor(const Color(0xFF00FF00)), isNull);
+    expect(bfclashThemePresetFor(const Color(0xFF00FF00)), isNull);
   });
 }

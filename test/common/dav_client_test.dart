@@ -303,6 +303,21 @@ void main() {
       expect(File(join(root.path, 'backup.zip')).readAsBytesSync(), payload);
     });
 
+    test('restore falls back to the legacy Lansway collection', () async {
+      final payload = List<int>.generate(32, (index) => 255 - index);
+      server.files['/Lansway/backup.zip'] = payload;
+
+      expect(await buildClient().restore(), isTrue);
+
+      expect(
+        server.requests
+            .where((item) => item.method == 'GET')
+            .map((item) => item.path),
+        ['/$appName/backup.zip', '/Lansway/backup.zip'],
+      );
+      expect(File(join(root.path, 'backup.zip')).readAsBytesSync(), payload);
+    });
+
     test('restore reports the status the server sent', () async {
       await expectLater(
         buildClient().restore(),
