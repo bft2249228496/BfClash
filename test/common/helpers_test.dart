@@ -324,4 +324,42 @@ void main() {
       expect(getFileNameForDisposition('attachment'), isNull);
     });
   });
+
+  group('getProfileNameForUrl', () {
+    test('uses a provider supplied query name', () {
+      expect(
+        getProfileNameForUrl(
+          'https://example.com/api/subscribe?token=abc&name=TokyoFast',
+        ),
+        'TokyoFast',
+      );
+      expect(
+        getProfileNameForUrl(
+          'https://example.com/sub?token=abc&filename=HongKongNodes.yaml',
+        ),
+        'HongKongNodes.yaml',
+      );
+    });
+
+    test('uses the decoded path filename without a config extension', () {
+      expect(
+        getProfileNameForUrl(
+          'https://gist.example/user/raw/%E9%A6%99%E6%B8%AF%E8%8A%82%E7%82%B9.yaml',
+        ),
+        '香港节点',
+      );
+      expect(
+        getProfileNameForUrl('https://example.com/nodes/hk-vip.yml'),
+        'hk-vip',
+      );
+    });
+
+    test('ignores generic endpoints and falls back to the host', () {
+      expect(
+        getProfileNameForUrl('https://sub.domain.com/subscribe?token=123'),
+        'sub.domain.com',
+      );
+      expect(getProfileNameForUrl('not a subscription URL'), isNull);
+    });
+  });
 }

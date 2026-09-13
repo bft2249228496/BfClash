@@ -1,3 +1,4 @@
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
@@ -81,6 +82,21 @@ void main() {
       await tester.tap(toggle);
       await tester.pumpAndSettle();
       expect(readTheme().pureBlack, isFalse);
+    });
+  });
+
+  group('Lansway theme presets', () {
+    testWidgets('shows and applies the restored Ocean preset', (tester) async {
+      await pumpThemeView(tester);
+
+      expect(find.text('Lansway Themes'), findsOneWidget);
+      final ocean = find.text('Ocean');
+      await tester.ensureVisible(ocean);
+      await tester.tap(ocean);
+      await tester.pumpAndSettle();
+
+      expect(readTheme().primaryColor, lanswayOceanColor);
+      expect(readTheme().schemeVariant, DynamicSchemeVariant.content);
     });
   });
 

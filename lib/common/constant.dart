@@ -109,7 +109,7 @@ const proxiesListStoreKey = PageStorageKey<String>('proxies_list');
 const toolsStoreKey = PageStorageKey<String>('tools');
 const profilesStoreKey = PageStorageKey<String>('profiles');
 
-const defaultPrimaryColor = 0XFFD8C0C3;
+const defaultPrimaryColor = lanswayGeminiColor;
 
 double getWidgetHeight(num lines) {
   final space = 14.mAp;
@@ -124,13 +124,12 @@ const pausedMaxRequestsLength = maxRequestsLength * 2;
 const trafficSampleLength = 30;
 
 const defaultPrimaryColors = [
-  0xFF795548,
-  0xFF03A9F4,
-  0xFFFFFF00,
-  0XFFBBC9CC,
-  0XFFABD397,
-  defaultPrimaryColor,
-  0XFF665390,
+  lanswayGeminiColor,
+  lanswaySlateColor,
+  lanswayDraculaColor,
+  lanswaySakuraColor,
+  lanswaySunsetColor,
+  lanswayOceanColor,
 ];
 
 const scriptTemplate = '''

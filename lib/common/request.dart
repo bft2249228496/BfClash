@@ -169,3 +169,56 @@ String? getFileNameForDisposition(String? disposition) {
   if (fileNameKey.isEmpty) return null;
   return parameters[fileNameKey];
 }
+
+/// Derives a useful profile label from a subscription URL when the server does
+/// not provide a Content-Disposition filename.
+String? getProfileNameForUrl(String? value) {
+  final source = value?.trim() ?? '';
+  if (source.isEmpty) return null;
+  try {
+    final uri = Uri.parse(source);
+    if (!uri.hasScheme || uri.host.isEmpty) return null;
+    const nameKeys = {'name', 'filename', 'title', 'tag'};
+    for (final entry in uri.queryParameters.entries) {
+      if (!nameKeys.contains(entry.key.toLowerCase())) continue;
+      final candidate = entry.value.trim();
+      if (candidate.isNotEmpty) return candidate;
+    }
+
+    final segments = uri.pathSegments
+        .map((segment) => segment.trim())
+        .where((segment) => segment.isNotEmpty)
+        .toList();
+    if (segments.isNotEmpty) {
+      var candidate = segments.last;
+      const extensions = ['.yaml', '.yml', '.txt', '.json', '.conf'];
+      final lowerCandidate = candidate.toLowerCase();
+      for (final extension in extensions) {
+        if (lowerCandidate.endsWith(extension)) {
+          candidate = candidate.substring(
+            0,
+            candidate.length - extension.length,
+          );
+          break;
+        }
+      }
+      const genericSegments = {
+        'raw',
+        'get',
+        'sub',
+        'subscribe',
+        'link',
+        'config',
+      };
+      if (candidate.isNotEmpty &&
+          !genericSegments.contains(candidate.toLowerCase())) {
+        return candidate;
+      }
+    }
+
+    if (uri.host.isNotEmpty) return uri.host;
+  } on FormatException {
+    return null;
+  }
+  return null;
+}

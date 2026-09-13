@@ -40,6 +40,8 @@ class ThemeView extends StatelessWidget {
         slivers: [
           _ThemeModeItem(),
           SliverToBoxAdapter(child: SizedBox(height: 16)),
+          _LanswayPresetItem(),
+          SliverToBoxAdapter(child: SizedBox(height: 16)),
           _PrimaryColorItem(),
           SliverToBoxAdapter(child: SizedBox(height: 16)),
           _PrueBlackItem(),
@@ -142,6 +144,121 @@ class _ThemeModeItem extends ConsumerWidget {
             },
             separatorBuilder: (_, _) {
               return const SizedBox(width: 16);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanswayPresetItem extends ConsumerWidget {
+  const _LanswayPresetItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedColor = ref.watch(
+      themeSettingProvider.select((state) => state.primaryColor),
+    );
+    final brightness = Theme.of(context).brightness;
+    return SliverToBoxAdapter(
+      child: ItemCard(
+        info: const Info(label: 'Lansway Themes', iconData: Icons.auto_awesome),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: LayoutBuilder(
+            builder: (_, constraints) {
+              final tileWidth = constraints.maxWidth < 520
+                  ? (constraints.maxWidth - 12) / 2
+                  : (constraints.maxWidth - 24) / 3;
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final preset in lanswayThemePresets)
+                    SizedBox(
+                      width: tileWidth,
+                      height: 84,
+                      child: CommonCard(
+                        radius: AppCorner.lg,
+                        isSelected: selectedColor == preset.selectionValue,
+                        onPressed: () {
+                          ref.read(themeSettingProvider.notifier).update((
+                            state,
+                          ) {
+                            final colors =
+                                state.primaryColors.contains(
+                                  preset.selectionValue,
+                                )
+                                ? state.primaryColors
+                                : [
+                                    ...state.primaryColors,
+                                    preset.selectionValue,
+                                  ];
+                            return state.copyWith(
+                              primaryColor: preset.selectionValue,
+                              primaryColors: colors,
+                              schemeVariant: DynamicSchemeVariant.content,
+                            );
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      preset.primary(brightness),
+                                      preset.card(brightness),
+                                    ],
+                                  ),
+                                  border: Border.all(
+                                    color: preset.border(brightness),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      preset.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context
+                                          .textTheme
+                                          .titleSmall
+                                          ?.toSoftBold,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      preset.subtitle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
         ),
