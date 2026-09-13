@@ -48,6 +48,15 @@ class VpnServiceController {
     syncStatus();
   }
 
+  static Future<String?> getStorageDirectory() async {
+    try {
+      final dir = await _methodChannel.invokeMethod<String>('getFilesDir');
+      return dir;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<VpnStatus> syncStatus() async {
     try {
       final status = await _methodChannel.invokeMethod<String>('getStatus');

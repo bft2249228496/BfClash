@@ -322,15 +322,38 @@ class _ClientShellState extends State<ClientShell> {
       }
     });
 
-    _storageDir = Directory.systemTemp.createTempSync('lansway_runtime_');
+    // 1. 先使用稳定的默认持久化路径同步初始化
+    final defaultHome = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '.';
+    _storageDir = Directory('$defaultHome/.lansway_data');
+    if (!_storageDir.existsSync()) {
+      _storageDir.createSync(recursive: true);
+    }
     _subManager = SubscriptionManager(storageDir: _storageDir);
     _subStore = SubStoreEngine(workDir: _storageDir);
-    _loadSubscriptions();
+
+    // 2. 异步获取 Android 原生永久内部私有目录 (/data/user/0/com.lansway.client/files)
+    _initPersistentStorageAndLoad();
     if (widget.autoCheckUpdate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _checkAppUpdate(manual: false);
       });
     }
+  }
+
+    Future<void> _initPersistentStorageAndLoad() async {
+    try {
+      final appStoragePath = await VpnServiceController.getStorageDirectory();
+      if (appStoragePath != null && appStoragePath.isNotEmpty) {
+        final realDir = Directory(appStoragePath);
+        if (!await realDir.exists()) {
+          await realDir.create(recursive: true);
+        }
+        _storageDir = realDir;
+        _subManager = SubscriptionManager(storageDir: _storageDir);
+        _subStore = SubStoreEngine(workDir: _storageDir);
+      }
+    } catch (_) {}
+    await _loadSubscriptions();
   }
 
   Future<void> _loadSubscriptions() async {
@@ -510,10 +533,10 @@ class _ClientShellState extends State<ClientShell> {
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
-                    trailing: const Text(
-                      '36ms',
+                    trailing: Text(
+                      node.delay > 0 ? '${node.delay}ms' : '--',
                       style: TextStyle(
-                        color: Colors.green,
+                        color: node.delay > 0 ? Colors.green : Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

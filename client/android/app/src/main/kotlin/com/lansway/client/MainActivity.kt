@@ -44,6 +44,9 @@ class MainActivity : FlutterActivity() {
         // 2. 控制方法通道：启动、断开、状态查询
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, METHOD_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
+                "getFilesDir" -> {
+                    result.success(filesDir.absolutePath)
+                }
                 "getStatus" -> {
                     result.success(LanswayVpnService.currentStatus)
                 }

@@ -215,7 +215,8 @@ class AppThemeSystem {
   /// 本地持久化保存主题配置
   static Future<void> savePreferences(String themeId, ThemeMode mode) async {
     try {
-      final file = File('${Directory.systemTemp.path}/lansway_theme_pref.json');
+      final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? Directory.systemTemp.path;
+    final file = File('$home/.lansway_theme_pref.json');
       final data = {
         'themeId': themeId,
         'mode': mode.name,
@@ -227,7 +228,8 @@ class AppThemeSystem {
   /// 读取本地保存的主题配置
   static Future<Map<String, dynamic>?> loadPreferences() async {
     try {
-      final file = File('${Directory.systemTemp.path}/lansway_theme_pref.json');
+      final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? Directory.systemTemp.path;
+    final file = File('$home/.lansway_theme_pref.json');
       if (await file.exists()) {
         final content = await file.readAsString();
         return json.decode(content) as Map<String, dynamic>;

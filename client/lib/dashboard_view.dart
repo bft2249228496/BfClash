@@ -26,19 +26,19 @@ class DashboardView extends StatefulWidget {
 
 class _DashboardViewState extends State<DashboardView> {
   Timer? _timer;
-  int _secondsElapsed = 79390; // 模拟或真实持续计时
+  int _secondsElapsed = 0; // 模拟或真实持续计时
   String _intranetIp = '192.168.2.118';
-  String _outboundIp = '207.57.143.112';
-  final String _outboundCountry = '🇺🇸';
+  String _outboundIp = '--';
+  String _outboundCountry = '🌐';
   bool _isDetectingIp = false;
 
   // 速度波形与流量
   final List<double> _speedHistory = [2, 5, 8, 45, 12, 8, 38, 15, 3, 2, 1, 1, 2];
   double _upSpeed = 0.0;
   double _downSpeed = 0.0;
-  final double _upTrafficMb = 476.5;
-  final double _downTrafficGb = 7.1;
-  final double _memoryMb = 310.9;
+  double _upTrafficMb = 0.0;
+  double _downTrafficGb = 0.0;
+  double _memoryMb = 0.0;
 
   @override
   void initState() {
@@ -54,10 +54,10 @@ class _DashboardViewState extends State<DashboardView> {
         if (widget.vpnStatus == VpnStatus.connected) {
           _secondsElapsed++;
           // 模拟微小的波动或读取真实流量
-          final rand = Random();
-          _downSpeed = (rand.nextDouble() * 250);
-          _upSpeed = (rand.nextDouble() * 50);
-          _speedHistory.add(_downSpeed / 5);
+          // 未对接内核实时采样前，保持真实 0 B/s，拒绝生成随机假网速
+          _upSpeed = 0.0;
+          _downSpeed = 0.0;
+          _speedHistory.add(0.0);
           if (_speedHistory.length > 25) {
             _speedHistory.removeAt(0);
           }
