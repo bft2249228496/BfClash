@@ -217,26 +217,42 @@ class CommonScaffoldState extends State<CommonScaffold> {
 
   Widget _buildTitle(AppBarSearchState? startState) {
     final appLocalizations = context.appLocalizations;
-    return _isSearch
-        ? TextField(
-            autofocus: true,
-            controller: _textController,
-            inputFormatters: TextInputLimits.limit(TextInputLimits.search),
-            style: context.textTheme.titleLarge,
-            onChanged: (value) {
-              if (startState != null) {
-                startState.onSearch(value);
-              }
-            },
-            decoration: InputDecoration(hintText: appLocalizations.search),
-          )
-        : Text(
-            !_isEdit
-                ? widget.title!
-                : appLocalizations.selectedCountTitle(
-                    '${_appBarState.value.editState?.editCount ?? 0}',
-                  ),
+    if (_isSearch) {
+      return TextField(
+        autofocus: true,
+        controller: _textController,
+        inputFormatters: TextInputLimits.limit(TextInputLimits.search),
+        style: context.textTheme.titleLarge,
+        onChanged: (value) {
+          if (startState != null) {
+            startState.onSearch(value);
+          }
+        },
+        decoration: InputDecoration(hintText: appLocalizations.search),
+      );
+    }
+    final rawTitle = !_isEdit
+        ? widget.title!
+        : appLocalizations.selectedCountTitle(
+            '${_appBarState.value.editState?.editCount ?? 0}',
           );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primary = context.colorScheme.primary;
+    if (isDark && primary.toARGB32() == 0xFF818CF8 && !_isEdit) {
+      return GradientText(
+        rawTitle,
+        style: context.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFA5B4FC), Color(0xFFC084FC), Color(0xFF38BDF8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      );
+    }
+    return Text(rawTitle);
   }
 
   List<Widget> _buildActions(bool hasSearch, List<Widget> actions) {

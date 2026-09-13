@@ -52,15 +52,39 @@ class InfoHeader extends StatelessWidget {
                 ],
                 Flexible(
                   flex: 1,
-                  child: TooltipText(
-                    text: Text(
-                      info.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                  child: Builder(
+                    builder: (context) {
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      final primary = context.colorScheme.primary;
+                      final isParty =
+                          isDark && primary.toARGB32() == 0xFF818CF8;
+                      if (isParty) {
+                        return TooltipText(
+                          text: Text(
+                            info.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(
+                                  color: const Color(0xFFA5B4FC),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        );
+                      }
+                      return TooltipText(
+                        text: Text(
+                          info.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(
+                                color: context.colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
