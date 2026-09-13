@@ -402,7 +402,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("GeoIPコード"),
     "global": MessageLookupByLibrary.simpleMessage("グローバル"),
     "go": MessageLookupByLibrary.simpleMessage("開く"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("ダウンロードへ"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("今すぐ更新"),
+        "later": MessageLookupByLibrary.simpleMessage("後で"),
+        "goDownload": MessageLookupByLibrary.simpleMessage("ダウンロードへ"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage("スクリプト設定へ移動"),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage("変更をキャッシュしますか？"),
     "helperCorruptTip": MessageLookupByLibrary.simpleMessage(

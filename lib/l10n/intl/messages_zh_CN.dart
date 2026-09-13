@@ -354,7 +354,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("Geoip代码"),
     "global": MessageLookupByLibrary.simpleMessage("全局"),
     "go": MessageLookupByLibrary.simpleMessage("前往"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("前往下载"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("立即更新"),
+        "later": MessageLookupByLibrary.simpleMessage("稍后"),
+        "goDownload": MessageLookupByLibrary.simpleMessage("前往下载"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage("前往配置脚本"),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage("是否缓存修改"),
     "helperCorruptTip": MessageLookupByLibrary.simpleMessage(

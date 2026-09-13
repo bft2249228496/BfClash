@@ -42,9 +42,9 @@ void main() {
       brightness: Brightness.dark,
       variant: DynamicSchemeVariant.content,
     );
-    expect(dark.surface, const Color(0xFF0E0F14));
-    expect(dark.surfaceContainerLow, const Color(0xFF181920));
-    expect(dark.outline, const Color(0xFF262833));
+    expect(dark.surface, const Color(0xFF0B0C10));
+    expect(dark.surfaceContainerLow, const Color(0xFF151620));
+    expect(dark.outline, const Color(0xFF282B3C));
   });
 
   test('custom colors still use Material color generation', () {

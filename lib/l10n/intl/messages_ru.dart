@@ -506,7 +506,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("Код GeoIP"),
     "global": MessageLookupByLibrary.simpleMessage("Глобальный"),
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("Скачать"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("Обновить сейчас"),
+        "later": MessageLookupByLibrary.simpleMessage("Позже"),
+        "goDownload": MessageLookupByLibrary.simpleMessage("Скачать"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Перейти к настройке скрипта",
     ),

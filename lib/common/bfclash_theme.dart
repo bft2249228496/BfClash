@@ -54,10 +54,10 @@ const bfclashThemePresets = <BfClashThemePreset>[
     name: 'Party',
     subtitle: '黑曜派对',
     selectionValue: bfclashPartyColor,
-    primaryDark: Color(0xFF6366F1),
-    backgroundDark: Color(0xFF0E0F14),
-    cardDark: Color(0xFF181920),
-    borderDark: Color(0xFF262833),
+    primaryDark: Color(0xFF818CF8),
+    backgroundDark: Color(0xFF0B0C10),
+    cardDark: Color(0xFF151620),
+    borderDark: Color(0xFF282B3C),
     primaryLight: Color(0xFF4F46E5),
     backgroundLight: Color(0xFFF8FAFC),
     cardLight: Color(0xFFFFFFFF),
@@ -172,6 +172,7 @@ ColorScheme buildBfClashColorScheme({
   final background = preset.background(brightness);
   final card = preset.card(brightness);
   final border = preset.border(brightness);
+  final isParty = preset.id == 'party' && brightness == Brightness.dark;
   return ColorScheme.fromSeed(
     seedColor: preset.primary(brightness),
     brightness: brightness,
@@ -181,10 +182,12 @@ ColorScheme buildBfClashColorScheme({
     surface: background,
     surfaceContainerLowest: background,
     surfaceContainerLow: card,
-    surfaceContainer: Color.lerp(background, card, 0.72),
-    surfaceContainerHigh: Color.lerp(card, border, 0.22),
-    surfaceContainerHighest: border,
+    surfaceContainer: isParty ? Color(0xFF191B28) : Color.lerp(background, card, 0.72),
+    surfaceContainerHigh: isParty ? Color(0xFF202334) : Color.lerp(card, border, 0.22),
+    surfaceContainerHighest: isParty ? Color(0xFF2D3148) : border,
     outline: border,
-    outlineVariant: border.withValues(alpha: 0.72),
+    outlineVariant: isParty ? Color(0xFF383C56) : border.withValues(alpha: 0.72),
+    secondaryContainer: isParty ? Color(0xFF272147) : null,
+    onSecondaryContainer: isParty ? Color(0xFFA5B4FC) : null,
   );
 }

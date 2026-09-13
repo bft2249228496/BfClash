@@ -124,6 +124,7 @@ class CommonAction extends _$CommonAction {
   }) async {
     if (data != null) {
       final context = globalState.navigatorKey.currentContext!;
+      final isAndroid = system.isAndroid;
       final res = await dialogs.showMessage(
         title: currentAppLocalizations.discoverNewVersion,
         message: _releaseSpan(
@@ -131,8 +132,8 @@ class CommonAction extends _$CommonAction {
           data['tag_name'] as String,
           data['body'] as String?,
         ),
-        confirmText: currentAppLocalizations.goDownload,
-        cancelText: isUser ? null : currentAppLocalizations.noLongerRemind,
+        confirmText: isAndroid ? (currentAppLocalizations.updateNow) : currentAppLocalizations.goDownload,
+        cancelText: isUser ? currentAppLocalizations.later : currentAppLocalizations.noLongerRemind,
       );
       if (res == true) {
         if (system.isAndroid) {
@@ -170,26 +171,93 @@ class CommonAction extends _$CommonAction {
     final context = globalState.navigatorKey.currentContext!;
     if (!context.mounted) return;
     final progress = ValueNotifier<double?>(null);
+    final colorScheme = context.colorScheme;
     final dialogFuture = showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) => PopScope(
         canPop: false,
-        child: AlertDialog(
-          title: Text(currentAppLocalizations.discoverNewVersion),
-          content: ValueListenableBuilder<double?>(
-            valueListenable: progress,
-            builder: (_, value, _) => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                LinearProgressIndicator(value: value),
-                const SizedBox(height: 12),
-                Text(
-                  value == null
-                      ? currentAppLocalizations.download
-                      : '${(value * 100).round()}%',
-                ),
-              ],
+        child: Dialog(
+          backgroundColor: colorScheme.surfaceContainerLow,
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(AppCorner.xxl),
+            side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+            child: ValueListenableBuilder<double?>(
+              valueListenable: progress,
+              builder: (context, value, _) {
+                final percent = value == null ? 0 : (value * 100).clamp(0, 100).round();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: ShapeDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.12),
+                            shape: RoundedSuperellipseBorder(
+                              borderRadius: BorderRadius.circular(AppCorner.sm),
+                            ),
+                          ),
+                          child: Icon(Icons.downloading_rounded, color: colorScheme.primary, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                currentAppLocalizations.discoverNewVersion,
+                                style: context.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${release['tag_name'] ?? ''} · ${currentAppLocalizations.download}',
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '$percent%',
+                          style: context.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    ClipRSuperellipse(
+                      borderRadius: BorderRadius.circular(AppCorner.full),
+                      child: LinearProgressIndicator(
+                        value: value,
+                        minHeight: 8,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        value == null ? '0% / 100%' : '$percent% / 100%',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: colorScheme.outline,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

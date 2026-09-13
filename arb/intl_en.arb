@@ -132,6 +132,8 @@
   "checkUpdate": "Check for updates",
   "discoverNewVersion": "New version found",
   "checkUpdateError": "The app is already up to date",
+  "updateNow": "Update Now",
+  "later": "Later",
   "goDownload": "Download",
   "unknown": "Unknown",
   "country": "Region",

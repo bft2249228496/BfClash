@@ -132,6 +132,8 @@
   "checkUpdate": "Проверить обновления",
   "discoverNewVersion": "Доступна новая версия",
   "checkUpdateError": "У вас уже последняя версия",
+  "updateNow": "Обновить сейчас",
+  "later": "Позже",
   "goDownload": "Скачать",
   "unknown": "Неизвестно",
   "country": "Регион",
