@@ -188,12 +188,12 @@ ColorScheme buildBfClashColorScheme({
     surfaceContainerHigh: isParty
         ? Color(0xFF202334)
         : Color.lerp(card, border, 0.22),
-    surfaceContainerHighest: isParty ? Color(0xFF2D3148) : border,
+    surfaceContainerHighest: isParty ? const Color(0xFF2D3148) : border,
     outline: border,
     outlineVariant: isParty
         ? Color(0xFF383C56)
         : border.withValues(alpha: 0.72),
-    secondaryContainer: isParty ? Color(0xFF272147) : null,
-    onSecondaryContainer: isParty ? Color(0xFFA5B4FC) : null,
+    secondaryContainer: isParty ? const Color(0xFF272147) : null,
+    onSecondaryContainer: isParty ? const Color(0xFFA5B4FC) : null,
   );
 }

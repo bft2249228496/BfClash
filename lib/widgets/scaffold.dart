@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 
 import 'chip.dart';
 import 'inherited.dart';
+import 'text.dart';
 
 typedef OnKeywordsUpdateCallback = void Function(List<String> keywords);
 
