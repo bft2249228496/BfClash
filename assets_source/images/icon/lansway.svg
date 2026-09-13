@@ -10,9 +10,11 @@
     </filter>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <g fill="none" stroke-linecap="round" stroke-width="48" filter="url(#glow)">
-    <path d="M218 158 L274 190" stroke="#38BDF8"/>
-    <path d="M180 238 L314 315" stroke="#818CF8"/>
-    <path d="M138 324 L374 460" stroke="#C084FC"/>
+  <g transform="translate(71.68 33.52) scale(0.72)">
+    <g fill="none" stroke-linecap="round" stroke-width="48" filter="url(#glow)">
+      <path d="M218 158 L274 190" stroke="#38BDF8"/>
+      <path d="M180 238 L314 315" stroke="#818CF8"/>
+      <path d="M138 324 L374 460" stroke="#C084FC"/>
+    </g>
   </g>
 </svg>

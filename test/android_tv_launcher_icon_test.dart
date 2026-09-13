@@ -49,6 +49,17 @@ void main() {
     }
   });
 
+  test('phone adaptive launcher icon keeps balanced safe-zone padding', () {
+    final vector = File(
+      'android/app/src/main/res/drawable/ic_launcher_foreground.xml',
+    ).readAsStringSync();
+
+    expect(_androidDoubleAttribute(vector, 'group', 'scaleX'), 0.72);
+    expect(_androidDoubleAttribute(vector, 'group', 'scaleY'), 0.72);
+    expect(_androidDoubleAttribute(vector, 'group', 'translateX'), 15.12);
+    expect(_androidDoubleAttribute(vector, 'group', 'translateY'), 7.2);
+  });
+
   test('TV adaptive launcher icon stays centered in the safe zone', () {
     final adaptiveIcon = File(
       'android/app/src/main/res/'
