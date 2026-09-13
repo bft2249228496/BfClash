@@ -70,7 +70,11 @@ class Dialogs {
                 color: context.colorScheme.surfaceContainerLowest,
                 shape: RoundedSuperellipseBorder(
                   borderRadius: BorderRadius.circular(AppCorner.md),
-                  side: BorderSide(color: context.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+                  side: BorderSide(
+                    color: context.colorScheme.outlineVariant.withValues(
+                      alpha: 0.2,
+                    ),
+                  ),
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -78,9 +82,9 @@ class Dialogs {
                 child: SelectableText.rich(
                   TextSpan(
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          height: 1.45,
-                          color: context.colorScheme.onSurface,
-                        ),
+                      height: 1.45,
+                      color: context.colorScheme.onSurface,
+                    ),
                     children: [message],
                   ),
                   style: const TextStyle(overflow: TextOverflow.visible),

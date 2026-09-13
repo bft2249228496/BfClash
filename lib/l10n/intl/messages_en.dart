@@ -493,8 +493,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "global": MessageLookupByLibrary.simpleMessage("Global"),
     "go": MessageLookupByLibrary.simpleMessage("Go"),
     "updateNow": MessageLookupByLibrary.simpleMessage("Update Now"),
-        "later": MessageLookupByLibrary.simpleMessage("Later"),
-        "goDownload": MessageLookupByLibrary.simpleMessage("Download"),
+    "later": MessageLookupByLibrary.simpleMessage("Later"),
+    "goDownload": MessageLookupByLibrary.simpleMessage("Download"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Go to script configuration",
     ),

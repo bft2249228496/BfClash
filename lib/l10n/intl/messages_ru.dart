@@ -507,8 +507,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "global": MessageLookupByLibrary.simpleMessage("Глобальный"),
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
     "updateNow": MessageLookupByLibrary.simpleMessage("Обновить сейчас"),
-        "later": MessageLookupByLibrary.simpleMessage("Позже"),
-        "goDownload": MessageLookupByLibrary.simpleMessage("Скачать"),
+    "later": MessageLookupByLibrary.simpleMessage("Позже"),
+    "goDownload": MessageLookupByLibrary.simpleMessage("Скачать"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Перейти к настройке скрипта",
     ),

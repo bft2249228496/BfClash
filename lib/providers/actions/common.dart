@@ -132,8 +132,12 @@ class CommonAction extends _$CommonAction {
           data['tag_name'] as String,
           data['body'] as String?,
         ),
-        confirmText: isAndroid ? (currentAppLocalizations.updateNow) : currentAppLocalizations.goDownload,
-        cancelText: isUser ? currentAppLocalizations.later : currentAppLocalizations.noLongerRemind,
+        confirmText: isAndroid
+            ? (currentAppLocalizations.updateNow)
+            : currentAppLocalizations.goDownload,
+        cancelText: isUser
+            ? currentAppLocalizations.later
+            : currentAppLocalizations.noLongerRemind,
       );
       if (res == true) {
         if (system.isAndroid) {
@@ -181,14 +185,18 @@ class CommonAction extends _$CommonAction {
           backgroundColor: colorScheme.surfaceContainerLow,
           shape: RoundedSuperellipseBorder(
             borderRadius: BorderRadius.circular(AppCorner.xxl),
-            side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            side: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
             child: ValueListenableBuilder<double?>(
               valueListenable: progress,
               builder: (context, value, _) {
-                final percent = value == null ? 0 : (value * 100).clamp(0, 100).round();
+                final percent = value == null
+                    ? 0
+                    : (value * 100).clamp(0, 100).round();
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +211,11 @@ class CommonAction extends _$CommonAction {
                               borderRadius: BorderRadius.circular(AppCorner.sm),
                             ),
                           ),
-                          child: Icon(Icons.downloading_rounded, color: colorScheme.primary, size: 22),
+                          child: Icon(
+                            Icons.downloading_rounded,
+                            color: colorScheme.primary,
+                            size: 22,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -242,7 +254,9 @@ class CommonAction extends _$CommonAction {
                         value: value,
                         minHeight: 8,
                         backgroundColor: colorScheme.surfaceContainerHighest,
-                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          colorScheme.primary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),

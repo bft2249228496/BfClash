@@ -1052,22 +1052,13 @@ class AppLocalizations {
 
   /// `Download`
   String get updateNow {
-    return Intl.message(
-      '立即更新',
-      name: 'updateNow',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('立即更新', name: 'updateNow', desc: '', args: []);
   }
 
   String get later {
-    return Intl.message(
-      '稍后',
-      name: 'later',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('稍后', name: 'later', desc: '', args: []);
   }
+
   String get goDownload {
     return Intl.message('Download', name: 'goDownload', desc: '', args: []);
   }
