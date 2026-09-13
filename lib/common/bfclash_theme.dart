@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+const bfclashPartyColor = 0xFF6366F1;
 const bfclashGeminiColor = 0xFF818CF8;
 const bfclashSlateColor = 0xFF94A3B8;
 const bfclashDraculaColor = 0xFFC084FC;
@@ -48,6 +49,20 @@ class BfClashThemePreset {
 }
 
 const bfclashThemePresets = <BfClashThemePreset>[
+  BfClashThemePreset(
+    id: 'party',
+    name: 'Party',
+    subtitle: '黑曜派对',
+    selectionValue: bfclashPartyColor,
+    primaryDark: Color(0xFF6366F1),
+    backgroundDark: Color(0xFF0E0F14),
+    cardDark: Color(0xFF181920),
+    borderDark: Color(0xFF262833),
+    primaryLight: Color(0xFF4F46E5),
+    backgroundLight: Color(0xFFF8FAFC),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFE2E8F0),
+  ),
   BfClashThemePreset(
     id: 'gemini',
     name: 'Gemini',

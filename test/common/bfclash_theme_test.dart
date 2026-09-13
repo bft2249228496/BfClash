@@ -3,8 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
-  test('restores the six BfClash theme presets', () {
+  test('restores the BfClash theme presets', () {
     expect(bfclashThemePresets.map((preset) => preset.id), [
+      'party',
       'gemini',
       'slate',
       'dracula',
@@ -33,6 +34,17 @@ void main() {
     expect(dark.surfaceContainerLow, const Color(0xFF111827));
     expect(light.primary, const Color(0xFF4F46E5));
     expect(light.surface, const Color(0xFFF8FAFC));
+  });
+
+  test('Party preset uses obsidian dark surfaces', () {
+    final dark = buildBfClashColorScheme(
+      color: const Color(bfclashPartyColor),
+      brightness: Brightness.dark,
+      variant: DynamicSchemeVariant.content,
+    );
+    expect(dark.surface, const Color(0xFF0E0F14));
+    expect(dark.surfaceContainerLow, const Color(0xFF181920));
+    expect(dark.outline, const Color(0xFF262833));
   });
 
   test('custom colors still use Material color generation', () {

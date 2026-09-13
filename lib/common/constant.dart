@@ -124,6 +124,7 @@ const pausedMaxRequestsLength = maxRequestsLength * 2;
 const trafficSampleLength = 30;
 
 const defaultPrimaryColors = [
+  bfclashPartyColor,
   bfclashGeminiColor,
   bfclashSlateColor,
   bfclashDraculaColor,
