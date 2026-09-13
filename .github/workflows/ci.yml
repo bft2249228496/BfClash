@@ -82,6 +82,20 @@ jobs:
         working-directory: client
         run: flutter test
 
+      - name: Download and Setup FlClash Mihomo Core Libraries (arm64-v8a)
+        working-directory: client
+        run: |
+          mkdir -p android/app/src/main/jniLibs/arm64-v8a
+          if [ ! -f "android/app/src/main/jniLibs/arm64-v8a/libcore.so" ]; then
+            echo "Fetching prebuilt FlClash arm64-v8a core binaries..."
+            curl -sL -o /tmp/flclash_arm64.apk https://github.com/chen08209/FlClash/releases/download/v0.8.97/FlClash-0.8.97-android-arm64-v8a.apk
+            unzip -q -o /tmp/flclash_arm64.apk "lib/arm64-v8a/*" -d /tmp/flclash_core/
+            cp /tmp/flclash_core/lib/arm64-v8a/libcore.so android/app/src/main/jniLibs/arm64-v8a/
+            cp /tmp/flclash_core/lib/arm64-v8a/libclash.so android/app/src/main/jniLibs/arm64-v8a/
+            rm -rf /tmp/flclash_arm64.apk /tmp/flclash_core
+          fi
+          ls -lh android/app/src/main/jniLibs/arm64-v8a/
+
       - name: Build Android Debug APK
         working-directory: client
         run: flutter build apk --debug

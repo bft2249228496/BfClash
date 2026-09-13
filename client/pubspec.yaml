@@ -1,7 +1,7 @@
 name: lansway
 description: Lansway proxy client.
 publish_to: none
-version: 0.2.4+14
+version: 0.2.5+15
 
 environment:
   sdk: '>=3.8.0 <4.0.0'

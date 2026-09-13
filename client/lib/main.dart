@@ -380,6 +380,50 @@ class _ClientShellState extends State<ClientShell> {
     await _loadSubscriptions();
   }
 
+    bool _isTestingDelay = false;
+
+  Future<void> _testAllNodesDelay() async {
+    if (_parsedNodes.isEmpty || _isTestingDelay) return;
+    setState(() => _isTestingDelay = true);
+
+    final updatedNodes = <SubStoreNode>[];
+    for (var node in _parsedNodes) {
+      int measuredDelay = -1;
+      try {
+        final stopwatch = Stopwatch()..start();
+        final socket = await Socket.connect(
+          node.server,
+          node.port,
+          timeout: const Duration(seconds: 3),
+        );
+        stopwatch.stop();
+        socket.destroy();
+        measuredDelay = stopwatch.elapsedMilliseconds;
+      } catch (_) {
+        measuredDelay = -1;
+      }
+
+      updatedNodes.add(SubStoreNode(
+        name: node.name,
+        type: node.type,
+        server: node.server,
+        port: node.port,
+        raw: node.raw,
+        delay: measuredDelay,
+      ));
+    }
+
+    if (mounted) {
+      setState(() {
+        _parsedNodes = updatedNodes;
+        _isTestingDelay = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('真实节点延迟测速已完成')),
+      );
+    }
+  }
+
   Future<void> _loadSubscriptions() async {
     setState(() => _isLoadingSubs = true);
     await _subManager.load();
@@ -495,13 +539,15 @@ class _ClientShellState extends State<ClientShell> {
             ),
             if (_parsedNodes.isNotEmpty)
               TextButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('批量节点延迟测速完成')));
-                },
-                icon: const Icon(Icons.bolt),
-                label: const Text('全部测速'),
+                onPressed: _isTestingDelay ? null : _testAllNodesDelay,
+                icon: _isTestingDelay
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.bolt),
+                label: Text(_isTestingDelay ? '测速中...' : '全部测速'),
               ),
           ],
         ),

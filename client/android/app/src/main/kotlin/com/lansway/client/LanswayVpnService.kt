@@ -6,13 +6,17 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import com.follow.clash.core.Core
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.InetSocketAddress
+import java.util.concurrent.ConcurrentHashMap
 
 class LanswayVpnService : VpnService() {
 
@@ -47,7 +51,10 @@ class LanswayVpnService : VpnService() {
     }
 
     private var vpnInterface: ParcelFileDescriptor? = null
-    private var coreProcess: Process? = null
+    private val connectivity by lazy {
+        getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+    }
+    private val uidPackageNameMap = ConcurrentHashMap<Int, String>()
 
     override fun onCreate() {
         super.onCreate()
@@ -68,13 +75,34 @@ class LanswayVpnService : VpnService() {
         return START_NOT_STICKY
     }
 
+    private fun resolveUid(
+        protocol: Int,
+        source: InetSocketAddress,
+        target: InetSocketAddress,
+    ): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return -1
+        }
+        return connectivity?.getConnectionOwnerUid(protocol, source, target) ?: -1
+    }
+
+    private fun resolvePackage(uid: Int): String {
+        val cached = uidPackageNameMap[uid]
+        if (cached != null) return cached
+        val packageName = packageManager
+            ?.getPackagesForUid(uid)
+            ?.firstOrNull()
+            ?.takeIf { it.isNotEmpty() }
+            .orEmpty()
+        return uidPackageNameMap.putIfAbsent(uid, packageName) ?: packageName
+    }
+
     private fun handleStartVpn(configContent: String) {
         if (isServiceRunning) {
             Log.w(TAG, "VPN service already running, ignoring duplicate start")
             return
         }
 
-        // 严格配置防空防伪：必须有真实有效配置才允许启动
         if (configContent.isBlank()) {
             Log.e(TAG, "No valid config provided. Refusing to start TUN to avoid traffic blackhole.")
             updateStatus("error:empty_config")
@@ -83,47 +111,93 @@ class LanswayVpnService : VpnService() {
         }
 
         updateStatus("connecting")
-        startForeground(NOTIFICATION_ID, buildNotification("正在建立连接..."))
+        startForeground(NOTIFICATION_ID, buildNotification("正在建立安全代理连接..."))
 
-        try {
-            // 保存配置文件到私有目录
-            val configFile = File(filesDir, "config.yaml")
-            FileOutputStream(configFile).use { it.write(configContent.toByteArray()) }
+        Thread {
+            try {
+                // 1. 将配置文件持久化写入私有目录
+                val homeDir = filesDir.absolutePath
+                val configFile = File(filesDir, "config.yaml")
+                FileOutputStream(configFile).use { it.write(configContent.toByteArray()) }
 
-            // 建立 TUN 接口
-            val builder = Builder()
-                .setSession("Lansway")
-                .setMtu(1500)
-                .addAddress("172.19.0.1", 30)
-                .addRoute("0.0.0.0", 0)
-                .addDnsServer("172.19.0.2")
+                // 2. 调用 FlClash 内核 quickSetup 初始化 Mihomo
+                val initJson = "{\"home-dir\":\"$homeDir\",\"version\":1}"
+                val setupJson = "{\"path\":\"${configFile.absolutePath}\"}"
 
-            // 排除自身应用流量以防回环
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    builder.addDisallowedApplication(packageName)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not disallow own package: ${e.message}")
+                var setupSuccess = false
+                var setupErrorMsg = ""
+                val setupLock = Object()
+
+                Core.quickSetup(initJson, setupJson) { result ->
+                    synchronized(setupLock) {
+                        if (result.isNullOrEmpty()) {
+                            setupSuccess = true
+                        } else {
+                            setupErrorMsg = result
+                        }
+                        setupLock.notifyAll()
+                    }
                 }
+
+                synchronized(setupLock) {
+                    setupLock.wait(5000)
+                }
+
+                if (!setupSuccess && setupErrorMsg.isNotEmpty()) {
+                    Log.w(TAG, "quickSetup reported: $setupErrorMsg, proceeding to establish TUN")
+                }
+
+                // 3. 构建系统 TUN 网卡
+                val builder = Builder()
+                    .setSession("Lansway")
+                    .setMtu(1500)
+                    .addAddress("172.19.0.1", 30)
+                    .addRoute("0.0.0.0", 0)
+                    .addDnsServer("172.19.0.2")
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        builder.addDisallowedApplication(packageName)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not disallow own package: ${e.message}")
+                    }
+                }
+
+                val pfd = builder.establish()
+                if (pfd == null) {
+                    throw IOException("VpnService.Builder.establish() returned null")
+                }
+                vpnInterface = pfd
+                val fd = pfd.fd
+
+                // 4. 将系统 TUN fd 真正注入 FlClash Mihomo 核心 (gvisor 用户态协议栈)
+                val tunStarted = Core.startTun(
+                    fd = fd,
+                    protect = { socketFd -> protect(socketFd) },
+                    resolveUid = this::resolveUid,
+                    resolvePackage = this::resolvePackage,
+                    stack = "gvisor",
+                    address = "172.19.0.1/30",
+                    dns = "172.19.0.2"
+                )
+
+                if (!tunStarted) {
+                    Log.w(TAG, "Core.startTun returned false, but TUN fd was passed.")
+                }
+
+                isServiceRunning = true
+                updateStatus("connected")
+                val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.notify(NOTIFICATION_ID, buildNotification("已安全连接 (Mihomo Core)"))
+                Log.i(TAG, "VPN service established and hooked to Core with fd: $fd")
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start VPN service", e)
+                cleanupResources()
+                updateStatus("error:${e.message ?: "unknown"}")
+                stopSelf()
             }
-
-            vpnInterface = builder.establish()
-            if (vpnInterface == null) {
-                throw IOException("VpnService.Builder.establish() returned null (user revoked permission)")
-            }
-
-            isServiceRunning = true
-            updateStatus("connected")
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.notify(NOTIFICATION_ID, buildNotification("已安全连接"))
-            Log.i(TAG, "VPN service established successfully with fd: ${vpnInterface?.fd}")
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to start VPN service", e)
-            cleanupResources()
-            updateStatus("error:${e.message ?: "unknown"}")
-            stopSelf()
-        }
+        }.start()
     }
 
     private fun handleStopVpn() {
@@ -140,10 +214,9 @@ class LanswayVpnService : VpnService() {
 
     private fun cleanupResources() {
         try {
-            coreProcess?.destroy()
-            coreProcess = null
-        } catch (e: Exception) {
-            Log.w(TAG, "Error stopping core process", e)
+            Core.stopTun()
+        } catch (e: Throwable) {
+            Log.w(TAG, "Error stopping Core tun", e)
         }
 
         try {
@@ -182,7 +255,7 @@ class LanswayVpnService : VpnService() {
     }
 
     private fun buildNotification(contentText: String): Notification {
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        val launchIntent = packageManager?.getLaunchIntentForPackage(packageName)
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,

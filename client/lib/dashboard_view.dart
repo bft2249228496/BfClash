@@ -626,23 +626,28 @@ class _DashboardViewState extends State<DashboardView> {
                 color: isConnected ? const Color(0xFF7A68A7) : const Color(0xFF3B3948),
                 borderRadius: BorderRadius.circular(16),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     isConnected ? Icons.pause : Icons.play_arrow,
                     color: Colors.white,
-                    size: 22,
+                    size: 20,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isConnected ? _formatDuration(_secondsElapsed) : '点击启动',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 0.5,
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        isConnected ? _formatDuration(_secondsElapsed) : '点击启动',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
                   ),
                 ],

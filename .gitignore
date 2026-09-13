@@ -8,3 +8,4 @@ client/.flutter-plugins-dependencies
 client/android/.gradle/
 client/android/local.properties
 client/android/key.properties
+client/android/app/src/main/jniLibs/
