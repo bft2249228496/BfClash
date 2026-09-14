@@ -1,140 +1,55 @@
 <div>
 
-[**English**](README.md)
+[**English**](README.md) | [**简体中文**](README_zh_CN.md)
 
 </div>
 
-> BfClash基于 GPL-3.0 的 FlClash 项目维护，保留完整的多平台代理能力，并提供独立品牌与发布。
-
-## BfClash
-
-[![Downloads](https://img.shields.io/github/downloads/bft2249228496/clash-self/total?style=flat-square&logo=github)](https://github.com/bft2249228496/clash-self/releases/)[![Last Version](https://img.shields.io/github/release/bft2249228496/clash-self/all.svg?style=flat-square)](https://github.com/bft2249228496/clash-self/releases/)[![License](https://img.shields.io/github/license/bft2249228496/clash-self?style=flat-square)](LICENSE)
-
-[![Channel](https://img.shields.io/badge/Telegram-Channel-blue?style=flat-square&logo=telegram)](https://github.com/bft2249228496/clash-self)
-
-基于ClashMeta的多平台代理客户端，简单易用，开源无广告。
-
-on Desktop:
-<p style="text-align: center;">
-    <img alt="desktop" src="snapshots/desktop.gif">
+<p align="center">
+  <img src="assets/images/icon.png" width="128" height="128" alt="BfClash Icon" style="border-radius: 28px;">
 </p>
 
-on Mobile:
-<p style="text-align: center;">
-    <img alt="mobile" src="snapshots/mobile.gif">
+<h1 align="center">BfClash</h1>
+
+<p align="center">
+  <strong>一款现代化、高颜值、深度融合 Party 霓虹流光美学的跨平台 Clash 代理客户端。</strong>
 </p>
 
-## Features
-
-✈️ 多平台: Android, Windows, macOS and Linux
-
-💻 自适应多个屏幕尺寸,多种颜色主题可供选择
-
-💡 基本 Material You 设计, 类[Surfboard](https://github.com/getsurfboard/surfboard)用户界面
-
-☁️ 支持通过WebDAV同步数据
-
-✨ 支持一键导入订阅, 深色模式
-
-## Use
-
-### Linux
-
-⚠️ 使用前请确保安装以下依赖
-
-   ```bash
-    sudo apt-get install libayatana-appindicator3-dev
-   ```
-
-### Android
-
-支持下列操作
-
-   ```bash
-    com.lansway.client.action.START
-    
-    com.lansway.client.action.STOP
-    
-    com.lansway.client.action.TOGGLE
-   ```
-
-## Download
-
-<a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="snapshots/get-it-on-fdroid.svg" width="200px"/></a> <a href="https://github.com/bft2249228496/clash-self/releases"><img alt="Get it on GitHub" src="snapshots/get-it-on-github.svg" width="200px"/></a>
-
-### Homebrew
-
-```bash
-brew tap chen08209/tap
-brew install --cask flclash
-```
-
-## Build
-
-1. 更新 submodules
-   ```bash
-   git submodule update --init --recursive
-   ```
-
-2. 安装 `Flutter` 以及 `Golang` 环境
-
-3. 构建应用
-
-    - android
-
-        1. 安装  `Android SDK` ,  `Android NDK`
-
-        2. 设置 `ANDROID_NDK` 环境变量
-
-        3. 运行构建脚本
-
-           ```bash
-           dart setup.dart android
-           ```
-
-    - windows
-
-        1. 你需要一个windows客户端
-
-        2. 安装 `GCC`，`Inno Setup`
-
-        3. 运行构建脚本
-
-           ```bash
-           dart setup.dart windows
-           ```
-
-    - linux
-
-        1. 你需要一个linux客户端
-
-        2. 依赖会由 setup 脚本自动安装，也可以手动安装：
-           ```bash
-           sudo apt-get install -y libayatana-appindicator3-dev
-           ```
-
-        3. 运行构建脚本
-
-           ```bash
-           dart setup.dart linux
-           ```
-
-    - macOS
-
-        1. 你需要一个macOS客户端
-
-        2. 运行构建脚本
-
-           ```bash
-           dart setup.dart macos
-           ```
-
-## Star
-
-支持开发者的最简单方式是点击页面顶部的星标（⭐）。
-
-<p style="text-align: center;">
-    <a href="https://api.star-history.com/svg?repos=bft2249228496/clash-self&Date">
-        <img alt="start" width=50% src="https://api.star-history.com/svg?repos=bft2249228496/clash-self&Date"/>
-    </a>
+<p align="center">
+  <a href="https://github.com/bft2249228496/BfClash/releases"><img src="https://img.shields.io/github/v/release/bft2249228496/BfClash?style=flat-square&color=818CF8" alt="最新版本"></a>
+  <a href="https://github.com/bft2249228496/BfClash/releases"><img src="https://img.shields.io/github/downloads/bft2249228496/BfClash/total?style=flat-square&logo=github&color=38BDF8" alt="总下载量"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/bft2249228496/BfClash?style=flat-square&color=C084FC" alt="开源许可"></a>
+  <a href="https://t.me/bf2249"><img src="https://img.shields.io/badge/Telegram-@bf2249-blue?style=flat-square&logo=telegram" alt="Telegram 频道"></a>
 </p>
+
+---
+
+## 🌟 核心亮点
+
+- 🎨 **黑曜派对流光美学**：专属调配的黑曜霓虹暗黑主题，卡片核心数据与实时网速波形赋予冰蓝紫粉（`#38BDF8` ➔ `#818CF8` ➔ `#C084FC`）动态流光渐变；全界面消除生硬惨白，采用柔和通透的冰月白与雾感紫蓝灰。
+- 📱 **全平台覆盖与响应式布局**：基于 Flutter 3.x，针对 Android 手机、平板、折叠屏及桌面端提供统一的自适应交互体验。
+- ⚡ **强悍内芯驱动**：集成 Clash.Meta / Mihomo 最新核心，深度支持各种主流分流规则、协议解析与快速延迟测试。
+- 🛡️ **纯粹安全、开箱即用**：订阅一键导入、定时同步更新、WebDAV 多端同步、应用分流与规则策略自定义。
+
+---
+
+## 📥 安装包下载
+
+请前往 [GitHub Releases 页面](https://github.com/bft2249228496/BfClash/releases) 下载适合您设备的安装包：
+
+- 📱 **ARM64 (推荐)**：绝大多数现代主流 Android 手机（64位）
+- 📱 **ARMv7**：老旧 32 位 Android 机型兼容
+- 💻 **x86_64**：PC 模拟器、开发虚拟机或 x86 平板设备
+
+---
+
+## 👨‍💻 作者信息
+
+- **作者**：不负 ([@bft2249228496](https://github.com/bft2249228496))
+- **Telegram**：[@bf2249](https://t.me/bf2249)
+- **源码仓库**：[https://github.com/bft2249228496/BfClash](https://github.com/bft2249228496/BfClash)
+
+---
+
+## 📄 许可协议
+
+本项目遵循 [GPL-3.0 License](LICENSE) 协议开源发布。
