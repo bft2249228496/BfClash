@@ -193,7 +193,7 @@ class ApplicationState extends ConsumerState<Application> {
               colorScheme: colorScheme,
             );
             final customTextTheme = buildBfClashTextTheme(
-              color: Color(themeProps.primaryColor),
+              color: Color(themeProps.primaryColor ?? defaultPrimaryColor),
               brightness: Brightness.dark,
               base: baseTheme.textTheme,
             );
