@@ -9,19 +9,19 @@
         android:translateX="15.12"
         android:translateY="7.92">
         <path
-            android:pathData="M46,35 L62,44"
+            android:pathData="M52.3,33.5 L55.7,35.5"
             android:strokeColor="#38BDF8"
-            android:strokeWidth="10"
+            android:strokeWidth="13.5"
             android:strokeLineCap="round" />
         <path
-            android:pathData="M40,51 L68,67"
+            android:pathData="M45.3,49.0 L62.7,59.0"
             android:strokeColor="#818CF8"
-            android:strokeWidth="10"
+            android:strokeWidth="13.5"
             android:strokeLineCap="round" />
         <path
-            android:pathData="M34,70 L74,93"
+            android:pathData="M36.7,63.5 L71.3,83.5"
             android:strokeColor="#C084FC"
-            android:strokeWidth="10"
+            android:strokeWidth="13.5"
             android:strokeLineCap="round" />
     </group>
 </vector>

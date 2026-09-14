@@ -11,10 +11,10 @@
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <g transform="translate(71.68 38.2) scale(0.72)">
-    <g fill="none" stroke-linecap="round" stroke-width="48" filter="url(#glow)">
-      <path d="M219 165 L293 207" stroke="#38BDF8"/>
-      <path d="M191 241 L321 316" stroke="#818CF8"/>
-      <path d="M161 330 L351 440" stroke="#C084FC"/>
+    <g fill="none" stroke-linecap="round" stroke-width="64" filter="url(#glow)">
+      <path d="M248 159 L264 168" stroke="#38BDF8"/>
+      <path d="M215 232 L297 279" stroke="#818CF8"/>
+      <path d="M174 301 L338 395" stroke="#C084FC"/>
     </g>
   </g>
 </svg>
