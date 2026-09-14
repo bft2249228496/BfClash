@@ -43,49 +43,58 @@ class InfoHeader extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                if (info.iconData != null) ...[
-                  Icon(
-                    info.iconData,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Flexible(
-                  flex: 1,
-                  child: Builder(
-                    builder: (context) {
-                      final isDark =
-                          Theme.of(context).brightness == Brightness.dark;
-                      final primary = context.colorScheme.primary;
-                      final isParty =
-                          isDark && primary.toARGB32() == 0xFF818CF8;
-                      if (isParty) {
-                        return TooltipText(
-                          text: Text(
+                Builder(
+                  builder: (context) {
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    final primary = context.colorScheme.primary;
+                    final isParty = isDark && primary.toARGB32() == 0xFF818CF8;
+                    final iconWidget = info.iconData != null
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Icon(
+                              info.iconData,
+                              color: isParty
+                                  ? const Color(0xFF818CF8)
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                            ),
+                          )
+                        : const SizedBox.shrink();
+                    final labelWidget = isParty
+                        ? GradientText(
+                            info.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF818CF8), Color(0xFFC084FC)],
+                            ),
+                          )
+                        : Text(
                             info.label,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleSmall
                                 ?.copyWith(
-                                  color: const Color(0xFFA5B4FC),
-                                  fontWeight: FontWeight.w600,
+                                  color: context.colorScheme.onSurfaceVariant,
                                 ),
+                          );
+                    return Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          iconWidget,
+                          Flexible(
+                            flex: 1,
+                            child: TooltipText(text: labelWidget),
                           ),
-                        );
-                      }
-                      return TooltipText(
-                        text: Text(
-                          info.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                color: context.colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      );
-                    },
-                  ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

@@ -102,14 +102,43 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                 height: globalState.measure.bodyMediumHeight + 2,
                 child: FadeThroughBox(
                   child: ipInfo != null
-                      ? TooltipText(
-                          text: Text(
-                            ipInfo.ip,
-                            style: context.textTheme.bodyMedium?.toLight
-                                .adjustSize(1),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      ? Builder(
+                          builder: (context) {
+                            final isDark =
+                                Theme.of(context).brightness == Brightness.dark;
+                            final isParty =
+                                isDark &&
+                                context.colorScheme.primary.toARGB32() ==
+                                    0xFF818CF8;
+                            if (isParty) {
+                              return TooltipText(
+                                text: GradientText(
+                                  ipInfo.ip,
+                                  style: context.textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold)
+                                      .adjustSize(1),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF38BDF8),
+                                      Color(0xFF818CF8),
+                                      Color(0xFFC084FC),
+                                    ],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }
+                            return TooltipText(
+                              text: Text(
+                                ipInfo.ip,
+                                style: context.textTheme.bodyMedium?.toLight
+                                    .adjustSize(1),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          },
                         )
                       : isLoading == false && ipInfo == null
                       ? Text(

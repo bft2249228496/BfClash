@@ -206,10 +206,31 @@ class _TrafficDataItem extends StatelessWidget {
               const SizedBox(width: 8),
               Flexible(
                 flex: 1,
-                child: Text(
-                  value.traffic.value,
-                  style: context.textTheme.bodySmall,
-                  maxLines: 1,
+                child: Builder(
+                  builder: (context) {
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    final isParty =
+                        isDark &&
+                        context.colorScheme.primary.toARGB32() == 0xFF818CF8;
+                    if (isParty) {
+                      return GradientText(
+                        value.traffic.value,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF38BDF8), Color(0xFFC084FC)],
+                        ),
+                        maxLines: 1,
+                      );
+                    }
+                    return Text(
+                      value.traffic.value,
+                      style: context.textTheme.bodySmall,
+                      maxLines: 1,
+                    );
+                  },
                 ),
               ),
             ],

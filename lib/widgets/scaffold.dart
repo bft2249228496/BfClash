@@ -242,12 +242,12 @@ class CommonScaffoldState extends State<CommonScaffold> {
     if (isDark && primary.toARGB32() == 0xFF818CF8 && !_isEdit) {
       return GradientText(
         rawTitle,
-        style: context.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+        style: context.textTheme.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.8,
         ),
         gradient: const LinearGradient(
-          colors: [Color(0xFFA5B4FC), Color(0xFFC084FC), Color(0xFF38BDF8)],
+          colors: [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFE879F9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

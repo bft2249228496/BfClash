@@ -94,6 +94,37 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
                     valueListenable: _memoryStateNotifier,
                     builder: (_, memory, _) {
                       final traffic = memory.traffic;
+                      final isDark =
+                          Theme.of(context).brightness == Brightness.dark;
+                      final isParty =
+                          isDark &&
+                          context.colorScheme.primary.toARGB32() == 0xFF818CF8;
+                      if (isParty) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            GradientText(
+                              traffic.value,
+                              style: context.textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)
+                                  .adjustSize(1),
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF818CF8), Color(0xFFE879F9)],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              traffic.unit,
+                              style: context.textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: const Color(0xFFA5B4FC),
+                                    fontWeight: FontWeight.w600,
+                                  )
+                                  .adjustSize(1),
+                            ),
+                          ],
+                        );
+                      }
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [

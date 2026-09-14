@@ -66,11 +66,38 @@ class _NetworkSpeedState extends State<NetworkSpeed> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          _getLastTraffic(traffics).speedText,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: color,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            final isDark =
+                                Theme.of(context).brightness == Brightness.dark;
+                            final isParty =
+                                isDark &&
+                                context.colorScheme.primary.toARGB32() ==
+                                    0xFF818CF8;
+                            final speedText = _getLastTraffic(
+                              traffics,
+                            ).speedText;
+                            if (isParty) {
+                              return GradientText(
+                                speedText,
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF38BDF8),
+                                    Color(0xFFC084FC),
+                                  ],
+                                ),
+                              );
+                            }
+                            return Text(
+                              speedText,
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: color,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

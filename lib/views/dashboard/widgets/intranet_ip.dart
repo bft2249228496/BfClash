@@ -30,16 +30,48 @@ class IntranetIP extends StatelessWidget {
                     final localIp = ref.watch(localIpProvider);
                     return FadeThroughBox(
                       child: localIp != null
-                          ? TooltipText(
-                              text: Text(
-                                localIp.isNotEmpty
+                          ? Builder(
+                              builder: (context) {
+                                final isDark =
+                                    Theme.of(context).brightness ==
+                                    Brightness.dark;
+                                final isParty =
+                                    isDark &&
+                                    context.colorScheme.primary.toARGB32() ==
+                                        0xFF818CF8;
+                                final ipString = localIp.isNotEmpty
                                     ? localIp
-                                    : appLocalizations.noNetwork,
-                                style: context.textTheme.bodyMedium?.toLight
-                                    .adjustSize(1),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                                    : appLocalizations.noNetwork;
+                                if (isParty) {
+                                  return TooltipText(
+                                    text: GradientText(
+                                      ipString,
+                                      style: context.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          )
+                                          .adjustSize(1),
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF38BDF8),
+                                          Color(0xFF818CF8),
+                                        ],
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                }
+                                return TooltipText(
+                                  text: Text(
+                                    ipString,
+                                    style: context.textTheme.bodyMedium?.toLight
+                                        .adjustSize(1),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              },
                             )
                           : Container(
                               padding: const EdgeInsets.all(2),

@@ -81,11 +81,13 @@ class AboutView extends ConsumerWidget {
       title: '作者',
       items: [
         ListItem(
-          title: const Text('不负 (Gu Ao)'),
+          title: const Text('不负 (bft2249228496)'),
           subtitle: const Text('https://github.com/bft2249228496'),
           leading: const CircleAvatar(
+            foregroundImage: AssetImage(
+              'assets/images/avatar/bft2249228496.png',
+            ),
             backgroundColor: Color(0xFF6366F1),
-            child: Icon(Icons.person, color: Colors.white),
           ),
           trailing: const Icon(Icons.launch),
           onTap: () {
