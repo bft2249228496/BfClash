@@ -5,28 +5,32 @@ import 'package:material_ui/material_ui.dart';
 import '../state.dart';
 
 class TooltipText extends StatelessWidget {
-  final Text text;
+  final Widget text;
 
   const TooltipText({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
+    final rawText = text;
+    if (rawText is! Text) {
+      return rawText;
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxWidth = constraints.maxWidth;
         final isOverflow = globalState.measure.computeTextIsOverflow(
-          text,
+          rawText,
           maxWidth: maxWidth,
         );
         if (isOverflow) {
           return Tooltip(
             triggerMode: TooltipTriggerMode.longPress,
             preferBelow: false,
-            message: text.data,
-            child: text,
+            message: rawText.data,
+            child: rawText,
           );
         }
-        return text;
+        return rawText;
       },
     );
   }
