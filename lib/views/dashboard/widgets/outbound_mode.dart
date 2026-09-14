@@ -51,6 +51,7 @@ class OutboundMode extends ConsumerWidget {
                     _handleChangeMode(value, ref);
                   },
                   child: _ModeRadioList(
+                    mode: mode,
                     onSelect: (item) {
                       _handleChangeMode(item, ref);
                     },
@@ -66,8 +67,9 @@ class OutboundMode extends ConsumerWidget {
 }
 
 class _ModeRadioList extends StatelessWidget {
-  const _ModeRadioList({required this.onSelect});
+  const _ModeRadioList({required this.mode, required this.onSelect});
 
+  final Mode mode;
   final void Function(Mode mode) onSelect;
 
   @override

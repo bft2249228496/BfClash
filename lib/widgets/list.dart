@@ -323,7 +323,8 @@ class ListItem<T> extends StatelessWidget {
        leading = null,
        onTap = null;
 
-  Widget _buildListTile({
+  Widget _buildListTile(
+    BuildContext context, {
     void Function()? onTap,
     Widget? trailing,
     Widget? leading,
@@ -394,7 +395,7 @@ class ListItem<T> extends StatelessWidget {
               action();
             }
 
-            return _buildListTile(onTap: openAction);
+            return _buildListTile(context, onTap: openAction);
           },
           onClosed: onChanged,
           openBuilder: (_, action) {
@@ -405,6 +406,7 @@ class ListItem<T> extends StatelessWidget {
         final child = nextDelegate.widget;
 
         return _buildListTile(
+          context,
           onTap: () {
             showExtend(
               context,
@@ -421,6 +423,7 @@ class ListItem<T> extends StatelessWidget {
       case final _OptionsAction options:
         final optionsDelegate = options as _OptionsAction<T>;
         return _buildListTile(
+          context,
           onTap: () async {
             final value = await dialogs.showCommonDialog<T>(
               child: OptionsDialog<T>(
@@ -435,6 +438,7 @@ class ListItem<T> extends StatelessWidget {
         );
       case final _InputAction inputDelegate:
         return _buildListTile(
+          context,
           onTap: () async {
             final value = await dialogs.showCommonDialog<String>(
               child: InputDialog(
@@ -454,6 +458,7 @@ class ListItem<T> extends StatelessWidget {
         );
       case final _CheckboxAction checkboxDelegate:
         return _buildListTile(
+          context,
           onTap: checkboxDelegate.onChanged == null
               ? null
               : () {
@@ -466,6 +471,7 @@ class ListItem<T> extends StatelessWidget {
         );
       case final _ToggleAction toggleAction:
         return _buildListTile(
+          context,
           onTap: toggleAction.onChanged == null
               ? null
               : () {
@@ -479,6 +485,7 @@ class ListItem<T> extends StatelessWidget {
       case final _RadioAction radio:
         final radioDelegate = radio as _RadioAction<T>;
         return _buildListTile(
+          context,
           onTap: radioDelegate.onTap,
           leading: ExcludeFocus(
             child: Radio<T>(
@@ -491,7 +498,7 @@ class ListItem<T> extends StatelessWidget {
           trailing: trailing,
         );
       case _DefaultAction():
-        return _buildListTile(onTap: onTap);
+        return _buildListTile(context, onTap: onTap);
     }
   }
 }
