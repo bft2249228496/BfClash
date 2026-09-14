@@ -476,11 +476,19 @@ class _ProfileCardTitle extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          profile.realLabel,
-          style: context.textTheme.titleMedium,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        Builder(
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Text(
+              profile.realLabel,
+              style: context.textTheme.titleMedium?.copyWith(
+                color: isDark ? const Color(0xFFC7D2FE) : null,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            );
+          },
         ),
         const SizedBox(height: 6),
         ...info,

@@ -94,9 +94,26 @@ class _ModeRadioList extends StatelessWidget {
                   onSelect(item);
                 },
                 value: item,
-                title: Text(
-                  item.label,
-                  style: Theme.of(context).textTheme.bodyMedium?.toSoftBold,
+                title: Builder(
+                  builder: (context) {
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
+                    final isSelected = item == mode;
+                    final textColor = isDark
+                        ? (isSelected
+                              ? const Color(0xFFC7D2FE)
+                              : const Color(0xFFA5B4FC))
+                        : null;
+                    return Text(
+                      item.label,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: textColor,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w500,
+                      ),
+                    );
+                  },
                 ),
               ),
           ],

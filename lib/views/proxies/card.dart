@@ -76,6 +76,12 @@ class ProxyCard extends ConsumerWidget {
   }
 
   Widget _buildProxyNameText(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final nameColor = isDark ? const Color(0xFFC7D2FE) : null;
+    final textStyle = context.textTheme.bodyMedium?.copyWith(
+      color: nameColor,
+      fontWeight: FontWeight.w600,
+    );
     if (type == ProxyCardType.min) {
       return SizedBox(
         height: measure.bodyMediumHeight * 1,
@@ -83,7 +89,7 @@ class ProxyCard extends ConsumerWidget {
           proxy.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+          style: textStyle,
         ),
       );
     } else {
@@ -93,7 +99,7 @@ class ProxyCard extends ConsumerWidget {
           proxy.name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+          style: textStyle,
         ),
       );
     }

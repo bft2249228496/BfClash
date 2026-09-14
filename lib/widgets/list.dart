@@ -328,13 +328,29 @@ class ListItem<T> extends StatelessWidget {
     Widget? trailing,
     Widget? leading,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveTitleStyle =
+        titleTextStyle ??
+        (isDark
+            ? Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: const Color(0xFFC7D2FE),
+                fontWeight: FontWeight.w500,
+              )
+            : null);
+    final effectiveSubtitleStyle =
+        subtitleTextStyle ??
+        (isDark
+            ? Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: const Color(0xFFA5B4FC))
+            : null);
     return ListTile(
       key: key,
       dense: dense,
       visualDensity: visualDensity,
       tileColor: color,
-      titleTextStyle: titleTextStyle,
-      subtitleTextStyle: subtitleTextStyle,
+      titleTextStyle: effectiveTitleStyle,
+      subtitleTextStyle: effectiveSubtitleStyle,
       leading: leading ?? this.leading,
       horizontalTitleGap: horizontalTitleGap,
       title: title,
