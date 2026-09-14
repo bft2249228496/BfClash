@@ -197,9 +197,19 @@ class ApplicationState extends ConsumerState<Application> {
               brightness: Brightness.dark,
               base: baseTheme.textTheme,
             );
-            return (customTextTheme != null
-                    ? baseTheme.copyWith(textTheme: customTextTheme)
-                    : baseTheme)
+            return baseTheme
+                .copyWith(
+                  textTheme: customTextTheme,
+                  listTileTheme: baseTheme.listTileTheme.copyWith(
+                    titleTextStyle: customTextTheme.bodyLarge?.copyWith(
+                      color: const Color(0xFFEDE9FE),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    subtitleTextStyle: customTextTheme.bodySmall?.copyWith(
+                      color: const Color(0xFFA5B4FC),
+                    ),
+                  ),
+                )
                 .withAppShapes;
           }(),
           home: child!,

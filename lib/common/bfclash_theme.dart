@@ -172,7 +172,9 @@ ColorScheme buildBfClashColorScheme({
   final background = preset.background(brightness);
   final card = preset.card(brightness);
   final border = preset.border(brightness);
-  final isParty = preset.id == 'party' && brightness == Brightness.dark;
+  final isParty =
+      (preset.id == 'party' || preset.id == 'gemini') &&
+      brightness == Brightness.dark;
   return ColorScheme.fromSeed(
     seedColor: preset.primary(brightness),
     brightness: brightness,
@@ -200,17 +202,16 @@ ColorScheme buildBfClashColorScheme({
   );
 }
 
-TextTheme? buildBfClashTextTheme({
+TextTheme buildBfClashTextTheme({
   required Color color,
   required Brightness brightness,
   required TextTheme base,
 }) {
-  final preset = bfclashThemePresetFor(color);
-  final isParty = preset?.id == 'party' && brightness == Brightness.dark;
-  if (!isParty) return null;
+  if (brightness != Brightness.dark) return base;
 
-  // 主文字：柔和冰月白 (0xFFEDE9FE)
-  // 次级文字：雾感紫蓝灰 (0xFFA5B4FC)
+  // 暗黑模式全局彻底消除生硬惨白：
+  // 主标题/主正文：柔和冰月白 (0xFFEDE9FE)
+  // 次级说明/描述：雾感紫蓝灰 (0xFFA5B4FC)
   const primaryTextColor = Color(0xFFEDE9FE);
   const secondaryTextColor = Color(0xFFA5B4FC);
 
