@@ -1,3 +1,4 @@
+import 'package:fl_clash/common/bfclash_theme.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -182,13 +183,25 @@ class ApplicationState extends ConsumerState<Application> {
             pageTransitionsTheme: _pageTransitionsTheme,
             colorScheme: _getAppColorScheme(brightness: Brightness.light),
           ).withAppShapes,
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            pageTransitionsTheme: _pageTransitionsTheme,
-            colorScheme: _getAppColorScheme(
+          darkTheme: () {
+            final colorScheme = _getAppColorScheme(
               brightness: Brightness.dark,
-            ).toPureBlack(themeProps.pureBlack),
-          ).withAppShapes,
+            ).toPureBlack(themeProps.pureBlack);
+            final baseTheme = ThemeData(
+              useMaterial3: true,
+              pageTransitionsTheme: _pageTransitionsTheme,
+              colorScheme: colorScheme,
+            );
+            final customTextTheme = buildBfClashTextTheme(
+              color: Color(themeProps.primaryColor),
+              brightness: Brightness.dark,
+              base: baseTheme.textTheme,
+            );
+            return (customTextTheme != null
+                    ? baseTheme.copyWith(textTheme: customTextTheme)
+                    : baseTheme)
+                .withAppShapes;
+          }(),
           home: child!,
         );
       },

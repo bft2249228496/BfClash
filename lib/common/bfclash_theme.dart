@@ -193,7 +193,42 @@ ColorScheme buildBfClashColorScheme({
     outlineVariant: isParty
         ? const Color(0xFF383C56)
         : border.withValues(alpha: 0.72),
+    onSurface: isParty ? const Color(0xFFEDE9FE) : null,
+    onSurfaceVariant: isParty ? const Color(0xFFA5B4FC) : null,
     secondaryContainer: isParty ? const Color(0xFF272147) : null,
     onSecondaryContainer: isParty ? const Color(0xFFA5B4FC) : null,
+  );
+}
+
+TextTheme? buildBfClashTextTheme({
+  required Color color,
+  required Brightness brightness,
+  required TextTheme base,
+}) {
+  final preset = bfclashThemePresetFor(color);
+  final isParty = preset?.id == 'party' && brightness == Brightness.dark;
+  if (!isParty) return null;
+
+  // 主文字：柔和冰月白 (0xFFEDE9FE)
+  // 次级文字：雾感紫蓝灰 (0xFFA5B4FC)
+  const primaryTextColor = Color(0xFFEDE9FE);
+  const secondaryTextColor = Color(0xFFA5B4FC);
+
+  return base.copyWith(
+    displayLarge: base.displayLarge?.copyWith(color: primaryTextColor),
+    displayMedium: base.displayMedium?.copyWith(color: primaryTextColor),
+    displaySmall: base.displaySmall?.copyWith(color: primaryTextColor),
+    headlineLarge: base.headlineLarge?.copyWith(color: primaryTextColor),
+    headlineMedium: base.headlineMedium?.copyWith(color: primaryTextColor),
+    headlineSmall: base.headlineSmall?.copyWith(color: primaryTextColor),
+    titleLarge: base.titleLarge?.copyWith(color: primaryTextColor),
+    titleMedium: base.titleMedium?.copyWith(color: primaryTextColor),
+    titleSmall: base.titleSmall?.copyWith(color: secondaryTextColor),
+    bodyLarge: base.bodyLarge?.copyWith(color: primaryTextColor),
+    bodyMedium: base.bodyMedium?.copyWith(color: primaryTextColor),
+    bodySmall: base.bodySmall?.copyWith(color: secondaryTextColor),
+    labelLarge: base.labelLarge?.copyWith(color: primaryTextColor),
+    labelMedium: base.labelMedium?.copyWith(color: secondaryTextColor),
+    labelSmall: base.labelSmall?.copyWith(color: secondaryTextColor),
   );
 }
