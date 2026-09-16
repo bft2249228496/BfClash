@@ -27,7 +27,7 @@ jobs:
       - name: Update Submodule
         id: update
         run: |
-          git submodule update --remote --merge core/Clash.Meta
+          git submodule update --remote core/Clash.Meta
           if git diff --quiet core/Clash.Meta; then
             echo "has_update=false" >> $GITHUB_OUTPUT
             echo "Kernel is already up to date."
