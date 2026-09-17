@@ -25,7 +25,7 @@
 ---
 
 > ### 📌 Notice & Disclaimer (项目定位与免责声明)
-> 1. **Personal Custom Build**: This project is personal hobbyist software crafted purely for personal use, exploration, and aesthetic customization.
+> 1. **Personal Custom Build**: This project is personal hobbyist software based on FlClash, customized purely for the author's personal preferences, aesthetics, and everyday learning/use.
 > 2. **No Maintenance or Support Obligation**: The author maintains a busy daily schedule. **There is NO commitment, guarantee, or obligation to handle feature requests, bug fixes, or technical support.**
 > 3. **As-is & Casual Updates**: Releases and code updates happen purely at the author's leisure and personal need. No SLA, update schedule, or long-term roadmap is guaranteed.
 > 4. **Fork Welcome**: If you have specific ideas, needs, or improvements, you are warmly encouraged to fork the repository and build your own version under the GPL-3.0 License.
@@ -67,6 +67,13 @@
 
 - **开发者**：不负 ([@bft2249228496](https://github.com/bft2249228496))
 - **Telegram**：[@bf2249](https://t.me/bf2249)
+
+---
+
+## 🙏 鸣谢与上游 (Credits & Upstream)
+
+- **[FlClash](https://github.com/chen08209/FlClash)**：本项目 UI 架构与客户端底座基于 FlClash 深度定制与流光重构，感谢原作者 @chen08209 及所有贡献者的卓越工作。
+- **[Mihomo (Clash.Meta)](https://github.com/MetaCubeX/mihomo)**：高性能代理与路由内核。
 
 ---
 
