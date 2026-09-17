@@ -1,4 +1,5 @@
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,24 +99,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
             title: const Text('服务后端地址'),
             subtitle: Text(_urlController.text),
             leading: const Icon(Icons.link),
-            trailing: const Icon(Icons.edit),
-            onTap: () async {
-              final res = await dialogs.showInput(
-                title: '配置 Sub-Store 后端地址',
-                value: _urlController.text,
-              );
-              if (res != null && res.trim().isNotEmpty) {
-                setState(() {
-                  _urlController.text = res.trim();
-                });
-              }
-            },
-          ),
-          ListItem(
-            title: const Text('打开 Sub-Store Web 管理端'),
-            subtitle: const Text('调用浏览器打开当前配置的 Sub-Store 页面'),
-            leading: const Icon(Icons.open_in_browser),
-            trailing: const Icon(Icons.launch),
+            trailing: const Icon(Icons.open_in_new),
             onTap: () {
               _openInBrowser(_urlController.text);
             },
@@ -136,21 +120,11 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
         items: [
           ListItem(
             title: const Text('从 Sub-Store 产物链接导入'),
-            subtitle: const Text('输入 Sub-Store 生成的 Clash/Mihomo 订阅 URL 一键导入'),
+            subtitle: const Text('在浏览器中复制 Sub-Store 生成的订阅链接，去「配置」页面添加即可'),
             leading: const Icon(Icons.download),
-            trailing: const Icon(Icons.add_link),
-            onTap: () async {
-              final res = await dialogs.showInput(
-                title: '粘贴 Sub-Store 产物链接',
-                hintText: 'http://127.0.0.1:3000/download/...',
-              );
-              if (res != null && res.trim().isNotEmpty) {
-                if (!context.mounted) return;
-                context.showNotifier(
-                  '已捕获产物链接，请在弹出的新建配置中确认保存',
-                  level: MessageLevel.success,
-                );
-              }
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              context.showNotifier('请在 Sub-Store 复制产物链接后，前往「配置」页面新建导入');
             },
           ),
         ],
