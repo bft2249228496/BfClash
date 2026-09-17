@@ -34,6 +34,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        resValues = true
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.lansway.client.beta"
         resValue("string", "app_name", "BfClash Beta")
