@@ -44,6 +44,8 @@ jobs:
             echo "has_update=true" >> $GITHUB_OUTPUT
             SHORT_COMMIT=$(git -C core/Clash.Meta rev-parse --short HEAD)
             echo "submodule_commit=$SHORT_COMMIT" >> $GITHUB_OUTPUT
+            echo "old_commit=$OLD_COMMIT" >> $GITHUB_OUTPUT
+            echo "new_commit=$NEW_COMMIT" >> $GITHUB_OUTPUT
             echo "Detected upstream kernel update: $SHORT_COMMIT (old: $OLD_COMMIT -> new: $NEW_COMMIT)"
           fi
 
@@ -53,12 +55,15 @@ jobs:
         run: |
           cd core
           echo "Verifying Go core build with updated submodule..."
-          if go build -tags=with_gvisor -buildmode=c-shared -o /dev/null .; then
+          if go build -tags=with_gvisor -buildmode=c-shared -o /dev/null . 2> /tmp/build_err.log; then
             echo "build_passed=true" >> $GITHUB_OUTPUT
             echo "Core build passed successfully with new kernel."
           else
             echo "build_passed=false" >> $GITHUB_OUTPUT
-            echo "Core build FAILED: upstream interface changed, needs adaptation."
+            echo "build_error<<BUILD_EOF" >> $GITHUB_OUTPUT
+            cat /tmp/build_err.log | head -n 30 >> $GITHUB_OUTPUT
+            echo "BUILD_EOF" >> $GITHUB_OUTPUT
+            echo "Core build FAILED: upstream interface changed, needs AI auto-adaptation."
             exit 1
           fi
 
@@ -70,3 +75,48 @@ jobs:
           git add core/Clash.Meta core/go.mod core/go.sum
           git commit -m "chore(core): sync and verify upstream Clash.Meta kernel (${{ steps.check_update.outputs.submodule_commit }})"
           git push origin main
+
+      - name: Create Kernel Adaptation Request Issue on Failure
+        if: steps.check_update.outputs.has_update == 'true' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const shortCommit = "${{ steps.check_update.outputs.submodule_commit }}";
+            const oldCommit = "${{ steps.check_update.outputs.old_commit }}";
+            const newCommit = "${{ steps.check_update.outputs.new_commit }}";
+            const title = `[Kernel Adaptation Required] Clash.Meta upstream ${shortCommit} breaks core API`;
+            const body = `### 🚨 上游内核接口变动，需要自动化适配
+
+- **旧内核 Commit**: \`${oldCommit}\`
+- **新内核 Commit**: \`${newCommit}\`
+- **触发原因**: \`go build -tags=with_gvisor -buildmode=c-shared\` 编译失败，上游接口发生破坏性重构。
+
+---
+
+\`\`\`log
+${{ steps.verify_build.outputs.build_error }}
+\`\`\`
+
+> 本 Issue 由 \`sync-kernel\` 自动生成，OpenClaw 巡检机器人已捕获该任务，正在自动派发后台 AI 自动拉取变更并生成适配 Patch PR。`;
+
+            // Check if existing open issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['kernel-adaptation']
+            });
+
+            const exists = issues.data.some(i => i.title.includes(shortCommit));
+            if (!exists) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['kernel-adaptation', 'automated']
+              });
+              console.log("Adaptation Issue created successfully.");
+            } else {
+              console.log("Issue for this commit already exists, skipping creation.");
+            }
