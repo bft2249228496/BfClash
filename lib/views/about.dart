@@ -61,12 +61,39 @@ class AboutView extends ConsumerWidget {
           },
           trailing: const Icon(Icons.launch),
         ),
+      ],
+    );
+  }
+
+  List<Widget> _buildCreditsSection(BuildContext context) {
+    return generateSection(
+      separated: false,
+      title: '鸣谢与上游 (Credits)',
+      items: [
         ListItem(
-          title: Text(appLocalizations.core),
-          subtitle: const Text('Mihomo (Clash.Meta) v0.6.0 (70f0570)'),
+          title: const Text('FlClash'),
+          subtitle: const Text('客户端底座项目 (chen08209/FlClash)'),
+          onTap: () {
+            dialogs.openUrl('https://github.com/chen08209/FlClash');
+          },
+          trailing: const Icon(Icons.launch),
+        ),
+        ListItem(
+          title: const Text('Mihomo (Clash.Meta)'),
+          subtitle: const Text('高性能路由代理内核'),
           onTap: () {
             dialogs.openUrl(
               'https://github.com/chen08209/Clash.Meta/tree/FlClash',
+            );
+          },
+          trailing: const Icon(Icons.launch),
+        ),
+        ListItem(
+          title: const Text('开源许可证 (License)'),
+          subtitle: const Text('GNU General Public License v3.0'),
+          onTap: () {
+            dialogs.openUrl(
+              'https://github.com/bft2249228496/BfClash/blob/main/LICENSE',
             );
           },
           trailing: const Icon(Icons.launch),
@@ -158,6 +185,7 @@ class AboutView extends ConsumerWidget {
       ),
       const SizedBox(height: 12),
       ..._buildContributorsSection(appLocalizations),
+      ..._buildCreditsSection(context),
       ..._buildMoreSection(context, ref),
     ];
     return BaseScaffold(
