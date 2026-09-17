@@ -13,6 +13,7 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   sync:
@@ -24,25 +25,48 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Submodule
-        id: update
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Check Upstream Kernel Update
+        id: check_update
         run: |
+          OLD_COMMIT=$(git -C core/Clash.Meta rev-parse HEAD)
           git submodule update --remote core/Clash.Meta
-          if git diff --quiet core/Clash.Meta; then
+          NEW_COMMIT=$(git -C core/Clash.Meta rev-parse HEAD)
+          
+          if [ "$OLD_COMMIT" = "$NEW_COMMIT" ]; then
             echo "has_update=false" >> $GITHUB_OUTPUT
-            echo "Kernel is already up to date."
+            echo "Kernel is already up to date ($NEW_COMMIT)."
           else
             echo "has_update=true" >> $GITHUB_OUTPUT
-            SUBMODULE_COMMIT=$(git -C core/Clash.Meta rev-parse --short HEAD)
-            echo "submodule_commit=$SUBMODULE_COMMIT" >> $GITHUB_OUTPUT
-            echo "New kernel commit detected: $SUBMODULE_COMMIT"
+            SHORT_COMMIT=$(git -C core/Clash.Meta rev-parse --short HEAD)
+            echo "submodule_commit=$SHORT_COMMIT" >> $GITHUB_OUTPUT
+            echo "Detected upstream kernel update: $SHORT_COMMIT (old: $OLD_COMMIT -> new: $NEW_COMMIT)"
           fi
 
-      - name: Commit and Push Kernel Update
-        if: steps.update.outputs.has_update == 'true'
+      - name: Verify Core Build & Adaptation Compatibility
+        if: steps.check_update.outputs.has_update == 'true'
+        id: verify_build
+        run: |
+          cd core
+          echo "Verifying Go core build with updated submodule..."
+          if go build -tags=with_gvisor -buildmode=c-shared -o /dev/null .; then
+            echo "build_passed=true" >> $GITHUB_OUTPUT
+            echo "Core build passed successfully with new kernel."
+          else
+            echo "build_passed=false" >> $GITHUB_OUTPUT
+            echo "Core build FAILED: upstream interface changed, needs adaptation."
+            exit 1
+          fi
+
+      - name: Commit and Push Verified Kernel Update
+        if: steps.check_update.outputs.has_update == 'true' && steps.verify_build.outputs.build_passed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add core/Clash.Meta
-          git commit -m "chore(core): sync upstream Clash.Meta kernel (${{ steps.update.outputs.submodule_commit }})"
+          git add core/Clash.Meta core/go.mod core/go.sum
+          git commit -m "chore(core): sync and verify upstream Clash.Meta kernel (${{ steps.check_update.outputs.submodule_commit }})"
           git push origin main
