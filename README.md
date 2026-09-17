@@ -24,6 +24,15 @@
 
 ---
 
+> ### 📌 Notice & Disclaimer (项目定位与免责声明)
+> 1. **Personal Custom Build**: This project is personal hobbyist software crafted purely for personal use, exploration, and aesthetic customization.
+> 2. **No Maintenance or Support Obligation**: The author maintains a busy daily schedule. **There is NO commitment, guarantee, or obligation to handle feature requests, bug fixes, or technical support.**
+> 3. **As-is & Casual Updates**: Releases and code updates happen purely at the author's leisure and personal need. No SLA, update schedule, or long-term roadmap is guaranteed.
+> 4. **Fork Welcome**: If you have specific ideas, needs, or improvements, you are warmly encouraged to fork the repository and build your own version under the GPL-3.0 License.
+> 5. **Disclaimer**: The software is provided "AS IS", without warranty of any kind. The author shall not be held liable for any damages or issues arising from the use of this software.
+
+---
+
 ## 🌟 核心亮点 (Highlights)
 
 - 🎨 **黑曜派对流光美学 (Party Neon Aesthetics)**：深度定制的暗黑派对视觉系统，核心指标与动态折线图融入极光霓虹流光渐变（`#38BDF8` ➔ `#818CF8` ➔ `#C084FC`），全界面告别生硬死白，采用舒适护眼的柔和冰月白与雾感紫蓝灰。
@@ -54,11 +63,10 @@
 
 ---
 
-## 👨‍💻 作者与维护者 (Author)
+## 👨💻 作者与维护者 (Author)
 
 - **开发者**：不负 ([@bft2249228496](https://github.com/bft2249228496))
 - **Telegram**：[@bf2249](https://t.me/bf2249)
-- **反馈与讨论**：欢迎提交 [Issues](https://github.com/bft2249228496/BfClash/issues) 或 Pull Requests！
 
 ---
 
