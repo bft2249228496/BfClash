@@ -35,7 +35,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.lansway.client"
+        applicationId = "com.lansway.client.beta"
+        resValue("string", "app_name", "BfClash Beta")
         minSdk = flutter.minSdkVersion
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = flutter.versionCode
