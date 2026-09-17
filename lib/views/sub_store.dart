@@ -12,9 +12,22 @@ class SubStoreView extends ConsumerStatefulWidget {
 
 class _SubStoreViewState extends ConsumerState<SubStoreView> {
   bool _isLocalMode = false;
-  final TextEditingController _remoteUrlController = TextEditingController(
-    text: 'http://170.9.31.29:3001',
-  );
+  final TextEditingController _remoteUrlController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedUrl();
+  }
+
+  Future<void> _loadSavedUrl() async {
+    final saved = await preferences.getSubStoreRemoteUrl();
+    if (mounted && saved.isNotEmpty) {
+      setState(() {
+        _remoteUrlController.text = saved;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -32,18 +45,22 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
   void _openSubStoreWeb() {
     final backend = _currentBackendUrl;
     if (backend.isEmpty) {
-      context.showNotifier('请先输入有效的后端地址');
+      context.showNotifier('请先输入有效的远程 VPS 后端地址');
       return;
     }
     // Automatically inject api parameter so official web connects seamlessly without manual configuration errors
-    final uri = Uri.parse('https://sub-store.vercel.app')
-        .replace(queryParameters: {'api': backend});
+    final uri = Uri.parse(
+      'https://sub-store.vercel.app',
+    ).replace(queryParameters: {'api': backend});
     dialogs.openUrl(uri.toString());
   }
 
   void _openDirectBackend() {
     final backend = _currentBackendUrl;
-    if (backend.isEmpty) return;
+    if (backend.isEmpty) {
+      context.showNotifier('请先输入有效的后端地址');
+      return;
+    }
     dialogs.openUrl(backend);
   }
 
@@ -104,7 +121,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
                 ),
               ),
               child: Text(
-                '💡 支持双模运行：既可直接连接远程自建的 VPS 后端，亦支持手机本地独立运行。打开 Web 控制台时将自动免配注入后端 API，告别手动填写与网络报错。',
+                '💡 支持双模运行：既可直接连接自建的 VPS 后端，亦支持手机本地独立运行。打开 Web 控制台时将自动免配注入后端 API，告别手动填写与网络报错。',
                 style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
               ),
             ),
@@ -135,7 +152,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
               title: const Text('远程 VPS 后端地址'),
               subtitle: Text(
                 _remoteUrlController.text.isEmpty
-                    ? '未配置'
+                    ? '未配置 (点击配置)'
                     : _remoteUrlController.text,
               ),
               leading: const Icon(Icons.dns),
@@ -150,7 +167,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
                       initialValue: tempText,
                       onChanged: (val) => tempText = val.trim(),
                       decoration: const InputDecoration(
-                        hintText: '如: http://170.9.31.29:3001',
+                        hintText: '如: http://192.168.1.100:3001',
                       ),
                     ),
                     actions: [
@@ -165,10 +182,11 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
                     ],
                   ),
                 );
-                if (res != null && res.isNotEmpty) {
+                if (res != null) {
                   setState(() {
                     _remoteUrlController.text = res;
                   });
+                  await preferences.saveSubStoreRemoteUrl(res);
                 }
               },
             )
@@ -199,7 +217,9 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
           ),
           ListItem(
             title: const Text('直连后端原生面板'),
-            subtitle: Text(_currentBackendUrl),
+            subtitle: Text(
+              _currentBackendUrl.isEmpty ? '未配置后端地址' : _currentBackendUrl,
+            ),
             leading: const Icon(Icons.link),
             trailing: const Icon(Icons.open_in_new),
             onTap: _openDirectBackend,

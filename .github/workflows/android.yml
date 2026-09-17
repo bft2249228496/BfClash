@@ -30,7 +30,7 @@ jobs:
         id: ndk
         with: {ndk-version: '${{ env.NDK_VERSION }}', add-to-path: true, link-to-sdk: true}
       - run: flutter pub get
-      - run: dart format --output=none lib test tool plugins setup.dart || true
+      - run: dart format --output=none --set-exit-if-changed lib test tool plugins setup.dart
       - run: flutter analyze --no-fatal-infos
       - name: Test
         run: |
