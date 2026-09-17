@@ -141,14 +141,32 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
               leading: const Icon(Icons.dns),
               trailing: const Icon(Icons.edit),
               onTap: () async {
-                final res = await dialogs.showInput(
-                  title: '修改远程 VPS 后端地址',
-                  value: _remoteUrlController.text,
-                  hintText: '如: http://170.9.31.29:3001',
+                final controller = TextEditingController(text: _remoteUrlController.text);
+                final res = await showDialog<String>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('修改远程 VPS 后端地址'),
+                    content: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        hintText: '如: http://170.9.31.29:3001',
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('取消'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+                        child: const Text('确定'),
+                      ),
+                    ],
+                  ),
                 );
-                if (res != null && res.trim().isNotEmpty) {
+                if (res != null && res.isNotEmpty) {
                   setState(() {
-                    _remoteUrlController.text = res.trim();
+                    _remoteUrlController.text = res;
                   });
                 }
               },
