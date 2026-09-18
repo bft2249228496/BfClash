@@ -71,20 +71,57 @@ class Request {
 
   Future<Map<String, dynamic>?> checkForUpdate() async {
     try {
+      final version = globalState.packageInfo.version;
+      final isCurrentBeta = isPreReleaseVersion(version);
+
+      if (!isCurrentBeta) {
+        // 正式版：只检测官方最新正式发布版本
+        final response = await dio.get(
+          'https://api.github.com/repos/$repository/releases/latest',
+          options: Options(responseType: ResponseType.json),
+        );
+        if (response.statusCode != 200) return null;
+        final data = response.data as Map<String, dynamic>;
+        final remoteVersion = data['tag_name'] as String? ?? '';
+        final cleanTag = remoteVersion.replaceAll('v', '');
+        if (isPreReleaseVersion(cleanTag)) return null;
+        final hasUpdate = compareVersions(cleanTag, version) > 0;
+        if (!hasUpdate) return null;
+        return data;
+      }
+
+      // Beta / 预发布版：获取最新 release 列表，可检测到更新的 Beta 版或更高阶的正式版
       final response = await dio.get(
-        'https://api.github.com/repos/$repository/releases/latest',
+        'https://api.github.com/repos/$repository/releases?per_page=10',
         options: Options(responseType: ResponseType.json),
       );
       if (response.statusCode != 200) return null;
-      final data = response.data as Map<String, dynamic>;
-      final remoteVersion = data['tag_name'];
-      final version = globalState.packageInfo.version;
-      final hasUpdate =
-          compareVersions(remoteVersion.replaceAll('v', ''), version) > 0;
-      if (!hasUpdate) return null;
-      return data;
+      final list =
+          (response.data as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .toList() ??
+          [];
+
+      Map<String, dynamic>? bestRelease;
+      String? bestVersion;
+
+      for (final release in list) {
+        if (release['draft'] == true) continue;
+        final tagName = release['tag_name'] as String? ?? '';
+        if (tagName.isEmpty) continue;
+        final cleanTag = tagName.replaceAll('v', '');
+        if (compareVersions(cleanTag, version) > 0) {
+          if (bestVersion == null ||
+              compareVersions(cleanTag, bestVersion) > 0) {
+            bestVersion = cleanTag;
+            bestRelease = release;
+          }
+        }
+      }
+
+      return bestRelease;
     } catch (e) {
-      commonPrint.log('checkForUpdate failed', logLevel: LogLevel.warning);
+      commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
       return null;
     }
   }

@@ -12,31 +12,92 @@ extension PackageInfoExtension on PackageInfo {
   ].join(' ');
 }
 
+class VersionInfo {
+  final int major;
+  final int minor;
+  final int patch;
+  final String? preRelease;
+  final int? preReleaseNum;
+  final int build;
+
+  VersionInfo({
+    required this.major,
+    required this.minor,
+    required this.patch,
+    this.preRelease,
+    this.preReleaseNum,
+    required this.build,
+  });
+
+  static VersionInfo parse(String raw) {
+    var v = raw.trim();
+    if (v.startsWith('v') || v.startsWith('V')) {
+      v = v.substring(1);
+    }
+    int build = 0;
+    if (v.contains('+')) {
+      final parts = v.split('+');
+      v = parts[0];
+      build = int.tryParse(parts[1]) ?? 0;
+    }
+
+    String? preRelease;
+    int? preReleaseNum;
+    if (v.contains('-')) {
+      final parts = v.split('-');
+      v = parts[0];
+      final pre = parts.sublist(1).join('-');
+      preRelease = pre;
+      final match = RegExp(r'^(.*?)[.-]?(\\d+)$').firstMatch(pre);
+      if (match != null) {
+        preRelease = match.group(1);
+        preReleaseNum = int.tryParse(match.group(2)!);
+      }
+    }
+
+    final nums = v.split('.');
+    final major = nums.isNotEmpty ? (int.tryParse(nums[0]) ?? 0) : 0;
+    final minor = nums.length > 1 ? (int.tryParse(nums[1]) ?? 0) : 0;
+    final patch = nums.length > 2 ? (int.tryParse(nums[2]) ?? 0) : 0;
+
+    return VersionInfo(
+      major: major,
+      minor: minor,
+      patch: patch,
+      preRelease: preRelease,
+      preReleaseNum: preReleaseNum,
+      build: build,
+    );
+  }
+
+  int compareTo(VersionInfo other) {
+    if (major != other.major) return major.compareTo(other.major);
+    if (minor != other.minor) return minor.compareTo(other.minor);
+    if (patch != other.patch) return patch.compareTo(other.patch);
+
+    final thisIsPre = preRelease != null;
+    final otherIsPre = other.preRelease != null;
+    if (thisIsPre && !otherIsPre) return -1;
+    if (!thisIsPre && otherIsPre) return 1;
+    if (thisIsPre && otherIsPre) {
+      if (preRelease != other.preRelease) {
+        return (preRelease ?? '').compareTo(other.preRelease ?? '');
+      }
+      final p1 = preReleaseNum ?? 0;
+      final p2 = other.preReleaseNum ?? 0;
+      if (p1 != p2) return p1.compareTo(p2);
+    }
+
+    return build.compareTo(other.build);
+  }
+}
+
 int compareVersions(String version1, String version2) {
-  final List<String> v1 = version1.split('+')[0].split('.');
-  final List<String> v2 = version2.split('+')[0].split('.');
-  final int major1 = int.parse(v1[0]);
-  final int major2 = int.parse(v2[0]);
-  if (major1 != major2) {
-    return major1.compareTo(major2);
-  }
-  final int minor1 = v1.length > 1 ? int.parse(v1[1]) : 0;
-  final int minor2 = v2.length > 1 ? int.parse(v2[1]) : 0;
-  if (minor1 != minor2) {
-    return minor1.compareTo(minor2);
-  }
-  final int patch1 = v1.length > 2 ? int.parse(v1[2]) : 0;
-  final int patch2 = v2.length > 2 ? int.parse(v2[2]) : 0;
-  if (patch1 != patch2) {
-    return patch1.compareTo(patch2);
-  }
-  final int build1 = version1.contains('+')
-      ? int.parse(version1.split('+')[1])
-      : 0;
-  final int build2 = version2.contains('+')
-      ? int.parse(version2.split('+')[1])
-      : 0;
-  return build1.compareTo(build2);
+  return VersionInfo.parse(version1).compareTo(VersionInfo.parse(version2));
+}
+
+bool isPreReleaseVersion(String version) {
+  return VersionInfo.parse(version).preRelease != null;
 }
 
 const releaseNotesBeginMarker = '<!-- flclash:changelog:begin -->';
