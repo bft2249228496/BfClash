@@ -12,6 +12,7 @@ import 'package:fl_clash/state.dart';
 class Request {
   late final Dio dio;
   late final Dio _clashDio;
+  Dio get clashDio => _clashDio;
   String? userAgent;
 
   ProviderReader? _read;

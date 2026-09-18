@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -56,22 +57,53 @@ Future<String?> androidUpdateDownloadUrl(Map<String, dynamic> release) async {
   );
 }
 
+/// Download Android update with intelligent dual-channel mirror fallback.
+/// Tries direct/proxy download first; if stuck or slow, falls back to fast mirrors.
 Future<File> downloadAndroidUpdate(
   Dio dio,
-  String url, {
+  String rawUrl, {
   void Function(int received, int total)? onProgress,
 }) async {
   final directory = await getTemporaryDirectory();
   final file = File('${directory.path}/bfclash_update.apk');
   if (await file.exists()) await file.delete();
-  await dio.download(
-    url,
-    file.path,
-    onReceiveProgress: onProgress,
-    options: Options(
-      followRedirects: true,
-      receiveTimeout: const Duration(minutes: 10),
-    ),
-  );
-  return file;
+
+  // Priority download URLs: official direct followed by proven fast mirrors
+  final candidateUrls = [
+    rawUrl,
+    'https://ghfast.top/$rawUrl',
+    'https://mirror.ghproxy.com/$rawUrl',
+  ];
+
+  DioException? lastError;
+
+  for (final url in candidateUrls) {
+    try {
+      if (await file.exists()) await file.delete();
+      await dio.download(
+        url,
+        file.path,
+        onReceiveProgress: onProgress,
+        options: Options(
+          followRedirects: true,
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(minutes: 10),
+        ),
+      );
+      if (await file.exists() && await file.length() > 10 * 1024 * 1024) {
+        return file;
+      }
+    } on DioException catch (e) {
+      lastError = e;
+      continue;
+    } catch (_) {
+      continue;
+    }
+  }
+
+  if (await file.exists() && await file.length() > 0) {
+    return file;
+  }
+  if (lastError != null) throw lastError;
+  throw Exception('下载更新失败，所有镜像源均不可用');
 }

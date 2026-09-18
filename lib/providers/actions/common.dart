@@ -279,7 +279,7 @@ class CommonAction extends _$CommonAction {
     );
     try {
       final file = await downloadAndroidUpdate(
-        request.dio,
+        request.clashDio,
         url,
         onProgress: (received, total) {
           progress.value = total > 0 ? received / total : null;
