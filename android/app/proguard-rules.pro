@@ -3,4 +3,4 @@
 
 -keep class com.lansway.client.service.models.** { *; }
 
--dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.**
