@@ -136,7 +136,7 @@ class SubStoreBackendService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("BfClash Sub-Store")
             .setContentText("Local backend is available at ${SubStoreBackendController.ENDPOINT}")
             .setContentIntent(pendingIntent)
