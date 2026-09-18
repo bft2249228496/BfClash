@@ -506,8 +506,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("Код GeoIP"),
     "global": MessageLookupByLibrary.simpleMessage("Глобальный"),
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
-    "updateNow": MessageLookupByLibrary.simpleMessage("Обновить сейчас"),
-    "later": MessageLookupByLibrary.simpleMessage("Позже"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Скачать"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Перейти к настройке скрипта",
@@ -567,9 +565,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -613,6 +612,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
+    "later": MessageLookupByLibrary.simpleMessage("Позже"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage(
       "Запуск не завершён",
     ),
@@ -1149,6 +1149,68 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Подправило не может быть пустым",
     ),
+    "subStoreAndroidOnly": MessageLookupByLibrary.simpleMessage(
+      "Сервер на устройстве доступен только на Android",
+    ),
+    "subStoreConsole": MessageLookupByLibrary.simpleMessage(
+      "Консоль управления",
+    ),
+    "subStoreFailed": MessageLookupByLibrary.simpleMessage(
+      "Сбой сервера Sub-Store",
+    ),
+    "subStoreInvalidEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Введите корректный HTTP- или HTTPS-адрес сервера",
+    ),
+    "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage(
+      "Локальный сервис",
+    ),
+    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage(
+      "Сервер на устройстве",
+    ),
+    "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Запустить официальный сервер Sub-Store приватно на этом Android-устройстве",
+    ),
+    "subStoreMode": MessageLookupByLibrary.simpleMessage("Режим сервера"),
+    "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
+      "Не настроено",
+    ),
+    "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
+      "Открыть официальную консоль Sub-Store",
+    ),
+    "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
+      "Удалённый сервис",
+    ),
+    "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Адрес сервера",
+    ),
+    "subStoreRemoteEndpointHint": MessageLookupByLibrary.simpleMessage(
+      "Введите базовый URL сервера, включая приватный путь",
+    ),
+    "subStoreRemoteMode": MessageLookupByLibrary.simpleMessage(
+      "Сервер на удалённом VPS",
+    ),
+    "subStoreRemoteModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Подключить официальную консоль к сервису Sub-Store на другом сервере",
+    ),
+    "subStoreRunning": MessageLookupByLibrary.simpleMessage(
+      "Сервер Sub-Store работает",
+    ),
+    "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось запустить сервер Sub-Store",
+    ),
+    "subStoreStartFirst": MessageLookupByLibrary.simpleMessage(
+      "Сначала запустите сервер на устройстве",
+    ),
+    "subStoreStarted": MessageLookupByLibrary.simpleMessage(
+      "Сервер Sub-Store запущен",
+    ),
+    "subStoreStarting": MessageLookupByLibrary.simpleMessage(
+      "Сервер Sub-Store запускается…",
+    ),
+    "subStoreStopped": MessageLookupByLibrary.simpleMessage(
+      "Сервер Sub-Store остановлен",
+    ),
+    "subStoreTitle": MessageLookupByLibrary.simpleMessage("Sub-Store"),
     "submit": MessageLookupByLibrary.simpleMessage("Отправить"),
     "subscriptionInfo": MessageLookupByLibrary.simpleMessage(
       "Информация о подписке",
@@ -1218,6 +1280,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unnamed": MessageLookupByLibrary.simpleMessage("Без названия"),
     "unpinWindow": MessageLookupByLibrary.simpleMessage("Открепить окно"),
     "update": MessageLookupByLibrary.simpleMessage("Обновить"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("Обновить сейчас"),
     "upload": MessageLookupByLibrary.simpleMessage("Отдача"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Получить профиль по URL"),

@@ -118,6 +118,15 @@
                 android:value="true" />
         </service>
 
+        <service
+            android:name=".substore.SubStoreBackendService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-started loopback HTTP service for managing and converting subscriptions with Sub-Store." />
+        </service>
+
         <receiver
             android:name=".ServiceBroadcastReceiver"
             android:enabled="true"

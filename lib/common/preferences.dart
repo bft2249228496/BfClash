@@ -153,12 +153,12 @@ class Preferences {
 
   Future<String> getSubStoreRemoteUrl() async {
     final preferences = await sharedPreferencesCompleter.future;
-    return preferences?.getString("sub_store_remote_url") ?? "";
+    return preferences?.getString('sub_store_remote_url') ?? '';
   }
 
   Future<void> saveSubStoreRemoteUrl(String url) async {
     final preferences = await sharedPreferencesCompleter.future;
-    await preferences?.setString("sub_store_remote_url", url);
+    await preferences?.setString('sub_store_remote_url', url);
   }
 
   Future<void> clearPreferences() async {

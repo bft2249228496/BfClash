@@ -77,9 +77,9 @@ class Request {
 
       if (!isCurrentBeta) {
         // 正式版：只检测官方最新正式发布版本
-        final response = await dio.get(
+        final response = await _clashDio.get(
           'https://api.github.com/repos/$repository/releases/latest',
-          options: Options(responseType: ResponseType.json),
+          options: _updateRequestOptions,
         );
         if (response.statusCode != 200) return null;
         final data = response.data as Map<String, dynamic>;
@@ -92,9 +92,9 @@ class Request {
       }
 
       // Beta / 预发布版：只检测同为 Beta / 预发布版本的更新
-      final response = await dio.get(
+      final response = await _clashDio.get(
         'https://api.github.com/repos/$repository/releases?per_page=10',
-        options: Options(responseType: ResponseType.json),
+        options: _updateRequestOptions,
       );
       if (response.statusCode != 200) return null;
       final list =
@@ -131,6 +131,12 @@ class Request {
       return null;
     }
   }
+
+  Options get _updateRequestOptions => Options(
+    responseType: ResponseType.json,
+    sendTimeout: const Duration(seconds: 8),
+    receiveTimeout: const Duration(seconds: 15),
+  );
 
   final Map<String, IpInfo Function(Map<String, dynamic>)> _ipInfoSources = {
     'https://ipwho.is': IpInfo.fromIpWhoIsJson,

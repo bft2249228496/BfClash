@@ -126,8 +126,8 @@ class _SubStoreItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListItem.open(
       leading: const Icon(Icons.hub, color: Color(0xFF818CF8)),
-      title: const Text('Sub-Store 订阅管理'),
-      subtitle: const Text('高级订阅组合、节点清洗与转换枢纽'),
+      title: Text(context.appLocalizations.subStoreTitle),
+      subtitle: Text(context.appLocalizations.subStoreLocalModeDesc),
       widget: const SubStoreView(),
     );
   }

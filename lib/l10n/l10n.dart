@@ -1050,15 +1050,17 @@ class AppLocalizations {
     );
   }
 
-  /// `Download`
+  /// `Update Now`
   String get updateNow {
-    return Intl.message('立即更新', name: 'updateNow', desc: '', args: []);
+    return Intl.message('Update Now', name: 'updateNow', desc: '', args: []);
   }
 
+  /// `Later`
   String get later {
-    return Intl.message('稍后', name: 'later', desc: '', args: []);
+    return Intl.message('Later', name: 'later', desc: '', args: []);
   }
 
+  /// `Download`
   String get goDownload {
     return Intl.message('Download', name: 'goDownload', desc: '', args: []);
   }
@@ -5118,6 +5120,221 @@ class AppLocalizations {
     return Intl.message(
       'The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.',
       name: 'installedAppsPermissionDeniedMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sub-Store`
+  String get subStoreTitle {
+    return Intl.message('Sub-Store', name: 'subStoreTitle', desc: '', args: []);
+  }
+
+  /// `Backend mode`
+  String get subStoreMode {
+    return Intl.message(
+      'Backend mode',
+      name: 'subStoreMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On-device backend`
+  String get subStoreLocalMode {
+    return Intl.message(
+      'On-device backend',
+      name: 'subStoreLocalMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Run the official Sub-Store backend privately on this Android device`
+  String get subStoreLocalModeDesc {
+    return Intl.message(
+      'Run the official Sub-Store backend privately on this Android device',
+      name: 'subStoreLocalModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remote VPS backend`
+  String get subStoreRemoteMode {
+    return Intl.message(
+      'Remote VPS backend',
+      name: 'subStoreRemoteMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connect the official console to a Sub-Store service on another server`
+  String get subStoreRemoteModeDesc {
+    return Intl.message(
+      'Connect the official console to a Sub-Store service on another server',
+      name: 'subStoreRemoteModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On-device service`
+  String get subStoreLocalBackend {
+    return Intl.message(
+      'On-device service',
+      name: 'subStoreLocalBackend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remote service`
+  String get subStoreRemoteBackend {
+    return Intl.message(
+      'Remote service',
+      name: 'subStoreRemoteBackend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backend endpoint`
+  String get subStoreRemoteEndpoint {
+    return Intl.message(
+      'Backend endpoint',
+      name: 'subStoreRemoteEndpoint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the backend base URL, including any private path`
+  String get subStoreRemoteEndpointHint {
+    return Intl.message(
+      'Enter the backend base URL, including any private path',
+      name: 'subStoreRemoteEndpointHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid HTTP or HTTPS backend URL`
+  String get subStoreInvalidEndpoint {
+    return Intl.message(
+      'Enter a valid HTTP or HTTPS backend URL',
+      name: 'subStoreInvalidEndpoint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not configured`
+  String get subStoreNotConfigured {
+    return Intl.message(
+      'Not configured',
+      name: 'subStoreNotConfigured',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Management console`
+  String get subStoreConsole {
+    return Intl.message(
+      'Management console',
+      name: 'subStoreConsole',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open official Sub-Store console`
+  String get subStoreOpenConsole {
+    return Intl.message(
+      'Open official Sub-Store console',
+      name: 'subStoreOpenConsole',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sub-Store backend started`
+  String get subStoreStarted {
+    return Intl.message(
+      'Sub-Store backend started',
+      name: 'subStoreStarted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Starting Sub-Store backend…`
+  String get subStoreStarting {
+    return Intl.message(
+      'Starting Sub-Store backend…',
+      name: 'subStoreStarting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sub-Store backend is running`
+  String get subStoreRunning {
+    return Intl.message(
+      'Sub-Store backend is running',
+      name: 'subStoreRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sub-Store backend is stopped`
+  String get subStoreStopped {
+    return Intl.message(
+      'Sub-Store backend is stopped',
+      name: 'subStoreStopped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sub-Store backend failed`
+  String get subStoreFailed {
+    return Intl.message(
+      'Sub-Store backend failed',
+      name: 'subStoreFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to start Sub-Store backend`
+  String get subStoreStartFailed {
+    return Intl.message(
+      'Unable to start Sub-Store backend',
+      name: 'subStoreStartFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start the on-device backend first`
+  String get subStoreStartFirst {
+    return Intl.message(
+      'Start the on-device backend first',
+      name: 'subStoreStartFirst',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The on-device backend is available on Android`
+  String get subStoreAndroidOnly {
+    return Intl.message(
+      'The on-device backend is available on Android',
+      name: 'subStoreAndroidOnly',
       desc: '',
       args: [],
     );

@@ -1,0 +1,14 @@
+Sub-Store backend integration
+
+The backend runtime adapter is based on the architecture and compatibility
+bridge used by SubCase:
+https://github.com/sub-store-org/subcase
+Reference revision: 2a3cc85be0de294efd0fa478889bbc5d85219031
+License: GNU Affero General Public License version 3
+
+The bundled backend scripts are official Sub-Store 2.39.8 release assets:
+https://github.com/sub-store-org/Sub-Store/releases/tag/2.39.8
+License: GNU Affero General Public License version 3
+
+The official management frontend is loaded from:
+https://sub-store.vercel.app
