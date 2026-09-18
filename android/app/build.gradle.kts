@@ -34,8 +34,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        resValues = true
+        buildConfig = true
+    }
+
     defaultConfig {
-        applicationId = "com.lansway.client"
+        applicationId = "com.lansway.client.beta"
+        resValue("string", "app_name", "BfClash Beta")
         minSdk = flutter.minSdkVersion
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = flutter.versionCode
@@ -102,6 +108,10 @@ dependencies {
     implementation(libs.smali.dexlib2) {
         exclude(group = "com.google.guava", module = "guava")
     }
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cio)
+    implementation(libs.okhttp)
+    implementation(libs.timber)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics.ndk)
     implementation(libs.firebase.analytics)

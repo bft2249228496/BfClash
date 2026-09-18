@@ -6,11 +6,11 @@ object Components {
     const val PACKAGE_NAME = "com.lansway.client"
 
     val mainActivity =
-        ComponentName(GlobalState.packageName, "${PACKAGE_NAME}.MainActivity")
+        ComponentName(GlobalState.packageName, "${GlobalState.packageName}.MainActivity")
 
     val quickActionActivity =
-        ComponentName(GlobalState.packageName, "${PACKAGE_NAME}.QuickActionActivity")
+        ComponentName(GlobalState.packageName, "${GlobalState.packageName}.QuickActionActivity")
 
     val serviceBroadcastReceiver =
-        ComponentName(GlobalState.packageName, "${PACKAGE_NAME}.ServiceBroadcastReceiver")
+        ComponentName(GlobalState.packageName, "${GlobalState.packageName}.ServiceBroadcastReceiver")
 }

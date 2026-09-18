@@ -402,8 +402,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("GeoIPコード"),
     "global": MessageLookupByLibrary.simpleMessage("グローバル"),
     "go": MessageLookupByLibrary.simpleMessage("開く"),
-    "updateNow": MessageLookupByLibrary.simpleMessage("今すぐ更新"),
-    "later": MessageLookupByLibrary.simpleMessage("後で"),
     "goDownload": MessageLookupByLibrary.simpleMessage("ダウンロードへ"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage("スクリプト設定へ移動"),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage("変更をキャッシュしますか？"),
@@ -494,6 +492,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "key": MessageLookupByLibrary.simpleMessage("キー"),
     "language": MessageLookupByLibrary.simpleMessage("言語"),
+    "later": MessageLookupByLibrary.simpleMessage("後で"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage("起動が完了しませんでした"),
     "launchInterruptedTip": MessageLookupByLibrary.simpleMessage(
       "前回、アプリは起動中に予期せず終了しました。今回の自動セットアップはスキップしました。手動で起動して再試行できます。",
@@ -920,6 +919,58 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRule": MessageLookupByLibrary.simpleMessage("サブルール"),
     "subRuleEmpty": MessageLookupByLibrary.simpleMessage("サブルールが空です"),
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage("サブルールは空にできません"),
+    "subStoreAndroidOnly": MessageLookupByLibrary.simpleMessage(
+      "端末内バックエンドは Android でのみ利用できます",
+    ),
+    "subStoreConsole": MessageLookupByLibrary.simpleMessage("管理コンソール"),
+    "subStoreFailed": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store バックエンドでエラーが発生しました",
+    ),
+    "subStoreInvalidEndpoint": MessageLookupByLibrary.simpleMessage(
+      "有効な HTTP または HTTPS URL を入力してください",
+    ),
+    "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage("端末内サービス"),
+    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("端末内バックエンド"),
+    "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
+      "この Android 端末で公式 Sub-Store バックエンドを非公開で実行します",
+    ),
+    "subStoreMode": MessageLookupByLibrary.simpleMessage("バックエンドモード"),
+    "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage("未設定"),
+    "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
+      "公式 Sub-Store コンソールを開く",
+    ),
+    "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage("リモートサービス"),
+    "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage(
+      "バックエンド URL",
+    ),
+    "subStoreRemoteEndpointHint": MessageLookupByLibrary.simpleMessage(
+      "非公開パスを含むバックエンドのベース URL を入力してください",
+    ),
+    "subStoreRemoteMode": MessageLookupByLibrary.simpleMessage(
+      "リモート VPS バックエンド",
+    ),
+    "subStoreRemoteModeDesc": MessageLookupByLibrary.simpleMessage(
+      "公式コンソールを別サーバーの Sub-Store サービスに接続します",
+    ),
+    "subStoreRunning": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store バックエンドは実行中です",
+    ),
+    "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store バックエンドを起動できません",
+    ),
+    "subStoreStartFirst": MessageLookupByLibrary.simpleMessage(
+      "先に端末内バックエンドを起動してください",
+    ),
+    "subStoreStarted": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store バックエンドを起動しました",
+    ),
+    "subStoreStarting": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store バックエンドを起動中…",
+    ),
+    "subStoreStopped": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store バックエンドは停止中です",
+    ),
+    "subStoreTitle": MessageLookupByLibrary.simpleMessage("Sub-Store"),
     "submit": MessageLookupByLibrary.simpleMessage("送信"),
     "subscriptionInfo": MessageLookupByLibrary.simpleMessage("サブスクリプション情報"),
     "suspended": MessageLookupByLibrary.simpleMessage("一時停止中..."),
@@ -971,6 +1022,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unnamed": MessageLookupByLibrary.simpleMessage("名称未設定"),
     "unpinWindow": MessageLookupByLibrary.simpleMessage("固定を解除"),
     "update": MessageLookupByLibrary.simpleMessage("更新"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("今すぐ更新"),
     "upload": MessageLookupByLibrary.simpleMessage("アップロード"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("URLからプロファイルを取得します"),

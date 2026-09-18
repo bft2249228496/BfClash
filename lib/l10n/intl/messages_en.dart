@@ -492,8 +492,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("GeoIP code"),
     "global": MessageLookupByLibrary.simpleMessage("Global"),
     "go": MessageLookupByLibrary.simpleMessage("Go"),
-    "updateNow": MessageLookupByLibrary.simpleMessage("Update Now"),
-    "later": MessageLookupByLibrary.simpleMessage("Later"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Download"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Go to script configuration",
@@ -601,6 +599,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "key": MessageLookupByLibrary.simpleMessage("Key"),
     "language": MessageLookupByLibrary.simpleMessage("Language"),
+    "later": MessageLookupByLibrary.simpleMessage("Later"),
     "launchInterrupted": MessageLookupByLibrary.simpleMessage(
       "Launch did not finish",
     ),
@@ -1101,6 +1100,68 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Sub-rule cannot be empty",
     ),
+    "subStoreAndroidOnly": MessageLookupByLibrary.simpleMessage(
+      "The on-device backend is available on Android",
+    ),
+    "subStoreConsole": MessageLookupByLibrary.simpleMessage(
+      "Management console",
+    ),
+    "subStoreFailed": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store backend failed",
+    ),
+    "subStoreInvalidEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Enter a valid HTTP or HTTPS backend URL",
+    ),
+    "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage(
+      "On-device service",
+    ),
+    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage(
+      "On-device backend",
+    ),
+    "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Run the official Sub-Store backend privately on this Android device",
+    ),
+    "subStoreMode": MessageLookupByLibrary.simpleMessage("Backend mode"),
+    "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
+      "Not configured",
+    ),
+    "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
+      "Open official Sub-Store console",
+    ),
+    "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
+      "Remote service",
+    ),
+    "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Backend endpoint",
+    ),
+    "subStoreRemoteEndpointHint": MessageLookupByLibrary.simpleMessage(
+      "Enter the backend base URL, including any private path",
+    ),
+    "subStoreRemoteMode": MessageLookupByLibrary.simpleMessage(
+      "Remote VPS backend",
+    ),
+    "subStoreRemoteModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Connect the official console to a Sub-Store service on another server",
+    ),
+    "subStoreRunning": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store backend is running",
+    ),
+    "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to start Sub-Store backend",
+    ),
+    "subStoreStartFirst": MessageLookupByLibrary.simpleMessage(
+      "Start the on-device backend first",
+    ),
+    "subStoreStarted": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store backend started",
+    ),
+    "subStoreStarting": MessageLookupByLibrary.simpleMessage(
+      "Starting Sub-Store backend…",
+    ),
+    "subStoreStopped": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store backend is stopped",
+    ),
+    "subStoreTitle": MessageLookupByLibrary.simpleMessage("Sub-Store"),
     "submit": MessageLookupByLibrary.simpleMessage("Submit"),
     "subscriptionInfo": MessageLookupByLibrary.simpleMessage(
       "Subscription info",
@@ -1164,6 +1225,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unnamed": MessageLookupByLibrary.simpleMessage("Unnamed"),
     "unpinWindow": MessageLookupByLibrary.simpleMessage("Unpin window"),
     "update": MessageLookupByLibrary.simpleMessage("Update"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("Update Now"),
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage(

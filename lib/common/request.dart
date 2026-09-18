@@ -12,6 +12,7 @@ import 'package:fl_clash/state.dart';
 class Request {
   late final Dio dio;
   late final Dio _clashDio;
+  Dio get clashDio => _clashDio;
   String? userAgent;
 
   ProviderReader? _read;
@@ -71,23 +72,71 @@ class Request {
 
   Future<Map<String, dynamic>?> checkForUpdate() async {
     try {
-      final response = await dio.get(
-        'https://api.github.com/repos/$repository/releases/latest',
-        options: Options(responseType: ResponseType.json),
+      final version = globalState.packageInfo.version;
+      final isCurrentBeta = isPreReleaseVersion(version);
+
+      if (!isCurrentBeta) {
+        // 正式版：只检测官方最新正式发布版本
+        final response = await _clashDio.get(
+          'https://api.github.com/repos/$repository/releases/latest',
+          options: _updateRequestOptions,
+        );
+        if (response.statusCode != 200) return null;
+        final data = response.data as Map<String, dynamic>;
+        final remoteVersion = data['tag_name'] as String? ?? '';
+        final cleanTag = remoteVersion.replaceAll('v', '');
+        if (isPreReleaseVersion(cleanTag)) return null;
+        final hasUpdate = compareVersions(cleanTag, version) > 0;
+        if (!hasUpdate) return null;
+        return data;
+      }
+
+      // Beta / 预发布版：只检测同为 Beta / 预发布版本的更新
+      final response = await _clashDio.get(
+        'https://api.github.com/repos/$repository/releases?per_page=10',
+        options: _updateRequestOptions,
       );
       if (response.statusCode != 200) return null;
-      final data = response.data as Map<String, dynamic>;
-      final remoteVersion = data['tag_name'];
-      final version = globalState.packageInfo.version;
-      final hasUpdate =
-          compareVersions(remoteVersion.replaceAll('v', ''), version) > 0;
-      if (!hasUpdate) return null;
-      return data;
+      final list =
+          (response.data as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .toList() ??
+          [];
+
+      Map<String, dynamic>? bestRelease;
+      String? bestVersion;
+
+      for (final release in list) {
+        if (release['draft'] == true) continue;
+        final tagName = release['tag_name'] as String? ?? '';
+        if (tagName.isEmpty) continue;
+        final cleanTag = tagName.replaceAll('v', '');
+        // 严格隔离：Beta 版本只接受同样带有 preRelease/Beta 标识的更新
+        final isRemoteBeta =
+            (release['prerelease'] == true) || isPreReleaseVersion(cleanTag);
+        if (!isRemoteBeta) continue;
+
+        if (compareVersions(cleanTag, version) > 0) {
+          if (bestVersion == null ||
+              compareVersions(cleanTag, bestVersion) > 0) {
+            bestVersion = cleanTag;
+            bestRelease = release;
+          }
+        }
+      }
+
+      return bestRelease;
     } catch (e) {
-      commonPrint.log('checkForUpdate failed', logLevel: LogLevel.warning);
+      commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
       return null;
     }
   }
+
+  Options get _updateRequestOptions => Options(
+    responseType: ResponseType.json,
+    sendTimeout: const Duration(seconds: 8),
+    receiveTimeout: const Duration(seconds: 15),
+  );
 
   final Map<String, IpInfo Function(Map<String, dynamic>)> _ipInfoSources = {
     'https://ipwho.is': IpInfo.fromIpWhoIsJson,

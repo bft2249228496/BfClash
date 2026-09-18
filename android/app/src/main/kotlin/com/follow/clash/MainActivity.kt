@@ -2,6 +2,7 @@ package com.lansway.client
 
 import com.lansway.client.plugins.AppPlugin
 import com.lansway.client.plugins.ServicePlugin
+import com.lansway.client.plugins.SubStorePlugin
 import com.lansway.client.plugins.TilePlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,6 +12,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(AppPlugin())
         flutterEngine.plugins.add(ServicePlugin())
+        flutterEngine.plugins.add(SubStorePlugin())
         flutterEngine.plugins.add(TilePlugin())
         ServiceState.attachFlutterEngine(flutterEngine)
     }
