@@ -90,7 +90,7 @@ class Request {
         return data;
       }
 
-      // Beta / 预发布版：获取最新 release 列表，可检测到更新的 Beta 版或更高阶的正式版
+      // Beta / 预发布版：只检测同为 Beta / 预发布版本的更新
       final response = await dio.get(
         'https://api.github.com/repos/$repository/releases?per_page=10',
         options: Options(responseType: ResponseType.json),
@@ -110,6 +110,11 @@ class Request {
         final tagName = release['tag_name'] as String? ?? '';
         if (tagName.isEmpty) continue;
         final cleanTag = tagName.replaceAll('v', '');
+        // 严格隔离：Beta 版本只接受同样带有 preRelease/Beta 标识的更新
+        final isRemoteBeta =
+            (release['prerelease'] == true) || isPreReleaseVersion(cleanTag);
+        if (!isRemoteBeta) continue;
+
         if (compareVersions(cleanTag, version) > 0) {
           if (bestVersion == null ||
               compareVersions(cleanTag, bestVersion) > 0) {
