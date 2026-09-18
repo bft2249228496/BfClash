@@ -47,10 +47,14 @@ class VersionInfo {
       final parts = v.split('-');
       v = parts[0];
       final pre = parts.sublist(1).join('-');
-      final match = RegExp(r'^(.*?)[.-]?(\d+)$').firstMatch(pre);
-      if (match != null) {
-        preRelease = match.group(1);
-        preReleaseNum = int.tryParse(match.group(2)!);
+      final preParts = pre.split('.');
+      final last = preParts.last;
+      final parsedLast = int.tryParse(last);
+      if (parsedLast != null) {
+        preReleaseNum = parsedLast;
+        preRelease = preParts.length > 1
+            ? preParts.sublist(0, preParts.length - 1).join('.')
+            : '';
       } else {
         preRelease = pre;
       }
