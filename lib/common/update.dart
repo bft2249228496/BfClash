@@ -40,7 +40,11 @@ class UpdateDownloadProgress {
       d /= 1024;
       i++;
     }
-    return '${d.toStringAsFixed(d < 10 && i > 0 ? 1 : 0)} ${suffixes[i]}';
+    var numStr = d.toStringAsFixed(d < 10 && i > 0 ? 1 : 0);
+    if (numStr.endsWith('.0')) {
+      numStr = numStr.substring(0, numStr.length - 2);
+    }
+    return '$numStr ${suffixes[i]}';
   }
 
   String get formattedReceived => formatBytes(received);
