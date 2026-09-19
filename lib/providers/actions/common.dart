@@ -333,8 +333,8 @@ class CommonAction extends _$CommonAction {
                         ),
                         Text(
                           info == null
-                              ? '0 B / ${asset.size > 0 ? UpdateDownloadProgress.formatBytes(asset.size) : '--'}'
-                              : '${info.formattedReceived} / ${info.total > 0 ? info.formattedTotal : (asset.size > 0 ? UpdateDownloadProgress.formatBytes(asset.size) : '--')}',
+                              ? '0 B / ${(asset?.size ?? 0) > 0 ? UpdateDownloadProgress.formatBytes(asset!.size) : '--'}'
+                              : '${info.formattedReceived} / ${info.total > 0 ? info.formattedTotal : ((asset?.size ?? 0) > 0 ? UpdateDownloadProgress.formatBytes(asset!.size) : '--')}',
                           style: context.textTheme.labelSmall?.copyWith(
                             color: colorScheme.outline,
                           ),
