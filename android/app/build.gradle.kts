@@ -39,9 +39,13 @@ android {
         buildConfig = true
     }
 
+    val isBeta = flutter.versionName?.contains("beta", ignoreCase = true) == true
+    val appPackageId = if (isBeta) "com.lansway.client.beta" else "com.lansway.client"
+    val appDisplayName = if (isBeta) "BfClash Beta" else "BfClash"
+
     defaultConfig {
-        applicationId = "com.lansway.client.beta"
-        resValue("string", "app_name", "BfClash Beta")
+        applicationId = appPackageId
+        resValue("string", "app_name", appDisplayName)
         minSdk = flutter.minSdkVersion
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = flutter.versionCode
