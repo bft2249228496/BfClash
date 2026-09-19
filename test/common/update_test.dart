@@ -22,9 +22,7 @@ void main() {
 
   test('selects asset entry with full metadata', () {
     final entry = selectAndroidUpdateAssetEntry(
-      [
-        asset('BfClash-0.2.10-android-arm64-v8a.apk', size: 55000000),
-      ],
+      [asset('BfClash-0.2.10-android-arm64-v8a.apk', size: 55000000)],
       ['arm64-v8a'],
     );
     expect(entry?['name'], 'BfClash-0.2.10-android-arm64-v8a.apk');

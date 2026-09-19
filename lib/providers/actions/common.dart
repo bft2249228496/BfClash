@@ -94,7 +94,8 @@ class CommonAction extends _$CommonAction {
     final List<InlineSpan> headerSpans = [];
 
     if (currentVersion != null && currentVersion.isNotEmpty) {
-      final curV = currentVersion.startsWith('v') || currentVersion.startsWith('V')
+      final curV =
+          currentVersion.startsWith('v') || currentVersion.startsWith('V')
           ? currentVersion
           : 'v$currentVersion';
       headerSpans.add(
@@ -107,12 +108,7 @@ class CommonAction extends _$CommonAction {
         ),
       );
     } else {
-      headerSpans.add(
-        TextSpan(
-          text: tagName,
-          style: textTheme.headlineSmall,
-        ),
-      );
+      headerSpans.add(TextSpan(text: tagName, style: textTheme.headlineSmall));
     }
 
     if (packageBytes != null && packageBytes > 0) {
@@ -253,7 +249,8 @@ class CommonAction extends _$CommonAction {
                     ? 0
                     : ((info!.progress!) * 100).clamp(0, 100).round();
                 final currentVer = globalState.packageInfo.version;
-                final curV = currentVer.startsWith('v') || currentVer.startsWith('V')
+                final curV =
+                    currentVer.startsWith('v') || currentVer.startsWith('V')
                     ? currentVer
                     : 'v$currentVer';
                 final targetV = release['tag_name'] ?? '';
