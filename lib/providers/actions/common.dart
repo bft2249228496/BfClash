@@ -80,19 +80,65 @@ class CommonAction extends _$CommonAction {
     return res != null;
   }
 
-  TextSpan _releaseSpan(BuildContext context, String tagName, String? body) {
+  TextSpan _releaseSpan(
+    BuildContext context,
+    String tagName,
+    String? body, {
+    String? currentVersion,
+    int? packageBytes,
+  }) {
     final textTheme = context.textTheme;
+    final colorScheme = context.colorScheme;
     final version = parseReleaseChangelog(body);
+
+    final List<InlineSpan> headerSpans = [];
+
+    if (currentVersion != null && currentVersion.isNotEmpty) {
+      final curV = currentVersion.startsWith('v') || currentVersion.startsWith('V')
+          ? currentVersion
+          : 'v$currentVersion';
+      headerSpans.add(
+        TextSpan(
+          text: '$curV ➔ $tagName',
+          style: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+      );
+    } else {
+      headerSpans.add(
+        TextSpan(
+          text: tagName,
+          style: textTheme.headlineSmall,
+        ),
+      );
+    }
+
+    if (packageBytes != null && packageBytes > 0) {
+      final sizeStr = UpdateDownloadProgress.formatBytes(packageBytes);
+      headerSpans.add(
+        TextSpan(
+          text: '  ($sizeStr)',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.outline,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+    headerSpans.add(const TextSpan(text: '\n'));
+
     return TextSpan(
-      text: '$tagName \n',
-      style: textTheme.headlineSmall,
-      children: version == null
-          ? [
-              TextSpan(text: '\n', style: textTheme.bodyMedium),
-              for (final submit in parseReleaseBody(body))
-                TextSpan(text: '- $submit \n', style: textTheme.bodyMedium),
-            ]
-          : _changelogSpans(context, version),
+      children: [
+        ...headerSpans,
+        if (version == null) ...[
+          TextSpan(text: '\n', style: textTheme.bodyMedium),
+          for (final submit in parseReleaseBody(body))
+            TextSpan(text: '- $submit \n', style: textTheme.bodyMedium),
+        ] else
+          ..._changelogSpans(context, version),
+      ],
     );
   }
 
@@ -125,12 +171,17 @@ class CommonAction extends _$CommonAction {
     if (data != null) {
       final context = globalState.navigatorKey.currentContext!;
       final isAndroid = system.isAndroid;
+      final currentVer = globalState.packageInfo.version;
+      final assetInfo = isAndroid ? await androidUpdateAssetInfo(data) : null;
+
       final res = await dialogs.showMessage(
         title: currentAppLocalizations.discoverNewVersion,
         message: _releaseSpan(
           context,
           data['tag_name'] as String,
           data['body'] as String?,
+          currentVersion: currentVer,
+          packageBytes: assetInfo?.size,
         ),
         confirmText: isAndroid
             ? (currentAppLocalizations.updateNow)
@@ -141,7 +192,7 @@ class CommonAction extends _$CommonAction {
       );
       if (res == true) {
         if (system.isAndroid) {
-          unawaited(_installAndroidUpdate(data));
+          unawaited(_installAndroidUpdate(data, assetInfo: assetInfo));
         } else {
           unawaited(
             launchUrl(
@@ -164,9 +215,13 @@ class CommonAction extends _$CommonAction {
     }
   }
 
-  Future<void> _installAndroidUpdate(Map<String, dynamic> release) async {
-    final url = await androidUpdateDownloadUrl(release);
-    if (url == null) {
+  Future<void> _installAndroidUpdate(
+    Map<String, dynamic> release, {
+    AndroidUpdateAsset? assetInfo,
+  }) async {
+    final asset = assetInfo ?? await androidUpdateAssetInfo(release);
+    final url = asset?.url;
+    if (url == null || url.isEmpty) {
       await launchUrl(
         Uri.parse('https://github.com/$repository/releases/latest'),
       );
@@ -174,7 +229,7 @@ class CommonAction extends _$CommonAction {
     }
     final context = globalState.navigatorKey.currentContext!;
     if (!context.mounted) return;
-    final progress = ValueNotifier<double?>(null);
+    final progress = ValueNotifier<UpdateDownloadProgress?>(null);
     final colorScheme = context.colorScheme;
     final dialogFuture = showDialog<void>(
       context: context,
@@ -191,12 +246,18 @@ class CommonAction extends _$CommonAction {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-            child: ValueListenableBuilder<double?>(
+            child: ValueListenableBuilder<UpdateDownloadProgress?>(
               valueListenable: progress,
-              builder: (context, value, _) {
-                final percent = value == null
+              builder: (context, info, _) {
+                final percent = info?.progress == null
                     ? 0
-                    : (value * 100).clamp(0, 100).round();
+                    : ((info!.progress!) * 100).clamp(0, 100).round();
+                final currentVer = globalState.packageInfo.version;
+                final curV = currentVer.startsWith('v') || currentVer.startsWith('V')
+                    ? currentVer
+                    : 'v$currentVer';
+                final targetV = release['tag_name'] ?? '';
+
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,9 +291,10 @@ class CommonAction extends _$CommonAction {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${release['tag_name'] ?? ''} · ${currentAppLocalizations.download}',
+                                '$curV ➔ $targetV',
                                 style: context.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -251,7 +313,7 @@ class CommonAction extends _$CommonAction {
                     ClipRSuperellipse(
                       borderRadius: BorderRadius.circular(AppCorner.full),
                       child: LinearProgressIndicator(
-                        value: value,
+                        value: info?.progress,
                         minHeight: 8,
                         backgroundColor: colorScheme.surfaceContainerHighest,
                         valueColor: AlwaysStoppedAnimation<Color>(
@@ -260,14 +322,27 @@ class CommonAction extends _$CommonAction {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        value == null ? '0% / 100%' : '$percent% / 100%',
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.outline,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          info != null && info.speedBytesPerSec > 0
+                              ? '🚀 ${info.formattedSpeed}'
+                              : '🚀 连接中...',
+                          style: context.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
+                        Text(
+                          info == null
+                              ? '0 B / ${asset.size > 0 ? UpdateDownloadProgress.formatBytes(asset.size) : '--'}'
+                              : '${info.formattedReceived} / ${info.total > 0 ? info.formattedTotal : (asset.size > 0 ? UpdateDownloadProgress.formatBytes(asset.size) : '--')}',
+                          style: context.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.outline,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 );
@@ -281,8 +356,8 @@ class CommonAction extends _$CommonAction {
       final file = await downloadAndroidUpdate(
         request.clashDio,
         url,
-        onProgress: (received, total) {
-          progress.value = total > 0 ? received / total : null;
+        onUpdateProgress: (info) {
+          progress.value = info;
         },
       );
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
