@@ -105,8 +105,8 @@ bool isPreReleaseVersion(String version) {
   return VersionInfo.parse(version).preRelease != null;
 }
 
-const releaseNotesBeginMarker = '<!-- flclash:changelog:begin -->';
-const releaseNotesEndMarker = '<!-- flclash:changelog:end -->';
+const releaseNotesBeginMarker = '<!-- bfclash:changelog:begin -->';
+const releaseNotesEndMarker = '<!-- bfclash:changelog:end -->';
 
 List<String> parseReleaseBody(String? body) {
   if (body == null) return [];

@@ -1,12 +1,12 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/models/clash_config.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/views/config/dns.dart';
-import 'package:fl_clash/views/config/network.dart';
-import 'package:fl_clash/views/config/on_demand.dart';
-import 'package:fl_clash/views/config/scripts.dart';
-import 'package:fl_clash/widgets/list.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/models/clash_config.dart';
+import 'package:bfclash/providers/config.dart';
+import 'package:bfclash/views/config/dns.dart';
+import 'package:bfclash/views/config/network.dart';
+import 'package:bfclash/views/config/on_demand.dart';
+import 'package:bfclash/views/config/scripts.dart';
+import 'package:bfclash/widgets/list.dart';
+import 'package:bfclash/widgets/scaffold.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

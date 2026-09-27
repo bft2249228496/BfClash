@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:fl_clash/core/desktop/rpc_client.dart';
-import 'package:fl_clash/core/event.dart';
-import 'package:fl_clash/core/method.dart';
+import 'package:bfclash/core/desktop/rpc_client.dart';
+import 'package:bfclash/core/event.dart';
+import 'package:bfclash/core/method.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';

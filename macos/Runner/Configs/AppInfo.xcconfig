@@ -8,7 +8,7 @@
 PRODUCT_NAME = BfClash
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.lansway.client
+PRODUCT_BUNDLE_IDENTIFIER = com.bfclash.client
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2023 com.follow. All rights reserved.

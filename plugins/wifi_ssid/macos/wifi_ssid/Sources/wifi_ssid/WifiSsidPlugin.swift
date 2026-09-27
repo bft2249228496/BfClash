@@ -7,7 +7,7 @@ public class WifiSsidPlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate 
 
     private let locationManager = CLLocationManager()
     private let wifiClient = CWWiFiClient.shared()
-    private let ssidQueue = DispatchQueue(label: "com.lansway.client.wifi_ssid")
+    private let ssidQueue = DispatchQueue(label: "com.bfclash.client.wifi_ssid")
     private var pendingPermissionResult: FlutterResult?
 
     private enum Method {

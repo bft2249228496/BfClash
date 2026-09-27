@@ -1,4 +1,4 @@
-group 'com.lansway.client.wifi_ssid'
+group 'com.bfclash.client.wifi_ssid'
 version '1.0'
 
 buildscript {
@@ -22,7 +22,7 @@ allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    namespace 'com.lansway.client.wifi_ssid'
+    namespace 'com.bfclash.client.wifi_ssid'
     compileSdk 36
 
     compileOptions {

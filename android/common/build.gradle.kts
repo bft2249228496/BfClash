@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.lansway.client.common"
+    namespace = "com.bfclash.client.common"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {

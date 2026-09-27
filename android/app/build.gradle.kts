@@ -16,16 +16,16 @@ val localProperties = Properties().apply {
 }
 
 val releaseStoreFile = file("keystore/release.keystore")
-val releaseStorePassword = System.getenv("LANSWAY_STORE_PASSWORD")
-val releaseKeyAlias = System.getenv("LANSWAY_KEY_ALIAS")
-val releaseKeyPassword = System.getenv("LANSWAY_KEY_PASSWORD")
+val releaseStorePassword = System.getenv("BFCLASH_STORE_PASSWORD")
+val releaseKeyAlias = System.getenv("BFCLASH_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("BFCLASH_KEY_PASSWORD")
 val hasReleaseSigning = releaseStoreFile.exists() &&
     releaseStorePassword != null &&
     releaseKeyAlias != null &&
     releaseKeyPassword != null
 
 android {
-    namespace = "com.lansway.client"
+    namespace = "com.bfclash.client"
     compileSdk = libs.versions.compileSdk.get().toInt()
     ndkVersion = libs.versions.ndkVersion.get()
 
@@ -40,7 +40,7 @@ android {
     }
 
     val isBeta = flutter.versionName?.contains("beta", ignoreCase = true) == true
-    val appPackageId = if (isBeta) "com.lansway.client.beta" else "com.lansway.client"
+    val appPackageId = if (isBeta) "com.bfclash.client.beta" else "com.bfclash.client"
     val appDisplayName = if (isBeta) "BfClash Beta" else "BfClash"
 
     defaultConfig {

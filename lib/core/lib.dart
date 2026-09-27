@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/plugins/service.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/plugins/service.dart';
+import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'desktop/model.dart';

@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/fixed.dart';
+import 'package:bfclash/common/fixed.dart';
 import 'package:test/test.dart';
 
 void main() {

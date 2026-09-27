@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/widgets/card.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/widgets/card.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:material_color_utilities/hct/hct.dart';
 

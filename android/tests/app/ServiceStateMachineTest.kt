@@ -1,11 +1,11 @@
-package com.lansway.client
+package com.bfclash.client
 
-import com.lansway.client.common.AccessControlMode
-import com.lansway.client.models.SetupParams
-import com.lansway.client.models.SharedState
-import com.lansway.client.service.models.AccessControlProps
-import com.lansway.client.service.models.NotificationParams
-import com.lansway.client.service.models.VpnOptions
+import com.bfclash.client.common.AccessControlMode
+import com.bfclash.client.models.SetupParams
+import com.bfclash.client.models.SharedState
+import com.bfclash.client.service.models.AccessControlProps
+import com.bfclash.client.service.models.NotificationParams
+import com.bfclash.client.service.models.VpnOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -95,7 +95,7 @@ private class FakeHost(override val scope: CoroutineScope) : ServiceStateHost {
     var beforeStartService: (() -> Unit)? = null
 
     override var runTimeMillis = 0L
-    override val homeDirPath = "/data/user/0/com.lansway.client/files"
+    override val homeDirPath = "/data/user/0/com.bfclash.client/files"
     override val sdkInt = 34
 
     val toasts = mutableListOf<String>()

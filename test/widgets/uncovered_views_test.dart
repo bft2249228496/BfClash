@@ -1,14 +1,14 @@
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/features/overwrite/overwrite.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/about.dart';
-import 'package:fl_clash/views/config/scripts.dart';
-import 'package:fl_clash/views/profiles/overwrite/standard.dart';
-import 'package:fl_clash/views/proxies/setting.dart';
-import 'package:fl_clash/widgets/inherited.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/features/overwrite/overwrite.dart';
+import 'package:bfclash/l10n/l10n.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/views/about.dart';
+import 'package:bfclash/views/config/scripts.dart';
+import 'package:bfclash/views/profiles/overwrite/standard.dart';
+import 'package:bfclash/views/proxies/setting.dart';
+import 'package:bfclash/widgets/inherited.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -87,8 +87,8 @@ void main() {
     // AboutView reads globalState.packageInfo, which only the real app bootstrap
     // populates.
     globalState.packageInfo = PackageInfo(
-      appName: 'FlClash',
-      packageName: 'com.lansway.client',
+      appName: 'BfClash',
+      packageName: 'com.bfclash.client',
       version: '0.0.0',
       buildNumber: '1',
     );

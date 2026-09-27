@@ -2,7 +2,7 @@ script_template: inno_setup.iss
 app_id: 728B3532-C74B-4870-9068-BE70FE12A3E6
 app_name: BfClash
 publisher: chen08209
-publisher_url: https://github.com/chen08209/BfClash
+publisher_url: https://github.com/bft2249228496/BfClash
 display_name: BfClash
 executable_name: BfClash.exe
 output_base_file_name: BfClash.exe

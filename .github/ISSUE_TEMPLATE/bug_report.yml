@@ -24,7 +24,7 @@ body:
   - type: textarea
     attributes:
       label: 软件版本 / Version
-      description: 请提供FlClash的具体版本 / Please provide the specific version of FlClash.
+      description: 请提供BfClash的具体版本 / Please provide the specific version of BfClash.
     validations:
       required: true
   - type: textarea

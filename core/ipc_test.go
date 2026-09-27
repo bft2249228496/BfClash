@@ -297,7 +297,7 @@ func TestDecodeMethodArgumentsAcceptsValidPayload(t *testing.T) {
 	call := &MethodCall{
 		ID:        "1",
 		Method:    initClashMethod,
-		Arguments: json.RawMessage(`{"home-dir":"/tmp/flclash","version":3}`),
+		Arguments: json.RawMessage(`{"home-dir":"/tmp/bfclash","version":3}`),
 	}
 	target := InitParams{}
 
@@ -310,8 +310,8 @@ func TestDecodeMethodArgumentsAcceptsValidPayload(t *testing.T) {
 	if len(frames) != 0 {
 		t.Errorf("a successful decode must not send a response, got %d frames", len(frames))
 	}
-	if target.HomeDir != "/tmp/flclash" || target.Version != 3 {
-		t.Errorf("decoded params = %+v, want {/tmp/flclash 3}", target)
+	if target.HomeDir != "/tmp/bfclash" || target.Version != 3 {
+		t.Errorf("decoded params = %+v, want {/tmp/bfclash 3}", target)
 	}
 }
 

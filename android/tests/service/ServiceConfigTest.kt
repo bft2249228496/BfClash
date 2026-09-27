@@ -1,9 +1,9 @@
-package com.lansway.client.service
+package com.bfclash.client.service
 
-import com.lansway.client.common.AccessControlMode
-import com.lansway.client.service.models.AccessControlProps
-import com.lansway.client.service.models.NotificationParams
-import com.lansway.client.service.models.VpnOptions
+import com.bfclash.client.common.AccessControlMode
+import com.bfclash.client.service.models.AccessControlProps
+import com.bfclash.client.service.models.NotificationParams
+import com.bfclash.client.service.models.VpnOptions
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame

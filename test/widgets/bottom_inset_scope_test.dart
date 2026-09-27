@@ -1,6 +1,6 @@
-import 'package:fl_clash/widgets/float_layout.dart';
-import 'package:fl_clash/widgets/inherited.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:bfclash/widgets/float_layout.dart';
+import 'package:bfclash/widgets/inherited.dart';
+import 'package:bfclash/widgets/scaffold.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
