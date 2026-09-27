@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/theme.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/profiles/edit.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/theme.dart';
+import 'package:bfclash/l10n/l10n.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/views/profiles/edit.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

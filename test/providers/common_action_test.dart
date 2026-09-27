@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:fl_clash/core/controller.dart';
-import 'package:fl_clash/core/interface.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/action.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/providers/core.dart';
-import 'package:fl_clash/state.dart';
+import 'package:bfclash/core/controller.dart';
+import 'package:bfclash/core/interface.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/action.dart';
+import 'package:bfclash/providers/app.dart';
+import 'package:bfclash/providers/config.dart';
+import 'package:bfclash/providers/core.dart';
+import 'package:bfclash/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -26,8 +26,8 @@ void main() {
   setUpAll(() {
     core = MockCoreHandlerInterface();
     globalState.packageInfo = PackageInfo(
-      appName: 'FlClash',
-      packageName: 'com.lansway.client',
+      appName: 'BfClash',
+      packageName: 'com.bfclash.client',
       version: runningVersion,
       buildNumber: '1',
     );

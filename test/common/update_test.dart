@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/update.dart';
+import 'package:bfclash/common/update.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Map<String, dynamic> asset(String name, {int size = 50000000}) => {

@@ -1,6 +1,6 @@
-package com.lansway.client.service.models
+package com.bfclash.client.service.models
 
-import com.lansway.client.common.AccessControlMode
+import com.bfclash.client.common.AccessControlMode
 import java.net.Inet4Address
 import java.net.Inet6Address
 import org.junit.Assert.assertEquals

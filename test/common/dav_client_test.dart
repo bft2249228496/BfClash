@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/dav_client.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/dav_client.dart';
+import 'package:bfclash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';

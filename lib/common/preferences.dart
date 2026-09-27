@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:fl_clash/common/boot_record.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/system_dns.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/common/boot_record.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/system_dns.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {

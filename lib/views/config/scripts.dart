@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/pages/editor.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/database.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/pages/editor.dart';
+import 'package:bfclash/providers/app.dart';
+import 'package:bfclash/providers/database.dart';
+import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

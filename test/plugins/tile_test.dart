@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/plugins/tile.dart';
+import 'package:bfclash/common/constant.dart';
+import 'package:bfclash/plugins/tile.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

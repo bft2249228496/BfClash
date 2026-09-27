@@ -1,7 +1,7 @@
-import 'package:fl_clash/common/task.dart';
-import 'package:fl_clash/models/profile.dart';
-import 'package:fl_clash/pages/editor.dart';
-import 'package:fl_clash/providers/action.dart';
+import 'package:bfclash/common/task.dart';
+import 'package:bfclash/models/profile.dart';
+import 'package:bfclash/pages/editor.dart';
+import 'package:bfclash/providers/action.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

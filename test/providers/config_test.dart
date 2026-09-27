@@ -1,7 +1,7 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/config.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';
 

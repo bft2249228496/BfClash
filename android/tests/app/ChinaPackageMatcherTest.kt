@@ -1,4 +1,4 @@
-package com.lansway.client.packages
+package com.bfclash.client.packages
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals

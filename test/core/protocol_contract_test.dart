@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fl_clash/core/event.dart';
-import 'package:fl_clash/core/desktop/model.dart';
-import 'package:fl_clash/core/interface.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/core/event.dart';
+import 'package:bfclash/core/desktop/model.dart';
+import 'package:bfclash/core/interface.dart';
+import 'package:bfclash/core/method.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _RecordingCoreHandler extends CoreHandlerInterface {
@@ -145,7 +145,7 @@ void main() {
   test('core interface sends structured request parameters', () async {
     final handler = _RecordingCoreHandler();
 
-    await handler.init(const InitParams(homeDir: '/tmp/flclash', version: 35));
+    await handler.init(const InitParams(homeDir: '/tmp/bfclash', version: 35));
     await handler.setupConfig(
       const SetupParams(selectedMap: {'GLOBAL': 'DIRECT'}, testUrl: 'test'),
     );

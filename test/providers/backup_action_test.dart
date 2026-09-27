@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/native.dart';
-import 'package:fl_clash/database/database.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/action.dart';
-import 'package:fl_clash/providers/config.dart';
+import 'package:bfclash/database/database.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/action.dart';
+import 'package:bfclash/providers/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -55,7 +55,7 @@ void main() {
 
   group('consumeBackup owns the archive it produced', () {
     File stubArchive() {
-      final directory = Directory.systemTemp.createTempSync('flclash_backup');
+      final directory = Directory.systemTemp.createTempSync('bfclash_backup');
       addTearDown(() => directory.deleteSync(recursive: true));
       final file = File('${directory.path}/backup.zip')
         ..writeAsBytesSync(const [80, 75, 5, 6]);

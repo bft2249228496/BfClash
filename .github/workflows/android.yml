@@ -45,10 +45,10 @@ jobs:
           mkdir -p android/app/keystore
           git show 8303c19:client/android/app/keystore/release.keystore > android/app/keystore/release.keystore
           git show 8303c19:client/android/app/build.gradle.kts > /tmp/bfclash-legacy-signing.gradle.kts
-          export LANSWAY_STORE_PASSWORD=$(grep -m1 storePassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
-          export LANSWAY_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
-          export LANSWAY_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
-          test -n "$LANSWAY_STORE_PASSWORD" -a -n "$LANSWAY_KEY_ALIAS" -a -n "$LANSWAY_KEY_PASSWORD"
+          export BFCLASH_STORE_PASSWORD=$(grep -m1 storePassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          export BFCLASH_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          export BFCLASH_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          test -n "$BFCLASH_STORE_PASSWORD" -a -n "$BFCLASH_KEY_ALIAS" -a -n "$BFCLASH_KEY_PASSWORD"
           dart setup.dart android --env stable -v 2>&1 | tee /tmp/bfclash-android-build.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then

@@ -30,7 +30,7 @@ void main() {
   }
 
   setUp(() {
-    repo = Directory.systemTemp.createTempSync('flclash-changelog-');
+    repo = Directory.systemTemp.createTempSync('bfclash-changelog-');
     git(['init', '--quiet', '--initial-branch=main']);
     git(['config', 'user.email', 'changelog-test@example.com']);
     git(['config', 'user.name', 'Changelog test']);

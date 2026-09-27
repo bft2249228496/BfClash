@@ -19,7 +19,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.lansway.client.wifi_ssid
+        package: com.bfclash.client.wifi_ssid
         pluginClass: WifiSsidPlugin
       macos:
         pluginClass: WifiSsidPlugin

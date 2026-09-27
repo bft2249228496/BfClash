@@ -1,4 +1,4 @@
-name: fl_clash
+name: bfclash
 description: A multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free.
 publish_to: 'none'
 version: 0.2.26-beta.18+53

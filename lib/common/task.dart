@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/database/database.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/database/database.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
@@ -230,7 +230,7 @@ Future<({String yaml, String md5})> _makeRealProfileTask(
     for (final entry in dns.nameserverPolicy.entries) {
       nameserverPolicy[entry.key] = entry.value.splitByMultipleSeparators;
     }
-    // Merged, not assigned: the model only covers the keys FlClash can edit.
+    // Merged, not assigned: the model only covers the keys BfClash can edit.
     rawConfig['dns'] = {
       ...rawDns,
       ...dns.toJson(),

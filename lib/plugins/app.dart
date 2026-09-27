@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:fl_clash/common/boot_record.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/common/boot_record.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
