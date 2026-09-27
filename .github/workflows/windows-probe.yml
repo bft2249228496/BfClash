@@ -1,0 +1,79 @@
+name: Windows Build Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/windows-desktop-v0227
+    paths:
+      - '.github/workflows/windows-probe.yml'
+      - 'windows/**'
+      - 'plugins/**'
+      - 'services/**'
+      - 'core/**'
+      - 'setup.dart'
+      - 'build_config.yaml'
+
+env:
+  FLUTTER_VERSION: '3.47.1'
+  GO_VERSION: '1.26.4'
+
+jobs:
+  probe-windows:
+    name: Probe Windows AMD64 Build
+    runs-on: windows-2022
+    steps:
+      - name: Enable longpaths
+        run: git config --global core.longpaths true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: core/go.sum
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Windows Build Probe via setup.dart
+        run: dart setup.dart windows --env stable --targets exe,zip -v
+
+      - name: List Artifacts
+        if: always()
+        run: |
+          Get-ChildItem -Path dist -Recurse -ErrorAction SilentlyContinue
+
+      - name: Upload Windows Probe Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bfclash-windows-probe
+          path: |
+            dist/
+            .dart_tool/setup_build_cache/
+            hook.log
+            build/windows/
