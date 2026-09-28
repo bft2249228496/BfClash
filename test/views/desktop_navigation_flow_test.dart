@@ -1,7 +1,10 @@
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/l10n/l10n.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
+import 'package:bfclash/views/backup_and_restore.dart';
+import 'package:bfclash/views/config/config.dart';
 import 'package:bfclash/views/desktop_dashboard.dart';
 import 'package:bfclash/views/desktop_tools.dart';
 import 'package:bfclash/views/navigation.dart';
@@ -46,7 +49,7 @@ void main() {
       expect(proxiesItem.modes.contains(NavigationItemMode.desktop), isTrue);
     });
 
-    testWidgets('DesktopDashboardView quick access chips trigger page navigation', (
+    testWidgets('DesktopDashboardView quick access chips unconditionally trigger page navigation', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(1280, 900);
@@ -64,6 +67,7 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: const TestApp(
+            locale: Locale('en'),
             includeNavigatorKey: false,
             setTheme: true,
             homeBuilder: _wrapInScaffold,
@@ -73,26 +77,42 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(ActionChip), findsNWidgets(4));
+      final loc = await AppLocalizations.load(const Locale('en'));
 
-      // Test tapping Connections chip
-      final connectionsChip = find.widgetWithText(ActionChip, 'Connections');
-      if (connectionsChip.evaluate().isNotEmpty) {
-        await tester.tap(connectionsChip);
-        await tester.pump();
-        expect(container.read(currentPageLabelProvider), PageLabel.connections);
-      }
+      // Unconditional assertions on quick access action chips
+      final connectionsChip = find.widgetWithText(ActionChip, loc.connections);
+      final requestsChip = find.widgetWithText(ActionChip, loc.requests);
+      final backupChip = find.widgetWithText(ActionChip, loc.backupAndRestore);
+      final subStoreChip = find.widgetWithText(ActionChip, loc.subStoreTitle);
 
-      // Test tapping Tools / Sub-Store chip
-      final subStoreChip = find.widgetWithText(ActionChip, 'Sub-Store');
-      if (subStoreChip.evaluate().isNotEmpty) {
-        await tester.tap(subStoreChip);
-        await tester.pump();
-        expect(container.read(currentPageLabelProvider), PageLabel.tools);
-      }
+      expect(connectionsChip, findsOneWidget);
+      expect(requestsChip, findsOneWidget);
+      expect(backupChip, findsOneWidget);
+      expect(subStoreChip, findsOneWidget);
+
+      // Unconditional tap & state transitions
+      await tester.tap(connectionsChip);
+      await tester.pump();
+      expect(container.read(currentPageLabelProvider), PageLabel.connections);
+
+      await tester.tap(requestsChip);
+      await tester.pump();
+      expect(container.read(currentPageLabelProvider), PageLabel.requests);
+
+      await tester.tap(backupChip);
+      await tester.pump();
+      expect(container.read(currentPageLabelProvider), PageLabel.tools);
+
+      container.read(currentPageLabelProvider.notifier).toPage(PageLabel.dashboard);
+      await tester.pump();
+      expect(container.read(currentPageLabelProvider), PageLabel.dashboard);
+
+      await tester.tap(subStoreChip);
+      await tester.pump();
+      expect(container.read(currentPageLabelProvider), PageLabel.tools);
     });
 
-    testWidgets('DesktopToolsView wide layout switches detail views on item tap', (
+    testWidgets('DesktopToolsView wide layout unconditionally renders master-detail and switches content', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(1200, 800);
@@ -108,6 +128,7 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: const TestApp(
+            locale: Locale('en'),
             includeNavigatorKey: false,
             setTheme: true,
             child: DesktopToolsView(),
@@ -116,15 +137,25 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      final loc = await AppLocalizations.load(const Locale('en'));
+
       expect(find.byType(DesktopToolsView), findsOneWidget);
       expect(find.byType(VerticalDivider), findsOneWidget);
 
-      // Verify that menu items exist and tapping changes view
-      final configMenuItem = find.text('Configuration');
-      if (configMenuItem.evaluate().isNotEmpty) {
-        await tester.tap(configMenuItem);
-        await tester.pumpAndSettle();
-      }
+      // Default selected widget is BackupAndRestore
+      expect(find.byType(BackupAndRestore), findsOneWidget);
+
+      // Unconditional assertion: Config menu item must exist
+      final configMenuItem = find.text(loc.basicConfig);
+      expect(configMenuItem, findsOneWidget);
+
+      // Tap to switch detail view
+      await tester.tap(configMenuItem);
+      await tester.pumpAndSettle();
+
+      // ConfigView must now be rendered in the detail area
+      expect(find.byType(ConfigView), findsOneWidget);
+      expect(find.byType(BackupAndRestore), findsNothing);
     });
   });
 }

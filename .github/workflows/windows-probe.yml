@@ -60,6 +60,9 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
+      - name: Run Desktop Navigation Flow Widget Tests
+        run: flutter test test/views/desktop_navigation_flow_test.dart
+
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
 
