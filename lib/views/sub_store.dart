@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/plugins/sub_store.dart';
+import 'package:bfclash/views/sub_store_backend_service.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -28,16 +29,18 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
   Future<void> _load() async {
     final remoteUrl = await preferences.getSubStoreRemoteUrl();
     SubStoreBackendStatus? status;
-    if (system.isAndroid) {
-      try {
+    try {
+      if (system.isAndroid) {
         status = await subStoreService.status();
-      } catch (_) {}
-    }
+      } else {
+        status = await desktopSubStoreManager.getStatus();
+      }
+    } catch (_) {}
     if (!mounted) return;
     setState(() {
       _remoteUrlController.text = remoteUrl;
       _status = status;
-      _localMode = system.isAndroid;
+      _localMode = true;
     });
   }
 
@@ -63,29 +66,38 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
   }
 
   Future<void> _toggleLocalBackend() async {
-    if (_busy || !system.isAndroid) return;
+    if (_busy) return;
     setState(() => _busy = true);
     try {
       var status = _status;
-      if (status?.isRunning == true) {
-        status = await subStoreService.stop();
+      if (system.isAndroid) {
+        if (status?.isRunning == true) {
+          status = await subStoreService.stop();
+        } else {
+          status = await subStoreService.start();
+          for (
+            var attempt = 0;
+            attempt < 20 && status?.isBusy == true;
+            attempt++
+          ) {
+            await Future<void>.delayed(const Duration(milliseconds: 250));
+            status = await subStoreService.status();
+          }
+        }
       } else {
-        status = await subStoreService.start();
-        for (
-          var attempt = 0;
-          attempt < 20 && status?.isBusy == true;
-          attempt++
-        ) {
-          await Future<void>.delayed(const Duration(milliseconds: 250));
-          status = await subStoreService.status();
+        if (status?.isRunning == true) {
+          status = await desktopSubStoreManager.stop();
+        } else {
+          status = await desktopSubStoreManager.start();
         }
       }
+
       if (!mounted) return;
       setState(() => _status = status);
       final message = status?.isRunning == true
           ? context.appLocalizations.subStoreStarted
           : status?.phase == SubStoreBackendPhase.failed
-          ? context.appLocalizations.subStoreStartFailed
+          ? (status?.error ?? context.appLocalizations.subStoreStartFailed)
           : context.appLocalizations.subStoreStopped;
       context.showNotifier(message);
     } catch (error) {
@@ -159,7 +171,6 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
   }
 
   String _statusLabel() {
-    if (!system.isAndroid) return context.appLocalizations.subStoreAndroidOnly;
     if (_busy || _status?.phase == SubStoreBackendPhase.starting) {
       return context.appLocalizations.subStoreStarting;
     }
@@ -178,7 +189,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
         title: context.appLocalizations.subStoreMode,
         items: [
           ListItem(
-            leading: Icon(_localMode ? Icons.smartphone : Icons.cloud_outlined),
+            leading: Icon(_localMode ? Icons.computer : Icons.cloud_outlined),
             title: Text(
               _localMode
                   ? context.appLocalizations.subStoreLocalMode
@@ -186,14 +197,12 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
             ),
             subtitle: Text(
               _localMode
-                  ? context.appLocalizations.subStoreLocalModeDesc
+                  ? '${context.appLocalizations.subStoreLocalModeDesc} (Windows 独立进程/Android WebView)'
                   : context.appLocalizations.subStoreRemoteModeDesc,
             ),
             trailing: Switch(
               value: _localMode,
-              onChanged: system.isAndroid
-                  ? (value) => setState(() => _localMode = value)
-                  : null,
+              onChanged: (value) => setState(() => _localMode = value),
             ),
           ),
         ],

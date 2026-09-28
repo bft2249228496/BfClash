@@ -125,7 +125,10 @@ List<String> createFlutterBuildArgs({
 }
 
 Map<String, String> createBuildEnvironment(String env) {
-  return {'APP_ENV': env};
+  return {
+    'APP_ENV': env,
+    'APP_BETA': env == 'pre' || env == 'dev' ? 'true' : 'false',
+  };
 }
 
 /// Packages whose build hook `pubspec.yaml` turns into a no-op.

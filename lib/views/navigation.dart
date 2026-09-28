@@ -1,6 +1,8 @@
-import 'package:bfclash/common/app_ports.dart';
+import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/models/models.dart';
+import 'package:bfclash/views/desktop_dashboard.dart';
+import 'package:bfclash/views/desktop_tools.dart';
 import 'package:bfclash/views/views.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -12,13 +14,18 @@ class Navigation implements NavigationPort {
     bool openLogs = false,
     bool hasProxies = false,
   }) {
+    final isDesktop = system.isDesktop;
+
     return [
       NavigationItem(
         keep: false,
         icon: const Icon(Icons.space_dashboard),
         label: PageLabel.dashboard,
-        builder: (_) =>
-            const DashboardView(key: GlobalObjectKey(PageLabel.dashboard)),
+        builder: (_) => isDesktop
+            ? const DesktopDashboardView(
+                key: GlobalObjectKey(PageLabel.dashboard),
+              )
+            : const DashboardView(key: GlobalObjectKey(PageLabel.dashboard)),
       ),
       NavigationItem(
         icon: const Icon(Icons.article),
@@ -67,7 +74,9 @@ class Navigation implements NavigationPort {
       NavigationItem(
         icon: const Icon(Icons.construction),
         label: PageLabel.tools,
-        builder: (_) => const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
+        builder: (_) => isDesktop
+            ? const DesktopToolsView(key: GlobalObjectKey(PageLabel.tools))
+            : const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
       ),
     ];
