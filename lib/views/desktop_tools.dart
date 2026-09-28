@@ -171,36 +171,37 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
-      decoration: BoxDecoration(
+      child: Material(
         color: isSelected
             ? context.colorScheme.secondaryContainer.withValues(alpha: 0.5)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListItem(
-        leading: Icon(icon, color: iconColor ?? context.colorScheme.primary),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? context.colorScheme.onSecondaryContainer : null,
+        clipBehavior: Clip.antiAlias,
+        child: ListItem(
+          leading: Icon(icon, color: iconColor ?? context.colorScheme.primary),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? context.colorScheme.onSecondaryContainer : null,
+            ),
           ),
+          subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+          trailing: isWide
+              ? (isSelected
+                  ? Icon(Icons.chevron_right, color: context.colorScheme.primary)
+                  : null)
+              : const Icon(Icons.chevron_right),
+          onTap: () {
+            if (isWide) {
+              _selectView(title, target);
+            } else {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => target),
+              );
+            }
+          },
         ),
-        subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-        trailing: isWide
-            ? (isSelected
-                ? Icon(Icons.chevron_right, color: context.colorScheme.primary)
-                : null)
-            : const Icon(Icons.chevron_right),
-        onTap: () {
-          if (isWide) {
-            _selectView(title, target);
-          } else {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => target),
-            );
-          }
-        },
       ),
     );
   }
