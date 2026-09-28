@@ -8,6 +8,8 @@ AppSupportURL={{PUBLISHER_URL}}
 AppUpdatesURL={{PUBLISHER_URL}}
 DefaultDirName={{INSTALL_DIR_NAME}}
 DisableProgramGroupPage=yes
+CloseApplications=yes
+RestartApplications=no
 OutputDir=.
 OutputBaseFilename={{OUTPUT_BASE_FILENAME}}
 Compression=lzma
@@ -19,20 +21,6 @@ ArchitecturesAllowed={{ARCH}}
 ArchitecturesInstallIn64BitMode={{ARCH}}
 
 [Code]
-procedure KillProcesses;
-var
-  Processes: TArrayOfString;
-  i: Integer;
-  ResultCode: Integer;
-begin
-  Processes := ['BfClash.exe', 'BfClashCore.exe', 'BfClashHelperService.exe'];
-
-  for i := 0 to GetArrayLength(Processes)-1 do
-  begin
-    Exec('taskkill', '/f /im ' + Processes[i], '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  end;
-end;
-
 procedure UnregisterHelperService;
 var
   HelperPath: String;
@@ -48,14 +36,12 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   UnregisterHelperService;
-  KillProcesses;
   Result := '';
 end;
 
 function InitializeUninstall(): Boolean;
 begin
   UnregisterHelperService;
-  KillProcesses;
   Result := True;
 end;
 
