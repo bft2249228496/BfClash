@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -33,13 +34,28 @@ class AppPath {
   AppPath._internal() {
     appDirPath = join(dirname(Platform.resolvedExecutable));
     supportDirectory().then((value) {
-      dataDir.complete(value);
+      dataDir.complete(
+        system.isWindows && WindowsChannelConfig.isBeta
+            ? Directory(
+                join(value.parent.path, WindowsChannelConfig.dataDirectoryName),
+              )
+            : value,
+      );
     });
     temporaryDirectory().then((value) {
       tempDir.complete(value);
     });
     cacheDirectory().then((value) {
-      cacheDir.complete(value);
+      cacheDir.complete(
+        system.isWindows && WindowsChannelConfig.isBeta
+            ? Directory(
+                join(
+                  value.parent.path,
+                  '${WindowsChannelConfig.dataDirectoryName}.cache',
+                ),
+              )
+            : value,
+      );
     });
   }
 

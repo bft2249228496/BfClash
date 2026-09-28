@@ -69,6 +69,9 @@ jobs:
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
 
+      - name: Run Windows Beta Build Probe via setup.dart
+        run: dart setup.dart windows --env pre --targets exe,zip -v
+
       - name: List Artifacts
         if: always()
         run: |
