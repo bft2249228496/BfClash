@@ -69,6 +69,10 @@ jobs:
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
 
+      - name: Reset build state before beta probe
+        run: |
+          flutter clean
+          flutter pub get
       - name: Run Windows Beta Build Probe via setup.dart
         run: dart setup.dart windows --env pre --targets zip -v
 
