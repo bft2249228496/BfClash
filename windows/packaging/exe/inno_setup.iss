@@ -26,7 +26,7 @@ var
   HelperPath: String;
   ResultCode: Integer;
 begin
-  HelperPath := ExpandConstant('{app}\\BfClashHelperService.exe');
+  HelperPath := ExpandConstant('{app}\\{{HELPER_SERVICE_EXECUTABLE_NAME}}');
   if FileExists(HelperPath) then
   begin
     Exec(HelperPath, 'uninstall', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
