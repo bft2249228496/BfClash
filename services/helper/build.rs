@@ -5,4 +5,9 @@ fn main() {
     println!("cargo:rustc-env=CORE_NAME={}", core_name);
     println!("cargo:rerun-if-env-changed=CORE_SHA256");
     println!("cargo:rerun-if-env-changed=CORE_NAME");
+    println!("cargo:rustc-check-cfg=cfg(bfclash_beta)");
+    println!("cargo:rerun-if-env-changed=BFCLASH_BETA");
+    if std::env::var("BFCLASH_BETA").as_deref() == Ok("true") {
+        println!("cargo:rustc-cfg=bfclash_beta");
+    }
 }
