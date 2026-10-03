@@ -218,6 +218,7 @@ Future<int> _package(
       ...descriptionArgs,
     ],
     includeParentEnvironment: true,
+    environment: {'APP_BETA': createBuildEnvironment(env)['APP_BETA']!},
     runInShell: Platform.isWindows,
   );
 

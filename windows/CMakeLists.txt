@@ -4,7 +4,15 @@ project(BfClash LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "BfClash")
+if("$ENV{APP_BETA}" STREQUAL "true")
+  set(BINARY_NAME "BfClash-Beta")
+  set(CORE_NAME "BfClashCoreBeta")
+  set(HELPER_NAME "BfClashHelperServiceBeta")
+else()
+  set(BINARY_NAME "BfClash")
+  set(CORE_NAME "BfClashCore")
+  set(HELPER_NAME "BfClashHelperService")
+endif()
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -106,8 +114,8 @@ set(CORE_ARTIFACTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../libclash/windows")
 # opaque MSB3073; only a Debug install with a changed Helper stops it, matched
 # by path so a Helper registered from an installed release is left alone.
 install(CODE "
-  set(helper_src \"${CORE_ARTIFACTS_DIR}/BfClashHelperService.exe\")
-  set(helper_dst \"${INSTALL_BUNDLE_LIB_DIR}/BfClashHelperService.exe\")
+  set(helper_src \"${CORE_ARTIFACTS_DIR}/${HELPER_NAME}.exe\")
+  set(helper_dst \"${INSTALL_BUNDLE_LIB_DIR}/${HELPER_NAME}.exe\")
   if(\"\${CMAKE_INSTALL_CONFIG_NAME}\" STREQUAL \"Debug\" AND EXISTS \"\${helper_dst}\")
     file(SHA256 \"\${helper_src}\" helper_src_hash)
     file(SHA256 \"\${helper_dst}\" helper_dst_hash)
@@ -115,14 +123,14 @@ install(CODE "
       message(STATUS \"Stopping the Helper running from \${helper_dst} before installing the Debug build\")
       file(TO_NATIVE_PATH \"\${helper_dst}\" helper_dst_native)
       execute_process(COMMAND powershell -NoProfile -NonInteractive -Command
-        \"Get-Process -Name BfClashHelperService -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '\${helper_dst_native}' } | Stop-Process -Force\"
+        \"Get-Process -Name ${HELPER_NAME} -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '\${helper_dst_native}' } | Stop-Process -Force\"
         OUTPUT_QUIET ERROR_QUIET)
     endif()
   endif()
 " COMPONENT Runtime)
 install(FILES
-  "${CORE_ARTIFACTS_DIR}/BfClashCore.exe"
-  "${CORE_ARTIFACTS_DIR}/BfClashHelperService.exe"
+  "${CORE_ARTIFACTS_DIR}/${CORE_NAME}.exe"
+  "${CORE_ARTIFACTS_DIR}/${HELPER_NAME}.exe"
   "${CORE_ARTIFACTS_DIR}/manifest.json"
   DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)

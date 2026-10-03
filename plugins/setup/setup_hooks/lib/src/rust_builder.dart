@@ -39,6 +39,10 @@ class RustBuilder {
       '--release',
     ];
     final env = {
+      'BFCLASH_BETA':
+          target.goos == 'windows' && Platform.environment['APP_BETA'] == 'true'
+          ? 'true'
+          : 'false',
       'CORE_SHA256': coreSha256,
       'CORE_NAME': '${config.coreName}${target.executableExtension}',
     };

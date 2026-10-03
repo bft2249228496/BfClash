@@ -74,7 +74,10 @@ class AppPath {
   }
 
   String get corePath {
-    return join(executableDirPath, 'BfClashCore$executableExtension');
+    return join(
+      executableDirPath,
+      '${Platform.isWindows && WindowsChannelConfig.isBeta ? 'BfClashCoreBeta' : 'BfClashCore'}$executableExtension',
+    );
   }
 
   String get helperPath {

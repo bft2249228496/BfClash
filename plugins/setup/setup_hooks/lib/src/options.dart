@@ -50,11 +50,16 @@ class BuildConfig {
       tags: yaml['tags'] as String? ?? _defaults.tags,
       goLdflags: yaml['go_ldflags'] as String? ?? _defaults.goLdflags,
       coreDir: yaml['core_dir'] as String? ?? _defaults.coreDir,
-      coreName: yaml['core_name'] as String? ?? _defaults.coreName,
+      coreName: Platform.environment['APP_BETA'] == 'true' && Platform.isWindows
+          ? 'BfClashCoreBeta'
+          : yaml['core_name'] as String? ?? _defaults.coreName,
       libName: yaml['lib_name'] as String? ?? _defaults.libName,
       outputDir: yaml['output_dir'] as String? ?? _defaults.outputDir,
       helperDir: yaml['helper_dir'] as String? ?? _defaults.helperDir,
-      helperName: yaml['helper_name'] as String? ?? _defaults.helperName,
+      helperName:
+          Platform.environment['APP_BETA'] == 'true' && Platform.isWindows
+          ? 'BfClashHelperServiceBeta'
+          : yaml['helper_name'] as String? ?? _defaults.helperName,
     );
   }
 
