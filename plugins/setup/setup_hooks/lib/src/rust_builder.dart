@@ -39,6 +39,10 @@ class RustBuilder {
       '--release',
     ];
     final env = {
+      'BFCLASH_BETA':
+          target.goos == 'windows' && config.coreName == 'BfClashCoreBeta'
+          ? 'true'
+          : 'false',
       'CORE_SHA256': coreSha256,
       'CORE_NAME': '${config.coreName}${target.executableExtension}',
     };

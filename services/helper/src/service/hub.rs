@@ -35,9 +35,15 @@ use windows_sys::Win32::System::JobObjects::{
 };
 
 #[cfg(not(target_os = "linux"))]
+#[cfg(not(bfclash_beta))]
 const LISTEN_PORT: u16 = 47890;
+#[cfg(bfclash_beta)]
+const LISTEN_PORT: u16 = 47891;
 #[cfg(not(target_os = "linux"))]
+#[cfg(not(bfclash_beta))]
 const CORE_PIPE_PREFIX: &str = r"\\.\pipe\BfClashCore_";
+#[cfg(bfclash_beta)]
+const CORE_PIPE_PREFIX: &str = r"\\.\pipe\BfClashCoreBeta_";
 #[cfg(target_os = "linux")]
 const CORE_SOCKET_PREFIX: &str = "/tmp/BfClashSocket_";
 #[cfg(target_os = "linux")]
