@@ -1,0 +1,19 @@
+script_template: inno_setup.iss
+app_id: A19F870C-739B-4FA0-A39B-67E082DEBF01
+app_name: BfClash Beta
+publisher: chen08209
+publisher_url: https://github.com/bft2249228496/BfClash
+display_name: BfClash Beta
+executable_name: BfClash-Beta.exe
+helper_service_executable_name: BfClashHelperServiceBeta.exe
+output_base_file_name: BfClash-Beta.exe
+# Resolved against the project root: flutter_distributor turns this into an
+# absolute path via Directory.current.
+setup_icon_file: windows\runner\resources\app_icon.ico
+locales:
+  # Written into the .iss verbatim, so this one stays relative to the generated
+  # script in dist/.
+  - lang: zh
+    file: ..\windows\packaging\exe\ChineseSimplified.isl
+  - lang: en
+privileges_required: admin

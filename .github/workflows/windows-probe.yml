@@ -73,8 +73,11 @@ jobs:
         run: |
           flutter clean
           flutter pub get
+      - name: Select isolated beta installer identity
+        run: Copy-Item windows/packaging/exe/make_config.beta.yaml windows/packaging/exe/make_config.yaml -Force
+
       - name: Run Windows Beta Build Probe via setup.dart
-        run: dart setup.dart windows --env pre --targets zip -v
+        run: dart setup.dart windows --env pre --targets exe,zip -v
 
       - name: List Artifacts
         if: always()
