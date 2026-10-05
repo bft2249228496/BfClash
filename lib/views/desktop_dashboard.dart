@@ -1,3 +1,4 @@
+import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart';
@@ -301,7 +302,7 @@ class _DesktopSystemEnvironmentCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'TUN 模式驱动: WinTUN (BfClashHelperService 托管)',
+              'TUN 模式驱动: WinTUN (${WindowsChannelConfig.helperServiceName} 托管)',
               style: context.textTheme.bodySmall?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
               ),
