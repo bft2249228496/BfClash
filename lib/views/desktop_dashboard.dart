@@ -5,6 +5,7 @@ import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/views/dashboard/widgets/core_status_button.dart';
 import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
 import 'package:bfclash/views/dashboard/widgets/outbound_mode.dart';
+import 'package:bfclash/views/dashboard/widgets/quick_options.dart';
 import 'package:bfclash/views/dashboard/widgets/start_button.dart';
 import 'package:bfclash/views/dashboard/widgets/traffic_usage.dart';
 import 'package:bfclash/widgets/widgets.dart';
@@ -47,6 +48,8 @@ class DesktopDashboardView extends ConsumerWidget {
                               SizedBox(height: 16),
                               OutboundMode(),
                               SizedBox(height: 16),
+                              SystemProxyButton(),
+                              SizedBox(height: 16),
                               NetworkSpeed(),
                             ],
                           ),
@@ -76,6 +79,8 @@ class DesktopDashboardView extends ConsumerWidget {
                         _DesktopHeroActionCard(),
                         SizedBox(height: 16),
                         OutboundMode(),
+                        SizedBox(height: 16),
+                        SystemProxyButton(),
                         SizedBox(height: 16),
                         NetworkSpeed(),
                         SizedBox(height: 16),
@@ -111,7 +116,9 @@ class _DesktopTopStatusBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+        color: context.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.6,
+        ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
@@ -140,7 +147,9 @@ class _DesktopTopStatusBar extends ConsumerWidget {
                   height: 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isConnected ? Colors.green : context.colorScheme.error,
+                    color: isConnected
+                        ? Colors.green
+                        : context.colorScheme.error,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -149,7 +158,9 @@ class _DesktopTopStatusBar extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isConnected ? Colors.green : context.colorScheme.error,
+                    color: isConnected
+                        ? Colors.green
+                        : context.colorScheme.error,
                   ),
                 ),
               ],
