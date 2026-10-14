@@ -18,6 +18,7 @@ namespace test {
 
 namespace {
 
+using flutter::EncodableList;
 using flutter::EncodableMap;
 using flutter::EncodableValue;
 using flutter::MethodCall;
