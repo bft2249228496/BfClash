@@ -181,7 +181,14 @@ class SetupAction extends _$SetupAction {
       if (request.running && ref.read(suspendProvider)) {
         return;
       }
-      await setCoreRunning(request.running);
+      final started = await setCoreRunning(request.running);
+      if (!started) {
+        throw StateError(
+          request.running
+              ? "Core proxy listener failed to start"
+              : "Core proxy listener failed to stop",
+        );
+      }
     });
   }
 

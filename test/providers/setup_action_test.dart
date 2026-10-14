@@ -81,6 +81,7 @@ class TestSetupAction extends SetupAction {
   int applyProfileCalls = 0;
   bool blockCoreCalls = false;
   Error? coreRunningError;
+  bool coreRunningResult = true;
   int authorizeCalls = 0;
   AuthorizeCode authorizeResult = AuthorizeCode.none;
 
@@ -102,7 +103,7 @@ class TestSetupAction extends SetupAction {
     if (error != null) {
       throw error;
     }
-    return true;
+    return coreRunningResult;
   }
 
   @override
@@ -195,6 +196,20 @@ void main() {
   });
 
   group('run failures', () {
+    test('a false listener result stops reporting a run time', () async {
+      markInitialized();
+      action.coreRunningResult = false;
+
+      await expectLater(
+        container.read(setupActionProvider.notifier).setRunning(true),
+        throwsStateError,
+      );
+
+      expect(container.read(runTimeProvider), isNull);
+      expect(action.coreRunningCalls, [true]);
+      action.coreRunningResult = true;
+    });
+
     test('a start the core rejects stops reporting a run time', () async {
       markInitialized();
       action.coreRunningError = StateError('start failed');
