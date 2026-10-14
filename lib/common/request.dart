@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/channel_config.dart';
+import 'package:bfclash/common/windows_update.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/state.dart';
@@ -87,7 +88,7 @@ class Request {
         if (response.statusCode != 200) return null;
         final data = response.data as Map<String, dynamic>;
         final remoteVersion = data['tag_name'] as String? ?? '';
-        final cleanTag = remoteVersion.replaceAll('v', '');
+        final cleanTag = remoteVersion.replaceFirst(RegExp(r'^[vV]'), '');
         if (isPreReleaseVersion(cleanTag)) return null;
         final hasUpdate = compareVersions(cleanTag, version) > 0;
         if (!hasUpdate) return null;
@@ -96,7 +97,7 @@ class Request {
 
       // Beta / 预发布版：只检测同为 Beta / 预发布版本的更新
       final response = await _clashDio.get(
-        'https://api.github.com/repos/$repository/releases?per_page=10',
+        'https://api.github.com/repos/$repository/releases?per_page=100',
         options: _updateRequestOptions,
       );
       if (response.statusCode != 200) return null;
@@ -106,28 +107,29 @@ class Request {
               .toList() ??
           [];
 
+      if (system.isWindows && WindowsChannelConfig.isBeta) {
+        return selectWindowsBetaRelease(
+          list,
+          currentVersion: version,
+          currentRunId: WindowsChannelConfig.ciRunId,
+          architecture: Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '',
+        );
+      }
+
       Map<String, dynamic>? bestRelease;
       String? bestVersion;
 
       for (final release in list) {
         if (release['draft'] == true) continue;
-        if (system.isWindows &&
-            WindowsChannelConfig.isBeta &&
-            !(release['tag_name'] as String? ?? '').contains('-windows-ci.')) {
-          continue;
-        }
         final tagName = release['tag_name'] as String? ?? '';
         if (tagName.isEmpty) continue;
-        final cleanTag = tagName.replaceAll('v', '');
+        final cleanTag = tagName.replaceFirst(RegExp(r'^[vV]'), '');
         // 严格隔离：Beta 版本只接受同样带有 preRelease/Beta 标识的更新
         final isRemoteBeta =
             (release['prerelease'] == true) || isPreReleaseVersion(cleanTag);
         if (!isRemoteBeta) continue;
 
-        final isNewer = system.isWindows && WindowsChannelConfig.isBeta
-            ? _isNewerWindowsBetaRelease(tagName, version)
-            : compareVersions(cleanTag, version) > 0;
-        if (isNewer) {
+        if (compareVersions(cleanTag, version) > 0) {
           if (bestVersion == null ||
               compareVersions(cleanTag, bestVersion) > 0) {
             bestVersion = cleanTag;
@@ -141,18 +143,6 @@ class Request {
       commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
       return null;
     }
-  }
-
-  bool _isNewerWindowsBetaRelease(String tagName, String version) {
-    final match = RegExp(r'-windows-ci\.(\d+)').firstMatch(tagName);
-    if (match == null) return false;
-    final remoteRun = int.tryParse(match.group(1) ?? '');
-    final currentRun = int.tryParse(WindowsChannelConfig.ciRunId);
-    if (remoteRun == null || currentRun == null) return false;
-    final remoteBase = tagName.split('-').first.replaceFirst(RegExp(r'^v'), '');
-    final baseComparison = compareVersions(remoteBase, version);
-    return baseComparison > 0 ||
-        (baseComparison == 0 && remoteRun > currentRun);
   }
 
   Options get _updateRequestOptions => Options(
