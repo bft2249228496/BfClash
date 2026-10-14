@@ -72,6 +72,15 @@ jobs:
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
 
+      - name: Run Windows Native Proxy Tests
+        run: |
+          cmake -S windows -B build/windows/x64 -Dinclude_proxy_tests=ON
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test configuration failed" }
+          cmake --build build/windows/x64 --config Release --target proxy_test
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test build failed" }
+          & ./build/windows/x64/plugins/proxy/Release/proxy_test.exe
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy tests failed" }
+
       - name: Preserve stable probe artifacts
         run: |
           New-Item -ItemType Directory -Path dist/stable -Force | Out-Null
