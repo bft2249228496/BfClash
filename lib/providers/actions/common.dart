@@ -169,6 +169,7 @@ class CommonAction extends _$CommonAction {
       final isAndroid = system.isAndroid;
       final currentVer = globalState.packageInfo.version;
       final assetInfo = isAndroid ? await androidUpdateAssetInfo(data) : null;
+      if (!context.mounted) return;
 
       final res = await dialogs.showMessage(
         title: currentAppLocalizations.discoverNewVersion,
@@ -192,7 +193,10 @@ class CommonAction extends _$CommonAction {
         } else {
           unawaited(
             launchUrl(
-              Uri.parse('https://github.com/$repository/releases/latest'),
+              Uri.parse(
+                data['html_url'] as String? ??
+                    'https://github.com/$repository/releases/latest',
+              ),
             ),
           );
         }

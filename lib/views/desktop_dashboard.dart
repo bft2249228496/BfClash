@@ -2,6 +2,7 @@ import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
 import 'package:bfclash/views/dashboard/widgets/core_status_button.dart';
 import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
 import 'package:bfclash/views/dashboard/widgets/outbound_mode.dart';
@@ -243,6 +244,20 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
+                ActionChip(
+                  avatar: const Icon(Icons.system_update, size: 16),
+                  label: Text(appLocalizations.checkUpdate),
+                  onPressed: () async {
+                    final data = await globalState
+                        .safeRun<Map<String, dynamic>?>(
+                          request.checkForUpdate,
+                          title: appLocalizations.checkUpdate,
+                        );
+                    await ref
+                        .read(commonActionProvider.notifier)
+                        .checkUpdateResultHandle(data: data, isUser: true);
+                  },
+                ),
                 ActionChip(
                   avatar: const Icon(Icons.cloud_sync, size: 16),
                   label: Text(appLocalizations.backupAndRestore),

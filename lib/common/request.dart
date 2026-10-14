@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/state.dart';
@@ -73,7 +74,9 @@ class Request {
   Future<Map<String, dynamic>?> checkForUpdate() async {
     try {
       final version = globalState.packageInfo.version;
-      final isCurrentBeta = isPreReleaseVersion(version);
+      final isCurrentBeta =
+          (system.isWindows && WindowsChannelConfig.isBeta) ||
+          isPreReleaseVersion(version);
 
       if (!isCurrentBeta) {
         // 正式版：只检测官方最新正式发布版本
@@ -108,6 +111,11 @@ class Request {
 
       for (final release in list) {
         if (release['draft'] == true) continue;
+        if (system.isWindows &&
+            WindowsChannelConfig.isBeta &&
+            !(release['tag_name'] as String? ?? '').contains('-windows-ci.')) {
+          continue;
+        }
         final tagName = release['tag_name'] as String? ?? '';
         if (tagName.isEmpty) continue;
         final cleanTag = tagName.replaceAll('v', '');
@@ -116,7 +124,10 @@ class Request {
             (release['prerelease'] == true) || isPreReleaseVersion(cleanTag);
         if (!isRemoteBeta) continue;
 
-        if (compareVersions(cleanTag, version) > 0) {
+        final isNewer = system.isWindows && WindowsChannelConfig.isBeta
+            ? _isNewerWindowsBetaRelease(tagName, version)
+            : compareVersions(cleanTag, version) > 0;
+        if (isNewer) {
           if (bestVersion == null ||
               compareVersions(cleanTag, bestVersion) > 0) {
             bestVersion = cleanTag;
@@ -130,6 +141,18 @@ class Request {
       commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
       return null;
     }
+  }
+
+  bool _isNewerWindowsBetaRelease(String tagName, String version) {
+    final match = RegExp(r'-windows-ci\.(\d+)').firstMatch(tagName);
+    if (match == null) return false;
+    final remoteRun = int.tryParse(match.group(1) ?? '');
+    final currentRun = int.tryParse(WindowsChannelConfig.ciRunId);
+    if (remoteRun == null || currentRun == null) return false;
+    final remoteBase = tagName.split('-').first.replaceFirst(RegExp(r'^v'), '');
+    final baseComparison = compareVersions(remoteBase, version);
+    return baseComparison > 0 ||
+        (baseComparison == 0 && remoteRun > currentRun);
   }
 
   Options get _updateRequestOptions => Options(

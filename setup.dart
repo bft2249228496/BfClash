@@ -128,6 +128,7 @@ Map<String, String> createBuildEnvironment(String env) {
   return {
     'APP_ENV': env,
     'APP_BETA': env == 'pre' || env == 'dev' ? 'true' : 'false',
+    'WINDOWS_CI_RUN_ID': Platform.environment['GITHUB_RUN_ID'] ?? '',
   };
 }
 
