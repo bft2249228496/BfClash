@@ -3,6 +3,7 @@
 #include <flutter/standard_method_codec.h>
 #include <gtest/gtest.h>
 
+#include <windows.h>
 #include <wininet.h>
 
 #include <memory>
