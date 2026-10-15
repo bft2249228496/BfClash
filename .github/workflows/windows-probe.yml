@@ -56,6 +56,9 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup -y
 
+      - name: Verify installer cancellation and confirmed cleanup
+        run: ./tool/check_windows_uninstall.ps1
+
       - name: Flutter doctor
         run: flutter doctor -v
 
