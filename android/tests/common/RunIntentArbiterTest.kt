@@ -1,4 +1,4 @@
-package com.lansway.client.common
+package com.bfclash.client.common
 
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors

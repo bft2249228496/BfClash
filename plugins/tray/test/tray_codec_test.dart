@@ -4,7 +4,7 @@ import 'package:tray/tray.dart';
 
 TraySpec _spec({
   String asset = 'assets/icon.png',
-  String toolTip = 'FlClash',
+  String toolTip = 'BfClash',
   List<TrayMenuItem> menu = const [],
 }) {
   return TraySpec(icon: TrayIcon.asset(asset), toolTip: toolTip, menu: menu);

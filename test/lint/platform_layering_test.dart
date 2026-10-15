@@ -25,8 +25,8 @@ final _platformImport = RegExp(
 
 Set<String> _closureOfCommonBarrel() {
   String resolve(String uri, String from) {
-    if (uri.startsWith('package:fl_clash/')) {
-      return 'lib/${uri.substring('package:fl_clash/'.length)}';
+    if (uri.startsWith('package:bfclash/')) {
+      return 'lib/${uri.substring('package:bfclash/'.length)}';
     }
     if (uri.startsWith('dart:') || uri.startsWith('package:')) return uri;
     return p.normalize(p.join(p.dirname(from), uri));
@@ -146,7 +146,7 @@ void main() {
 
     for (final file in _dartFilesIn('lib/common')) {
       if (file.readAsStringSync().contains(
-        "import 'package:fl_clash/manager/manager.dart';",
+        "import 'package:bfclash/manager/manager.dart';",
       )) {
         offenders.add(
           '${p.relative(file.path)} — import the one manager it needs, not the '

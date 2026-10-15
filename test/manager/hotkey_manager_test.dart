@@ -1,6 +1,6 @@
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/manager/hotkey_manager.dart';
-import 'package:fl_clash/models/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/manager/hotkey_manager.dart';
+import 'package:bfclash/models/common.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rust_api/rust_api.dart';

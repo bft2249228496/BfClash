@@ -1,16 +1,16 @@
 import 'dart:io';
 
 import 'package:drift/native.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/core/controller.dart';
-import 'package:fl_clash/core/interface.dart';
-import 'package:fl_clash/database/database.dart' as db;
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/action.dart';
-import 'package:fl_clash/providers/core.dart';
-import 'package:fl_clash/providers/database.dart';
-import 'package:fl_clash/state.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/core/controller.dart';
+import 'package:bfclash/core/interface.dart';
+import 'package:bfclash/database/database.dart' as db;
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/action.dart';
+import 'package:bfclash/providers/core.dart';
+import 'package:bfclash/providers/database.dart';
+import 'package:bfclash/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart';
@@ -46,7 +46,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(0);
-    home = Directory.systemTemp.createTempSync('flclash-store-');
+    home = Directory.systemTemp.createTempSync('bfclash-store-');
     AppPath.supportDirectory = () async => home;
     AppPath.temporaryDirectory = () async => home;
     AppPath.cacheDirectory = () async => home;

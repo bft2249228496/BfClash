@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/app_ports.dart';
-import 'package:fl_clash/common/preferences.dart';
-import 'package:fl_clash/models/config.dart';
-import 'package:fl_clash/providers/action.dart';
-import 'package:fl_clash/providers/actions/system_exit.dart';
-import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/state.dart';
+import 'package:bfclash/common/app_ports.dart';
+import 'package:bfclash/common/preferences.dart';
+import 'package:bfclash/models/config.dart';
+import 'package:bfclash/providers/action.dart';
+import 'package:bfclash/providers/actions/system_exit.dart';
+import 'package:bfclash/providers/config.dart';
+import 'package:bfclash/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';

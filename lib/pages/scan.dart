@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:fl_clash/common/color.dart';
-import 'package:fl_clash/common/context.dart';
-import 'package:fl_clash/common/shape.dart';
-import 'package:fl_clash/providers/action.dart';
-import 'package:fl_clash/widgets/activate_box.dart';
+import 'package:bfclash/common/color.dart';
+import 'package:bfclash/common/context.dart';
+import 'package:bfclash/common/shape.dart';
+import 'package:bfclash/providers/action.dart';
+import 'package:bfclash/widgets/activate_box.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';

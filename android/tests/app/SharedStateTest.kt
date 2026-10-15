@@ -1,6 +1,6 @@
-package com.lansway.client.models
+package com.bfclash.client.models
 
-import com.lansway.client.common.AccessControlMode
+import com.bfclash.client.common.AccessControlMode
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/common/http.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
+import 'package:bfclash/common/constant.dart';
+import 'package:bfclash/common/http.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/providers/app.dart';
+import 'package:bfclash/providers/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -61,7 +61,7 @@ void main() {
     final container = buildContainer();
 
     expect(
-      FlClashHttpOverrides.findProxyFor(
+      BfClashHttpOverrides.findProxyFor(
         container,
         Uri.parse('http://$localhost:9090/ui'),
       ),
@@ -73,7 +73,7 @@ void main() {
     final container = buildContainer(mixedPort: 7891);
 
     expect(
-      FlClashHttpOverrides.findProxyFor(container, remote),
+      BfClashHttpOverrides.findProxyFor(container, remote),
       'PROXY localhost:7891',
     );
   });
@@ -90,7 +90,7 @@ void main() {
         );
 
     expect(
-      FlClashHttpOverrides.findProxyFor(container, remote),
+      BfClashHttpOverrides.findProxyFor(container, remote),
       'PROXY user:pass@localhost:7890',
     );
 
@@ -102,7 +102,7 @@ void main() {
           ),
         );
     expect(
-      FlClashHttpOverrides.findProxyFor(container, remote),
+      BfClashHttpOverrides.findProxyFor(container, remote),
       'PROXY localhost:7890',
     );
   });
@@ -110,7 +110,7 @@ void main() {
   test('bypasses the proxy when the core is not running', () {
     final container = buildContainer(running: false);
 
-    expect(FlClashHttpOverrides.findProxyFor(container, remote), 'DIRECT');
+    expect(BfClashHttpOverrides.findProxyFor(container, remote), 'DIRECT');
   });
 
   test('bypasses the proxy on an excluded SSID', () {
@@ -119,7 +119,7 @@ void main() {
       excludeSSIDs: const ['Office Wi-Fi'],
     );
 
-    expect(FlClashHttpOverrides.findProxyFor(container, remote), 'DIRECT');
+    expect(BfClashHttpOverrides.findProxyFor(container, remote), 'DIRECT');
   });
 
   test('keeps proxying when the current SSID is not excluded', () {
@@ -129,7 +129,7 @@ void main() {
     );
 
     expect(
-      FlClashHttpOverrides.findProxyFor(container, remote),
+      BfClashHttpOverrides.findProxyFor(container, remote),
       'PROXY localhost:7890',
     );
   });
@@ -138,7 +138,7 @@ void main() {
     final container = buildContainer();
 
     expect(
-      FlClashHttpOverrides.allowBadCertificate(
+      BfClashHttpOverrides.allowBadCertificate(
         container,
         _FakeCertificate(),
         'example.com',
@@ -152,7 +152,7 @@ void main() {
     final container = buildContainer(checkCertificate: false);
 
     expect(
-      FlClashHttpOverrides.allowBadCertificate(
+      BfClashHttpOverrides.allowBadCertificate(
         container,
         _FakeCertificate(),
         'example.com',

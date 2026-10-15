@@ -1,6 +1,6 @@
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/features/features.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/features/features.dart';
+import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

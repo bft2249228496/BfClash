@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fl_clash/common/l10n_labels.dart';
-import 'package:fl_clash/l10n/l10n.dart';
+import 'package:bfclash/common/l10n_labels.dart';
+import 'package:bfclash/l10n/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _arbDir = 'arb';

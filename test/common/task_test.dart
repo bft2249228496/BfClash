@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart';
 import 'package:yaml/yaml.dart';
@@ -12,12 +12,12 @@ int _double(int value) => value * 2;
 void main() {
   test('encoding helpers round-trip structured data', () async {
     final encoded = await encodeJSONTask({
-      'name': 'FlClash',
+      'name': 'BfClash',
       'values': [1, true, null],
     });
     final decoded = await decodeJSONTask<Map<String, dynamic>>(encoded);
 
-    expect(decoded['name'], 'FlClash');
+    expect(decoded['name'], 'BfClash');
     expect(decoded['values'], [1, true, null]);
     expect(await encodeYamlTask({'enabled': true}), contains('enabled: true'));
     expect(await encodeMD5Task('abc'), '900150983cd24fb0d6963f7d28e17f72');
@@ -202,7 +202,7 @@ void main() {
               ruleTarget: 'MATCH',
             ),
           ],
-          defaultUA: 'FlClash-Test',
+          defaultUA: 'BfClash-Test',
         ),
       );
       final config = loadYaml(result.yaml) as YamlMap;
@@ -210,7 +210,7 @@ void main() {
       expect(result.md5, hasLength(32));
       expect(config['mixed-port'], 7893);
       expect(config['allow-lan'], true);
-      expect(config['global-ua'], 'FlClash-Test');
+      expect(config['global-ua'], 'BfClash-Test');
       expect(config['profile']['store-selected'], false);
       expect(
         config['dns']['nameserver'],
@@ -259,7 +259,7 @@ void main() {
             ruleTarget: 'MATCH',
           ),
         ],
-        defaultUA: 'FlClash-Test',
+        defaultUA: 'BfClash-Test',
         matchTarget: 'HK',
       );
 
@@ -306,7 +306,7 @@ void main() {
           proxyGroups: const [],
           rules: const [],
           addedRules: const [],
-          defaultUA: 'FlClash-Test',
+          defaultUA: 'BfClash-Test',
         ),
       );
       final config = loadYaml(result.yaml) as YamlMap;
@@ -334,7 +334,7 @@ void main() {
       proxyGroups: const [],
       rules: const [],
       addedRules: const [],
-      defaultUA: 'FlClash-Test',
+      defaultUA: 'BfClash-Test',
       authentication: const ['user:pass'],
     );
 
@@ -416,7 +416,7 @@ void main() {
         proxyGroups: const [],
         rules: const [],
         addedRules: const [],
-        defaultUA: 'FlClash-Test',
+        defaultUA: 'BfClash-Test',
       ),
     );
     final config = loadYaml(result.yaml) as YamlMap;
@@ -449,7 +449,7 @@ void main() {
           proxyGroups: const [],
           rules: const [],
           addedRules: const [],
-          defaultUA: 'FlClash-Test',
+          defaultUA: 'BfClash-Test',
         ),
       );
       return loadYaml(result.yaml) as YamlMap;
@@ -523,7 +523,7 @@ void main() {
           proxyGroups: const [],
           rules: const [],
           addedRules: const [],
-          defaultUA: 'FlClash-Test',
+          defaultUA: 'BfClash-Test',
         ),
       );
       final config = loadYaml(result.yaml) as YamlMap;

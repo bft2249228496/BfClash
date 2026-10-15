@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
 import 'package:flutter/scheduler.dart';
 
 class Render {

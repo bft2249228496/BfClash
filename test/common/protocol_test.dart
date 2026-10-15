@@ -1,19 +1,19 @@
-import 'package:fl_clash/common/protocol.dart';
+import 'package:bfclash/common/protocol.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('ProtocolRegistrationPlan', () {
     test('builds registry writes for URL protocol registration', () {
       const plan = ProtocolRegistrationPlan(
-        scheme: 'flclash',
-        executable: r'C:\Program Files\FlClash\FlClash.exe',
+        scheme: 'bfclash',
+        executable: r'C:\Program Files\BfClash\BfClash.exe',
       );
 
-      expect(plan.protocolKey, r'Software\Classes\flclash');
+      expect(plan.protocolKey, r'Software\Classes\bfclash');
       expect(plan.commandKey, r'shell\open\command');
       expect(plan.protocolValueName, 'URL Protocol');
       expect(plan.protocolValue, '');
-      expect(plan.command, r'"C:\Program Files\FlClash\FlClash.exe" "%1"');
+      expect(plan.command, r'"C:\Program Files\BfClash\BfClash.exe" "%1"');
     });
   });
 
@@ -37,7 +37,7 @@ void main() {
         'NoDisplay=true\n'
         'Exec="/home/me/Apps/BfClash.AppImage" %u\n'
         'MimeType=x-scheme-handler/clash;x-scheme-handler/clashmeta;'
-        'x-scheme-handler/flclash;x-scheme-handler/lansway;x-scheme-handler/bfclash;\n',
+        'x-scheme-handler/bfclash;x-scheme-handler/bfclash;x-scheme-handler/bfclash;\n',
       );
     });
 
@@ -47,15 +47,15 @@ void main() {
         'bfclash-url-handler.desktop',
         'x-scheme-handler/clash',
         'x-scheme-handler/clashmeta',
-        'x-scheme-handler/flclash',
-        'x-scheme-handler/lansway',
+        'x-scheme-handler/bfclash',
+        'x-scheme-handler/bfclash',
         'x-scheme-handler/bfclash',
       ]);
     });
 
     test('escapes reserved characters in the executable path', () {
       const plan = LinuxProtocolRegistrationPlan(
-        schemes: ['flclash'],
+        schemes: ['bfclash'],
         executable: r'/opt/my "apps"/$HOME/100%/Fl`Clash\bin',
         applicationsDir: '/tmp',
       );

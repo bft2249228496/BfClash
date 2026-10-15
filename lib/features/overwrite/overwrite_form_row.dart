@@ -1,6 +1,6 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
 class InfoMessageButton extends StatelessWidget {

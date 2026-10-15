@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/constant.dart';
+import 'package:bfclash/common/constant.dart';
 import 'package:flutter/services.dart';
 
 enum SubStoreBackendPhase { stopped, starting, running, failed }

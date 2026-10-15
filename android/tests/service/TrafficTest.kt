@@ -1,4 +1,4 @@
-package com.lansway.client.service.models
+package com.bfclash.client.service.models
 
 import java.util.Locale
 import org.junit.After

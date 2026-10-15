@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/shape.dart';
-import 'package:fl_clash/widgets/loading.dart';
+import 'package:bfclash/common/shape.dart';
+import 'package:bfclash/widgets/loading.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';

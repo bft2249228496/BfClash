@@ -1,9 +1,9 @@
-import 'package:fl_clash/common/constant.dart';
+import 'package:bfclash/common/constant.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Windows Core pipe uses a 128-bit random suffix', () {
-    const prefix = r'\\.\pipe\FlClashCore_';
+    const prefix = r'\\.\pipe\BfClashCore_';
     expect(windowsPipeName, startsWith(prefix));
     expect(
       windowsPipeName.substring(prefix.length),

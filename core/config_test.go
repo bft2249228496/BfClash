@@ -34,8 +34,8 @@ func TestRouteConfigCarriesControllerCredentials(t *testing.T) {
 		Controller: &config.Controller{
 			ExternalController:            "127.0.0.1:9090",
 			ExternalControllerTLS:         "127.0.0.1:9443",
-			ExternalControllerUnix:        "/tmp/flclash.sock",
-			ExternalControllerPipe:        `\\.\pipe\flclash`,
+			ExternalControllerUnix:        "/tmp/bfclash.sock",
+			ExternalControllerPipe:        `\\.\pipe\bfclash`,
 			ExternalControllerRoutingMark: 1234,
 			ExternalDohServer:             "/dns-query",
 			Secret:                        "s3cret",
@@ -61,7 +61,7 @@ func TestRouteConfigCarriesControllerCredentials(t *testing.T) {
 	if got.Addr != "127.0.0.1:9090" || got.TLSAddr != "127.0.0.1:9443" {
 		t.Errorf("addresses = %q/%q, want the controller's own listen addresses", got.Addr, got.TLSAddr)
 	}
-	if got.UnixAddr != "/tmp/flclash.sock" || got.PipeAddr != `\\.\pipe\flclash` {
+	if got.UnixAddr != "/tmp/bfclash.sock" || got.PipeAddr != `\\.\pipe\bfclash` {
 		t.Errorf("local addresses = %q/%q, want them preserved", got.UnixAddr, got.PipeAddr)
 	}
 	if got.RoutingMark != 1234 || got.DohServer != "/dns-query" {
@@ -157,7 +157,7 @@ func TestUpdateConfigAppliesAuthenticationAndClearsLoopbackExemptions(t *testing
 func TestUpdateConfigPatchesOnlyTheTunFieldsItWasGiven(t *testing.T) {
 	withCurrentConfig(t, &config.Config{General: &config.General{}, Controller: &config.Controller{}})
 	currentConfig.General.Tun.Device = "keep-me"
-	device := "flclash-tun"
+	device := "bfclash-tun"
 
 	if err := updateConfig(&UpdateParams{Tun: &tunSchema{Enable: true}}); err != nil {
 		t.Fatalf("updateConfig error: %v", err)

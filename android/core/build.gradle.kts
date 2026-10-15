@@ -14,7 +14,7 @@ val coreAbis =
         ?: coreAbiByPlatform.values.toList()
 
 android {
-    namespace = "com.lansway.client.core"
+    namespace = "com.bfclash.client.core"
     compileSdk = libs.versions.compileSdk.get().toInt()
     ndkVersion = libs.versions.ndkVersion.get()
 

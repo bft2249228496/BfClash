@@ -1,9 +1,9 @@
-import 'package:fl_clash/pages/error.dart';
+import 'package:bfclash/pages/error.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-final _stack = StackTrace.fromString('#0 boot (package:fl_clash/main.dart:1)');
+final _stack = StackTrace.fromString('#0 boot (package:bfclash/main.dart:1)');
 
 Widget _screen({ThemeData? theme}) {
   return MaterialApp(

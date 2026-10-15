@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/widgets/list.dart';
-import 'package:fl_clash/widgets/scaffold.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/l10n/l10n.dart';
+import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/widgets/list.dart';
+import 'package:bfclash/widgets/scaffold.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -71,7 +71,7 @@ class AboutView extends ConsumerWidget {
       title: '鸣谢与上游 (Credits)',
       items: [
         ListItem(
-          title: const Text('FlClash'),
+          title: const Text('BfClash'),
           subtitle: const Text('客户端底座项目 (chen08209/FlClash)'),
           onTap: () {
             dialogs.openUrl('https://github.com/chen08209/FlClash');
@@ -83,7 +83,7 @@ class AboutView extends ConsumerWidget {
           subtitle: const Text('高性能路由代理内核'),
           onTap: () {
             dialogs.openUrl(
-              'https://github.com/chen08209/Clash.Meta/tree/FlClash',
+              'https://github.com/chen08209/Clash.Meta/tree/BfClash',
             );
           },
           trailing: const Icon(Icons.launch),

@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/changelog.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/l10n/l10n.dart';
+import 'package:bfclash/models/changelog.dart';
 
 import 'common.dart';
 
-const releaseChangelogJsonMarker = '<!-- flclash:changelog:json';
+const releaseChangelogJsonMarker = '<!-- bfclash:changelog:json';
 
 const _releaseChangelogJsonEndMarker = '-->';
 

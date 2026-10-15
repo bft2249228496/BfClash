@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/features/overwrite/overwrite.dart';
-import 'package:fl_clash/models/models.dart' hide FileInfo;
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/profiles/overwrite/custom/proxy_providers.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/features/overwrite/overwrite.dart';
+import 'package:bfclash/models/models.dart' hide FileInfo;
+import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/views/profiles/overwrite/custom/proxy_providers.dart';
+import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

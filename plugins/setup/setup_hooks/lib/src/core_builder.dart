@@ -136,7 +136,7 @@ final class CoreBuilder implements Builder {
         !File(p.join(rootDir, 'pubspec.yaml')).existsSync()) {
       throw InfraError(
         message:
-            'The setup package must live at plugins/setup of the FlClash '
+            'The setup package must live at plugins/setup of the BfClash '
             'repository; $rootDir has no core/ and pubspec.yaml',
       );
     }

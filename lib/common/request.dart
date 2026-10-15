@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/state.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart';
+import 'package:bfclash/state.dart';
 
 class Request {
   late final Dio dio;
@@ -33,7 +33,7 @@ class Request {
           if (read == null) {
             return 'DIRECT';
           }
-          return FlClashHttpOverrides.findProxyForReader(read, uri);
+          return BfClashHttpOverrides.findProxyForReader(read, uri);
         };
         return client;
       },

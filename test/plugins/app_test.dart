@@ -1,6 +1,6 @@
-import 'package:fl_clash/common/boot_record.dart';
-import 'package:fl_clash/common/constant.dart';
-import 'package:fl_clash/plugins/app.dart';
+import 'package:bfclash/common/boot_record.dart';
+import 'package:bfclash/common/constant.dart';
+import 'package:bfclash/plugins/app.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

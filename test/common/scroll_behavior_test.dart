@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/widgets/scroll.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/widgets/scroll.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 

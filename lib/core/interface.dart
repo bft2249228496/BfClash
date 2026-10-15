@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/models/models.dart';
 
 import 'desktop/model.dart';
 import 'method.dart';

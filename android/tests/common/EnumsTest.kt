@@ -1,4 +1,4 @@
-package com.lansway.client.common
+package com.bfclash.client.common
 
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals

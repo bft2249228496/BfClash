@@ -14,7 +14,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.lansway.client.BuildConfig
+import com.bfclash.client.BuildConfig
 import ano.subcase.engine.bridge.LoonHostBridge
 import ano.subcase.engine.bridge.PersistentStoreBridge
 import ano.subcase.model.LoonRequest

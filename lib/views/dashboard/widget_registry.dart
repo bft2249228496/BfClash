@@ -1,6 +1,6 @@
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/views/dashboard/widgets/widgets.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/views/dashboard/widgets/widgets.dart';
+import 'package:bfclash/widgets/widgets.dart';
 
 extension DashboardWidgetView on DashboardWidget {
   GridItem get widget => switch (this) {

@@ -1,5 +1,5 @@
-import 'package:fl_clash/common/color.dart';
-import 'package:fl_clash/common/shape.dart';
+import 'package:bfclash/common/color.dart';
+import 'package:bfclash/common/shape.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 

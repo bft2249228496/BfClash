@@ -1,9 +1,9 @@
-import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/profile.dart';
-import 'package:fl_clash/pages/editor.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/profiles/preview.dart';
+import 'package:bfclash/l10n/l10n.dart';
+import 'package:bfclash/models/profile.dart';
+import 'package:bfclash/pages/editor.dart';
+import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/views/profiles/preview.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

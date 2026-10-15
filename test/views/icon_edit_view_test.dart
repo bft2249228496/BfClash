@@ -1,9 +1,9 @@
 import 'package:drift/native.dart';
-import 'package:fl_clash/database/database.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/profiles/overwrite/custom/icon.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:bfclash/database/database.dart';
+import 'package:bfclash/providers/app.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/views/profiles/overwrite/custom/icon.dart';
+import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

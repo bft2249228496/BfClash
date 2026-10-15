@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/string.dart';
+import 'package:bfclash/common/string.dart';
 import 'package:test/test.dart';
 
 void main() {

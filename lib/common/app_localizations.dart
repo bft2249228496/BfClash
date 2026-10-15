@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:fl_clash/core/desktop/launch_policy.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/l10n/l10n.dart';
+import 'package:bfclash/core/desktop/launch_policy.dart';
+import 'package:bfclash/core/method.dart';
+import 'package:bfclash/l10n/l10n.dart';
 
 import 'dart:ui';
 
