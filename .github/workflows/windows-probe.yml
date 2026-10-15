@@ -14,6 +14,8 @@ on:
       - 'setup.dart'
       - 'build_config.yaml'
       - 'lib/**'
+      - 'test/**'
+      - 'tool/**'
 
 env:
   FLUTTER_VERSION: '3.47.1'
@@ -104,6 +106,9 @@ jobs:
 
       - name: Verify beta packaged version
         run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash-Beta.exe -Beta
+
+      - name: Test packaged beta Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
 
       - name: Preserve beta probe artifacts
         run: |
