@@ -30,7 +30,7 @@ class VpnService : SystemVpnService(), ManagedService {
     private var tunRunning = false
     private var active = false
 
-    private fun recoverTunnel() = synchronized(tunLock) {
+    private fun recoverTunnel(): Unit = synchronized(tunLock) {
         if (!active || !tunRunning) return@synchronized
         try {
             GlobalState.log("VPN recovery: rebuilding tunnel after network or health change")
@@ -261,7 +261,7 @@ class VpnService : SystemVpnService(), ManagedService {
         }
     }
 
-    override fun start() = synchronized(tunLock) {
+    override fun start(): Unit = synchronized(tunLock) {
         try {
             active = true
             modules.start()
@@ -280,7 +280,7 @@ class VpnService : SystemVpnService(), ManagedService {
         }
     }
 
-    private fun cleanup() = synchronized(tunLock) {
+    private fun cleanup(): Unit = synchronized(tunLock) {
         active = false
         try {
             modules.stop()
