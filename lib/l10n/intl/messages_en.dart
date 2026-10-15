@@ -1255,6 +1255,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No verified installer is available for this Windows version and channel.",
+    ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };

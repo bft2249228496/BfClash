@@ -1313,6 +1313,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows не запустила установщик. Возможно, разрешение отменено или запуск заблокирован контролем приложений. Текущая версия остаётся доступной.",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет проверяемого установщика для этой архитектуры Windows и канала обновлений.",
+    ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("Упрощённый китайский"),
   };

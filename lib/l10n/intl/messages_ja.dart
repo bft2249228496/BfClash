@@ -1045,6 +1045,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPNの再起動後に有効になります"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "インストーラーを起動できませんでした。承認がキャンセルされたか、アプリ制御によりブロックされた可能性があります。現在のバージョンは引き続き利用できます。",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "この Windows の構成と更新チャネルに対応する検証可能なインストーラーがありません。",
+    ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };

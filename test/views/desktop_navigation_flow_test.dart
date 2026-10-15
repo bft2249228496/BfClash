@@ -186,6 +186,8 @@ void main() {
 
         expect(find.byType(DesktopToolsView), findsOneWidget);
         expect(find.byType(VerticalDivider), findsOneWidget);
+        expect(find.text(loc.language), findsOneWidget);
+        expect(find.text(loc.resources), findsWidgets);
 
         // Default selected widget is BackupAndRestore
         expect(find.byType(BackupAndRestore), findsOneWidget);

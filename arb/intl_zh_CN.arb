@@ -643,5 +643,7 @@
   "subStoreStartFirst": "请先启动安卓本机后端",
   "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用",
   "proxyRunning": "代理运行中",
-  "proxyStopped": "代理未启动"
+  "proxyStopped": "代理未启动",
+  "windowsUpdateUnavailable": "没有适用于此 Windows 架构和发布渠道、且可校验的安装包。",
+  "windowsUpdateLaunchFailed": "Windows 未能启动安装器，可能已取消授权或被应用程序控制拦截。当前版本仍可使用。"
 }

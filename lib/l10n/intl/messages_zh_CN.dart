@@ -899,6 +899,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows 未能启动安装器，可能已取消授权或被应用程序控制拦截。当前版本仍可使用。",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "没有适用于此 Windows 架构和发布渠道、且可校验的安装包。",
+    ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };

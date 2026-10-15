@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/views/about.dart';
+import 'package:bfclash/views/resources.dart';
+import 'package:bfclash/widgets/locale_setting_item.dart';
 import 'package:bfclash/views/application_setting.dart';
 import 'package:bfclash/views/backup_and_restore.dart';
 import 'package:bfclash/views/config/config.dart';
@@ -50,6 +52,14 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             children: [
               ListHeader(title: appLocalizations.settings),
+              const LocaleSettingItem(),
+              _buildMenuItem(
+                title: appLocalizations.resources,
+                subtitle: appLocalizations.resources,
+                icon: Icons.storage,
+                target: const ResourcesView(),
+                isWide: isWide,
+              ),
               _buildMenuItem(
                 title: appLocalizations.backupAndRestore,
                 subtitle: appLocalizations.backupAndRestoreDesc,
@@ -136,19 +146,14 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 380,
-                  child: listMenu,
-                ),
+                SizedBox(width: 380, child: listMenu),
                 VerticalDivider(
                   width: 1,
-                  color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
-                ),
-                Expanded(
-                  child: FocusTraversalGroup(
-                    child: _selectedWidget,
+                  color: context.colorScheme.outlineVariant.withValues(
+                    alpha: 0.3,
                   ),
                 ),
+                Expanded(child: FocusTraversalGroup(child: _selectedWidget)),
               ],
             );
           }
@@ -183,22 +188,31 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
             title,
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? context.colorScheme.onSecondaryContainer : null,
+              color: isSelected
+                  ? context.colorScheme.onSecondaryContainer
+                  : null,
             ),
           ),
-          subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           trailing: isWide
               ? (isSelected
-                  ? Icon(Icons.chevron_right, color: context.colorScheme.primary)
-                  : null)
+                    ? Icon(
+                        Icons.chevron_right,
+                        color: context.colorScheme.primary,
+                      )
+                    : null)
               : const Icon(Icons.chevron_right),
           onTap: () {
             if (isWide) {
               _selectView(title, target);
             } else {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => target),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => target));
             }
           },
         ),

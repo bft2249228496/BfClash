@@ -5359,6 +5359,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `No verified installer is available for this Windows version and channel.`
+  String get windowsUpdateUnavailable {
+    return Intl.message(
+      'No verified installer is available for this Windows version and channel.',
+      name: 'windowsUpdateUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.`
+  String get windowsUpdateLaunchFailed {
+    return Intl.message(
+      'Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.',
+      name: 'windowsUpdateLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
