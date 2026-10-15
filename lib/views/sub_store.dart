@@ -51,7 +51,12 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
   }
 
   String get _activeEndpoint {
-    if (_localMode) return _status?.endpoint ?? 'http://127.0.0.1:3001';
+    if (_localMode) {
+      return _status?.endpoint ??
+          (system.isDesktop
+              ? desktopSubStoreManager.status.endpoint
+              : 'http://127.0.0.1:3001');
+    }
     return _remoteUrlController.text.trim().replaceFirst(RegExp(r'/+$'), '');
   }
 

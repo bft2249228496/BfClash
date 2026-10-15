@@ -23,3 +23,5 @@ A shared implementation is not acceptance. Every row needs an accessible Windows
 Latest installed device version remains CI38673081286. CI38689950646 was published and downloaded with matching hash but never executed due to application control. Do not equate CI/build success, source presence or a single network probe with full feature acceptance.
 
 Windows CI packages now stamp the source base version with a distinct beta/build number from the workflow run and attempt. The source pubspec is restored after packaging, keeping the Android release version unchanged. CI verifies the EXE numeric build field and beta ProductVersion as well as update asset compatibility.
+
+Desktop application exit now stops its owned local Sub-Store backend through the existing exit cleanup coordinator; idle local endpoint fallback also uses the correct channel port. Windows packaged lifecycle regression remains pending.

@@ -55,7 +55,13 @@ class SystemAction extends _$SystemAction {
       bootGuard.markClosed(),
       if (systemDnsCoordinator != null) systemDnsCoordinator!.shutdown(),
       if (proxy != null) proxy!.stopProxy(),
+      if (system.isDesktop) stopLocalSubStore(),
     ]);
+  }
+
+  @protected
+  Future<void> stopLocalSubStore() async {
+    await desktopSubStoreManager.stop();
   }
 
   Future<void> _savePreferencesSafely() async {
