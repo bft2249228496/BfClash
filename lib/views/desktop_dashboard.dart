@@ -193,8 +193,14 @@ class _DesktopTopStatusBar extends ConsumerWidget {
           IconButton(
             tooltip: appLocalizations.checkUpdate,
             icon: const Icon(Icons.sync, size: 20),
-            onPressed: () {
-              ref.read(commonActionProvider.notifier).autoCheckUpdate();
+            onPressed: () async {
+              await globalState.safeRun(() async {
+                final data = await request.checkForUpdate();
+                if (!context.mounted) return;
+                await ref
+                    .read(commonActionProvider.notifier)
+                    .checkUpdateResultHandle(data: data, isUser: true);
+              }, title: appLocalizations.checkUpdate);
             },
           ),
         ],
