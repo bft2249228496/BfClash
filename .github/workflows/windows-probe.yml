@@ -64,7 +64,7 @@ jobs:
         run: flutter test test/common/windows_update_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart
 
       - name: Run Desktop Navigation Flow Widget Tests
-        run: flutter test test/views/desktop_navigation_flow_test.dart
+        run: flutter test test/views/desktop_navigation_flow_test.dart test/common/window_position_test.dart test/common/window_test.dart
 
       - name: Run Desktop Shared Core Integration Tests
         run: flutter test test/views/desktop_shared_core_integration_test.dart
