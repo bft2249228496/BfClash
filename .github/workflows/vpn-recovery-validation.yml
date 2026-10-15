@@ -29,6 +29,7 @@ jobs:
           flutter-version: '3.47.1'
           cache: true
       - uses: nttld/setup-ndk@v1
+        id: ndk
         with:
           ndk-version: r28c
           add-to-path: true
@@ -36,6 +37,8 @@ jobs:
       - run: flutter pub get
       - name: Build signed upgrade
         shell: bash
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: |
           set -euo pipefail
           mkdir -p android/app/keystore
