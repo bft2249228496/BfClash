@@ -593,6 +593,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProviders": MessageLookupByLibrary.simpleMessage("代理集"),
     "proxyProvidersEmpty": MessageLookupByLibrary.simpleMessage("代理集为空"),
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage("代理集不能为空"),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("代理运行中"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("代理未启动"),
     "proxyType": MessageLookupByLibrary.simpleMessage("代理类型"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("修剪缓存"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("纯黑模式"),

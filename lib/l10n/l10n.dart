@@ -5339,6 +5339,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Proxy running`
+  String get proxyRunning {
+    return Intl.message(
+      'Proxy running',
+      name: 'proxyRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy stopped`
+  String get proxyStopped {
+    return Intl.message(
+      'Proxy stopped',
+      name: 'proxyStopped',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

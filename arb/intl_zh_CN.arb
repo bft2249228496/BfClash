@@ -641,5 +641,7 @@
   "subStoreFailed": "Sub-Store 后端运行失败",
   "subStoreStartFailed": "无法启动 Sub-Store 后端",
   "subStoreStartFirst": "请先启动安卓本机后端",
-  "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用"
+  "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用",
+  "proxyRunning": "代理运行中",
+  "proxyStopped": "代理未启动"
 }

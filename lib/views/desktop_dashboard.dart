@@ -19,7 +19,8 @@ class DesktopDashboardView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final coreStatus = ref.watch(coreStatusProvider);
-    final isConnected = coreStatus == CoreStatus.connected;
+    final isRunning = ref.watch(isStartProvider);
+    final isConnected = coreStatus == CoreStatus.connected && isRunning;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -155,7 +156,9 @@ class _DesktopTopStatusBar extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isConnected ? 'Core Active' : 'Core Idle',
+                  isConnected
+                      ? appLocalizations.proxyRunning
+                      : appLocalizations.proxyStopped,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -179,7 +182,7 @@ class _DesktopTopStatusBar extends ConsumerWidget {
           const Spacer(),
           if (runTime != null)
             Text(
-              'Uptime: ${DateTime.fromMillisecondsSinceEpoch(runTime).show}',
+              '${appLocalizations.time}: ${getTimeText(runTime)}',
               style: TextStyle(
                 fontSize: 12,
                 fontFamily: 'JetBrainsMono',

@@ -641,5 +641,7 @@
   "subStoreFailed": "Sub-Store バックエンドでエラーが発生しました",
   "subStoreStartFailed": "Sub-Store バックエンドを起動できません",
   "subStoreStartFirst": "先に端末内バックエンドを起動してください",
-  "subStoreAndroidOnly": "端末内バックエンドは Android でのみ利用できます"
+  "subStoreAndroidOnly": "端末内バックエンドは Android でのみ利用できます",
+  "proxyRunning": "プロキシ稼働中",
+  "proxyStopped": "プロキシ停止中"
 }

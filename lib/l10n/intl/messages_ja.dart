@@ -689,6 +689,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage(
       "プロキシプロバイダーは空にできません",
     ),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("プロキシ稼働中"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("プロキシ停止中"),
     "proxyType": MessageLookupByLibrary.simpleMessage("プロキシタイプ"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("キャッシュを整理"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("ピュアブラックモード"),
