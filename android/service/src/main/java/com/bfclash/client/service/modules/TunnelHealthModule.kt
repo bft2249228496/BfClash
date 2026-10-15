@@ -56,6 +56,7 @@ internal class TunnelHealthModule(
             connection.readTimeout = 4_000
             connection.instanceFollowRedirects = false
             connection.useCaches = false
+            connection.setRequestProperty("Connection", "close")
             connection.responseCode == 204
         } catch (_: Exception) {
             false
