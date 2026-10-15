@@ -56,13 +56,52 @@ jobs:
             echo "::error title=Android build diagnostic::${diagnostic:-Build failed without a matching diagnostic line}"
           fi
           exit "$status"
+      - name: Native regression tests
+        env: {ANDROID_NDK_HOME: '${{ steps.ndk.outputs.ndk-path }}'}
+        run: cd android && ./gradlew :service:testDebugUnitTest :app:testDebugUnitTest -Ptarget-platform=android-arm64 -x :app:compileFlutterBuildDebug --console=plain
       - name: Package
         run: |
           mkdir -p release
           find dist -type f -name '*.apk' -exec cp {} release/ \;
           test -n "$(find release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+      - name: Verify signed packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          signer="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          aapt="$ANDROID_HOME/build-tools/36.0.0/aapt2"
+          mkdir -p package-checks
+          version=$(sed -n 's/^version: \(.*\)+[0-9]*$/\1/p' pubspec.yaml)
+          build=$(sed -n 's/^version: .*+\([0-9]*\)$/\1/p' pubspec.yaml)
+          test -n "$version" -a -n "$build"
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            case "$abi" in
+              arm64-v8a) code=$((2000 + build)) ;;
+              armeabi-v7a) code=$((1000 + build)) ;;
+              x86_64) code=$((4000 + build)) ;;
+            esac
+            mapfile -t apks < <(find release -maxdepth 1 -type f -name "*${abi}*.apk")
+            test "${#apks[@]}" -eq 1
+            apk="${apks[0]}"
+            "$signer" verify --print-certs "$apk" > "package-checks/$abi-signature.txt" 2>&1
+            cert=$(awk -F ': ' '/^Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}' "package-checks/$abi-signature.txt" | tr -d '[:space:]')
+            test "$cert" = 89fe6df0d3e4c4017d9fd0cf55d7fc4cc2a6723d28e764648aec1ae0106f9d31
+            "$aapt" dump badging "$apk" > "package-checks/$abi-badging.txt"
+            grep -F "name='com.bfclash.client'" "package-checks/$abi-badging.txt"
+            grep -F "versionCode='$code'" "package-checks/$abi-badging.txt"
+            grep -F "versionName='$version'" "package-checks/$abi-badging.txt"
+            grep -F "native-code: '$abi'" "package-checks/$abi-badging.txt"
+          done
+          (cd release && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
-        with: {name: bfclash-android, path: 'release/*.apk'}
+        with: {name: bfclash-android, path: 'release/*'}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-verification
+          path: |
+            build/**/test-results/**
+            package-checks/*
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
@@ -71,5 +110,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with: {name: bfclash-android, path: release}
+      - uses: actions/checkout@v4
       - uses: softprops/action-gh-release@v2
-        with: {files: 'release/*.apk', generate_release_notes: true}
+        with: {files: 'release/*', body_path: 'docs/releases/0.2.28.md', prerelease: false, make_latest: true}
