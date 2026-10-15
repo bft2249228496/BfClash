@@ -39,10 +39,10 @@ begin
   Result := '';
 end;
 
-function InitializeUninstall(): Boolean;
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-  UnregisterHelperService;
-  Result := True;
+  if CurUninstallStep = usUninstall then
+    UnregisterHelperService;
 end;
 
 [Languages]
