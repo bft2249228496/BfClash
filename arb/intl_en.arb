@@ -623,7 +623,7 @@
   "subStoreTitle": "Sub-Store",
   "subStoreMode": "Backend mode",
   "subStoreLocalMode": "On-device backend",
-  "subStoreLocalModeDesc": "Run the official Sub-Store backend privately on this Android device",
+  "subStoreLocalModeDesc": "Run the official Sub-Store backend privately on this device",
   "subStoreRemoteMode": "Remote VPS backend",
   "subStoreRemoteModeDesc": "Connect the official console to a Sub-Store service on another server",
   "subStoreLocalBackend": "On-device service",

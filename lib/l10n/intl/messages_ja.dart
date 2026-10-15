@@ -934,7 +934,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage("端末内サービス"),
     "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("端末内バックエンド"),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "この Android 端末で公式 Sub-Store バックエンドを非公開で実行します",
+      "この端末で公式 Sub-Store バックエンドを非公開で実行します",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("バックエンドモード"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage("未設定"),

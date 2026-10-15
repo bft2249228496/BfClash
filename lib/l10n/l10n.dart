@@ -5150,10 +5150,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Run the official Sub-Store backend privately on this Android device`
+  /// `Run the official Sub-Store backend privately on this device`
   String get subStoreLocalModeDesc {
     return Intl.message(
-      'Run the official Sub-Store backend privately on this Android device',
+      'Run the official Sub-Store backend privately on this device',
       name: 'subStoreLocalModeDesc',
       desc: '',
       args: [],

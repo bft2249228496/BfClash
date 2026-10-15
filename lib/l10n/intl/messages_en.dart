@@ -1122,7 +1122,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "On-device backend",
     ),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "Run the official Sub-Store backend privately on this Android device",
+      "Run the official Sub-Store backend privately on this device",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("Backend mode"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(

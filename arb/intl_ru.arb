@@ -623,7 +623,7 @@
   "subStoreTitle": "Sub-Store",
   "subStoreMode": "Режим сервера",
   "subStoreLocalMode": "Сервер на устройстве",
-  "subStoreLocalModeDesc": "Запустить официальный сервер Sub-Store приватно на этом Android-устройстве",
+  "subStoreLocalModeDesc": "Запустить официальный сервер Sub-Store приватно на этом устройстве",
   "subStoreRemoteMode": "Сервер на удалённом VPS",
   "subStoreRemoteModeDesc": "Подключить официальную консоль к сервису Sub-Store на другом сервере",
   "subStoreLocalBackend": "Локальный сервис",

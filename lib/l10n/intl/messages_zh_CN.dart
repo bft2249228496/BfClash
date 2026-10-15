@@ -802,9 +802,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "请输入有效的 HTTP 或 HTTPS 后端地址",
     ),
     "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage("本机服务"),
-    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("安卓本机后端"),
+    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("本机后端"),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "在这台安卓设备上私有运行官方 Sub-Store 后端",
+      "在这台设备上私有运行官方 Sub-Store 后端",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("后端模式"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage("尚未配置"),

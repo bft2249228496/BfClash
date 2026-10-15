@@ -202,7 +202,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
             ),
             subtitle: Text(
               _localMode
-                  ? '${context.appLocalizations.subStoreLocalModeDesc} (Windows 独立进程/Android WebView)'
+                  ? context.appLocalizations.subStoreLocalModeDesc
                   : context.appLocalizations.subStoreRemoteModeDesc,
             ),
             trailing: Switch(

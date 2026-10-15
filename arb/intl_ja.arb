@@ -623,7 +623,7 @@
   "subStoreTitle": "Sub-Store",
   "subStoreMode": "バックエンドモード",
   "subStoreLocalMode": "端末内バックエンド",
-  "subStoreLocalModeDesc": "この Android 端末で公式 Sub-Store バックエンドを非公開で実行します",
+  "subStoreLocalModeDesc": "この端末で公式 Sub-Store バックエンドを非公開で実行します",
   "subStoreRemoteMode": "リモート VPS バックエンド",
   "subStoreRemoteModeDesc": "公式コンソールを別サーバーの Sub-Store サービスに接続します",
   "subStoreLocalBackend": "端末内サービス",

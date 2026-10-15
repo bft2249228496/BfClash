@@ -1170,7 +1170,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Сервер на устройстве",
     ),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "Запустить официальный сервер Sub-Store приватно на этом Android-устройстве",
+      "Запустить официальный сервер Sub-Store приватно на этом устройстве",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("Режим сервера"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
