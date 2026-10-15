@@ -28,11 +28,10 @@ class AboutView extends ConsumerWidget {
 
   Future<void> _checkUpdate(BuildContext context, WidgetRef ref) async {
     final commonAction = ref.read(commonActionProvider.notifier);
-    final data = await globalState.safeRun<Map<String, dynamic>?>(
-      request.checkForUpdate,
-      title: context.appLocalizations.checkUpdate,
-    );
-    unawaited(commonAction.checkUpdateResultHandle(data: data, isUser: true));
+    await globalState.safeRun(() async {
+      final data = await request.checkForUpdate();
+      await commonAction.checkUpdateResultHandle(data: data, isUser: true);
+    }, title: context.appLocalizations.checkUpdate);
   }
 
   List<Widget> _buildMoreSection(BuildContext context, WidgetRef ref) {

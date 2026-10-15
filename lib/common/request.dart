@@ -85,7 +85,11 @@ class Request {
           'https://api.github.com/repos/$repository/releases/latest',
           options: _updateRequestOptions,
         );
-        if (response.statusCode != 200) return null;
+        if (response.statusCode != 200) {
+          throw HttpException(
+            'Update check returned HTTP ${response.statusCode}',
+          );
+        }
         final data = response.data as Map<String, dynamic>;
         final remoteVersion = data['tag_name'] as String? ?? '';
         final cleanTag = remoteVersion.replaceFirst(RegExp(r'^[vV]'), '');
@@ -100,12 +104,14 @@ class Request {
         'https://api.github.com/repos/$repository/releases?per_page=100',
         options: _updateRequestOptions,
       );
-      if (response.statusCode != 200) return null;
-      final list =
-          (response.data as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .toList() ??
-          [];
+      if (response.statusCode != 200) {
+        throw HttpException(
+          'Update check returned HTTP ${response.statusCode}',
+        );
+      }
+      final list = (response.data as List<dynamic>)
+          .whereType<Map<String, dynamic>>()
+          .toList();
 
       if (system.isWindows && WindowsChannelConfig.isBeta) {
         return selectWindowsBetaRelease(
@@ -141,7 +147,7 @@ class Request {
       return bestRelease;
     } catch (e) {
       commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
-      return null;
+      rethrow;
     }
   }
 

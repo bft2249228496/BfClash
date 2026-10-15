@@ -251,14 +251,13 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                   avatar: const Icon(Icons.system_update, size: 16),
                   label: Text(appLocalizations.checkUpdate),
                   onPressed: () async {
-                    final data = await globalState
-                        .safeRun<Map<String, dynamic>?>(
-                          request.checkForUpdate,
-                          title: appLocalizations.checkUpdate,
-                        );
-                    await ref
-                        .read(commonActionProvider.notifier)
-                        .checkUpdateResultHandle(data: data, isUser: true);
+                    await globalState.safeRun(() async {
+                      final data = await request.checkForUpdate();
+                      if (!context.mounted) return;
+                      await ref
+                          .read(commonActionProvider.notifier)
+                          .checkUpdateResultHandle(data: data, isUser: true);
+                    }, title: appLocalizations.checkUpdate);
                   },
                 ),
                 ActionChip(

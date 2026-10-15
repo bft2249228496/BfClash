@@ -61,7 +61,7 @@ jobs:
         run: flutter pub get
 
       - name: Run Update Channel and Architecture Tests
-        run: flutter test test/common/windows_update_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart
+        run: flutter test test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart
 
       - name: Run Desktop Navigation Flow Widget Tests
         run: flutter test test/views/desktop_navigation_flow_test.dart test/common/window_position_test.dart test/common/window_test.dart

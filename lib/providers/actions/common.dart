@@ -75,9 +75,13 @@ class CommonAction extends _$CommonAction {
 
   Future<bool> autoCheckUpdate() async {
     if (!ref.read(appSettingProvider).autoCheckUpdate) return false;
-    final res = await request.checkForUpdate();
-    await checkUpdateResultHandle(data: res);
-    return res != null;
+    try {
+      final res = await request.checkForUpdate();
+      await checkUpdateResultHandle(data: res);
+      return res != null;
+    } catch (_) {
+      return false;
+    }
   }
 
   TextSpan _releaseSpan(
