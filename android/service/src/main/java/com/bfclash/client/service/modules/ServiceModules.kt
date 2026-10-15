@@ -12,7 +12,10 @@ internal interface ServiceModule {
     fun stop()
 }
 
-internal class ServiceModules(private val service: Service) {
+internal class ServiceModules(
+    private val service: Service,
+    private val recoverTunnel: (() -> Unit)? = null,
+) {
     private var scope: CoroutineScope? = null
     private var modules = emptyList<ServiceModule>()
 
@@ -23,9 +26,9 @@ internal class ServiceModules(private val service: Service) {
         val nextScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         val nextModules = listOf(
             NotificationModule(service, nextScope),
-            NetworkObserveModule(service),
+            NetworkObserveModule(service, recoverTunnel),
             SuspendModule(service, nextScope),
-        )
+        ) + listOfNotNull(recoverTunnel?.let { TunnelHealthModule(nextScope, it) })
         val startedModules = mutableListOf<ServiceModule>()
 
         try {

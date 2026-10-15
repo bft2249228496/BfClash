@@ -21,12 +21,16 @@ import java.util.concurrent.ConcurrentHashMap
 private data class NetworkInfo(
     @Volatile var losingUntilMillis: Long = 0,
     @Volatile var dnsList: List<InetAddress> = emptyList(),
+    @Volatile var linkIdentity: String? = null,
 ) {
     val priorityPenalty: Int
         get() = if (losingUntilMillis > System.currentTimeMillis()) 10 else 0
 }
 
-internal class NetworkObserveModule(private val service: Service) : ServiceModule {
+internal class NetworkObserveModule(
+    private val service: Service,
+    private val recoverTunnel: (() -> Unit)? = null,
+) : ServiceModule {
 
     private val networkInfos = ConcurrentHashMap<Network, NetworkInfo>()
     private val connectivity by lazy {
@@ -34,6 +38,13 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
     }
     private val mainHandler = Handler(Looper.getMainLooper())
     private var currentDnsList = listOf<String>()
+    private var upstreamIdentity: String? = null
+    private var upstreamChanges = UpstreamChangePolicy()
+    @Volatile
+    private var started = false
+    private val recover = Runnable {
+        if (started) recoverTunnel?.invoke()
+    }
 
     private val request = NetworkRequest.Builder().apply {
         addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
@@ -69,12 +80,26 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
         }
 
         override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-            networkInfos[network]?.dnsList = linkProperties.dnsServers
+            networkInfos[network]?.apply {
+                dnsList = linkProperties.dnsServers
+                linkIdentity = listOf(
+                    network.toString(),
+                    linkProperties.interfaceName.orEmpty(),
+                    linkProperties.linkAddresses.map { it.toString() }.sorted().joinToString(),
+                    linkProperties.routes.map { it.toString() }.sorted().joinToString(),
+                    linkProperties.mtu.toString(),
+                ).joinToString("|")
+            }
+            updateDns()
+        }
+
+        override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
             updateDns()
         }
     }
 
     override fun start() {
+        started = true
         updateDns()
         connectivity?.registerNetworkCallback(request, callback)
     }
@@ -95,14 +120,25 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
                 capabilities.hasTransport(TRANSPORT_SATELLITE) -> 5
 
             else -> 20
-        } + entry.value.priorityPenalty
+        } + entry.value.priorityPenalty + if (
+            capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
+        ) 0 else 30
     }
 
     @Synchronized
     private fun updateDns() {
-        val dnsList = networkInfos.asSequence()
+        val selected = networkInfos.asSequence()
+            .filter { it.value.linkIdentity != null }
             .minByOrNull(::networkPriority)
-            ?.value
+        val identity = selected?.value?.linkIdentity
+        if (identity != upstreamIdentity) {
+            upstreamIdentity = identity
+            mainHandler.removeCallbacks(recover)
+            if (upstreamChanges.update(identity)) {
+                mainHandler.postDelayed(recover, 1_500)
+            }
+        }
+        val dnsList = selected?.value
             ?.dnsList
             .orEmpty()
             .map { address -> address.asSocketAddressText(DNS_PORT) }
@@ -115,11 +151,14 @@ internal class NetworkObserveModule(private val service: Service) : ServiceModul
     }
 
     override fun stop() {
+        started = false
         mainHandler.removeCallbacksAndMessages(null)
         try {
             connectivity?.unregisterNetworkCallback(callback)
         } finally {
             networkInfos.clear()
+            upstreamIdentity = null
+            upstreamChanges = UpstreamChangePolicy()
             updateDns()
         }
     }

@@ -24,10 +24,24 @@ import java.util.concurrent.ConcurrentHashMap
 import android.net.VpnService as SystemVpnService
 
 class VpnService : SystemVpnService(), ManagedService {
-    private val modules = ServiceModules(this)
+    private val modules = ServiceModules(this, ::recoverTunnel)
     private val binder = LocalBinder()
     private val tunLock = Any()
     private var tunRunning = false
+    private var active = false
+
+    private fun recoverTunnel() = synchronized(tunLock) {
+        if (!active || !tunRunning) return@synchronized
+        try {
+            GlobalState.log("VPN recovery: rebuilding tunnel after network or health change")
+            stopTunLocked()
+            handleStart(requireNotNull(ServiceConfig.vpnOptions))
+        } catch (error: Exception) {
+            GlobalState.log("VPN recovery failed: ${error.javaClass.simpleName}")
+            cleanup()
+            stopSelf()
+        }
+    }
 
     override fun onDestroy() {
         try {
@@ -247,8 +261,9 @@ class VpnService : SystemVpnService(), ManagedService {
         }
     }
 
-    override fun start() {
+    override fun start() = synchronized(tunLock) {
         try {
+            active = true
             modules.start()
             handleStart(requireNotNull(ServiceConfig.vpnOptions) { "VPN options are missing" })
         } catch (error: Exception) {
@@ -265,7 +280,8 @@ class VpnService : SystemVpnService(), ManagedService {
         }
     }
 
-    private fun cleanup() {
+    private fun cleanup() = synchronized(tunLock) {
+        active = false
         try {
             modules.stop()
         } finally {

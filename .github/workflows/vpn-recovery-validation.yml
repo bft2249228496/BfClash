@@ -1,0 +1,58 @@
+name: Android VPN recovery validation
+on:
+  push:
+    branches: [fix/android-vpn-recovery-20261015]
+permissions:
+  contents: read
+concurrency:
+  group: vpn-recovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+          cache-dependency-path: core/go.sum
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          flutter-version: '3.47.1'
+          cache: true
+      - uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r28c
+          add-to-path: true
+          link-to-sdk: true
+      - run: flutter pub get
+      - name: Build signed upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p android/app/keystore
+          git show 8303c19:client/android/app/keystore/release.keystore > android/app/keystore/release.keystore
+          git show 8303c19:client/android/app/build.gradle.kts > /tmp/bfclash-legacy-signing.gradle.kts
+          export BFCLASH_STORE_PASSWORD=$(grep -m1 storePassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          export BFCLASH_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          export BFCLASH_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
+          flutter build apk --release --target-platform android-arm64 --build-name=0.2.27 --build-number=2056
+      - name: Native regression tests
+        run: cd android && ./gradlew :service:testDebugUnitTest :app:testDebugUnitTest --console=plain
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bfclash-vpn-recovery-arm64
+          path: build/app/outputs/flutter-apk/app-release.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vpn-recovery-test-results
+          path: build/**/test-results/**
