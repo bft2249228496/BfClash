@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/plugins/sub_store.dart';
 import 'package:path/path.dart' as p;
 
@@ -18,16 +19,17 @@ class DesktopSubStoreManager {
 
   Process? _process;
   SubStoreBackendPhase _phase = SubStoreBackendPhase.stopped;
-  final String _endpoint = 'http://127.0.0.1:3001';
+  final String _endpoint =
+      'http://127.0.0.1:${system.isWindows && WindowsChannelConfig.isBeta ? 3002 : 3001}';
   String? _error;
   static const String _version = '2.39.8';
 
   SubStoreBackendStatus get status => SubStoreBackendStatus(
-        phase: _phase,
-        endpoint: _endpoint,
-        backendVersion: _version,
-        error: _error,
-      );
+    phase: _phase,
+    endpoint: _endpoint,
+    backendVersion: _version,
+    error: _error,
+  );
 
   Future<SubStoreBackendStatus> getStatus() async {
     if (system.isAndroid) {
@@ -38,21 +40,32 @@ class DesktopSubStoreManager {
   }
 
   Future<void> _probe() async {
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(milliseconds: 500);
     try {
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(milliseconds: 500);
-      final request = await client.getUrl(Uri.parse('$_endpoint/api/status'));
-      final response = await request.close();
-      if (response.statusCode == 200) {
+      final request = await client.getUrl(
+        Uri.parse('$_endpoint/api/utils/env'),
+      );
+      final response = await request.close().timeout(
+        const Duration(seconds: 1),
+      );
+      final body = await response
+          .transform(utf8.decoder)
+          .join()
+          .timeout(const Duration(seconds: 1));
+      final payload = jsonDecode(body);
+      if (response.statusCode == 200 &&
+          payload is Map &&
+          payload['status'] == 'success') {
         _phase = SubStoreBackendPhase.running;
         _error = null;
-      } else {
-        if (_process == null) _phase = SubStoreBackendPhase.stopped;
-      }
-    } catch (_) {
-      if (_process == null) {
+      } else if (_process == null) {
         _phase = SubStoreBackendPhase.stopped;
       }
+    } catch (_) {
+      if (_process == null) _phase = SubStoreBackendPhase.stopped;
+    } finally {
+      client.close(force: true);
     }
   }
 
@@ -74,16 +87,26 @@ class DesktopSubStoreManager {
           ? p.join(runtimeDir, 'node.exe')
           : 'node';
 
-      final scriptPath = p.join(
-        runtimeDir,
-        'data',
-        'flutter_assets',
-        'assets',
-        'substore',
-        'backend',
-        '2.39.8',
-        'sub-store-0.min.js',
-      );
+      final scriptPath = system.isWindows
+          ? p.join(
+              runtimeDir,
+              'data',
+              'substore',
+              _version,
+              'sub-store.bundle.js',
+            )
+          : p.join(
+              runtimeDir,
+              'data',
+              'flutter_assets',
+              'assets',
+              'substore',
+              'backend',
+              _version,
+              'sub-store-0.min.js',
+            );
+      final dataDir = Directory(p.join(await appPath.homeDirPath, 'substore'));
+      await dataDir.create(recursive: true);
 
       final hasRuntime = await File(nodeExecutable).exists();
       final hasScript = await File(scriptPath).exists();
@@ -103,7 +126,12 @@ class DesktopSubStoreManager {
       _process = await Process.start(
         nodeExecutable,
         [scriptPath],
-        environment: {'SUB_STORE_PORT': '3001'},
+        environment: {
+          'SUB_STORE_BACKEND_API_PORT': Uri.parse(_endpoint).port.toString(),
+          'SUB_STORE_BACKEND_API_HOST': '127.0.0.1',
+          'SUB_STORE_DATA_BASE_PATH': dataDir.path,
+        },
+        workingDirectory: dataDir.path,
         mode: ProcessStartMode.normal,
       );
 
@@ -115,8 +143,10 @@ class DesktopSubStoreManager {
         commonPrint.log('SubStore stderr: $data');
       });
 
+      final startedProcess = _process;
       unawaited(
-        _process?.exitCode.then((exitCode) {
+        startedProcess?.exitCode.then((exitCode) {
+          if (!identical(_process, startedProcess)) return;
           _phase = SubStoreBackendPhase.stopped;
           _process = null;
         }),
@@ -129,7 +159,11 @@ class DesktopSubStoreManager {
       }
 
       if (_phase != SubStoreBackendPhase.running) {
-        _phase = SubStoreBackendPhase.running;
+        final failedProcess = _process;
+        _process = null;
+        failedProcess?.kill();
+        _phase = SubStoreBackendPhase.failed;
+        _error = currentAppLocalizations.subStoreStartFailed;
       }
 
       return status;
@@ -145,8 +179,18 @@ class DesktopSubStoreManager {
       return subStoreService.stop();
     }
 
-    _process?.kill(ProcessSignal.sigterm);
-    _process = null;
+    final process = _process;
+    if (process != null) {
+      process.kill(ProcessSignal.sigterm);
+      try {
+        await process.exitCode.timeout(const Duration(seconds: 3));
+      } on TimeoutException {
+        _phase = SubStoreBackendPhase.failed;
+        _error = currentAppLocalizations.subStoreFailed;
+        return status;
+      }
+    }
+    if (identical(_process, process)) _process = null;
     _phase = SubStoreBackendPhase.stopped;
     return status;
   }

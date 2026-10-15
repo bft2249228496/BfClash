@@ -81,6 +81,9 @@ jobs:
           & ./build/windows/x64/plugins/proxy/Release/proxy_test.exe
           if ($LASTEXITCODE -ne 0) { throw "Native proxy tests failed" }
 
+      - name: Test packaged Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
       - name: Preserve stable probe artifacts
         run: |
           New-Item -ItemType Directory -Path dist/stable -Force | Out-Null

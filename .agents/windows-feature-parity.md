@@ -13,7 +13,7 @@ A shared implementation is not acceptance. Every row needs an accessible Windows
 | Local backup and restore | BackupAndRestore / backup actions | Shared implementation present; Windows archive roundtrip/content check pending |
 | WebDAV backup and restore | BackupAndRestore | User account reachability observed, full Windows backup/restore roundtrip pending |
 | Remote Sub-Store | SubStoreView | Source path present; actual remote transform/import pending |
-| Local Sub-Store | SubStoreBackendService | GAP: Windows expects bundled node.exe; build does not package it; backend data isolation/shutdown and real transform/import pending |
+| Local Sub-Store | SubStoreBackendService | Build now packages pinned Node22.23.3 plus official2.39.8 Node backend with SHA256 verification; packaged health CI added; correct Node health endpoint verified locally; Windows beta/stable use3002/3001 with data in channel-specific home; packaged Windows CI, device transform/import and shutdown regression pending |
 | Check/download/install update | CommonAction / Windows update downloader | Request-failure reporting fixed; current change adds verified Windows asset/download/install flow; Windows execution/upgrade acceptance pending |
 | Platform routing controls | Android per-app VPN vs Windows rules/TUN/process rules | Equivalent user outcomes must be audited; Android-only permission UI is not a Windows implementation |
 | Startup/background/tray/shortcuts/window restore | ApplicationSettingView and desktop window/tray managers | Shortcuts restored; window geometry tests pass; packaged restart/tray/startup checks pending |
