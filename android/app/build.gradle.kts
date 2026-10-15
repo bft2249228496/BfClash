@@ -40,7 +40,7 @@ android {
     }
 
     val isBeta = flutter.versionName?.contains("beta", ignoreCase = true) == true
-    val appPackageId = if (isBeta) "com.bfclash.client.beta" else "com.bfclash.client"
+    val appPackageId = if (isBeta) "com.lansway.client.beta" else "com.bfclash.client"
     val appDisplayName = if (isBeta) "BfClash Beta" else "BfClash"
 
     defaultConfig {

@@ -6,7 +6,7 @@ permissions:
   contents: read
 concurrency:
   group: vpn-recovery-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -35,7 +35,7 @@ jobs:
           add-to-path: true
           link-to-sdk: true
       - run: flutter pub get
-      - name: Build signed upgrade
+      - name: Build signed beta
         shell: bash
         env:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
@@ -47,11 +47,30 @@ jobs:
           export BFCLASH_STORE_PASSWORD=$(grep -m1 storePassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           export BFCLASH_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           export BFCLASH_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
-          flutter build apk --release --target-platform android-arm64 --build-name=0.2.27 --build-number=2056
+          flutter build apk --release --split-per-abi --dart-define=APP_ENV=pre
+      - name: Verify upgrade packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          signer=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
+          aapt=$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)
+          mkdir -p release
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            apk="build/app/outputs/flutter-apk/app-$abi-release.apk"
+            cert=$("$signer" verify --print-certs "$apk" | awk -F ': ' '/certificate SHA-256 digest/ {print $2}')
+            test "$cert" = 89fe6df0d3e4c4017d9fd0cf55d7fc4cc2a6723d28e764648aec1ae0106f9d31
+            "$aapt" dump badging "$apk" > /tmp/bfclash-badging.txt
+            grep -F "name='com.lansway.client.beta'" /tmp/bfclash-badging.txt
+            grep -F "versionCode='2057'" /tmp/bfclash-badging.txt
+            grep -F "versionName='0.2.28-beta.1'" /tmp/bfclash-badging.txt
+            grep -F "native-code: '$abi'" /tmp/bfclash-badging.txt
+            cp "$apk" "release/BfClash-0.2.28-beta.1-android-$abi.apk"
+          done
+          (cd release && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: bfclash-vpn-recovery-arm64
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: bfclash-vpn-recovery-android
+          path: release/*
       - name: Native regression tests
         env:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
@@ -61,3 +80,18 @@ jobs:
         with:
           name: vpn-recovery-test-results
           path: build/**/test-results/**
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: bfclash-vpn-recovery-android
+          path: release
+      - name: Publish Android beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create v0.2.28-beta.1 release/* --target "$GITHUB_SHA" --title 'BfClash 0.2.28-beta.1 · Android VPN 恢复测试版' --notes-file docs/releases/0.2.28-beta.1.md --prerelease --latest=false
