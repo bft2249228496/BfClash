@@ -48,13 +48,18 @@ jobs:
           export BFCLASH_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           export BFCLASH_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           flutter build apk --release --split-per-abi --dart-define=APP_ENV=pre
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bfclash-vpn-recovery-raw
+          path: build/app/outputs/flutter-apk/*.apk
       - name: Verify upgrade packages
         shell: bash
         run: |
           set -euo pipefail
-          signer=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
-          aapt=$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)
-          mkdir -p release
+          signer="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          aapt="$ANDROID_HOME/build-tools/36.0.0/aapt2"
+          test -x "$signer" -a -x "$aapt"
+          mkdir -p release package-checks
           for abi in arm64-v8a armeabi-v7a x86_64; do
             case "$abi" in
               arm64-v8a) code=2057 ;;
@@ -62,13 +67,20 @@ jobs:
               x86_64) code=4057 ;;
             esac
             apk="build/app/outputs/flutter-apk/app-$abi-release.apk"
-            cert=$("$signer" verify --print-certs "$apk" | awk -F ': ' '/certificate SHA-256 digest/ {print $2}')
+            if ! "$signer" verify --print-certs "$apk" > "package-checks/$abi-signature.txt" 2>&1; then
+              cat "package-checks/$abi-signature.txt"
+              exit 1
+            fi
+            cat "package-checks/$abi-signature.txt"
+            cert=$(awk -F ': ' '/^Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}' "package-checks/$abi-signature.txt" | tr -d '[:space:]')
             test "$cert" = 89fe6df0d3e4c4017d9fd0cf55d7fc4cc2a6723d28e764648aec1ae0106f9d31
-            "$aapt" dump badging "$apk" > /tmp/bfclash-badging.txt
-            grep -F "name='com.lansway.client.beta'" /tmp/bfclash-badging.txt
-            grep -F "versionCode='$code'" /tmp/bfclash-badging.txt
-            grep -F "versionName='0.2.28-beta.1'" /tmp/bfclash-badging.txt
-            grep -F "native-code: '$abi'" /tmp/bfclash-badging.txt
+            "$aapt" dump badging "$apk" > "package-checks/$abi-badging.txt"
+            head -1 "package-checks/$abi-badging.txt"
+            grep -F "native-code:" "package-checks/$abi-badging.txt"
+            grep -F "name='com.lansway.client.beta'" "package-checks/$abi-badging.txt"
+            grep -F "versionCode='$code'" "package-checks/$abi-badging.txt"
+            grep -F "versionName='0.2.28-beta.1'" "package-checks/$abi-badging.txt"
+            grep -F "native-code: '$abi'" "package-checks/$abi-badging.txt"
             cp "$apk" "release/BfClash-0.2.28-beta.1-android-$abi.apk"
           done
           (cd release && sha256sum *.apk > SHA256SUMS.txt)
@@ -84,7 +96,9 @@ jobs:
         if: always()
         with:
           name: vpn-recovery-test-results
-          path: build/**/test-results/**
+          path: |
+            build/**/test-results/**
+            package-checks/*
   publish:
     needs: validate
     runs-on: ubuntu-latest
