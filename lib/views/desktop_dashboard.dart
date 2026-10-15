@@ -1,10 +1,11 @@
 import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
-import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/providers/providers.dart' hide NetworkDetection;
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/dashboard/widgets/core_status_button.dart';
 import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
+import 'package:bfclash/views/dashboard/widgets/network_detection.dart';
 import 'package:bfclash/views/dashboard/widgets/outbound_mode.dart';
 import 'package:bfclash/views/dashboard/widgets/quick_options.dart';
 import 'package:bfclash/views/dashboard/widgets/start_button.dart';
@@ -62,6 +63,8 @@ class DesktopDashboardView extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              NetworkDetection(),
+                              SizedBox(height: 16),
                               TrafficUsage(),
                               SizedBox(height: 16),
                               _DesktopQuickAccessPanel(),
@@ -79,6 +82,8 @@ class DesktopDashboardView extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _DesktopHeroActionCard(),
+                        SizedBox(height: 16),
+                        NetworkDetection(),
                         SizedBox(height: 16),
                         OutboundMode(),
                         SizedBox(height: 16),

@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../helpers/test_app.dart';
+import '../helpers/fixed_network_detection.dart';
 
 void main() {
   setUp(() {
@@ -49,6 +50,42 @@ void main() {
       expect(proxiesItem.modes.contains(NavigationItemMode.desktop), isTrue);
     });
 
+    for (final width in [900.0, 1400.0]) {
+      testWidgets('desktop shows exit IP and refreshes at width $width', (
+        tester,
+      ) async {
+        tester.view.physicalSize = Size(width, 1000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final fixture = FixedNetworkDetection();
+        final container = ProviderContainer(
+          overrides: [networkDetectionProvider.overrideWith(() => fixture)],
+        );
+        addTearDown(container.dispose);
+        globalState.container = container;
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const TestApp(
+              locale: Locale('en'),
+              includeNavigatorKey: false,
+              homeBuilder: _wrapInScaffold,
+              child: DesktopDashboardView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final address = find.text('192.0.2.42');
+        expect(address, findsOneWidget);
+        await tester.ensureVisible(address);
+        await tester.tap(address);
+        await tester.pump();
+        expect(fixture.checks, 1);
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+
     testWidgets('connected idle core does not imply a running proxy', (
       tester,
     ) async {
@@ -56,7 +93,11 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
+        ],
+      );
       addTearDown(container.dispose);
       globalState.container = container;
       container.read(coreStatusProvider.notifier).value = CoreStatus.connected;
@@ -91,7 +132,11 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
 
-        final container = ProviderContainer();
+        final container = ProviderContainer(
+          overrides: [
+            networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
+          ],
+        );
         addTearDown(container.dispose);
         globalState.container = container;
 
@@ -165,7 +210,11 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
 
-        final container = ProviderContainer();
+        final container = ProviderContainer(
+          overrides: [
+            networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
+          ],
+        );
         addTearDown(container.dispose);
         globalState.container = container;
 

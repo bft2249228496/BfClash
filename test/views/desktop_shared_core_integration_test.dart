@@ -1,3 +1,4 @@
+import '../helpers/fixed_network_detection.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/core/controller.dart';
 import 'package:bfclash/core/interface.dart';
@@ -252,6 +253,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           coreHandlerProvider.overrideWithValue(testCoreController),
+          networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
         ],
       );
       addTearDown(container.dispose);
