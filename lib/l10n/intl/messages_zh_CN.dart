@@ -811,6 +811,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "打开官方 Sub-Store 管理界面",
     ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "本地 Sub-Store 端口已被占用，请停止占用该端口的服务后重试。",
+    ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage("远程服务"),
     "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage("后端地址"),
     "subStoreRemoteEndpointHint": MessageLookupByLibrary.simpleMessage(
@@ -821,6 +824,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "让官方管理界面连接其他服务器上的 Sub-Store 服务",
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage("Sub-Store 后端正在运行"),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "内置 Sub-Store 运行组件缺失，请重新安装 BfClash，或改用远程后端。",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store 后端文件缺失，请重新安装 BfClash。",
+    ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "无法启动 Sub-Store 后端",
     ),

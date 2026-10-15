@@ -941,6 +941,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "公式 Sub-Store コンソールを開く",
     ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "ローカル Sub-Store のポートは使用中です。他のサービスを停止してから再試行してください。",
+    ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage("リモートサービス"),
     "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage(
       "バックエンド URL",
@@ -956,6 +959,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Sub-Store バックエンドは実行中です",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "内蔵の Sub-Store 実行環境がありません。BfClash を再インストールするか、リモートバックエンドを使用してください。",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store のバックエンドファイルがありません。BfClash を再インストールしてください。",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Sub-Store バックエンドを起動できません",

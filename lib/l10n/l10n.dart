@@ -5389,6 +5389,36 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.`
+  String get subStoreRuntimeMissing {
+    return Intl.message(
+      'The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.',
+      name: 'subStoreRuntimeMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The Sub-Store backend files are missing. Reinstall BfClash.`
+  String get subStoreScriptMissing {
+    return Intl.message(
+      'The Sub-Store backend files are missing. Reinstall BfClash.',
+      name: 'subStoreScriptMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The local Sub-Store port is already in use. Stop the other service and try again.`
+  String get subStorePortInUse {
+    return Intl.message(
+      'The local Sub-Store port is already in use. Stop the other service and try again.',
+      name: 'subStorePortInUse',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -6,11 +6,41 @@ import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/plugins/sub_store.dart';
 import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart';
 
 class DesktopSubStoreManager {
   static DesktopSubStoreManager? _instance;
 
-  DesktopSubStoreManager._internal();
+  DesktopSubStoreManager._internal()
+    : _endpoint =
+          'http://127.0.0.1:${system.isWindows && WindowsChannelConfig.isBeta ? 3002 : 3001}',
+      _launch = null,
+      _checkHealth = null,
+      _pollInterval = const Duration(milliseconds: 200);
+
+  @visibleForTesting
+  DesktopSubStoreManager.testing({
+    required Future<Process> Function() launch,
+    required Future<bool> Function() checkHealth,
+    Duration pollInterval = Duration.zero,
+    String endpoint = 'http://127.0.0.1:0',
+  }) : _endpoint = endpoint,
+       _launch = launch,
+       _checkHealth = checkHealth,
+       _pollInterval = pollInterval;
+
+  final Future<Process> Function()? _launch;
+  final Future<bool> Function()? _checkHealth;
+  final Duration _pollInterval;
+  Future<void> _pending = Future<void>.value();
+
+  Future<SubStoreBackendStatus> _serialize(
+    Future<SubStoreBackendStatus> Function() action,
+  ) {
+    final result = _pending.then((_) => action());
+    _pending = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    return result;
+  }
 
   factory DesktopSubStoreManager() {
     _instance ??= DesktopSubStoreManager._internal();
@@ -19,8 +49,7 @@ class DesktopSubStoreManager {
 
   Process? _process;
   SubStoreBackendPhase _phase = SubStoreBackendPhase.stopped;
-  final String _endpoint =
-      'http://127.0.0.1:${system.isWindows && WindowsChannelConfig.isBeta ? 3002 : 3001}';
+  final String _endpoint;
   String? _error;
   static const String _version = '2.39.8';
 
@@ -40,6 +69,26 @@ class DesktopSubStoreManager {
   }
 
   Future<void> _probe() async {
+    final process = _process;
+    if (process == null) {
+      if (_phase != SubStoreBackendPhase.starting &&
+          _phase != SubStoreBackendPhase.failed) {
+        _phase = SubStoreBackendPhase.stopped;
+      }
+      return;
+    }
+    final healthy = await (_checkHealth ?? _probeEndpoint)();
+    if (!identical(_process, process)) return;
+    if (healthy) {
+      _phase = SubStoreBackendPhase.running;
+      _error = null;
+    } else if (_phase != SubStoreBackendPhase.starting) {
+      _phase = SubStoreBackendPhase.failed;
+      _error = currentAppLocalizations.subStoreFailed;
+    }
+  }
+
+  Future<bool> _probeEndpoint() async {
     final client = HttpClient()
       ..connectionTimeout = const Duration(milliseconds: 500);
     try {
@@ -54,26 +103,66 @@ class DesktopSubStoreManager {
           .join()
           .timeout(const Duration(seconds: 1));
       final payload = jsonDecode(body);
-      if (response.statusCode == 200 &&
+      return response.statusCode == 200 &&
           payload is Map &&
-          payload['status'] == 'success') {
-        _phase = SubStoreBackendPhase.running;
-        _error = null;
-      } else if (_process == null) {
-        _phase = SubStoreBackendPhase.stopped;
-      }
+          payload['status'] == 'success';
     } catch (_) {
-      if (_process == null) _phase = SubStoreBackendPhase.stopped;
+      return false;
     } finally {
       client.close(force: true);
     }
   }
 
-  Future<SubStoreBackendStatus> start() async {
-    if (system.isAndroid) {
-      return subStoreService.start();
+  Future<Process> _launchBackend() async {
+    final runtimeDir = appPath.executableDirPath;
+    final nodeExecutable = system.isWindows
+        ? p.join(runtimeDir, 'node.exe')
+        : 'node';
+    final scriptPath = system.isWindows
+        ? p.join(
+            runtimeDir,
+            'data',
+            'substore',
+            _version,
+            'sub-store.bundle.js',
+          )
+        : p.join(
+            runtimeDir,
+            'data',
+            'flutter_assets',
+            'assets',
+            'substore',
+            'backend',
+            _version,
+            'sub-store-0.min.js',
+          );
+    final dataDir = Directory(p.join(await appPath.homeDirPath, 'substore'));
+    await dataDir.create(recursive: true);
+    if (system.isWindows && !await File(nodeExecutable).exists()) {
+      throw MessageException(currentAppLocalizations.subStoreRuntimeMissing);
     }
+    if (!await File(scriptPath).exists()) {
+      throw MessageException(currentAppLocalizations.subStoreScriptMissing);
+    }
+    return Process.start(
+      nodeExecutable,
+      [scriptPath],
+      environment: {
+        'SUB_STORE_BACKEND_API_PORT': Uri.parse(_endpoint).port.toString(),
+        'SUB_STORE_BACKEND_API_HOST': '127.0.0.1',
+        'SUB_STORE_DATA_BASE_PATH': dataDir.path,
+      },
+      workingDirectory: dataDir.path,
+      mode: ProcessStartMode.normal,
+    );
+  }
 
+  Future<SubStoreBackendStatus> start() {
+    if (system.isAndroid) return subStoreService.start();
+    return _serialize(_start);
+  }
+
+  Future<SubStoreBackendStatus> _start() async {
     if (_phase == SubStoreBackendPhase.running) {
       return status;
     }
@@ -82,58 +171,22 @@ class DesktopSubStoreManager {
     _error = null;
 
     try {
-      final runtimeDir = appPath.executableDirPath;
-      final nodeExecutable = system.isWindows
-          ? p.join(runtimeDir, 'node.exe')
-          : 'node';
-
-      final scriptPath = system.isWindows
-          ? p.join(
-              runtimeDir,
-              'data',
-              'substore',
-              _version,
-              'sub-store.bundle.js',
-            )
-          : p.join(
-              runtimeDir,
-              'data',
-              'flutter_assets',
-              'assets',
-              'substore',
-              'backend',
-              _version,
-              'sub-store-0.min.js',
-            );
-      final dataDir = Directory(p.join(await appPath.homeDirPath, 'substore'));
-      await dataDir.create(recursive: true);
-
-      final hasRuntime = await File(nodeExecutable).exists();
-      final hasScript = await File(scriptPath).exists();
-
-      if (!hasRuntime && system.isWindows) {
-        _phase = SubStoreBackendPhase.failed;
-        _error = '未检测到内置 JS 运行时 (node.exe)。支持配置远程 Sub-Store 或置入单文件引擎。';
-        return status;
+      if (_process != null) {
+        await _stop();
+        if (_process != null) return status;
+        _phase = SubStoreBackendPhase.starting;
       }
-
-      if (!hasScript) {
-        _phase = SubStoreBackendPhase.failed;
-        _error = '未找到 Sub-Store 脚本资源 ($scriptPath)';
-        return status;
+      try {
+        final reservation = await ServerSocket.bind(
+          InternetAddress.loopbackIPv4,
+          Uri.parse(_endpoint).port,
+          shared: false,
+        );
+        await reservation.close();
+      } on SocketException {
+        throw MessageException(currentAppLocalizations.subStorePortInUse);
       }
-
-      _process = await Process.start(
-        nodeExecutable,
-        [scriptPath],
-        environment: {
-          'SUB_STORE_BACKEND_API_PORT': Uri.parse(_endpoint).port.toString(),
-          'SUB_STORE_BACKEND_API_HOST': '127.0.0.1',
-          'SUB_STORE_DATA_BASE_PATH': dataDir.path,
-        },
-        workingDirectory: dataDir.path,
-        mode: ProcessStartMode.normal,
-      );
+      _process = await (_launch ?? _launchBackend)();
 
       _process?.stdout.transform(utf8.decoder).listen((data) {
         commonPrint.log('SubStore stdout: $data');
@@ -153,15 +206,13 @@ class DesktopSubStoreManager {
       );
 
       for (var i = 0; i < 15; i++) {
-        await Future.delayed(const Duration(milliseconds: 200));
+        await Future<void>.delayed(_pollInterval);
         await _probe();
         if (_phase == SubStoreBackendPhase.running) break;
       }
 
       if (_phase != SubStoreBackendPhase.running) {
-        final failedProcess = _process;
-        _process = null;
-        failedProcess?.kill();
+        await _stop();
         _phase = SubStoreBackendPhase.failed;
         _error = currentAppLocalizations.subStoreStartFailed;
       }
@@ -174,11 +225,12 @@ class DesktopSubStoreManager {
     }
   }
 
-  Future<SubStoreBackendStatus> stop() async {
-    if (system.isAndroid) {
-      return subStoreService.stop();
-    }
+  Future<SubStoreBackendStatus> stop() {
+    if (system.isAndroid) return subStoreService.stop();
+    return _serialize(_stop);
+  }
 
+  Future<SubStoreBackendStatus> _stop() async {
     final process = _process;
     if (process != null) {
       process.kill(ProcessSignal.sigterm);
@@ -192,6 +244,7 @@ class DesktopSubStoreManager {
     }
     if (identical(_process, process)) _process = null;
     _phase = SubStoreBackendPhase.stopped;
+    _error = null;
     return status;
   }
 }

@@ -74,6 +74,9 @@ jobs:
       - name: Run Desktop Shared Core Integration Tests
         run: flutter test test/views/desktop_shared_core_integration_test.dart
 
+      - name: Run Desktop Sub-Store Lifecycle Tests
+        run: flutter test test/views/sub_store_backend_service_test.dart test/providers/system_action_test.dart
+
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
 

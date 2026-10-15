@@ -1131,6 +1131,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "Open official Sub-Store console",
     ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "The local Sub-Store port is already in use. Stop the other service and try again.",
+    ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
       "Remote service",
     ),
@@ -1148,6 +1151,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Sub-Store backend is running",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "The Sub-Store backend files are missing. Reinstall BfClash.",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Unable to start Sub-Store backend",

@@ -1179,6 +1179,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "Открыть официальную консоль Sub-Store",
     ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "Порт локального Sub-Store уже занят. Остановите другой сервис и повторите попытку.",
+    ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
       "Удалённый сервис",
     ),
@@ -1196,6 +1199,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Сервер Sub-Store работает",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "Встроенная среда Sub-Store отсутствует. Переустановите BfClash или используйте удалённый сервер.",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Файлы сервера Sub-Store отсутствуют. Переустановите BfClash.",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось запустить сервер Sub-Store",

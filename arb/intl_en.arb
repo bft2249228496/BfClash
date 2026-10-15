@@ -646,5 +646,8 @@
   "proxyStopped": "Proxy stopped",
   "windowsUpdateUnavailable": "No verified installer is available for this Windows version and channel.",
   "windowsUpdateLaunchFailed": "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
-  "windowsUpdateIdentityUnknown": "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again."
+  "windowsUpdateIdentityUnknown": "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
+  "subStoreRuntimeMissing": "The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.",
+  "subStoreScriptMissing": "The Sub-Store backend files are missing. Reinstall BfClash.",
+  "subStorePortInUse": "The local Sub-Store port is already in use. Stop the other service and try again."
 }
