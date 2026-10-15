@@ -21,3 +21,5 @@ A shared implementation is not acceptance. Every row needs an accessible Windows
 | Signed release distribution | Windows packaging/release workflow | BLOCKED: public38689950646 unsigned installer blocked by enabled Smart App Control, events3077/3033; need trusted signing setup |
 
 Latest installed device version remains CI38673081286. CI38689950646 was published and downloaded with matching hash but never executed due to application control. Do not equate CI/build success, source presence or a single network probe with full feature acceptance.
+
+Windows CI packages now stamp the source base version with a distinct beta/build number from the workflow run and attempt. The source pubspec is restored after packaging, keeping the Android release version unchanged. CI verifies the EXE numeric build field and beta ProductVersion as well as update asset compatibility.

@@ -66,6 +66,20 @@ void main() {
       isNotNull,
     );
   });
+  test('accepts the numbered Windows beta package name', () {
+    final data = release();
+    (data['assets'] as List).first['name'] =
+        'BfClash-0.2.27-beta.1281-windows-amd64-setup.exe';
+    expect(
+      selectWindowsUpdateAsset(data, beta: true, architecture: 'AMD64'),
+      isNotNull,
+    );
+    expect(
+      selectWindowsUpdateAsset(data, beta: false, architecture: 'AMD64'),
+      isNull,
+    );
+  });
+
   test('rejects installer without a verifiable digest', () {
     expect(
       selectWindowsUpdateAsset(

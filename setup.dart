@@ -71,16 +71,62 @@ Future<void> main(List<String> args) async {
   final androidArch = results['arch'] as String?;
   final verbose = results['verbose'] as bool;
 
-  final exitCode = await _package(
-    platform,
-    env,
-    targets,
-    rootDir,
-    arch,
-    androidArch: androidArch,
-    verbose: verbose,
+  final pubspecFile = File(p.join(rootDir, 'pubspec.yaml'));
+  final originalPubspec = await pubspecFile.readAsString();
+  final runNumber = int.tryParse(
+    Platform.environment['GITHUB_RUN_NUMBER'] ?? '',
   );
-  exit(exitCode);
+  var result = 1;
+  var stampedVersion = false;
+  try {
+    if (platform == 'windows' && runNumber != null) {
+      final document = loadYaml(originalPubspec) as YamlMap;
+      final buildVersion = createWindowsBuildVersion(
+        document['version'] as String,
+        runNumber: runNumber,
+        runAttempt: int.parse(
+          Platform.environment['GITHUB_RUN_ATTEMPT'] ?? '1',
+        ),
+        beta: env != 'stable',
+      );
+      stampedVersion = true;
+      await pubspecFile.writeAsString(
+        originalPubspec.replaceFirst(
+          RegExp(r'^version:.*$', multiLine: true),
+          'version: $buildVersion',
+        ),
+      );
+      stdout.writeln('Windows package version: $buildVersion');
+    }
+    result = await _package(
+      platform,
+      env,
+      targets,
+      rootDir,
+      arch,
+      androidArch: androidArch,
+      verbose: verbose,
+    );
+  } finally {
+    if (stampedVersion) await pubspecFile.writeAsString(originalPubspec);
+  }
+  exit(result);
+}
+
+String createWindowsBuildVersion(
+  String sourceVersion, {
+  required int runNumber,
+  int runAttempt = 1,
+  required bool beta,
+}) {
+  final match = RegExp(r'^(\d+\.\d+\.\d+)').firstMatch(sourceVersion);
+  if (match == null || runNumber < 1 || runAttempt < 1 || runAttempt > 9) {
+    throw ArgumentError('Invalid Windows build identity');
+  }
+  final build = 1000 + runNumber * 10 + runAttempt;
+  if (build > 65535) throw ArgumentError('Windows build number exceeds 65535');
+  final base = match.group(1)!;
+  return beta ? '$base-beta.$build+$build' : '$base+$build';
 }
 
 ArgParser createSetupArgParser() {

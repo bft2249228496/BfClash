@@ -61,7 +61,7 @@ jobs:
         run: flutter pub get
 
       - name: Run Update Channel and Architecture Tests
-        run: flutter test test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_download_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart
+        run: flutter test test/setup_test.dart test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_download_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart
 
       - name: Run Desktop Navigation Flow Widget Tests
         run: flutter test test/views/desktop_navigation_flow_test.dart test/common/window_position_test.dart test/common/window_test.dart
@@ -71,6 +71,9 @@ jobs:
 
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
+
+      - name: Verify stable packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash.exe
 
       - name: Run Windows Native Proxy Tests
         run: |
@@ -98,6 +101,9 @@ jobs:
 
       - name: Run Windows Beta Build Probe via setup.dart
         run: dart setup.dart windows --env pre --targets exe,zip -v
+
+      - name: Verify beta packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash-Beta.exe -Beta
 
       - name: Preserve beta probe artifacts
         run: |

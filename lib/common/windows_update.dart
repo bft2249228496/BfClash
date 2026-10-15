@@ -42,7 +42,10 @@ Map<String, dynamic>? selectWindowsBetaRelease(
       final url = asset['browser_download_url'] as String? ?? '';
       return name.startsWith('bfclash-') &&
           name.contains('-windows-$arch-') &&
-          name.endsWith('-beta-setup.exe') &&
+          (name.endsWith('-beta-setup.exe') ||
+              RegExp(
+                r'^bfclash-\d+\.\d+\.\d+-beta\.\d+-windows-[a-z0-9]+-setup\.exe$',
+              ).hasMatch(name)) &&
           Uri.tryParse(url)?.scheme == 'https';
     });
     if (!hasInstaller) continue;
@@ -87,7 +90,12 @@ WindowsUpdateAsset? selectWindowsUpdateAsset(
     final pattern = beta
         ? '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-beta-setup\\.exe\$'
         : '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-setup\\.exe\$';
-    if (!RegExp(pattern).hasMatch(name)) continue;
+    final versionedBeta =
+        beta &&
+        RegExp(
+          '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-beta\\.[0-9]+-windows-$arch-setup\\.exe\$',
+        ).hasMatch(name);
+    if (!RegExp(pattern).hasMatch(name) && !versionedBeta) continue;
     final url = asset['browser_download_url'] as String? ?? '';
     final uri = Uri.tryParse(url);
     final digest = asset['digest'] as String? ?? '';
