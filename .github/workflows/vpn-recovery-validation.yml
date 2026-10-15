@@ -48,12 +48,14 @@ jobs:
           export BFCLASH_KEY_ALIAS=$(grep -m1 keyAlias /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           export BFCLASH_KEY_PASSWORD=$(grep -m1 keyPassword /tmp/bfclash-legacy-signing.gradle.kts | cut -d= -f2- | xargs)
           flutter build apk --release --target-platform android-arm64 --build-name=0.2.27 --build-number=2056
-      - name: Native regression tests
-        run: cd android && ./gradlew :service:testDebugUnitTest :app:testDebugUnitTest --console=plain
       - uses: actions/upload-artifact@v4
         with:
           name: bfclash-vpn-recovery-arm64
           path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Native regression tests
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+        run: cd android && ./gradlew :service:testDebugUnitTest :app:testDebugUnitTest -Ptarget-platform=android-arm64 -x :app:compileFlutterBuildDebug --console=plain
       - uses: actions/upload-artifact@v4
         if: always()
         with:
