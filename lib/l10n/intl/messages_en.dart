@@ -1255,6 +1255,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
+    ),
     "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
       "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
     ),

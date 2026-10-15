@@ -1045,6 +1045,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPNの再起動後に有効になります"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "この Windows ベータ版のビルド番号またはアーキテクチャを識別できません。公式 Windows ベータ版をインストールして再試行してください。",
+    ),
     "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
       "インストーラーを起動できませんでした。承認がキャンセルされたか、アプリ制御によりブロックされた可能性があります。現在のバージョンは引き続き利用できます。",
     ),

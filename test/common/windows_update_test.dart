@@ -70,10 +70,22 @@ void main() {
     expect(select([release('v0.2.27-windows-ci.200'), next]), same(next));
   });
 
-  test('unknown build identity or architecture cannot choose an installer', () {
+  test('unknown build identity reports failure rather than no update', () {
     final releases = [release('v0.2.27-windows-ci.200')];
-    expect(select(releases, run: ''), isNull);
-    expect(select(releases, arch: 'x86'), isNull);
+    for (final run in ['', 'unknown', '0', '-1']) {
+      expect(
+        () => select(releases, run: run),
+        throwsA(isA<WindowsUpdateIdentityException>()),
+      );
+    }
+    expect(select([]), isNull);
+  });
+
+  test('unsupported architecture reports failure rather than no update', () {
+    expect(
+      () => select([release('v0.2.27-windows-ci.200')], arch: 'x86'),
+      throwsA(isA<WindowsUpdateIdentityException>()),
+    );
   });
 
   test('ARM64 cannot receive the AMD64 installer', () {

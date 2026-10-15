@@ -1313,6 +1313,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "Не удалось определить сборку или архитектуру этой бета-версии Windows. Установите официальную бета-версию Windows и повторите попытку.",
+    ),
     "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
       "Windows не запустила установщик. Возможно, разрешение отменено или запуск заблокирован контролем приложений. Текущая версия остаётся доступной.",
     ),

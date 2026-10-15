@@ -145,6 +145,10 @@ class Request {
       }
 
       return bestRelease;
+    } on WindowsUpdateIdentityException {
+      throw MessageException(
+        currentAppLocalizations.windowsUpdateIdentityUnknown,
+      );
     } catch (e) {
       commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
       rethrow;

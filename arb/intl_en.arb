@@ -645,5 +645,6 @@
   "proxyRunning": "Proxy running",
   "proxyStopped": "Proxy stopped",
   "windowsUpdateUnavailable": "No verified installer is available for this Windows version and channel.",
-  "windowsUpdateLaunchFailed": "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available."
+  "windowsUpdateLaunchFailed": "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
+  "windowsUpdateIdentityUnknown": "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again."
 }

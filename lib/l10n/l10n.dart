@@ -5379,6 +5379,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.`
+  String get windowsUpdateIdentityUnknown {
+    return Intl.message(
+      'This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.',
+      name: 'windowsUpdateIdentityUnknown',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

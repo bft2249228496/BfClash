@@ -6,6 +6,14 @@ import 'package:bfclash/common/update.dart';
 
 import 'package:bfclash/common/package.dart';
 
+class WindowsUpdateIdentityException implements Exception {
+  const WindowsUpdateIdentityException();
+
+  @override
+  String toString() =>
+      'Windows beta build identity or architecture is unavailable';
+}
+
 Map<String, dynamic>? selectWindowsBetaRelease(
   List<dynamic> releases, {
   required String currentVersion,
@@ -13,14 +21,16 @@ Map<String, dynamic>? selectWindowsBetaRelease(
   required String architecture,
 }) {
   final currentRun = int.tryParse(currentRunId);
-  if (currentRun == null) return null;
+  if (currentRun == null || currentRun <= 0) {
+    throw const WindowsUpdateIdentityException();
+  }
   final currentBase = currentVersion.split('+').first.split('-').first;
   final arch = switch (architecture.toLowerCase()) {
     'amd64' || 'x64' || 'x86_64' => 'amd64',
     'arm64' || 'aarch64' => 'arm64',
     _ => null,
   };
-  if (arch == null) return null;
+  if (arch == null) throw const WindowsUpdateIdentityException();
   Map<String, dynamic>? best;
   String? bestTag;
   for (final release in releases.whereType<Map<String, dynamic>>()) {

@@ -645,5 +645,6 @@
   "proxyRunning": "プロキシ稼働中",
   "proxyStopped": "プロキシ停止中",
   "windowsUpdateUnavailable": "この Windows の構成と更新チャネルに対応する検証可能なインストーラーがありません。",
-  "windowsUpdateLaunchFailed": "インストーラーを起動できませんでした。承認がキャンセルされたか、アプリ制御によりブロックされた可能性があります。現在のバージョンは引き続き利用できます。"
+  "windowsUpdateLaunchFailed": "インストーラーを起動できませんでした。承認がキャンセルされたか、アプリ制御によりブロックされた可能性があります。現在のバージョンは引き続き利用できます。",
+  "windowsUpdateIdentityUnknown": "この Windows ベータ版のビルド番号またはアーキテクチャを識別できません。公式 Windows ベータ版をインストールして再試行してください。"
 }
