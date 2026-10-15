@@ -22,6 +22,20 @@ void main() {
   });
 
   group('NavigationPort & Desktop UI Shell Tests', () {
+    test('desktop keeps IP checks enabled without the mobile dashboard card', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.listen(appSettingProvider, (_, _) {});
+      container.read(appSettingProvider.notifier).update(
+        (state) => state.copyWith(dashboardWidgets: []),
+      );
+      container.listen(checkIpProvider, (_, _) {});
+      final before = container.read(checkIpProvider);
+      expect(before.containsDetection, isTrue);
+      container.read(checkIpNumProvider.notifier).add();
+      expect(container.read(checkIpProvider).checkIpNum, before.checkIpNum + 1);
+    });
+
     test('Desktop Navigation items expose desktop specific pages', () {
       final items = navigation.getItems(openLogs: true, hasProxies: true);
       expect(items.isNotEmpty, isTrue);
