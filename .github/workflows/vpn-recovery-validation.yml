@@ -56,12 +56,17 @@ jobs:
           aapt=$(find "$ANDROID_HOME/build-tools" -name aapt2 | sort -V | tail -1)
           mkdir -p release
           for abi in arm64-v8a armeabi-v7a x86_64; do
+            case "$abi" in
+              arm64-v8a) code=2057 ;;
+              armeabi-v7a) code=1057 ;;
+              x86_64) code=3057 ;;
+            esac
             apk="build/app/outputs/flutter-apk/app-$abi-release.apk"
             cert=$("$signer" verify --print-certs "$apk" | awk -F ': ' '/certificate SHA-256 digest/ {print $2}')
             test "$cert" = 89fe6df0d3e4c4017d9fd0cf55d7fc4cc2a6723d28e764648aec1ae0106f9d31
             "$aapt" dump badging "$apk" > /tmp/bfclash-badging.txt
             grep -F "name='com.lansway.client.beta'" /tmp/bfclash-badging.txt
-            grep -F "versionCode='2057'" /tmp/bfclash-badging.txt
+            grep -F "versionCode='$code'" /tmp/bfclash-badging.txt
             grep -F "versionName='0.2.28-beta.1'" /tmp/bfclash-badging.txt
             grep -F "native-code: '$abi'" /tmp/bfclash-badging.txt
             cp "$apk" "release/BfClash-0.2.28-beta.1-android-$abi.apk"
