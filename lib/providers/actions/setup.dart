@@ -57,6 +57,16 @@ class SetupAction extends _$SetupAction {
     }
   }
 
+  bool _trafficVisible = true;
+
+  void updateTrafficVisibility(bool visible) {
+    if (_trafficVisible == visible) return;
+    _trafficVisible = visible;
+    _runtimeTimer?.cancel();
+    _runtimeTimer = null;
+    if (visible && _startTime != null) _setLocalRunning(true);
+  }
+
   void _setLocalRunning(bool running) {
     _runtimeTimer?.cancel();
     _runtimeTimer = null;
@@ -68,6 +78,10 @@ class SetupAction extends _$SetupAction {
     }
 
     _startTime ??= DateTime.now();
+    if (!_trafficVisible) {
+      _updateRunTime();
+      return;
+    }
     _refreshRunningState();
     _runtimeTimer = Timer.periodic(
       const Duration(seconds: 1),
@@ -76,6 +90,7 @@ class SetupAction extends _$SetupAction {
   }
 
   void _refreshRunningState() {
+    if (!_trafficVisible) return;
     _updateRunTime();
     unawaited(ref.read(commonActionProvider.notifier).updateTraffic());
   }

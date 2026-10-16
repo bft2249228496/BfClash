@@ -641,5 +641,8 @@
   "subStoreFailed": "Sub-Store backend failed",
   "subStoreStartFailed": "Unable to start Sub-Store backend",
   "subStoreStartFirst": "Start the on-device backend first",
-  "subStoreAndroidOnly": "The on-device backend is available on Android"
+  "subStoreAndroidOnly": "The on-device backend is available on Android",
+  "pauseDownloadAndReturn": "Pause and return",
+  "resumeUpdateDownloadHint": "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
+  "restartUpdateDownloadHint": "You can switch nodes and retry. This source has no checksum, so the download will restart safely."
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
 import 'package:bfclash/common/boot_guard.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/system_dns.dart';

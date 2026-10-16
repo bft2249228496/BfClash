@@ -5339,6 +5339,36 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Pause and return`
+  String get pauseDownloadAndReturn {
+    return Intl.message(
+      'Pause and return',
+      name: 'pauseDownloadAndReturn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.`
+  String get resumeUpdateDownloadHint {
+    return Intl.message(
+      'Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.',
+      name: 'resumeUpdateDownloadHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can switch nodes and retry. This source has no checksum, so the download will restart safely.`
+  String get restartUpdateDownloadHint {
+    return Intl.message(
+      'You can switch nodes and retry. This source has no checksum, so the download will restart safely.',
+      name: 'restartUpdateDownloadHint',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

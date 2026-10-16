@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:bfclash/common/resumable_download.dart';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
@@ -10,11 +14,13 @@ class AndroidUpdateAsset {
   final String url;
   final int size;
   final String name;
+  final String? sha256Digest;
 
   const AndroidUpdateAsset({
     required this.url,
     required this.size,
     required this.name,
+    this.sha256Digest,
   });
 }
 
@@ -115,7 +121,15 @@ Future<AndroidUpdateAsset?> androidUpdateAssetInfo(
   if (url.isEmpty) return null;
   final size = entry['size'] as int? ?? 0;
   final name = entry['name'] as String? ?? '';
-  return AndroidUpdateAsset(url: url, size: size, name: name);
+  final digest = entry['digest'] as String? ?? '';
+  return AndroidUpdateAsset(
+    url: url,
+    size: size,
+    name: name,
+    sha256Digest: RegExp(r'^sha256:[a-fA-F0-9]{64}$').hasMatch(digest)
+        ? digest.substring(7).toLowerCase()
+        : null,
+  );
 }
 
 Future<String?> androidUpdateDownloadUrl(Map<String, dynamic> release) async {
@@ -123,81 +137,48 @@ Future<String?> androidUpdateDownloadUrl(Map<String, dynamic> release) async {
   return asset?.url;
 }
 
-/// Download Android update with intelligent dual-channel mirror fallback and speed tracking.
 Future<File> downloadAndroidUpdate(
   Dio dio,
   String rawUrl, {
   void Function(int received, int total)? onProgress,
   void Function(UpdateDownloadProgress progress)? onUpdateProgress,
+  int expectedSize = 0,
+  String? sha256Digest,
+  CancelToken? cancelToken,
+  Directory? temporaryDirectory,
 }) async {
-  final directory = await getTemporaryDirectory();
-  final file = File('${directory.path}/bfclash_update.apk');
-  if (await file.exists()) await file.delete();
-
-  final candidateUrls = [
+  final root = temporaryDirectory ?? await getTemporaryDirectory();
+  final identity = sha256.convert(utf8.encode('$rawUrl:$sha256Digest'));
+  final directory = Directory('${root.path}/bfclash-update-$identity');
+  final urls = [
     rawUrl,
-    'https://ghfast.top/$rawUrl',
-    'https://mirror.ghproxy.com/$rawUrl',
+    if (sha256Digest != null) 'https://ghfast.top/$rawUrl',
+    if (sha256Digest != null) 'https://mirror.ghproxy.com/$rawUrl',
   ];
-
-  DioException? lastError;
-
-  for (final url in candidateUrls) {
+  for (var index = 0; index < urls.length; index++) {
     try {
-      if (await file.exists()) await file.delete();
-
-      var lastSampleTime = DateTime.now().millisecondsSinceEpoch;
-      var lastReceivedBytes = 0;
-      var currentSpeed = 0.0;
-
-      await dio.download(
-        url,
-        file.path,
-        onReceiveProgress: (received, total) {
+      return await downloadResumableFile(
+        dio,
+        url: urls[index],
+        directory: directory,
+        fileName: 'bfclash_update.apk',
+        expectedSize: expectedSize,
+        expectedSha256: sha256Digest,
+        cancelToken: cancelToken,
+        onProgress: (received, total, speed) {
           onProgress?.call(received, total);
-
-          final now = DateTime.now().millisecondsSinceEpoch;
-          final timeDelta = now - lastSampleTime;
-          if (timeDelta >= 400 || (received == total && total > 0)) {
-            final bytesDelta = received - lastReceivedBytes;
-            if (timeDelta > 0) {
-              final instantSpeed = (bytesDelta / (timeDelta / 1000.0));
-              currentSpeed = currentSpeed == 0.0
-                  ? instantSpeed
-                  : (currentSpeed * 0.7 + instantSpeed * 0.3);
-            }
-            lastSampleTime = now;
-            lastReceivedBytes = received;
-          }
-
           onUpdateProgress?.call(
             UpdateDownloadProgress(
               received: received,
               total: total,
-              speedBytesPerSec: currentSpeed,
+              speedBytesPerSec: speed,
             ),
           );
         },
-        options: Options(
-          followRedirects: true,
-          connectTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(minutes: 10),
-        ),
       );
-      if (await file.exists() && await file.length() > 10 * 1024 * 1024) {
-        return file;
-      }
-    } on DioException catch (e) {
-      lastError = e;
-      continue;
-    } catch (_) {
-      continue;
+    } on DioException catch (error) {
+      if (CancelToken.isCancel(error) || index == urls.length - 1) rethrow;
     }
   }
-
-  if (await file.exists() && await file.length() > 0) {
-    return file;
-  }
-  if (lastError != null) throw lastError;
-  throw Exception('下载更新失败，所有镜像源均不可用');
+  throw StateError('No update download source');
 }
