@@ -416,6 +416,28 @@ void main() {
       );
     });
 
+    test(
+      'turning tun off after a denied authorization permits a new attempt',
+      () async {
+        action.authorizeResult = AuthorizeCode.error;
+        expect(await action.requestAdmin(true), isTrue);
+        expect(await action.requestAdmin(true), isTrue);
+        expect(action.authorizeCalls, 1);
+        expect(await action.requestAdmin(false), isTrue);
+        expect(
+          container.read(authorizedTunEnableProvider),
+          TunAuthorizationState.none,
+        );
+        action.authorizeResult = AuthorizeCode.success;
+        expect(await action.requestAdmin(true), isFalse);
+        expect(action.authorizeCalls, 2);
+        expect(
+          container.read(authorizedTunEnableProvider),
+          TunAuthorizationState.authorized,
+        );
+      },
+    );
+
     test('a failed authorization continues but stays unauthorized', () async {
       action.authorizeResult = AuthorizeCode.error;
 

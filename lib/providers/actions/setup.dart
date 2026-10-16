@@ -185,8 +185,8 @@ class SetupAction extends _$SetupAction {
       if (!started) {
         throw StateError(
           request.running
-              ? "Core proxy listener failed to start"
-              : "Core proxy listener failed to stop",
+              ? 'Core proxy listener failed to start'
+              : 'Core proxy listener failed to stop',
         );
       }
     });
@@ -406,6 +406,11 @@ class SetupAction extends _$SetupAction {
   @visibleForTesting
   Future<bool> requestAdmin(bool enableTun) async {
     if (!enableTun) {
+      final authorization = ref.read(authorizedTunEnableProvider.notifier);
+      if (ref.read(authorizedTunEnableProvider) ==
+          TunAuthorizationState.unauthorized) {
+        authorization.value = TunAuthorizationState.none;
+      }
       return true;
     }
     final authorizationState = ref.read(authorizedTunEnableProvider);
