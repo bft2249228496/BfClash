@@ -1,4 +1,3 @@
-import 'package:bfclash/common/channel_config.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart' hide NetworkDetection;
@@ -8,7 +7,6 @@ import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
 import 'package:bfclash/views/dashboard/widgets/network_detection.dart';
 import 'package:bfclash/views/dashboard/widgets/outbound_mode.dart';
 import 'package:bfclash/views/dashboard/widgets/quick_options.dart';
-import 'package:bfclash/views/dashboard/widgets/start_button.dart';
 import 'package:bfclash/views/dashboard/widgets/traffic_usage.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,89 +17,71 @@ class DesktopDashboardView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final coreStatus = ref.watch(coreStatusProvider);
-    final isRunning = ref.watch(isStartProvider);
-    final isConnected = coreStatus == CoreStatus.connected && isRunning;
-
+    final running = ref.watch(isStartProvider);
+    final connected = ref.watch(coreStatusProvider) == CoreStatus.connected;
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.colorScheme.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 1050;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _DesktopTopStatusBar(isConnected: isConnected),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                if (isWide) ...[
-                  const SliverToBoxAdapter(
-                    child: Row(
+          final wide = constraints.maxWidth >= 840;
+          const controls = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OutboundModeV2(),
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: SystemProxyButton()),
+                  SizedBox(width: 12),
+                  Expanded(child: TUNButton()),
+                ],
+              ),
+              SizedBox(height: 16),
+              NetworkSpeed(),
+            ],
+          );
+          const insights = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              NetworkDetection(),
+              SizedBox(height: 12),
+              TrafficUsage(),
+            ],
+          );
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1320),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
+                children: [
+                  const _DesktopTopStatusBar(),
+                  const SizedBox(height: 24),
+                  _DesktopConnectionCard(
+                    running: running,
+                    connected: connected,
+                  ),
+                  const SizedBox(height: 20),
+                  if (wide)
+                    const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          flex: 7,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _DesktopHeroActionCard(),
-                              SizedBox(height: 16),
-                              OutboundMode(),
-                              SizedBox(height: 16),
-                              SystemProxyButton(),
-                              SizedBox(height: 16),
-                              NetworkSpeed(),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 20),
-                        Expanded(
-                          flex: 5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              NetworkDetection(),
-                              SizedBox(height: 16),
-                              TrafficUsage(),
-                              SizedBox(height: 16),
-                              _DesktopQuickAccessPanel(),
-                              SizedBox(height: 16),
-                              _DesktopSystemEnvironmentCard(),
-                            ],
-                          ),
-                        ),
+                        Expanded(flex: 7, child: controls),
+                        SizedBox(width: 16),
+                        Expanded(flex: 5, child: insights),
                       ],
-                    ),
-                  ),
-                ] else ...[
-                  const SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _DesktopHeroActionCard(),
-                        SizedBox(height: 16),
-                        NetworkDetection(),
-                        SizedBox(height: 16),
-                        OutboundMode(),
-                        SizedBox(height: 16),
-                        SystemProxyButton(),
-                        SizedBox(height: 16),
-                        NetworkSpeed(),
-                        SizedBox(height: 16),
-                        TrafficUsage(),
-                        SizedBox(height: 16),
-                        _DesktopQuickAccessPanel(),
-                        SizedBox(height: 16),
-                        _DesktopSystemEnvironmentCard(),
-                      ],
-                    ),
-                  ),
+                    )
+                  else ...[
+                    const NetworkDetection(),
+                    const SizedBox(height: 12),
+                    controls,
+                    const SizedBox(height: 12),
+                    const TrafficUsage(),
+                  ],
+                  const SizedBox(height: 16),
+                  const _DesktopQuickAccessPanel(),
                 ],
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-              ],
+              ),
             ),
           );
         },
@@ -111,123 +91,147 @@ class DesktopDashboardView extends ConsumerWidget {
 }
 
 class _DesktopTopStatusBar extends ConsumerWidget {
-  const _DesktopTopStatusBar({required this.isConnected});
-
-  final bool isConnected;
+  const _DesktopTopStatusBar();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appLocalizations = context.appLocalizations;
-    final runTime = ref.watch(runTimeProvider);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerHighest.withValues(
-          alpha: 0.6,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: isConnected
-                  ? Colors.green.withValues(alpha: 0.15)
-                  : context.colorScheme.error.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isConnected
-                    ? Colors.green.withValues(alpha: 0.4)
-                    : context.colorScheme.error.withValues(alpha: 0.4),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isConnected
-                        ? Colors.green
-                        : context.colorScheme.error,
-                  ),
+    final labels = context.appLocalizations;
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'BfClash',
+                style: context.textTheme.labelMedium?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  isConnected
-                      ? appLocalizations.proxyRunning
-                      : appLocalizations.proxyStopped,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: isConnected
-                        ? Colors.green
-                        : context.colorScheme.error,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            'BfClash Desktop Edition',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: context.colorScheme.onSurface,
-            ),
-          ),
-          const Spacer(),
-          if (runTime != null)
-            Text(
-              '${appLocalizations.time}: ${getTimeText(runTime)}',
-              style: TextStyle(
-                fontSize: 12,
-                fontFamily: 'JetBrainsMono',
-                color: context.colorScheme.onSurfaceVariant,
               ),
-            ),
-          const SizedBox(width: 16),
-          IconButton(
-            tooltip: appLocalizations.checkUpdate,
-            icon: const Icon(Icons.sync, size: 20),
-            onPressed: () async {
-              await globalState.safeRun(() async {
-                final data = await request.checkForUpdate();
-                if (!context.mounted) return;
-                await ref
-                    .read(commonActionProvider.notifier)
-                    .checkUpdateResultHandle(data: data, isUser: true);
-              }, title: appLocalizations.checkUpdate);
-            },
+              const SizedBox(height: 4),
+              Text(
+                labels.dashboard,
+                style: context.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        IconButton.outlined(
+          tooltip: labels.checkUpdate,
+          icon: const Icon(Icons.system_update_alt_rounded, size: 20),
+          onPressed: () async {
+            await globalState.safeRun(() async {
+              final data = await request.checkForUpdate();
+              if (!context.mounted) return;
+              await ref
+                  .read(commonActionProvider.notifier)
+                  .checkUpdateResultHandle(data: data, isUser: true);
+            }, title: labels.checkUpdate);
+          },
+        ),
+      ],
     );
   }
 }
 
-class _DesktopHeroActionCard extends StatelessWidget {
-  const _DesktopHeroActionCard();
+class _DesktopConnectionCard extends ConsumerWidget {
+  const _DesktopConnectionCard({
+    required this.running,
+    required this.connected,
+  });
+
+  final bool running;
+  final bool connected;
 
   @override
-  Widget build(BuildContext context) {
-    return const CommonCard(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final labels = context.appLocalizations;
+    final colors = context.colorScheme;
+    final active = connected && running;
+    final runtime = ref.watch(runTimeProvider);
+    return CommonCard(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
-          children: [
-            Expanded(child: StartButton()),
-            SizedBox(width: 16),
-            CoreStatusButton(),
-          ],
+        padding: const EdgeInsets.all(24),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final details = Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: ShapeDecoration(
+                    color: active
+                        ? colors.primaryContainer.withValues(alpha: 0.55)
+                        : colors.surfaceContainerHighest,
+                    shape: AppShape.md,
+                  ),
+                  child: Icon(
+                    active ? Icons.shield_rounded : Icons.shield_outlined,
+                    color: active ? colors.primary : colors.onSurfaceVariant,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        active ? labels.proxyRunning : labels.proxyStopped,
+                        style: context.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        runtime == null
+                            ? labels.start
+                            : '${labels.time}: ${getTimeText(runtime)}',
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+            final action = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CoreStatusButton(),
+                const SizedBox(width: 12),
+                FilledButton.icon(
+                  onPressed: () =>
+                      ref.read(commonActionProvider.notifier).toggleRunning(),
+                  icon: Icon(
+                    running ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    size: 20,
+                  ),
+                  label: Text(running ? labels.stop : labels.start),
+                ),
+              ],
+            );
+            if (constraints.maxWidth < 500) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  details,
+                  const SizedBox(height: 20),
+                  Align(alignment: Alignment.centerRight, child: action),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: details),
+                const SizedBox(width: 20),
+                action,
+              ],
+            );
+          },
         ),
       ),
     );
@@ -308,57 +312,6 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                   },
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DesktopSystemEnvironmentCard extends StatelessWidget {
-  const _DesktopSystemEnvironmentCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return CommonCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.desktop_windows, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  'Windows Desktop Environment',
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'TUN 模式驱动: WinTUN (${WindowsChannelConfig.helperServiceName} 托管)',
-              style: context.textTheme.bodySmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'UWP 回环豁免: 搭载内置 EnableLoopback.exe 提权调用',
-              style: context.textTheme.bodySmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '备份与还原支持: WebDAV 远程链路与本地 .bfclash / .zip 导入导出双模已就绪',
-              style: context.textTheme.bodySmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
             ),
           ],
         ),
