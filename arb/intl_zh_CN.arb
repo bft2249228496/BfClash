@@ -649,5 +649,8 @@
   "windowsUpdateIdentityUnknown": "无法识别此 Windows 测试版的构建编号或架构。请安装官方 Windows 测试版后重试。",
   "subStoreRuntimeMissing": "内置 Sub-Store 运行组件缺失，请重新安装 BfClash，或改用远程后端。",
   "subStoreScriptMissing": "Sub-Store 后端文件缺失，请重新安装 BfClash。",
-  "subStorePortInUse": "本地 Sub-Store 端口已被占用，请停止占用该端口的服务后重试。"
+  "subStorePortInUse": "本地 Sub-Store 端口已被占用，请停止占用该端口的服务后重试。",
+  "pauseDownloadAndReturn": "暂停并返回",
+  "resumeUpdateDownloadHint": "保留已下载内容；可先切换节点，再次检查更新即可继续下载。",
+  "restartUpdateDownloadHint": "可返回切换节点再试；此下载源未提供校验值，继续时将安全地重新下载。"
 }

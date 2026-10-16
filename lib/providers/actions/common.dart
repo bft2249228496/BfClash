@@ -258,6 +258,7 @@ class CommonAction extends _$CommonAction {
     if (_installingUpdate) return;
     _installingUpdate = true;
     final progress = ValueNotifier<UpdateDownloadProgress?>(null);
+    final downloadCancel = CancelToken();
     final colorScheme = context.colorScheme;
     final dialogFuture = showDialog<void>(
       context: context,
@@ -285,7 +286,13 @@ class CommonAction extends _$CommonAction {
                     currentVer.startsWith('v') || currentVer.startsWith('V')
                     ? currentVer
                     : 'v$currentVer';
-                final targetV = release['tag_name'] ?? '';
+                final targetV = windowsAsset == null
+                    ? release['tag_name'] ?? ''
+                    : RegExp(r'BfClash-(.+)-windows-')
+                              .firstMatch(Uri.decodeComponent(windowsAsset.url))
+                              ?.group(1) ??
+                          release['tag_name'] ??
+                          '';
 
                 return Column(
                   mainAxisSize: MainAxisSize.min,
@@ -351,6 +358,24 @@ class CommonAction extends _$CommonAction {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            downloadCancel.cancel('paused by user'),
+                        icon: const Icon(Icons.pause_rounded),
+                        label: Text(
+                          currentAppLocalizations.pauseDownloadAndReturn,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      windowsAsset != null || asset?.sha256Digest != null
+                          ? currentAppLocalizations.resumeUpdateDownloadHint
+                          : currentAppLocalizations.restartUpdateDownloadHint,
+                      style: context.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -387,11 +412,15 @@ class CommonAction extends _$CommonAction {
           ? await downloadWindowsUpdate(
               request.clashDio,
               windowsAsset,
+              cancelToken: downloadCancel,
               onUpdateProgress: (info) => progress.value = info,
             )
           : await downloadAndroidUpdate(
               request.clashDio,
               url,
+              expectedSize: asset?.size ?? 0,
+              sha256Digest: asset?.sha256Digest,
+              cancelToken: downloadCancel,
               onUpdateProgress: (info) => progress.value = info,
             );
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
@@ -423,6 +452,7 @@ class CommonAction extends _$CommonAction {
         if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
         await dialogFuture;
       }
+      if (error is DioException && CancelToken.isCancel(error)) return;
       commonPrint.log(
         'App update failed: ${compactError(error)}',
         logLevel: LogLevel.warning,

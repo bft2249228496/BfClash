@@ -649,5 +649,8 @@
   "windowsUpdateIdentityUnknown": "この Windows ベータ版のビルド番号またはアーキテクチャを識別できません。公式 Windows ベータ版をインストールして再試行してください。",
   "subStoreRuntimeMissing": "内蔵の Sub-Store 実行環境がありません。BfClash を再インストールするか、リモートバックエンドを使用してください。",
   "subStoreScriptMissing": "Sub-Store のバックエンドファイルがありません。BfClash を再インストールしてください。",
-  "subStorePortInUse": "ローカル Sub-Store のポートは使用中です。他のサービスを停止してから再試行してください。"
+  "subStorePortInUse": "ローカル Sub-Store のポートは使用中です。他のサービスを停止してから再試行してください。",
+  "pauseDownloadAndReturn": "一時停止して戻る",
+  "resumeUpdateDownloadHint": "ダウンロード済みのデータを保持します。必要に応じてノードを切り替え、再度更新を確認すると続行できます。",
+  "restartUpdateDownloadHint": "ノードを切り替えて再試行できます。この配信元にはチェックサムがないため、安全のため最初からダウンロードします。"
 }

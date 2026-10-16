@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:bfclash/common/update.dart';
+import 'package:bfclash/common/resumable_download.dart';
 
 import 'package:bfclash/common/package.dart';
 
@@ -131,40 +133,28 @@ Future<File> downloadWindowsUpdate(
   WindowsUpdateAsset asset, {
   void Function(UpdateDownloadProgress progress)? onUpdateProgress,
   Directory? temporaryDirectory,
+  CancelToken? cancelToken,
 }) async {
-  final directory = await (temporaryDirectory ?? Directory.systemTemp)
-      .createTemp('bfclash-update-');
-  final partial = File('${directory.path}/installer.part');
-  final watch = Stopwatch()..start();
-  try {
-    await dio.download(
-      asset.url,
-      partial.path,
-      options: Options(
-        followRedirects: true,
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(minutes: 10),
+  final identity = sha256.convert(
+    utf8.encode('${asset.url}:${asset.sha256Digest}'),
+  );
+  final directory = Directory(
+    '${(temporaryDirectory ?? Directory.systemTemp).path}/bfclash-update-$identity',
+  );
+  return downloadResumableFile(
+    dio,
+    url: asset.url,
+    directory: directory,
+    fileName: 'BfClash-update-setup.exe',
+    expectedSize: asset.size,
+    expectedSha256: asset.sha256Digest,
+    cancelToken: cancelToken,
+    onProgress: (received, total, speed) => onUpdateProgress?.call(
+      UpdateDownloadProgress(
+        received: received,
+        total: total,
+        speedBytesPerSec: speed,
       ),
-      onReceiveProgress: (received, total) => onUpdateProgress?.call(
-        UpdateDownloadProgress(
-          received: received,
-          total: asset.size,
-          speedBytesPerSec: watch.elapsedMilliseconds > 0
-              ? received * 1000 / watch.elapsedMilliseconds
-              : 0,
-        ),
-      ),
-    );
-    if (await partial.length() != asset.size) {
-      throw const FormatException('Update size mismatch');
-    }
-    final digest = await sha256.bind(partial.openRead()).first;
-    if (digest.toString() != asset.sha256Digest) {
-      throw const FormatException('Update checksum mismatch');
-    }
-    return await partial.rename('${directory.path}/BfClash-update-setup.exe');
-  } catch (_) {
-    if (await directory.exists()) await directory.delete(recursive: true);
-    rethrow;
-  }
+    ),
+  );
 }

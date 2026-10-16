@@ -649,5 +649,8 @@
   "windowsUpdateIdentityUnknown": "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
   "subStoreRuntimeMissing": "The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.",
   "subStoreScriptMissing": "The Sub-Store backend files are missing. Reinstall BfClash.",
-  "subStorePortInUse": "The local Sub-Store port is already in use. Stop the other service and try again."
+  "subStorePortInUse": "The local Sub-Store port is already in use. Stop the other service and try again.",
+  "pauseDownloadAndReturn": "Pause and return",
+  "resumeUpdateDownloadHint": "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
+  "restartUpdateDownloadHint": "You can switch nodes and retry. This source has no checksum, so the download will restart safely."
 }
