@@ -1,5 +1,7 @@
 package com.bfclash.client.service.modules
 
+import android.app.Service
+import android.os.PowerManager
 import android.os.SystemClock
 import com.bfclash.client.common.GlobalState
 import com.bfclash.client.service.ServiceConfig
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 internal class TunnelHealthModule(
+    private val service: Service,
     private val scope: CoroutineScope,
     private val recover: () -> Unit,
 ) : ServiceModule {
@@ -24,12 +27,22 @@ internal class TunnelHealthModule(
     override fun start() {
         job = scope.launch {
             val policy = TunnelRecoveryPolicy()
+            val schedule = TunnelProbeSchedule(SystemClock.elapsedRealtime())
+            val power = service.getSystemService(PowerManager::class.java)
+            var suspicious = false
             while (isActive) {
                 delay(60_000)
                 val port = ServiceConfig.vpnOptions?.port ?: continue
+                if (!schedule.shouldProbe(
+                        SystemClock.elapsedRealtime(),
+                        interactive = power?.isInteractive ?: true,
+                        idle = power?.isDeviceIdleMode ?: false,
+                        suspicious = suspicious,
+                    )) continue
                 val result = withContext(Dispatchers.IO) {
                     probePaths(port)
                 }
+                suspicious = !result.first && result.second
                 if (isActive && policy.record(result.first, result.second, SystemClock.elapsedRealtime())) {
                     GlobalState.log("VPN health: tunnel failed twice while local proxy works")
                     recover()
