@@ -8,7 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 class SubStoreView extends ConsumerStatefulWidget {
-  const SubStoreView({super.key});
+  const SubStoreView({super.key, this.desktopManager});
+
+  final DesktopSubStoreManager? desktopManager;
 
   @override
   ConsumerState<SubStoreView> createState() => _SubStoreViewState();
@@ -19,11 +21,36 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
   SubStoreBackendStatus? _status;
   bool _localMode = true;
   bool _busy = false;
+  bool _checkingStatus = false;
+  Timer? _statusTimer;
+
+  DesktopSubStoreManager get _desktopManager =>
+      widget.desktopManager ?? desktopSubStoreManager;
 
   @override
   void initState() {
     super.initState();
     unawaited(_load());
+    if (system.isDesktop) {
+      _statusTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+        unawaited(_refreshStatus());
+      });
+    }
+  }
+
+  Future<void> _refreshStatus() async {
+    if (_busy || _checkingStatus || !_localMode) return;
+    _checkingStatus = true;
+    try {
+      final status = await _desktopManager.getStatus();
+      if (mounted && !_busy) setState(() => _status = status);
+    } catch (_) {
+      if (mounted && !_busy) {
+        setState(() => _status = null);
+      }
+    } finally {
+      _checkingStatus = false;
+    }
   }
 
   Future<void> _load() async {
@@ -33,7 +60,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
       if (system.isAndroid) {
         status = await subStoreService.status();
       } else {
-        status = await desktopSubStoreManager.getStatus();
+        status = await _desktopManager.getStatus();
       }
     } catch (_) {}
     if (!mounted) return;
@@ -46,6 +73,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
 
   @override
   void dispose() {
+    _statusTimer?.cancel();
     _remoteUrlController.dispose();
     super.dispose();
   }
@@ -54,7 +82,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
     if (_localMode) {
       return _status?.endpoint ??
           (system.isDesktop
-              ? desktopSubStoreManager.status.endpoint
+              ? _desktopManager.status.endpoint
               : 'http://127.0.0.1:3001');
     }
     return _remoteUrlController.text.trim().replaceFirst(RegExp(r'/+$'), '');
@@ -90,10 +118,11 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
           }
         }
       } else {
-        if (status?.isRunning == true) {
-          status = await desktopSubStoreManager.stop();
+        status = await _desktopManager.getStatus();
+        if (status.isRunning) {
+          status = await _desktopManager.stop();
         } else {
-          status = await desktopSubStoreManager.start();
+          status = await _desktopManager.start();
         }
       }
 
@@ -159,7 +188,19 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
     if (mounted) setState(() {});
   }
 
-  void _openConsole() {
+  Future<void> _openConsole() async {
+    if (_localMode && system.isDesktop) {
+      try {
+        final status = await _desktopManager.getStatus();
+        if (!mounted) return;
+        setState(() => _status = status);
+      } catch (_) {
+        if (mounted) {
+          context.showNotifier(context.appLocalizations.subStoreFailed);
+        }
+        return;
+      }
+    }
     final endpoint = _activeEndpointUri;
     if (endpoint == null) {
       context.showNotifier(context.appLocalizations.subStoreInvalidEndpoint);
@@ -172,7 +213,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
     final uri = Uri.parse(
       'https://sub-store.vercel.app',
     ).replace(queryParameters: {'api': endpoint.toString()});
-    dialogs.openUrl(uri.toString());
+    await dialogs.openUrl(uri.toString());
   }
 
   String _statusLabel() {

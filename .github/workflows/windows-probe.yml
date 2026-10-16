@@ -75,7 +75,7 @@ jobs:
         run: flutter test test/views/desktop_shared_core_integration_test.dart
 
       - name: Run Desktop Sub-Store Lifecycle Tests
-        run: flutter test test/views/sub_store_backend_service_test.dart test/providers/system_action_test.dart
+        run: flutter test test/views/sub_store_backend_service_test.dart test/views/sub_store_status_test.dart test/providers/system_action_test.dart
 
       - name: Run Core Setup and TUN Authorization Tests
         run: flutter test test/providers/setup_action_test.dart
