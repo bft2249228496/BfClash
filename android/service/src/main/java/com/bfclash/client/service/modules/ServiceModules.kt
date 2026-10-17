@@ -28,7 +28,7 @@ internal class ServiceModules(
             NotificationModule(service, nextScope),
             NetworkObserveModule(service, recoverTunnel),
             SuspendModule(service, nextScope),
-        ) + listOfNotNull(recoverTunnel?.let { TunnelHealthModule(nextScope, it) })
+        ) + listOfNotNull(recoverTunnel?.let { TunnelHealthModule(service, nextScope, it) })
         val startedModules = mutableListOf<ServiceModule>()
 
         try {

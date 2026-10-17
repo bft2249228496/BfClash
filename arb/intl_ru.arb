@@ -641,5 +641,8 @@
   "subStoreFailed": "Сбой сервера Sub-Store",
   "subStoreStartFailed": "Не удалось запустить сервер Sub-Store",
   "subStoreStartFirst": "Сначала запустите сервер на устройстве",
-  "subStoreAndroidOnly": "Сервер на устройстве доступен только на Android"
+  "subStoreAndroidOnly": "Сервер на устройстве доступен только на Android",
+  "pauseDownloadAndReturn": "Приостановить и вернуться",
+  "resumeUpdateDownloadHint": "Загруженные данные сохранятся. При необходимости смените узел и снова проверьте обновления, чтобы продолжить.",
+  "restartUpdateDownloadHint": "Можно сменить узел и повторить попытку. Источник не предоставляет контрольную сумму, поэтому загрузка начнётся заново."
 }

@@ -358,6 +358,44 @@ void main() {
     });
   });
 
+  test(
+    'background UI stops statistics polling without stopping the core',
+    () async {
+      markInitialized();
+      await action.setRunning(true);
+      final traffic =
+          container.read(commonActionProvider.notifier) as TestCommonAction;
+      final initial = traffic.trafficUpdates;
+      action.updateTrafficVisibility(false);
+      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      expect(traffic.trafficUpdates, initial);
+      expect(action.coreRunningCalls, [true]);
+      expect(container.read(runTimeProvider), isNotNull);
+      action.updateTrafficVisibility(true);
+      expect(traffic.trafficUpdates, initial + 1);
+      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      expect(traffic.trafficUpdates, greaterThanOrEqualTo(initial + 2));
+      await action.setRunning(false);
+    },
+  );
+
+  test(
+    'starting while backgrounded defers UI polling until foreground',
+    () async {
+      markInitialized();
+      action.updateTrafficVisibility(false);
+      await action.setRunning(true);
+      final traffic =
+          container.read(commonActionProvider.notifier) as TestCommonAction;
+      await Future<void>.delayed(const Duration(milliseconds: 1100));
+      expect(traffic.trafficUpdates, 0);
+      expect(action.coreRunningCalls, [true]);
+      action.updateTrafficVisibility(true);
+      expect(traffic.trafficUpdates, 1);
+      await action.setRunning(false);
+    },
+  );
+
   group('requestAdmin', () {
     test('never asks for authorization while tun is disabled', () async {
       expect(await action.requestAdmin(false), isTrue);

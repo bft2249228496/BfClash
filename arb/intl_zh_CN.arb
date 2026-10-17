@@ -641,5 +641,8 @@
   "subStoreFailed": "Sub-Store 后端运行失败",
   "subStoreStartFailed": "无法启动 Sub-Store 后端",
   "subStoreStartFirst": "请先启动安卓本机后端",
-  "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用"
+  "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用",
+  "pauseDownloadAndReturn": "暂停并返回",
+  "resumeUpdateDownloadHint": "保留已下载内容；可先切换节点，再次检查更新即可继续下载。",
+  "restartUpdateDownloadHint": "可返回切换节点再试；此下载源未提供校验值，继续时将安全地重新下载。"
 }

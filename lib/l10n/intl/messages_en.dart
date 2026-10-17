@@ -750,6 +750,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage(
+      "Pause and return",
+    ),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Choose from album"),
     "pinWindow": MessageLookupByLibrary.simpleMessage("Pin window"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(
@@ -875,6 +878,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartCoreTip": MessageLookupByLibrary.simpleMessage(
       "Are you sure you want to restart the core?",
     ),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "You can switch nodes and retry. This source has no checksum, so the download will restart safely.",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("Restore"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage("Restore all data"),
     "restoreException": MessageLookupByLibrary.simpleMessage("Restore error"),
@@ -894,6 +900,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("Override"),
     "restoreSuccess": MessageLookupByLibrary.simpleMessage(
       "Restore successful",
+    ),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
     ),
     "routeAddress": MessageLookupByLibrary.simpleMessage("Route addresses"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(

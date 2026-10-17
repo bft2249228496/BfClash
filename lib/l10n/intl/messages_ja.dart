@@ -617,6 +617,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("パレット"),
     "password": MessageLookupByLibrary.simpleMessage("パスワード"),
     "paste": MessageLookupByLibrary.simpleMessage("貼り付け"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage("一時停止して戻る"),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("アルバムから選択"),
     "pinWindow": MessageLookupByLibrary.simpleMessage("最前面に固定"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage("WebDAVを連携してください"),
@@ -722,6 +723,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "restart": MessageLookupByLibrary.simpleMessage("再起動"),
     "restartCoreTip": MessageLookupByLibrary.simpleMessage("コアを再起動してもよろしいですか？"),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "ノードを切り替えて再試行できます。この配信元にはチェックサムがないため、安全のため最初からダウンロードします。",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("復元"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage("すべてのデータを復元"),
     "restoreException": MessageLookupByLibrary.simpleMessage("復元エラー"),
@@ -736,6 +740,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreStrategyCompatible": MessageLookupByLibrary.simpleMessage("互換"),
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("上書き"),
     "restoreSuccess": MessageLookupByLibrary.simpleMessage("復元が完了しました"),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "ダウンロード済みのデータを保持します。必要に応じてノードを切り替え、再度更新を確認すると続行できます。",
+    ),
     "routeAddress": MessageLookupByLibrary.simpleMessage("ルートアドレス"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(
       "リッスンするルートアドレスを設定します",

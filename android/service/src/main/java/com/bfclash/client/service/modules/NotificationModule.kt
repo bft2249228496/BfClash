@@ -21,11 +21,7 @@ import com.bfclash.client.service.ServiceConfig
 import com.bfclash.client.service.models.NotificationParams
 import com.bfclash.client.service.models.getSpeedTrafficText
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -61,18 +57,8 @@ internal class NotificationModule(
                 emit(isScreenOn())
             }
 
-            combine(
-                flow {
-                    while (true) {
-                        delay(1_000)
-                        emit(Unit)
-                    }
-                },
-                ServiceConfig.notificationParams,
-                screenFlow,
-            ) { _, params, screenOn ->
-                params.takeIf { screenOn }?.extended
-            }.filterNotNull()
+            screenOnUpdates(screenFlow, ServiceConfig.notificationParams)
+                .map { it.extended }
                 .distinctUntilChanged()
                 .collect(::update)
         }

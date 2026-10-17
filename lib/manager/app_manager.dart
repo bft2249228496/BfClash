@@ -74,6 +74,11 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     commonPrint.log('$state');
+    if (system.isAndroid) {
+      ref
+          .read(setupActionProvider.notifier)
+          .updateTrafficVisibility(state == AppLifecycleState.resumed);
+    }
     if (state == AppLifecycleState.resumed) {
       permissions.check(ref.read);
       render?.resume();

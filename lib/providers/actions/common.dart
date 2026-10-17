@@ -4,6 +4,7 @@ part of '../action.dart';
 class CommonAction extends _$CommonAction {
   CoreController get _core => ref.read(coreHandlerProvider);
   bool _isUpdatingTraffic = false;
+  bool _installingUpdate = false;
 
   @override
   void build() {}
@@ -169,6 +170,7 @@ class CommonAction extends _$CommonAction {
       final isAndroid = system.isAndroid;
       final currentVer = globalState.packageInfo.version;
       final assetInfo = isAndroid ? await androidUpdateAssetInfo(data) : null;
+      if (!context.mounted) return;
 
       final res = await dialogs.showMessage(
         title: currentAppLocalizations.discoverNewVersion,
@@ -224,7 +226,9 @@ class CommonAction extends _$CommonAction {
       return;
     }
     final context = globalState.navigatorKey.currentContext!;
-    if (!context.mounted) return;
+    if (!context.mounted || _installingUpdate) return;
+    _installingUpdate = true;
+    final downloadCancel = CancelToken();
     final progress = ValueNotifier<UpdateDownloadProgress?>(null);
     final colorScheme = context.colorScheme;
     final dialogFuture = showDialog<void>(
@@ -319,6 +323,24 @@ class CommonAction extends _$CommonAction {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            downloadCancel.cancel('paused by user'),
+                        icon: const Icon(Icons.pause_rounded),
+                        label: Text(
+                          currentAppLocalizations.pauseDownloadAndReturn,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      asset?.sha256Digest != null
+                          ? currentAppLocalizations.resumeUpdateDownloadHint
+                          : currentAppLocalizations.restartUpdateDownloadHint,
+                      style: context.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -349,16 +371,21 @@ class CommonAction extends _$CommonAction {
         ),
       ),
     );
+    var downloadDialogClosed = false;
     try {
       final file = await downloadAndroidUpdate(
         request.clashDio,
         url,
+        expectedSize: asset?.size ?? 0,
+        sha256Digest: asset?.sha256Digest,
+        cancelToken: downloadCancel,
         onUpdateProgress: (info) {
           progress.value = info;
         },
       );
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
       await dialogFuture;
+      downloadDialogClosed = true;
       final installed = await app?.installApk(file.path) ?? false;
       if (!installed) {
         await launchUrl(
@@ -366,8 +393,11 @@ class CommonAction extends _$CommonAction {
         );
       }
     } catch (error) {
-      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-      await dialogFuture;
+      if (!downloadDialogClosed) {
+        if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+        await dialogFuture;
+      }
+      if (error is DioException && CancelToken.isCancel(error)) return;
       commonPrint.log(
         'Android update failed: ${compactError(error)}',
         logLevel: LogLevel.warning,
@@ -377,6 +407,7 @@ class CommonAction extends _$CommonAction {
         level: MessageLevel.error,
       );
     } finally {
+      _installingUpdate = false;
       progress.dispose();
     }
   }
