@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
   static String m0(code) =>
-      "Windows が BfClashCore.exe の実行を拒否しました（エラー ${code}）。スマート アプリ コントロールや AppLocker などのアプリ制御ポリシーは未署名のプログラムをブロックします。ポリシーで BfClash を許可するか、ポリシーを無効にしてから再試行してください。";
+      "Windows が BfClashCore.exe の実行を拒否しました（エラー ${code}）。信頼された署名付きビルド、または既存のアプリ制御ポリシーに沿った管理者の確認が必要です。操作は完了していません。";
 
   static String m1(name) =>
       "アプリの起動が2回連続で完了しませんでした。クラッシュループを断ち切るため、プロファイル ${name} の選択を解除し、今回の自動セットアップをスキップしました。いつでも選択し直せます。";
@@ -533,6 +533,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "logsTest": MessageLookupByLibrary.simpleMessage("ログテスト"),
     "loopback": MessageLookupByLibrary.simpleMessage("ループバック解除ツール"),
     "loopbackDesc": MessageLookupByLibrary.simpleMessage("UWPのループバック解除に使用します"),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows がループバックツールを開けませんでした。承認がキャンセルされたか、アプリ制御によってブロックされた可能性があります。ツールのファイルが存在することを確認してください。",
+    ),
     "loose": MessageLookupByLibrary.simpleMessage("ゆったり"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage("送信元IPにマッチ"),
     "matchTarget": MessageLookupByLibrary.simpleMessage("MATCH-TARGET"),

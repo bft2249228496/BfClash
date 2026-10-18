@@ -28,6 +28,7 @@ export 'lock.dart';
 export 'measure.dart';
 export 'mixin.dart';
 export 'navigator.dart';
+export 'loopback.dart';
 export 'network.dart';
 export 'num.dart';
 export 'package.dart';

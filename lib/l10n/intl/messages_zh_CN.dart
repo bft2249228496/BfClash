@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
   static String m0(code) =>
-      "Windows 拒绝运行 BfClashCore.exe（错误 ${code}）。智能应用控制、AppLocker 等应用控制策略会拦截未签名程序，请在该策略中放行 BfClash 或关闭策略后重试。";
+      "Windows 拒绝运行 BfClashCore.exe（错误 ${code}）。需要受信任签名的版本，或由管理员按现有应用控制策略处理。当前操作未完成。";
 
   static String m1(name) =>
       "应用连续两次未能完成启动。为打断崩溃循环，已取消选中配置 ${name}，并跳过本次自动配置，你可以随时重新选中它。";
@@ -465,6 +465,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "logsTest": MessageLookupByLibrary.simpleMessage("日志测试"),
     "loopback": MessageLookupByLibrary.simpleMessage("回环解锁工具"),
     "loopbackDesc": MessageLookupByLibrary.simpleMessage("用于UWP回环解锁"),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows 未能打开回环工具，可能已取消授权或被应用控制阻止。请确认工具文件存在。",
+    ),
     "loose": MessageLookupByLibrary.simpleMessage("宽松"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage("匹配来源IP"),
     "matchTarget": MessageLookupByLibrary.simpleMessage("MATCH-TARGET"),

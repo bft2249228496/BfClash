@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
   static String m0(code) =>
-      "Windows отказалась запускать BfClashCore.exe (ошибка ${code}). Политики контроля приложений, такие как Smart App Control или AppLocker, блокируют неподписанные программы; разрешите BfClash в этой политике или отключите её и повторите попытку.";
+      "Windows отказалась запускать BfClashCore.exe (ошибка ${code}). Требуется сборка с доверенной подписью или проверка администратором в рамках действующей политики контроля приложений. Операция не завершена.";
 
   static String m1(name) =>
       "Приложение два раза подряд не смогло завершить запуск. Чтобы разорвать цикл, профиль ${name} снят с выбора, а автоматическая настройка пропущена. Вы можете выбрать его снова в любой момент.";
@@ -665,6 +665,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "loopbackDesc": MessageLookupByLibrary.simpleMessage(
       "Для снятия ограничения loopback у UWP-приложений",
+    ),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows не открыла инструмент обратной петли. Разрешение могло быть отменено, либо запуск заблокирован контролем приложений. Проверьте наличие файла инструмента.",
     ),
     "loose": MessageLookupByLibrary.simpleMessage("Свободный"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage(

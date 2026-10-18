@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
   static String m0(code) =>
-      "Windows refused to run BfClashCore.exe (error ${code}). An app control policy such as Smart App Control or AppLocker blocks unsigned programs; allow BfClash in that policy or turn it off, then try again.";
+      "Windows refused to run BfClashCore.exe (error ${code}). A trusted signed build or an administrator review under the existing application control policy is required. The operation did not complete.";
 
   static String m1(name) =>
       "The app failed to finish launching twice in a row. To break the loop, the profile ${name} has been deselected and automatic setup was skipped. You can select it again at any time.";
@@ -649,6 +649,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "loopback": MessageLookupByLibrary.simpleMessage("Loopback unlock tool"),
     "loopbackDesc": MessageLookupByLibrary.simpleMessage(
       "Used for UWP loopback exemption",
+    ),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows did not open the loopback tool. Authorization may have been cancelled or application control may have blocked it. Check that the tool file is present.",
     ),
     "loose": MessageLookupByLibrary.simpleMessage("Loose"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage("Match source IP"),

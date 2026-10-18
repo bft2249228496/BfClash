@@ -1685,6 +1685,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Windows did not open the loopback tool. Authorization may have been cancelled or application control may have blocked it. Check that the tool file is present.`
+  String get loopbackLaunchFailed {
+    return Intl.message(
+      'Windows did not open the loopback tool. Authorization may have been cancelled or application control may have blocked it. Check that the tool file is present.',
+      name: 'loopbackLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `External resources`
   String get providers {
     return Intl.message(
@@ -3760,10 +3770,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Windows refused to run BfClashCore.exe (error {code}). An app control policy such as Smart App Control or AppLocker blocks unsigned programs; allow BfClash in that policy or turn it off, then try again.`
+  /// `Windows refused to run BfClashCore.exe (error {code}). A trusted signed build or an administrator review under the existing application control policy is required. The operation did not complete.`
   String coreBlockedByPolicyTip(Object code) {
     return Intl.message(
-      'Windows refused to run BfClashCore.exe (error $code). An app control policy such as Smart App Control or AppLocker blocks unsigned programs; allow BfClash in that policy or turn it off, then try again.',
+      'Windows refused to run BfClashCore.exe (error $code). A trusted signed build or an administrator review under the existing application control policy is required. The operation did not complete.',
       name: 'coreBlockedByPolicyTip',
       desc: '',
       args: [code],

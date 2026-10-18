@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/state.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/views/about.dart';
@@ -14,7 +13,6 @@ import 'package:bfclash/widgets/widgets.dart';
 import 'package:bfclash/widgets/locale_setting_item.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart' show dirname, join;
 
 import 'config/advanced.dart';
 import 'developer.dart';
@@ -184,12 +182,7 @@ class _LoopbackItem extends StatelessWidget {
       leading: const Icon(Icons.lock),
       title: Text(context.appLocalizations.loopback),
       subtitle: Text(context.appLocalizations.loopbackDesc),
-      onTap: () {
-        windows?.runas(
-          '"${join(dirname(Platform.resolvedExecutable), "EnableLoopback.exe")}"',
-          '',
-        );
-      },
+      onTap: () => globalState.safeRun<void>(launchLoopbackTool),
     );
   }
 }

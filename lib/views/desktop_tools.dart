@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/state.dart';
 import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/views/about.dart';
 import 'package:bfclash/views/resources.dart';
@@ -16,7 +15,6 @@ import 'package:bfclash/views/theme.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:path/path.dart' show dirname, join;
 
 class DesktopToolsView extends ConsumerStatefulWidget {
   const DesktopToolsView({super.key});
@@ -113,12 +111,7 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
                   title: Text(appLocalizations.loopback),
                   subtitle: Text(appLocalizations.loopbackDesc),
                   trailing: const Icon(Icons.arrow_outward, size: 18),
-                  onTap: () {
-                    windows?.runas(
-                      '"${join(dirname(Platform.resolvedExecutable), "EnableLoopback.exe")}"',
-                      '',
-                    );
-                  },
+                  onTap: () => globalState.safeRun<void>(launchLoopbackTool),
                 ),
               ListHeader(title: appLocalizations.other),
               _buildMenuItem(
