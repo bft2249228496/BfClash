@@ -152,6 +152,32 @@ class _ProfilesGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (system.isDesktop) {
+      return Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1120),
+          child: ListView.separated(
+            key: profilesStoreKey,
+            padding: EdgeInsets.fromLTRB(
+              20,
+              16,
+              20,
+              16 + BottomInsetScope.of(context),
+            ),
+            itemCount: profiles.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, index) => ProfileItem(
+              profile: profiles[index],
+              groupValue: currentProfileId,
+              onChanged: (profileId) {
+                ref.read(currentProfileIdProvider.notifier).value = profileId;
+              },
+            ),
+          ),
+        ),
+      );
+    }
     return LayoutBuilder(
       builder: (_, constraints) {
         final columns = getProfilesColumns(
@@ -403,14 +429,31 @@ class ProfileItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CommonCard(
       enterActionsOnRight: true,
-      radius: AppCorner.xl,
+      radius: system.isDesktop ? AppCorner.lg : AppCorner.xl,
       isSelected: profile.id == groupValue,
       onPressed: () {
         onChanged(profile.id);
       },
       child: ListItem(
         key: Key(profile.id.toString()),
-        horizontalTitleGap: 8,
+        horizontalTitleGap: system.isDesktop ? 16 : 8,
+        leading: system.isDesktop
+            ? Container(
+                padding: const EdgeInsets.all(12),
+                decoration: ShapeDecoration(
+                  color: context.colorScheme.primary.withValues(alpha: 0.10),
+                  shape: AppShape.sm,
+                ),
+                child: Icon(
+                  profile.id == groupValue
+                      ? Icons.check_circle_outline
+                      : profile.type == ProfileType.url
+                      ? Icons.cloud_outlined
+                      : Icons.description_outlined,
+                  color: context.colorScheme.primary,
+                ),
+              )
+            : null,
         minVerticalPadding: 12,
         padding: const EdgeInsets.only(left: 16, right: 6),
         trailing: SizedBox(
@@ -482,7 +525,11 @@ class _ProfileCardTitle extends StatelessWidget {
             return Text(
               profile.realLabel,
               style: context.textTheme.titleMedium?.copyWith(
-                color: isDark ? const Color(0xFFC7D2FE) : null,
+                color: system.isDesktop
+                    ? context.colorScheme.onSurface
+                    : isDark
+                    ? const Color(0xFFC7D2FE)
+                    : null,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,

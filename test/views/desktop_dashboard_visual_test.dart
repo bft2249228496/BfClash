@@ -11,6 +11,9 @@ import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/desktop_dashboard.dart';
 import 'package:bfclash/views/desktop_tools.dart';
+import 'package:bfclash/views/profiles/profiles.dart';
+import 'package:bfclash/views/proxies/proxies.dart';
+import 'package:bfclash/views/proxies/card.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +22,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../helpers/fixed_network_detection.dart';
 import '../helpers/test_app.dart';
+import '../helpers/test_profiles.dart';
 
 void main() {
   setUpAll(() async {
@@ -39,7 +43,7 @@ void main() {
       }
     }
   });
-  for (final screen in ['desktop', 'tools']) {
+  for (final screen in ['desktop', 'tools', 'profiles', 'proxies']) {
     for (final width in [900.0, 1400.0]) {
       for (final brightness in Brightness.values) {
         testWidgets('$screen overview at $width in ${brightness.name}', (
@@ -49,8 +53,61 @@ void main() {
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
+          final profiles = [
+            Profile.normal(
+              label: 'Personal subscription',
+              url: 'https://example.test/sub',
+            ).copyWith(
+              subscriptionInfo: const SubscriptionInfo(
+                upload: 1024,
+                download: 2048,
+                total: 8192,
+                expire: 1893456000,
+              ),
+            ),
+            Profile.normal(label: 'Local configuration'),
+          ];
+          const groups = [
+            Group(
+              type: GroupType.Selector,
+              name: 'PROXY',
+              now: 'Example node',
+              all: [
+                Proxy(name: 'Example node', type: 'ss'),
+                Proxy(name: 'Backup node', type: 'trojan'),
+                Proxy(name: 'DIRECT', type: 'Direct'),
+              ],
+            ),
+            Group(
+              type: GroupType.Selector,
+              name: 'Streaming',
+              now: 'DIRECT',
+              all: [Proxy(name: 'DIRECT', type: 'Direct')],
+            ),
+          ];
           final container = ProviderContainer(
             overrides: [
+              if (screen == 'profiles' || screen == 'proxies') ...[
+                profilesProvider.overrideWith(() => TestProfiles(profiles)),
+                currentProfileIdProvider.overrideWithBuild(
+                  (_, _) => profiles.first.id,
+                ),
+              ],
+              if (screen == 'proxies') ...[
+                proxiesStyleSettingProvider.overrideWithBuild(
+                  (_, _) => const ProxiesStyleProps(type: ProxiesType.tab),
+                ),
+                currentGroupsStateProvider.overrideWithValue(
+                  const GroupsState(value: groups),
+                ),
+                proxiesTabStateProvider.overrideWith(
+                  (ref) => const ProxiesTabState(
+                    groups: groups,
+                    currentGroupName: 'PROXY',
+                    proxyCardType: ProxyCardType.expand,
+                  ),
+                ),
+              ],
               navigationItemsStateProvider.overrideWithValue(
                 NavigationItemsState(
                   value: navigation.getItems(openLogs: true, hasProxies: true),
@@ -70,11 +127,14 @@ void main() {
           container.read(viewSizeProvider.notifier).value = Size(width, 1000);
           navigationPort = navigation;
           addTearDown(() => navigationPort = null);
-          container
-              .read(currentPageLabelProvider.notifier)
-              .toPage(
-                screen == 'desktop' ? PageLabel.dashboard : PageLabel.tools,
-              );
+          container.read(currentPageLabelProvider.notifier).toPage(
+            switch (screen) {
+              'desktop' => PageLabel.dashboard,
+              'profiles' => PageLabel.profiles,
+              'proxies' => PageLabel.proxies,
+              _ => PageLabel.tools,
+            },
+          );
           const key = ValueKey('desktop-preview');
           await tester.pumpWidget(
             UncontrolledProviderScope(
@@ -93,9 +153,12 @@ void main() {
                 child: RepaintBoundary(
                   key: key,
                   child: AppSidebarContainer(
-                    child: screen == 'desktop'
-                        ? const DesktopDashboardView()
-                        : const DesktopToolsView(),
+                    child: switch (screen) {
+                      'desktop' => const DesktopDashboardView(),
+                      'profiles' => const ProfilesView(),
+                      'proxies' => const ProxiesView(),
+                      _ => const DesktopToolsView(),
+                    },
                   ),
                 ),
               ),
@@ -110,6 +173,20 @@ void main() {
               find.byIcon(Icons.power_settings_new_rounded),
               findsOneWidget,
             );
+          } else if (screen == 'proxies') {
+            expect(find.byType(ProxyCard), findsWidgets);
+            if (width >= 1400) {
+              expect(
+                find.byKey(const ValueKey('desktop-proxy-group-Streaming')),
+                findsOneWidget,
+              );
+            } else {
+              expect(find.byType(TabBar), findsOneWidget);
+            }
+          } else if (screen == 'profiles') {
+            expect(find.text('Personal subscription'), findsOneWidget);
+            expect(find.text('Local configuration'), findsOneWidget);
+            expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
           } else {
             expect(find.text('Sub-Store'), findsWidgets);
             expect(find.text('Backup and restore'), findsWidgets);
