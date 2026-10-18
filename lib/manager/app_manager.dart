@@ -157,11 +157,13 @@ class _SidebarRail extends StatelessWidget {
         Expanded(
           child: NavigationRail(
             scrollable: true,
-            minExtendedWidth: 236,
-            minWidth: 76,
+            minExtendedWidth: system.isDesktop ? 236 : 200,
+            minWidth: system.isDesktop ? 76 : null,
             groupAlignment: -1,
-            indicatorShape: AppShape.sm,
-            indicatorColor: context.colorScheme.primary.withValues(alpha: 0.14),
+            indicatorShape: system.isDesktop ? AppShape.sm : null,
+            indicatorColor: system.isDesktop
+                ? context.colorScheme.primary.withValues(alpha: 0.14)
+                : null,
             backgroundColor: Colors.transparent,
             selectedLabelTextStyle: labelStyle,
             unselectedLabelTextStyle: labelStyle,

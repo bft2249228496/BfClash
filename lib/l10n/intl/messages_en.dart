@@ -384,6 +384,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Relies on a third-party API; for reference only",
     ),
     "developerMode": MessageLookupByLibrary.simpleMessage("Developer mode"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Debugging and advanced status monitoring",
+    ),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage(
       "Developer mode is enabled.",
     ),

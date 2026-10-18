@@ -309,10 +309,12 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
     ];
     return CommonScaffold(
       title: context.appLocalizations.subStoreTitle,
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (_, index) => items[index],
-      ),
+      body: system.isDesktop
+          ? generateListView(items)
+          : ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (_, index) => items[index],
+            ),
     );
   }
 }

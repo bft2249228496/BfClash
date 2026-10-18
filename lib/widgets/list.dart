@@ -656,9 +656,67 @@ List<Widget> generateInfoSection({
 }
 
 Widget generateListView(List<Widget> items) {
+  if (system.isDesktop) return _DesktopSettingsList(items: items);
   return ListView.builder(
     itemCount: items.length,
     itemBuilder: (_, index) => items[index],
     padding: const EdgeInsets.only(bottom: 16),
   );
+}
+
+class _DesktopSettingsList extends StatelessWidget {
+  const _DesktopSettingsList({required this.items});
+
+  final List<Widget> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final sections = <Widget>[];
+    var group = <Widget>[];
+    void flush() {
+      if (group.isEmpty) return;
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Material(
+            color: context.colorScheme.surfaceContainerLow,
+            shape: RoundedSuperellipseBorder(
+              borderRadius: AppRadius.lg,
+              side: BorderSide(
+                color: context.colorScheme.outlineVariant.withValues(
+                  alpha: 0.5,
+                ),
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: group,
+            ),
+          ),
+        ),
+      );
+      group = <Widget>[];
+    }
+
+    for (final item in items) {
+      if (item is ListHeader) {
+        flush();
+        sections.add(item);
+      } else {
+        group.add(item);
+      }
+    }
+    flush();
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1120),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          children: sections,
+        ),
+      ),
+    );
+  }
 }

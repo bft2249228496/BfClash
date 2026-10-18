@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/views/about.dart';
 import 'package:bfclash/views/resources.dart';
 import 'package:bfclash/widgets/locale_setting_item.dart';
@@ -129,7 +130,7 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
               ),
               _buildMenuItem(
                 title: appLocalizations.developerMode,
-                subtitle: '调试与高级状态监测',
+                subtitle: appLocalizations.developerModeDesc,
                 icon: Icons.developer_mode,
                 target: const DeveloperView(),
                 isWide: isWide,
@@ -141,7 +142,7 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 380, child: listMenu),
+                SizedBox(width: 304, child: listMenu),
                 VerticalDivider(
                   width: 1,
                   color: context.colorScheme.outlineVariant.withValues(
@@ -170,47 +171,69 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
     final isSelected =
         isWide && _selectedWidget.runtimeType == target.runtimeType;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      child: Material(
-        color: isSelected
-            ? context.colorScheme.secondaryContainer.withValues(alpha: 0.5)
-            : Colors.transparent,
-        borderRadius: AppRadius.md,
-        clipBehavior: Clip.antiAlias,
-        child: ListItem(
-          leading: Icon(icon, color: iconColor ?? context.colorScheme.primary),
-          title: Text(
-            title,
-            style: TextStyle(
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected
-                  ? context.colorScheme.onSecondaryContainer
-                  : null,
+    return Tooltip(
+      message: isWide ? subtitle : '',
+      child: Container(
+        decoration: ShapeDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: desktopAccentGradient(context).colors
+                      .map((color) => color.withValues(alpha: 0.12))
+                      .toList(),
+                )
+              : null,
+          shape: AppShape.md,
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: AppRadius.md,
+          clipBehavior: Clip.antiAlias,
+          child: ListItem(
+            leading: Container(
+              padding: const EdgeInsets.all(7),
+              decoration: ShapeDecoration(
+                color: context.colorScheme.primary.withValues(
+                  alpha: isSelected ? 0.14 : 0.06,
+                ),
+                shape: AppShape.sm,
+              ),
+              child: Icon(
+                icon,
+                size: 18,
+                color: iconColor ?? context.colorScheme.primary,
+              ),
             ),
+            title: Text(
+              title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? context.colorScheme.onSecondaryContainer
+                    : null,
+              ),
+            ),
+            subtitle: isWide
+                ? null
+                : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: isWide
+                ? (isSelected
+                      ? Icon(
+                          Icons.chevron_right,
+                          color: context.colorScheme.primary,
+                        )
+                      : null)
+                : const Icon(Icons.chevron_right),
+            onTap: () {
+              if (isWide) {
+                _selectView(target);
+              } else {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => target));
+              }
+            },
           ),
-          subtitle: Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: isWide
-              ? (isSelected
-                    ? Icon(
-                        Icons.chevron_right,
-                        color: context.colorScheme.primary,
-                      )
-                    : null)
-              : const Icon(Icons.chevron_right),
-          onTap: () {
-            if (isWide) {
-              _selectView(target);
-            } else {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => target));
-            }
-          },
         ),
       ),
     );

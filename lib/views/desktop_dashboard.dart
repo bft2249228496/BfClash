@@ -4,6 +4,8 @@ import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart' hide NetworkDetection;
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/dashboard/widgets/core_status_button.dart';
+import 'package:bfclash/views/backup_and_restore.dart';
+import 'package:bfclash/views/sub_store.dart';
 import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
 import 'package:bfclash/views/dashboard/widgets/network_detection.dart';
 import 'package:bfclash/views/dashboard/widgets/outbound_mode.dart';
@@ -294,18 +296,22 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                   avatar: const Icon(Icons.cloud_sync, size: 16),
                   label: Text(appLocalizations.backupAndRestore),
                   onPressed: () {
-                    ref
-                        .read(currentPageLabelProvider.notifier)
-                        .toPage(PageLabel.tools);
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const BackupAndRestore(),
+                      ),
+                    );
                   },
                 ),
                 ActionChip(
                   avatar: const Icon(Icons.hub, size: 16),
                   label: Text(appLocalizations.subStoreTitle),
                   onPressed: () {
-                    ref
-                        .read(currentPageLabelProvider.notifier)
-                        .toPage(PageLabel.tools);
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SubStoreView(),
+                      ),
+                    );
                   },
                 ),
                 ActionChip(

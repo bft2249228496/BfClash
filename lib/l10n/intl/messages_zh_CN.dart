@@ -276,6 +276,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "details": m6,
     "detectionTip": MessageLookupByLibrary.simpleMessage("依赖第三方api，仅供参考"),
     "developerMode": MessageLookupByLibrary.simpleMessage("开发者模式"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage("调试与高级状态监测"),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage("开发者模式已启用。"),
     "direct": MessageLookupByLibrary.simpleMessage("直连"),
     "disableUDP": MessageLookupByLibrary.simpleMessage("禁用UDP"),

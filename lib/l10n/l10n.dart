@@ -5449,6 +5449,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Debugging and advanced status monitoring`
+  String get developerModeDesc {
+    return Intl.message(
+      'Debugging and advanced status monitoring',
+      name: 'developerModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

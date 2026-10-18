@@ -8,6 +8,7 @@ import 'package:bfclash/views/config/config.dart';
 import 'package:bfclash/views/desktop_dashboard.dart';
 import 'package:bfclash/views/desktop_tools.dart';
 import 'package:bfclash/views/navigation.dart';
+import 'package:bfclash/views/sub_store.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -228,8 +229,10 @@ void main() {
         await tester.ensureVisible(backupChip);
         await tester.pumpAndSettle();
         await tester.tap(backupChip);
-        await tester.pump();
-        expect(container.read(currentPageLabelProvider), PageLabel.tools);
+        await tester.pumpAndSettle();
+        expect(find.byType(BackupAndRestore), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BackupAndRestore))).pop();
+        await tester.pumpAndSettle();
 
         container
             .read(currentPageLabelProvider.notifier)
@@ -240,8 +243,11 @@ void main() {
         await tester.ensureVisible(subStoreChip);
         await tester.pumpAndSettle();
         await tester.tap(subStoreChip);
-        await tester.pump();
-        expect(container.read(currentPageLabelProvider), PageLabel.tools);
+        await tester.pumpAndSettle();
+        expect(find.byType(SubStoreView), findsOneWidget);
+        Navigator.of(tester.element(find.byType(SubStoreView))).pop();
+        await tester.pumpAndSettle();
+        expect(find.byType(DesktopDashboardView), findsOneWidget);
       },
     );
 

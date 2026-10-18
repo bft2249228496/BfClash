@@ -652,5 +652,6 @@
   "subStorePortInUse": "The local Sub-Store port is already in use. Stop the other service and try again.",
   "pauseDownloadAndReturn": "Pause and return",
   "resumeUpdateDownloadHint": "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
-  "restartUpdateDownloadHint": "You can switch nodes and retry. This source has no checksum, so the download will restart safely."
+  "restartUpdateDownloadHint": "You can switch nodes and retry. This source has no checksum, so the download will restart safely.",
+  "developerModeDesc": "Debugging and advanced status monitoring"
 }

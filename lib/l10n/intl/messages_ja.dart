@@ -310,6 +310,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "サードパーティAPIに依存しているため、参考値です",
     ),
     "developerMode": MessageLookupByLibrary.simpleMessage("開発者モード"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage("デバッグと高度な状態監視"),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage(
       "開発者モードが有効になりました。",
     ),

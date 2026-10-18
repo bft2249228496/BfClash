@@ -392,6 +392,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Использует сторонний API; только для справки",
     ),
     "developerMode": MessageLookupByLibrary.simpleMessage("Режим разработчика"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Отладка и расширенный мониторинг состояния",
+    ),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage(
       "Режим разработчика включён.",
     ),
