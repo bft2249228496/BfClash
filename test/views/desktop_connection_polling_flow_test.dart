@@ -26,8 +26,10 @@ void main() {
         var revision = 0;
         var reads = 0;
         var received = 0;
+        var failRead = false;
         Future<List<TrackerInfo>> reader() async {
           reads++;
+          if (failRead) throw StateError('private reader failure');
           return [
             TrackerInfo(
               id: 'owned-session',
@@ -127,6 +129,35 @@ void main() {
         await tester.tap(railIcon(Icons.ballot));
         await tester.pumpAndSettle();
         expect(find.textContaining('owned-3.test'), findsWidgets);
+        await tester.tap(find.byIcon(Icons.search));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'owned-');
+        failRead = true;
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+        expect(find.byType(MaterialBanner), findsOneWidget);
+        expect(find.textContaining('owned-3.test'), findsWidgets);
+        expect(find.textContaining('private reader failure'), findsNothing);
+        expect(
+          tester.widget<TextField>(find.byType(TextField)).controller!.text,
+          'owned-',
+        );
+        failRead = false;
+        revision = 4;
+        await tester.tap(find.byTooltip('Retry'));
+        await tester.pumpAndSettle();
+        expect(find.byType(MaterialBanner), findsNothing);
+        expect(find.textContaining('owned-3.test'), findsNothing);
+        expect(find.textContaining('owned-4.test'), findsWidgets);
+        for (var tick = 0; tick < 10; tick++) {
+          received += 8192;
+          await tester.pump(const Duration(seconds: 1));
+          await tester.pumpAndSettle();
+          expect(
+            find.textContaining('${(received / 1024).toInt()}KB'),
+            findsWidgets,
+          );
+        }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump(const Duration(seconds: 2));
