@@ -77,6 +77,12 @@ jobs:
       - name: Run Desktop Sub-Store Lifecycle Tests
         run: flutter test test/views/sub_store_backend_service_test.dart test/views/sub_store_status_test.dart test/providers/system_action_test.dart
 
+      - name: Run Backup and WebDAV UI Tests
+        run: flutter test test/views/webdav_roundtrip_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart test/common/dav_client_test.dart test/common/webdav_test.dart test/common/backup_task_test.dart
+
+      - name: Run Beta WebDAV UI Roundtrip
+        run: flutter test --dart-define=APP_BETA=true test/views/webdav_roundtrip_test.dart
+
       - name: Run Core Setup and TUN Authorization Tests
         run: flutter test test/providers/setup_action_test.dart
 
