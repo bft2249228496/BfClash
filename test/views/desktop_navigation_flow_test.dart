@@ -45,6 +45,21 @@ void main() {
     test('Desktop Navigation items expose desktop specific pages', () {
       final items = navigation.getItems(openLogs: true, hasProxies: true);
       expect(items.isNotEmpty, isTrue);
+      final desktopLabels = items
+          .where((item) => item.modes.contains(NavigationItemMode.desktop))
+          .map((item) => item.label);
+      expect(
+        desktopLabels,
+        containsAll([
+          PageLabel.dashboard,
+          PageLabel.proxies,
+          PageLabel.profiles,
+          PageLabel.requests,
+          PageLabel.connections,
+          PageLabel.logs,
+          PageLabel.tools,
+        ]),
+      );
 
       final dashboardItem = items.firstWhere(
         (item) => item.label == PageLabel.dashboard,
@@ -198,14 +213,20 @@ void main() {
         expect(subStoreChip, findsOneWidget);
 
         // Unconditional tap & state transitions
+        await tester.ensureVisible(connectionsChip);
+        await tester.pumpAndSettle();
         await tester.tap(connectionsChip);
         await tester.pump();
         expect(container.read(currentPageLabelProvider), PageLabel.connections);
 
+        await tester.ensureVisible(requestsChip);
+        await tester.pumpAndSettle();
         await tester.tap(requestsChip);
         await tester.pump();
         expect(container.read(currentPageLabelProvider), PageLabel.requests);
 
+        await tester.ensureVisible(backupChip);
+        await tester.pumpAndSettle();
         await tester.tap(backupChip);
         await tester.pump();
         expect(container.read(currentPageLabelProvider), PageLabel.tools);
@@ -216,6 +237,8 @@ void main() {
         await tester.pump();
         expect(container.read(currentPageLabelProvider), PageLabel.dashboard);
 
+        await tester.ensureVisible(subStoreChip);
+        await tester.pumpAndSettle();
         await tester.tap(subStoreChip);
         await tester.pump();
         expect(container.read(currentPageLabelProvider), PageLabel.tools);

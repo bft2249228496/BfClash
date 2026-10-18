@@ -1,4 +1,5 @@
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart' hide NetworkDetection;
 import 'package:bfclash/state.dart';
@@ -36,16 +37,6 @@ class DesktopDashboardView extends ConsumerWidget {
                   Expanded(child: TUNButton()),
                 ],
               ),
-              SizedBox(height: 16),
-              NetworkSpeed(),
-            ],
-          );
-          const insights = Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              NetworkDetection(),
-              SizedBox(height: 12),
-              TrafficUsage(),
             ],
           );
           return Align(
@@ -57,24 +48,45 @@ class DesktopDashboardView extends ConsumerWidget {
                 children: [
                   const _DesktopTopStatusBar(),
                   const SizedBox(height: 24),
-                  _DesktopConnectionCard(
-                    running: running,
-                    connected: connected,
-                  ),
-                  const SizedBox(height: 20),
+                  if (wide)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 320,
+                          child: _DesktopConnectionCard(
+                            running: running,
+                            connected: connected,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: NetworkSpeed(height: 340, showRates: true),
+                        ),
+                      ],
+                    )
+                  else ...[
+                    _DesktopConnectionCard(
+                      running: running,
+                      connected: connected,
+                    ),
+                    const SizedBox(height: 16),
+                    const NetworkSpeed(height: 260, showRates: true),
+                  ],
+                  const SizedBox(height: 16),
+                  controls,
+                  const SizedBox(height: 16),
                   if (wide)
                     const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(flex: 7, child: controls),
+                        Expanded(child: NetworkDetection()),
                         SizedBox(width: 16),
-                        Expanded(flex: 5, child: insights),
+                        Expanded(child: TrafficUsage()),
                       ],
                     )
                   else ...[
                     const NetworkDetection(),
-                    const SizedBox(height: 12),
-                    controls,
                     const SizedBox(height: 12),
                     const TrafficUsage(),
                   ],
@@ -152,86 +164,89 @@ class _DesktopConnectionCard extends ConsumerWidget {
     final colors = context.colorScheme;
     final active = connected && running;
     final runtime = ref.watch(runTimeProvider);
-    return CommonCard(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final details = Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: ShapeDecoration(
-                    color: active
-                        ? colors.primaryContainer.withValues(alpha: 0.55)
-                        : colors.surfaceContainerHighest,
-                    shape: AppShape.md,
-                  ),
-                  child: Icon(
-                    active ? Icons.shield_rounded : Icons.shield_outlined,
-                    color: active ? colors.primary : colors.onSurfaceVariant,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        active ? labels.proxyRunning : labels.proxyStopped,
-                        style: context.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        runtime == null
-                            ? labels.start
-                            : '${labels.time}: ${getTimeText(runtime)}',
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-            final action = Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CoreStatusButton(),
-                const SizedBox(width: 12),
-                FilledButton.icon(
-                  onPressed: () =>
-                      ref.read(commonActionProvider.notifier).toggleRunning(),
-                  icon: Icon(
-                    running ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                    size: 20,
-                  ),
-                  label: Text(running ? labels.stop : labels.start),
-                ),
-              ],
-            );
-            if (constraints.maxWidth < 500) {
-              return Column(
+    final connecting = ref.watch(coreStatusProvider) == CoreStatus.connecting;
+    return SizedBox(
+      height: 340,
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          gradient: desktopAccentGradient(context),
+          shape: AppShape.lg,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(1),
+          child: CommonCard(
+            radius: AppCorner.lg,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  details,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          labels.dashboard,
+                          style: context.textTheme.labelMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      const CoreStatusButton(),
+                    ],
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: DecoratedBox(
+                      decoration: ShapeDecoration(
+                        gradient: desktopAccentGradient(context),
+                        shape: const CircleBorder(),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: IconButton.filled(
+                          tooltip: running ? labels.stop : labels.start,
+                          onPressed: connecting
+                              ? null
+                              : () => ref
+                                    .read(commonActionProvider.notifier)
+                                    .toggleRunning(),
+                          style: IconButton.styleFrom(
+                            fixedSize: const Size.square(96),
+                            backgroundColor: colors.surfaceContainerLow,
+                            foregroundColor: colors.primary,
+                            shape: const CircleBorder(),
+                          ),
+                          icon: const Icon(
+                            Icons.power_settings_new_rounded,
+                            size: 42,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
-                  Align(alignment: Alignment.centerRight, child: action),
+                  Text(
+                    active ? labels.proxyRunning : labels.proxyStopped,
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    runtime == null
+                        ? labels.start
+                        : '${labels.time}: ${getTimeText(runtime)}',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const Spacer(),
                 ],
-              );
-            }
-            return Row(
-              children: [
-                Expanded(child: details),
-                const SizedBox(width: 20),
-                action,
-              ],
-            );
-          },
+              ),
+            ),
+          ),
         ),
       ),
     );

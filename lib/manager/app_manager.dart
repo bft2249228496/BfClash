@@ -144,6 +144,10 @@ class _SidebarRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final extended =
+        system.isDesktop &&
+        showLabel &&
+        MediaQuery.sizeOf(context).width >= 1100;
     final labelStyle = context.textTheme.labelLarge!.copyWith(
       color: context.colorScheme.onSurface,
     );
@@ -153,7 +157,11 @@ class _SidebarRail extends StatelessWidget {
         Expanded(
           child: NavigationRail(
             scrollable: true,
-            minExtendedWidth: 200,
+            minExtendedWidth: 236,
+            minWidth: 76,
+            groupAlignment: -1,
+            indicatorShape: AppShape.sm,
+            indicatorColor: context.colorScheme.primary.withValues(alpha: 0.14),
             backgroundColor: Colors.transparent,
             selectedLabelTextStyle: labelStyle,
             unselectedLabelTextStyle: labelStyle,
@@ -165,9 +173,9 @@ class _SidebarRail extends StatelessWidget {
                 ),
             ],
             onDestinationSelected: onSelected,
-            extended: false,
+            extended: extended,
             selectedIndex: currentIndex,
-            labelType: showLabel
+            labelType: !extended && showLabel
                 ? NavigationRailLabelType.all
                 : NavigationRailLabelType.none,
           ),
@@ -186,7 +194,12 @@ class AppSidebarContainer extends ConsumerWidget {
     required BuildContext context,
     required Widget child,
   }) {
-    return Material(color: context.colorScheme.surfaceContainer, child: child);
+    return Material(
+      color: system.isDesktop
+          ? context.colorScheme.surfaceContainerLowest
+          : context.colorScheme.surfaceContainer,
+      child: child,
+    );
   }
 
   void _updateSideBarWidth(WidgetRef ref, double contentWidth) {
@@ -220,8 +233,14 @@ class AppSidebarContainer extends ConsumerWidget {
     final isMobileView = navigationState.viewMode == ViewMode.mobile;
     final currentIndex = navigationState.currentIndex;
     final showLabel = ref.watch(appSettingProvider).showLabel;
+    final extended =
+        system.isDesktop &&
+        showLabel &&
+        MediaQuery.sizeOf(context).width >= 1100;
     return Container(
-      color: context.colorScheme.surfaceContainer,
+      color: system.isDesktop
+          ? context.colorScheme.surfaceContainerLowest
+          : context.colorScheme.surfaceContainer,
       child: Row(
         children: [
           AnimatedVisibility.sidebar(
@@ -235,7 +254,26 @@ class AppSidebarContainer extends ConsumerWidget {
                     if (system.isMacOS) const SizedBox(height: 22),
                     const SizedBox(height: 10),
                     if (!system.isMacOS) ...[
-                      const ClipRect(child: AppIcon()),
+                      if (extended)
+                        SizedBox(
+                          width: 236,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Row(
+                              children: [
+                                const ClipRect(child: AppIcon()),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'BfClash',
+                                  style: context.textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        const ClipRect(child: AppIcon()),
                       const SizedBox(height: 12),
                     ],
                     Expanded(

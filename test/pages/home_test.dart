@@ -134,7 +134,7 @@ void main() {
         sidebarContainer.color,
         Theme.of(
           tester.element(find.byType(AppSidebarContainer)),
-        ).colorScheme.surfaceContainer,
+        ).colorScheme.surfaceContainerLowest,
       );
 
       await tester.tap(find.text('count: 0'));
