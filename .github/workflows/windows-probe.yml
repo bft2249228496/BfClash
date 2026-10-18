@@ -72,7 +72,7 @@ jobs:
         run: flutter test test/views/desktop_navigation_flow_test.dart test/views/desktop_dashboard_visual_test.dart test/common/desktop_style_test.dart test/widgets/desktop_settings_list_test.dart test/widgets/profile_focus_test.dart test/widgets/edit_profile_focus_test.dart test/widgets/proxies_tab_test.dart test/views/proxies_group_offsets_test.dart test/pages/home_test.dart test/common/window_position_test.dart test/common/window_test.dart
 
       - name: Run Desktop Shared Core Integration Tests
-        run: flutter test test/views/desktop_shared_core_integration_test.dart test/widgets/desktop_connection_row_test.dart test/widgets/connection_actions_test.dart test/widgets/connections_view_test.dart test/views/logs_view_test.dart test/common/filter_test.dart test/models/rule_test.dart test/models/config_test.dart test/views/connections_test.dart test/views/requests_test.dart test/views/desktop_connection_polling_flow_test.dart
+        run: flutter test test/views/desktop_shared_core_integration_test.dart test/widgets/desktop_connection_row_test.dart test/widgets/connection_actions_test.dart test/widgets/connections_view_test.dart test/views/logs_view_test.dart test/common/filter_test.dart test/models/rule_test.dart test/models/config_test.dart test/views/connections_test.dart test/views/requests_test.dart test/views/desktop_connection_polling_flow_test.dart test/widgets/connection_item_test.dart test/models/common_test.dart
 
       - name: Run Desktop Sub-Store Lifecycle Tests
         run: flutter test test/views/sub_store_backend_service_test.dart test/views/sub_store_status_test.dart test/providers/system_action_test.dart

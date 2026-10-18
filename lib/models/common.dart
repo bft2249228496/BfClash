@@ -128,8 +128,10 @@ extension TrackerInfoExt on TrackerInfo {
       metadata.host,
       metadata.destinationIP,
     ].where((ip) => ip.isNotEmpty);
-    text += ips.join('/');
-    text += ':${metadata.destinationPort}';
+    text += ips.map(formatNetworkHost).join('/');
+    if (metadata.destinationPort.isNotEmpty) {
+      text += ':${metadata.destinationPort}';
+    }
     return text;
   }
 
@@ -207,6 +209,10 @@ extension TrackerInfosStateExt on TrackerInfosState {
       final destinationPort = trackerInfo.metadata.destinationPort;
       final hostEndpoint = '$hostText:$destinationPort';
       final ipEndpoint = '$destinationIPText:$destinationPort';
+      final formattedEndpoint = formatNetworkEndpoint(
+        destinationIPText,
+        destinationPort,
+      );
       final processText = trackerInfo.metadata.process.toLowerCase();
       final chainsText = chains.join('').toLowerCase();
       return {...chains, process}.containsAll(keywords) &&
@@ -216,6 +222,7 @@ extension TrackerInfosStateExt on TrackerInfosState {
               destinationPort.contains(lowerQuery) ||
               hostEndpoint.contains(lowerQuery) ||
               ipEndpoint.contains(lowerQuery) ||
+              formattedEndpoint.contains(lowerQuery) ||
               processText.contains(lowerQuery) ||
               chainsText.contains(lowerQuery));
     }).toList();

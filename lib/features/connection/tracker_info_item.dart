@@ -249,16 +249,6 @@ class TrackerInfoDetailView extends StatelessWidget {
     return process;
   }
 
-  String _getEndpointText(String ip, String port) {
-    if (ip.isEmpty) {
-      return '';
-    }
-    if (port.isNotEmpty) {
-      return '$ip:$port';
-    }
-    return ip;
-  }
-
   Widget _buildChains(BuildContext context) {
     return DecorationListItem(
       title: Row(
@@ -315,11 +305,11 @@ class TrackerInfoDetailView extends StatelessWidget {
             (appLocalizations.host, metadata.host),
             (
               appLocalizations.source,
-              _getEndpointText(metadata.sourceIP, metadata.sourcePort),
+              formatNetworkEndpoint(metadata.sourceIP, metadata.sourcePort),
             ),
             (
               appLocalizations.destination,
-              _getEndpointText(
+              formatNetworkEndpoint(
                 metadata.destinationIP,
                 metadata.destinationPort,
               ),
