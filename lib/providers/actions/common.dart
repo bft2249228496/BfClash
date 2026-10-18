@@ -220,8 +220,9 @@ class CommonAction extends _$CommonAction {
     final asset = assetInfo ?? await androidUpdateAssetInfo(release);
     final url = asset?.url;
     if (url == null || url.isEmpty) {
-      await launchUrl(
-        Uri.parse('https://github.com/$repository/releases/latest'),
+      dialogs.showNotifier(
+        currentAppLocalizations.androidUpdateIncompatible,
+        level: MessageLevel.error,
       );
       return;
     }
@@ -386,10 +387,10 @@ class CommonAction extends _$CommonAction {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
       await dialogFuture;
       downloadDialogClosed = true;
-      final installed = await app?.installApk(file.path) ?? false;
-      if (!installed) {
-        await launchUrl(
-          Uri.parse('https://github.com/$repository/releases/latest'),
+      final installerOpened = await app?.installApk(file.path) ?? false;
+      if (!installerOpened) {
+        throw MessageException(
+          currentAppLocalizations.androidUpdateLaunchFailed,
         );
       }
     } catch (error) {

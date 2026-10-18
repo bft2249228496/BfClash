@@ -5399,6 +5399,46 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.`
+  String get androidUpdateIncompatible {
+    return Intl.message(
+      'This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.',
+      name: 'androidUpdateIncompatible',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This package is not newer than the installed app. Repeated installation was stopped.`
+  String get androidUpdateNotNewer {
+    return Intl.message(
+      'This package is not newer than the installed app. Repeated installation was stopped.',
+      name: 'androidUpdateNotNewer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.`
+  String get androidUpdateInstallPermission {
+    return Intl.message(
+      'Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.',
+      name: 'androidUpdateInstallPermission',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The system installer could not be opened. The update is not installed; please retry.`
+  String get androidUpdateLaunchFailed {
+    return Intl.message(
+      'The system installer could not be opened. The update is not installed; please retry.',
+      name: 'androidUpdateLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

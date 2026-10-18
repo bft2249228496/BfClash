@@ -84,10 +84,23 @@ class App {
 
   Future<bool> installApk(String path) async {
     if (!Platform.isAndroid) return false;
-    return await methodChannel.invokeMethod<bool>('installApk', {
-          'path': path,
-        }) ??
-        false;
+    try {
+      return await methodChannel.invokeMethod<bool>('installApk', {
+            'path': path,
+          }) ??
+          false;
+    } on PlatformException catch (error) {
+      final message = switch (error.code) {
+        'APK_UPDATE_PACKAGE_MISMATCH' || 'APK_UPDATE_INVALID' =>
+          currentAppLocalizations.androidUpdateIncompatible,
+        'APK_UPDATE_NOT_NEWER' => currentAppLocalizations.androidUpdateNotNewer,
+        'APK_INSTALL_PERMISSION_REQUIRED' =>
+          currentAppLocalizations.androidUpdateInstallPermission,
+        _ => null,
+      };
+      if (message != null) throw MessageException(message);
+      rethrow;
+    }
   }
 
   final Map<String, ImageProvider?> _packageIcons = {};

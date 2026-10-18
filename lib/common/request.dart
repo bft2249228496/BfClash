@@ -73,6 +73,9 @@ class Request {
   Future<Map<String, dynamic>?> checkForUpdate() async {
     try {
       final version = globalState.packageInfo.version;
+      final androidPackage = system.isAndroid
+          ? globalState.packageInfo.packageName
+          : null;
       final isCurrentBeta = isPreReleaseVersion(version);
 
       if (!isCurrentBeta) {
@@ -83,6 +86,10 @@ class Request {
         );
         if (response.statusCode != 200) return null;
         final data = response.data as Map<String, dynamic>;
+        if (androidPackage != null &&
+            !isAndroidReleaseCompatible(data, androidPackage)) {
+          return null;
+        }
         final remoteVersion = data['tag_name'] as String? ?? '';
         final cleanTag = remoteVersion.replaceAll('v', '');
         if (isPreReleaseVersion(cleanTag)) return null;
@@ -93,7 +100,7 @@ class Request {
 
       // Beta / 预发布版：只检测同为 Beta / 预发布版本的更新
       final response = await _clashDio.get(
-        'https://api.github.com/repos/$repository/releases?per_page=10',
+        'https://api.github.com/repos/$repository/releases?per_page=100',
         options: _updateRequestOptions,
       );
       if (response.statusCode != 200) return null;
@@ -108,6 +115,10 @@ class Request {
 
       for (final release in list) {
         if (release['draft'] == true) continue;
+        if (androidPackage != null &&
+            !isAndroidReleaseCompatible(release, androidPackage)) {
+          continue;
+        }
         final tagName = release['tag_name'] as String? ?? '';
         if (tagName.isEmpty) continue;
         final cleanTag = tagName.replaceAll('v', '');

@@ -133,6 +133,18 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "allowLan": MessageLookupByLibrary.simpleMessage("LANプロキシ"),
     "allowLanDesc": MessageLookupByLibrary.simpleMessage("LAN経由でのプロキシ利用を許可します"),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "アプリの識別情報が異なるか、ファイルが無効なため、このパッケージでは更新できません。同じチャネルの更新を使用してください。",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "インストール権限の設定を開きました。許可後に戻って更新を再試行してください。更新はまだインストールされていません。",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "システムのインストーラーを開けませんでした。更新はまだインストールされていません。再試行してください。",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "このパッケージはインストール済みのバージョンより新しくありません。繰り返しのインストールを停止しました。",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("アプリ"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage("アプリアクセス制御"),
     "appendSystemDns": MessageLookupByLibrary.simpleMessage("システムDNSを追加"),

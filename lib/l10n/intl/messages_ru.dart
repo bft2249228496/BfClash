@@ -161,6 +161,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowLanDesc": MessageLookupByLibrary.simpleMessage(
       "Разрешить доступ к прокси из локальной сети",
     ),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "Этот пакет не может обновить приложение: другой идентификатор приложения или недействительный файл. Используйте обновление того же канала.",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "Открыты настройки разрешения установки. Разрешите установку, вернитесь и повторите обновление. Обновление ещё не установлено.",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось открыть системный установщик. Обновление ещё не установлено; повторите попытку.",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "Версия пакета не выше установленной. Повторная установка остановлена.",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("Приложение"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage(
       "Контроль доступа приложений",
