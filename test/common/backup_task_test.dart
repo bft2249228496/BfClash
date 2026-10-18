@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:drift/native.dart';
+import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/database/database.dart' as db;
 import 'package:bfclash/enum/enum.dart';
@@ -480,6 +481,38 @@ void main() {
       expect(names, contains('2.js'));
       expect(names, isNot(contains('9.yaml')));
     });
+
+    test(
+      'backup includes committed WAL rows while the source stays open',
+      () async {
+        await seedDatabase();
+        final writer = sqlite.sqlite3.open(databasePath);
+        addTearDown(writer.dispose);
+        expect(
+          writer.select('PRAGMA journal_mode=WAL').single.values.single,
+          'wal',
+        );
+        writer.execute('PRAGMA wal_autocheckpoint=0');
+        writer.execute(
+          "UPDATE profiles SET label = 'Committed in WAL' WHERE id = 1",
+        );
+        expect(File('$databasePath-wal').lengthSync(), greaterThan(0));
+        final archivePath = await backup();
+        final target = makeDir('wal_restore_target');
+        final data = await readBackupArchive(
+          backupFilePath: archivePath,
+          restoreDirPath: restore.path,
+          homeDirPath: target.path,
+        );
+        expect(data.profiles.single.label, 'Committed in WAL');
+        expect(
+          writer
+              .select('SELECT label FROM profiles WHERE id = 1')
+              .single['label'],
+          'Committed in WAL',
+        );
+      },
+    );
 
     test('the temporary database and config copies are cleaned up', () async {
       await seedDatabase();

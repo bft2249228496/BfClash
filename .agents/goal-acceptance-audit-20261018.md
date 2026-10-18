@@ -41,3 +41,9 @@ The independent test CI39114401192 is now terminal success. The fresh1441 SubSto
 Actual1441 filename input tested/cancelled: single-batch Ctrl+A concatenated; splitting each native key transition100ms then350ms before Unicode replaced text exactly. All attempts cancelled, no settings/upload/restore, dashboard/proxy204 restored and probe tasks empty. This resolves remote input timing only; real account roundtrip remains pending.
 
 Chinese840x592/130% text/long-label regression caught TrafficUsage legend4px bottom overflow after scrolling; desktop card typography-aware height fixes it.36 visual/scroll cases and targeted analyze pass. Not installed1551 acceptance or Xiaomi battery evidence.
+
+## WebDAV upload and database consistency18:15CST
+
+Actual1441 app remote-backup success dialog observed after setting an isolated GUID filename; independent GET200116708bytes/21 ZIP entries read, original shared hash unchanged. UI Reset restored original filename; decoded DAV semantics unchanged; test DELETE204/HEAD404 and dashboard/proxy204/core45208 healthy. No restore invoked. Mac evidence1441-webdav-upload holds safe screenshots and proofs. Initial active DB/cache file-copy/hash manifest is NOT a consistent snapshot. Subsequently Python sqlite backup API opened source read-only and created device-local integrity-ok snapshot6tables/19rows, original preferences copied. This is preparation only.
+
+Source regression then reproduced raw-file archive dropping committed WAL changes: expected Committed in WAL, got Backed up. Replaced dbFile.copy with read-only SQLite VACUUM INTO a bound destination,5sec busy timeout and snapshot-failure cleanup.22 archive cases plus real Dio/UI WebDAV regression23 pass, targeted analyze clean. New runtime fix is not in1551/AndroidRC1 and requires platform CI/package+device validation. Does not prove actual user database uses WAL or suffered this loss.

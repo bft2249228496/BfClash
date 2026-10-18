@@ -12,6 +12,7 @@ import 'package:bfclash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 Future<T> decodeJSONTask<T>(String data) async {
   return compute<String, T>(_decodeJSON, data);
@@ -604,7 +605,19 @@ Future<String> writeBackupArchive({
   final tempConfigFile = File(tempConfigPath);
   final dbFile = File(databasePath);
   if (await dbFile.exists()) {
-    await dbFile.copy(tempDBFile.path);
+    final source = sqlite.sqlite3.open(
+      databasePath,
+      mode: sqlite.OpenMode.readOnly,
+    );
+    try {
+      source.execute('PRAGMA busy_timeout = 5000');
+      source.execute('VACUUM INTO ?', [tempDBFile.path]);
+    } catch (_) {
+      await tempDBFile.safeDelete();
+      rethrow;
+    } finally {
+      source.dispose();
+    }
   }
   final encoder = ZipFileEncoder();
   encoder.create(zipFilePath);
