@@ -26,11 +26,9 @@ class DesktopToolsView extends ConsumerStatefulWidget {
 
 class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
   Widget _selectedWidget = const BackupAndRestore();
-  String _selectedTitle = '';
 
-  void _selectView(String title, Widget view) {
+  void _selectView(Widget view) {
     setState(() {
-      _selectedTitle = title;
       _selectedWidget = view;
     });
   }
@@ -38,9 +36,6 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
   @override
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
-    if (_selectedTitle.isEmpty) {
-      _selectedTitle = appLocalizations.backupAndRestore;
-    }
 
     return CommonScaffold(
       title: appLocalizations.tools,
@@ -172,7 +167,8 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
     required Widget target,
     required bool isWide,
   }) {
-    final isSelected = isWide && _selectedTitle == title;
+    final isSelected =
+        isWide && _selectedWidget.runtimeType == target.runtimeType;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -180,7 +176,7 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
         color: isSelected
             ? context.colorScheme.secondaryContainer.withValues(alpha: 0.5)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.md,
         clipBehavior: Clip.antiAlias,
         child: ListItem(
           leading: Icon(icon, color: iconColor ?? context.colorScheme.primary),
@@ -208,7 +204,7 @@ class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
               : const Icon(Icons.chevron_right),
           onTap: () {
             if (isWide) {
-              _selectView(title, target);
+              _selectView(target);
             } else {
               Navigator.of(
                 context,

@@ -22,19 +22,25 @@ void main() {
   });
 
   group('NavigationPort & Desktop UI Shell Tests', () {
-    test('desktop keeps IP checks enabled without the mobile dashboard card', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      container.listen(appSettingProvider, (_, _) {});
-      container.read(appSettingProvider.notifier).update(
-        (state) => state.copyWith(dashboardWidgets: []),
-      );
-      container.listen(checkIpProvider, (_, _) {});
-      final before = container.read(checkIpProvider);
-      expect(before.containsDetection, isTrue);
-      container.read(checkIpNumProvider.notifier).add();
-      expect(container.read(checkIpProvider).checkIpNum, before.checkIpNum + 1);
-    });
+    test(
+      'desktop keeps IP checks enabled without the mobile dashboard card',
+      () {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        container.listen(appSettingProvider, (_, _) {});
+        container
+            .read(appSettingProvider.notifier)
+            .update((state) => state.copyWith(dashboardWidgets: []));
+        container.listen(checkIpProvider, (_, _) {});
+        final before = container.read(checkIpProvider);
+        expect(before.containsDetection, isTrue);
+        container.read(checkIpNumProvider.notifier).add();
+        expect(
+          container.read(checkIpProvider).checkIpNum,
+          before.checkIpNum + 1,
+        );
+      },
+    );
 
     test('Desktop Navigation items expose desktop specific pages', () {
       final items = navigation.getItems(openLogs: true, hasProxies: true);
@@ -266,6 +272,27 @@ void main() {
         // ConfigView must now be rendered in the detail area
         expect(find.byType(ConfigView), findsOneWidget);
         expect(find.byType(BackupAndRestore), findsNothing);
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const TestApp(
+              locale: Locale('zh', 'CN'),
+              includeNavigatorKey: false,
+              setTheme: true,
+              child: DesktopToolsView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final translated = await AppLocalizations.load(
+          const Locale('zh', 'CN'),
+        );
+        expect(find.byType(ConfigView), findsOneWidget);
+        final selectedLabel = tester.widget<Text>(
+          find.text(translated.basicConfig).first,
+        );
+        expect(selectedLabel.style?.fontWeight, FontWeight.bold);
       },
     );
   });
