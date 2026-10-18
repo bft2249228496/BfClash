@@ -243,6 +243,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("接続済み"),
     "connecting": MessageLookupByLibrary.simpleMessage("接続中..."),
     "connection": MessageLookupByLibrary.simpleMessage("接続"),
+    "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
+      "接続を更新できません。リストが古い可能性があります。",
+    ),
+    "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
+      "接続情報を取得できません",
+    ),
     "connections": MessageLookupByLibrary.simpleMessage("接続"),
     "connectionsDesc": MessageLookupByLibrary.simpleMessage("現在の接続データを表示します"),
     "connectivity": MessageLookupByLibrary.simpleMessage("接続状態："),
@@ -704,6 +710,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("レインボー"),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redirポート"),
     "redo": MessageLookupByLibrary.simpleMessage("やり直す"),
+    "refresh": MessageLookupByLibrary.simpleMessage("更新"),
     "remote": MessageLookupByLibrary.simpleMessage("リモート"),
     "remoteBackupDesc": MessageLookupByLibrary.simpleMessage(
       "WebDAVにデータをバックアップします",
@@ -746,6 +753,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
       "ダウンロード済みのデータを保持します。必要に応じてノードを切り替え、再度更新を確認すると続行できます。",
     ),
+    "retry": MessageLookupByLibrary.simpleMessage("再試行"),
     "routeAddress": MessageLookupByLibrary.simpleMessage("ルートアドレス"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(
       "リッスンするルートアドレスを設定します",

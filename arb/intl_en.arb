@@ -653,5 +653,9 @@
   "pauseDownloadAndReturn": "Pause and return",
   "resumeUpdateDownloadHint": "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
   "restartUpdateDownloadHint": "You can switch nodes and retry. This source has no checksum, so the download will restart safely.",
-  "developerModeDesc": "Debugging and advanced status monitoring"
+  "developerModeDesc": "Debugging and advanced status monitoring",
+  "connectionRefreshFailedTip": "Unable to refresh connections. The list may be out of date.",
+  "retry": "Retry",
+  "refresh": "Refresh",
+  "connectionSnapshotUnavailable": "Connection data is unavailable"
 }

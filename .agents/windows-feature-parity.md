@@ -2,6 +2,15 @@
 
 A shared implementation is not acceptance. Every row needs an accessible Windows entry, complete behavior, failure feedback, persistence, and evidence from a packaged Windows build. This list is an active audit, not a completion claim.
 
+## Current boundary (2026-10-18)
+
+- Public Windows beta1601 (source4593186c) includes the Trae adaptation and consistent SQLite backup snapshot. Installed device remains1441/app46596; its current core27916 is owned by Helper2272, with the beta Helper service running/Auto after normal in-app TUN authorization. Old direct core45208 is obsolete. One bounded IPv4 TUN enable/no-proxy HTTPS/disable route-recovery case passed; IPv6/DNS/full policies remain unaccepted.
+- Public Android candidate is0.2.29-rc.2 (fde53e9a), retaining the original package/signature. User confirms RC1 installed on Xiaomi15; no battery/recovery measurements establish savings.
+- Current source adds explicit failed-snapshot feedback, an always-visible refresh action, shared pending reads and protection against pre-close snapshots overwriting a post-close result. Android also receives the awaited/pending/error-safe close behavior. Four locale resources are generated. Both trees pass19 focused connection tests/analyze; the desktop layout/request/connection suite passed63 before the final read-revision refinement. These overlap and are not device acceptance.
+- Source before this feedback change passed Windows CI39125229924/c49b59d6 and Android CI39124916594/832d669f. New feedback changes require their own CI; no package was published for them yet.
+- Installed1441 actual unique synthetic address search and traffic display passed. Later samples retained old port63663 while the owned stream used63254; changing to a nonmatching query correctly emptied the list, and leaving/reopening the page removed the old row. The reason for the real-device stale snapshot is unresolved. Simulated search/lifecycle polling passes; the new failure banner is not proof that this device cause is fixed. Details and single-close remain unaccepted; no close click was issued against the mismatched row.
+
+
 | Android capability | Windows implementation / entry | Current evidence and remaining work |
 | --- | --- | --- |
 | Start/stop and internet proxy | Desktop dashboard, core lifecycle, system proxy/TUN | Installed1321 manual start verified: BfCore49412 exclusively7890, Party absent, system proxy enabled, Google204/YouTube200/movies303 and independent Edge system-proxy Google passed. Long-duration browsing and repeated start/stop remain pending |
@@ -20,7 +29,7 @@ A shared implementation is not acceptance. Every row needs an accessible Windows
 | Stable/beta coexistence and uninstall | ChannelConfig / Inno / core-helper IPC | Package identities and beta preferences migration proved; full two-install service/update/uninstall regression pending |
 | Signed release distribution | Windows packaging/release workflow | BLOCKED: public38689950646 unsigned installer blocked by enabled Smart App Control, events3077/3033; need trusted signing setup |
 
-Latest read-only device check on2026-10-18 confirmed0.2.27-beta.1441+1441, manually installed by user; app46596/core45208 and exclusive127.0.0.1:7890. Public beta1451 has not yet been accepted on this device. EarlierCI38689950646 installer was blocked by application control; this does not describe the current installed package. Do not equate CI/build success, source presence or a single network probe with full feature acceptance.
+Latest device checks on2026-10-18 confirmed0.2.27-beta.1441+1441, manually installed by user; app46596/current core27916 (Helper parent2272), exclusive127.0.0.1:7890. Public beta1601 has not yet been accepted on this device. EarlierCI38689950646 installer was blocked by application control; this does not describe the current installed package. Do not equate CI/build success, source presence or a single network probe with full feature acceptance.
 
 Windows CI packages now stamp the source base version with a distinct beta/build number from the workflow run and attempt. The source pubspec is restored after packaging, keeping the Android release version unchanged. CI verifies the EXE numeric build field and beta ProductVersion as well as update asset compatibility.
 
