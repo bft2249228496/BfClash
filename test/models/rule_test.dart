@@ -1,8 +1,32 @@
+import 'dart:convert';
+
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('wildcard and rematch rules survive persisted JSON round trips', () {
+    for (final action in [
+      RuleAction.DOMAIN_WILDCARD,
+      RuleAction.PROCESS_NAME_WILDCARD,
+      RuleAction.PROCESS_PATH_WILDCARD,
+      RuleAction.REMATCH_NAME,
+    ]) {
+      final rule = Rule(
+        id: 17,
+        ruleAction: action,
+        content: '*.example.test',
+        ruleTarget: 'DIRECT',
+        order: '3',
+      );
+      final json =
+          jsonDecode(jsonEncode(rule.toJson())) as Map<String, dynamic>;
+      final restored = Rule.fromJson(json);
+      expect(restored, rule, reason: action.name);
+      expect(restored.rawValue, rule.rawValue, reason: action.name);
+    }
+  });
+
   group('Rule.parse', () {
     test('reads MATCH as a target-only rule', () {
       final rule = Rule.parse('MATCH,DIRECT');
