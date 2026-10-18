@@ -1,0 +1,37 @@
+# Three-goal acceptance audit — 2026-10-18
+
+This audit retains the user scope. A source path, green CI, synthetic rendering or HTTP probe is not installed-app acceptance.
+
+## Authoritative snapshots inspected
+
+- Published Windows1551: runtime0b5b0e1c, CI39112137033 success, original logs/PE/ZIP/public verification in `/root/projects/.bf-delivery/39112137033`. Current release API still has the exact verified two asset sizes/digests and prerelease status. Both archive-contained PE versions1551/AMD64 and certificate-table0bytes were inspected.
+- Current test-only Windows25d6861e adds the isolated app WebDAV regression and CI/documentation; runtime files remain those published in1551. CI39114401192 is confirmed live at Setup Flutter, not terminal or blocked.
+- AndroidRC1 runtime da37ff56, published original-signature package. Current461a04b4 differs from the published RC tag only in downloader tests. Published Windows/Android `resumable_download.dart` bytes are identical. Android test-only CI39111530023 succeeded.
+- Device last read: Windows1441/app46596/core45208 and7890; passive interactive-session check found Bf not foreground, therefore no UI tree/click/screenshot attempted. Xiaomi15 user says RC1 installed but drain context unknown. Current local ADB inventory has zero authorized devices.
+
+## Requirement-to-evidence audit
+
+| Requirement | Evidence now | What remains / verdict |
+| --- | --- | --- |
+| Pause Windows/Android update without quitting; return to change node; continue | Shared runtime cancels requests and retains URL+SHA-identified partial; real HTTP cancel/range and proxyA->proxyB resume+SHA tests; Windows update CI44 | Component behavior proved. Continue entry is another check-for-updates; no independent download task page. Installed-app Windows and Android pause/navigation/node-change/continue still missing |
+| Resume after reopening and reject bad/unsupported partial | Disk partial identity, strict206 start/total,200 restart, size/digest/cache tests, unverified assets never append | Protocol tests prove these paths. Actual app kill/reopen, error/retry feedback and installer/APK handoff remain unverified |
+| Trae visual baseline | Exact657b3284 HTML reference; six runtime pages adapted;24 light/dark900/1400 Flutter renders, visual image review, bundled-icon fix | Synthetic render/interaction proof only. Chinese/real data/window and user-device experience still pending |
+| Retain dashboard control/state/update/IP/traffic | Existing real provider/action callbacks; navigation/core/mode/status tests | Actual1551 start/stop, modes, system proxy/TUN, IP refresh and update flow pending |
+| Retain groups/nodes/delay/search/styles/providers | Same TabController/ProxyGroupView/ProxyCard actions; wide group panel selection/resize/empty-return tests; list style retained | Actual selection, timing/error feedback, provider actions and persistence on1551 pending |
+| Retain import/edit/preview/switch/refresh/sort/overrides/scripts | Same profile menus/actions; profile focus/import/preview and UI tests; vertical desktop list | Real import/edit/refresh/failure/restart/override scripts pending |
+| Retain connections/requests/logs | Seven navigation entries including Requests; real details/filters/close controls; delayed close failure/re-enable and active-page/app polling regressions; selectable logs/export callbacks | Actual1551 traffic, details/individual/all close/search/log pause/export/visibility preference/persistence pending |
+| Retain all tools/configuration | Locale/resources/basic+advanced config/DNS/ports/rules/providers/application/theme/hotkeys/loopback/About/developer builders retained; grouped cards reuse every row/action | Actual resource/config operations, failures and saved settings after restart still pending |
+| Retain local backup/restore | Historical1321 installed UI+JSON/SQLite6-table19-profile-hash evidence; production archive and provider tests | New1551 UI/restart and further restore cases not established by historical proof |
+| Retain WebDAV full roundtrip/error handling | Existing real Dio live-server/auth/status tests.25d test drives real screen callbacks, Dio loopback, archive workers/applyRestore with temporary file SQLite and full-profile/script/rule/link/group/files/current-selection assertions;401 and corrupt-data preservation.39 related local checks pass | Background isolate dispatch is replaced to inject fixture paths; app-wide proxy override and real account/device paths are not proved. Windows standard/beta new CI pending. Installed-app full roundtrip still pending; shared remote backup.zip must never be overwritten for testing |
+| Retain local/remote SubStore lifecycle/front end/conversion/import | Both1551 packaged channel health/conversion/restart persistence pass; historical1321 UI and1431 owned backend component proof | Actual1551 frontend launch+conversion/import, status refresh and full app exit lifecycle still pending; do not misread a deliberately cleaned test Node as start failure |
+| Retain window/tray/startup/hotkeys/exit/geometry | Navigation/focus/geometry tests and original controls retained | Actual1551 drag/maximize/restore/tray/startup/hotkeys/cleanup/persistence pending |
+| Windows distribution/coexistence/uninstall/signing |1551 original asset digests, upload digest, draft re-download and public re-download match;81 ZIP entries fully read; cancellation/confirmed isolated uninstall fixtures pass | User installs manually; no1551 device upgrade yet. Real coexistence/uninstall not proved by fixture. Trusted formal signing still unavailable; unsigned prerelease is not final release acceptance |
+| Xiaomi15 screen-off/background reduction | Notification1s tick really canceled screen-off; Flutter UI polls stopped outside resumed; native96 tests and released signed RC1 | Real screen-state/notification/VPN/recovery behavior on phone still missing |
+| Xiaomi15 health/recovery tradeoff | Healthy screen-off probe5min, interactive/suspect1min, deep-idle external probe skipped; network-change recovery thresholds preserved in source/native tests | Hidden fault discovery can be later; real idle/network restoration comparison required, cannot claim zero behavior change |
+| Xiaomi15 measured power improvement | RC1 user installation confirmed only | No battery screenshot/batterystats, OS/version confirmation or same-node/network foreground-vs-locked comparison. No savings percentage or unique root cause can be claimed |
+
+## Completion / blocking conclusion
+
+The full goal is **not achieved**. Desktop source/package delivery and isolated regression checks are concrete progress; they do not close device gaps. Do not mark complete or promote either platform solely from CI.
+
+There is not yet an execution impasse: the specific Windows test CI39114401192 is live and must be inspected to its terminal result. Do not restart due to observation timeout. After the available independent gates are resolved, the remaining real-device and signing requirements require external state/user input; do not pad work with repeated version/proxy reads or invented changes. Manual1551 upgrade and battery-record requests were already given once; do not repeatedly prompt. Automation remains ACTIVE.
