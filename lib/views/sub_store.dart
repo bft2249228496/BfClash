@@ -173,7 +173,7 @@ class _SubStoreViewState extends ConsumerState<SubStoreView> {
         ],
       ),
     );
-    if (result == null) return;
+    if (result == null || !mounted) return;
     final uri = Uri.tryParse(result.replaceFirst(RegExp(r'/+$'), ''));
     if (uri == null ||
         !uri.hasAuthority ||
