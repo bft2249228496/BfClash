@@ -5369,6 +5369,36 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Unable to refresh connections. The list may be out of date.`
+  String get connectionRefreshFailedTip {
+    return Intl.message(
+      'Unable to refresh connections. The list may be out of date.',
+      name: 'connectionRefreshFailedTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get retry {
+    return Intl.message('Retry', name: 'retry', desc: '', args: []);
+  }
+
+  /// `Refresh`
+  String get refresh {
+    return Intl.message('Refresh', name: 'refresh', desc: '', args: []);
+  }
+
+  /// `Connection data is unavailable`
+  String get connectionSnapshotUnavailable {
+    return Intl.message(
+      'Connection data is unavailable',
+      name: 'connectionSnapshotUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
