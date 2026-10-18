@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/core/controller.dart';
 import 'package:bfclash/core/method.dart';
 import 'package:bfclash/features/features.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/providers/providers.dart';
+import 'package:bfclash/state.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +22,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     with WidgetsBindingObserver, ActivePollingMixin<ConnectionsView> {
   CoreController get _core => ref.read(coreHandlerProvider);
 
+  bool _closingAll = false;
+  final Set<String> _closingIds = {};
   final _listController = TrackerInfoListController();
   final ScrollController _scrollController = ScrollController();
 
@@ -33,10 +34,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     return [
       IconButton(
         tooltip: context.appLocalizations.closeConnections,
-        onPressed: () async {
-          unawaited(_core.closeConnections());
-          await _refreshConnections();
-        },
+        onPressed: _closingAll ? null : () => _closeConnections(),
         icon: const Icon(Icons.delete_sweep_outlined),
       ),
     ];
@@ -91,9 +89,35 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     _listController.setTrackerInfos(sorted);
   }
 
-  Future<void> _handleBlockConnection(String id) async {
-    await _core.closeConnection(id);
-    await _refreshConnections();
+  Future<void> _closeConnections([String? id]) async {
+    if (_closingAll || (id != null && _closingIds.contains(id))) return;
+    setState(() {
+      if (id == null) {
+        _closingAll = true;
+      } else {
+        _closingIds.add(id);
+      }
+    });
+    try {
+      await globalState.safeRun<void>(() async {
+        if (id == null) {
+          await _core.closeConnections();
+        } else {
+          await _core.closeConnection(id);
+        }
+        if (mounted) await _refreshConnections();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          if (id == null) {
+            _closingAll = false;
+          } else {
+            _closingIds.remove(id);
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -127,14 +151,23 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
               detailTitle: appLocalizations.details(
                 appLocalizations.connection,
               ),
-              trailingBuilder: (trackerInfo) => IconButton(
-                tooltip: appLocalizations.blockConnection,
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.block, size: 20),
-                onPressed: () {
-                  _handleBlockConnection(trackerInfo.id);
-                },
-              ),
+              trailingBuilder: (trackerInfo) {
+                final closing =
+                    _closingAll || _closingIds.contains(trackerInfo.id);
+                return GestureDetector(
+                  // A disabled child must not pass a second click to row details.
+                  excludeFromSemantics: true,
+                  onTap: closing ? () {} : null,
+                  child: IconButton(
+                    tooltip: appLocalizations.blockConnection,
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.block, size: 20),
+                    onPressed: closing
+                        ? null
+                        : () => _closeConnections(trackerInfo.id),
+                  ),
+                );
+              },
             ),
           );
         },
