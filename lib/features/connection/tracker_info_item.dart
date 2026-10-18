@@ -59,6 +59,102 @@ class TrackerInfoItem extends ConsumerWidget {
     );
   }
 
+  void _openDetails(BuildContext context) {
+    showExtend(
+      context,
+      builder: (_) => AdaptiveSheetScaffold(
+        sheetTransparentToolBar: true,
+        body: TrackerInfoDetailView(trackerInfo: trackerInfo),
+        title: detailTitle,
+      ),
+    );
+  }
+
+  Widget _buildDesktopRow(BuildContext context) {
+    final metadata = trackerInfo.metadata;
+    final secondary = [
+      metadata.process,
+      metadata.network.toUpperCase(),
+    ].where((value) => value.isNotEmpty).join(' · ');
+    return InkWell(
+      onTap: () => _openDetails(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          spacing: 20,
+          children: [
+            Expanded(
+              flex: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 4,
+                children: [
+                  Text(
+                    trackerInfo.desc,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodyMedium,
+                  ),
+                  Text(
+                    secondary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  for (final chain in trackerInfo.chains)
+                    CommonChip(
+                      label: chain,
+                      onPressed: () => onClickKeyword?.call(chain),
+                    ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 112,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 4,
+                children: [
+                  Text(
+                    '↑ ${trackerInfo.upload.traffic.show}',
+                    style: context.textTheme.bodySmall,
+                  ),
+                  Text(
+                    '↓ ${trackerInfo.download.traffic.show}',
+                    style: context.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 100,
+              child: Text(
+                trackerInfo.start.getLastUpdateTimeDesc(context),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            ?trailing,
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, ref) {
     final showIcon = ref.watch(
@@ -80,7 +176,7 @@ class TrackerInfoItem extends ConsumerWidget {
             ),
           )
         : null;
-    return ListItem(
+    final item = ListItem(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 8,
@@ -88,18 +184,7 @@ class TrackerInfoItem extends ConsumerWidget {
       minVerticalPadding: 0,
       horizontalTitleGap: 12,
       tileTitleAlignment: ListTileTitleAlignment.top,
-      onTap: () {
-        showExtend(
-          context,
-          builder: (_) {
-            return AdaptiveSheetScaffold(
-              sheetTransparentToolBar: true,
-              body: TrackerInfoDetailView(trackerInfo: trackerInfo),
-              title: detailTitle,
-            );
-          },
-        );
-      },
+      onTap: () => _openDetails(context),
       leading: icon,
       title: Text(
         trackerInfo.desc,
@@ -109,6 +194,11 @@ class TrackerInfoItem extends ConsumerWidget {
       ),
       subtitle: _buildMeta(context),
       trailing: trailing,
+    );
+    if (!system.isDesktop) return item;
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          constraints.maxWidth >= 880 ? _buildDesktopRow(context) : item,
     );
   }
 }
