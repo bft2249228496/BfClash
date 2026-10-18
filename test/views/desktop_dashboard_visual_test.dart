@@ -15,6 +15,7 @@ import 'package:bfclash/views/profiles/profiles.dart';
 import 'package:bfclash/views/proxies/proxies.dart';
 import 'package:bfclash/views/proxies/card.dart';
 import 'package:bfclash/views/connection/connections.dart';
+import 'package:bfclash/views/connection/requests.dart';
 import 'package:bfclash/views/logs.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +60,7 @@ void main() {
     'profiles',
     'proxies',
     'connections',
+    'requests',
     'logs',
   ]) {
     for (final scenario in [
@@ -155,6 +157,26 @@ void main() {
             );
             addTearDown(container.dispose);
             globalState.container = container;
+            if (screen == 'requests') {
+              container
+                  .read(requestsProvider.notifier)
+                  .addRequest(
+                    TrackerInfo(
+                      id: 'request-preview',
+                      metadata: const Metadata(
+                        network: 'tcp',
+                        host: 'example.test',
+                        process: 'Browser.exe',
+                        destinationIP: '192.0.2.1',
+                        destinationPort: '443',
+                      ),
+                      start: DateTime(2026, 10, 18),
+                      chains: ['Example node', 'PROXY'],
+                      rule: 'Match',
+                      rulePayload: '',
+                    ),
+                  );
+            }
             container
                 .read(appSettingProvider.notifier)
                 .update((state) => state.copyWith(showLabel: true));
@@ -173,6 +195,7 @@ void main() {
                 'profiles' => PageLabel.profiles,
                 'proxies' => PageLabel.proxies,
                 'connections' => PageLabel.connections,
+                'requests' => PageLabel.requests,
                 'logs' => PageLabel.logs,
                 _ => PageLabel.tools,
               },
@@ -220,6 +243,7 @@ void main() {
                             ),
                           ],
                         ),
+                        'requests' => const RequestsView(),
                         'logs' => const LogsView(),
                         _ => const DesktopToolsView(),
                       },
@@ -273,6 +297,10 @@ void main() {
                 expect(find.text('192.0.2.42'), findsOneWidget);
               }
               expect(tester.takeException(), isNull);
+            } else if (screen == 'requests') {
+              expect(find.textContaining('example.test'), findsWidgets);
+              expect(find.byIcon(Icons.search), findsOneWidget);
+              expect(find.byIcon(Icons.block), findsOneWidget);
             } else if (screen == 'connections') {
               expect(find.textContaining('example.test'), findsWidgets);
               expect(find.byIcon(Icons.block), findsOneWidget);

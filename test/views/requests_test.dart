@@ -3,6 +3,7 @@ import 'package:bfclash/models/models.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/connection/requests.dart';
+import 'package:bfclash/features/connection/tracker_info_item.dart';
 import 'package:bfclash/widgets/null_status.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -180,6 +181,46 @@ void main() {
     expect(find.byKey(hintKey), findsNothing);
     await tester.pumpAndSettle();
 
+    await teardownView(tester);
+  });
+
+  testWidgets('search, clear and request details retain their data', (
+    tester,
+  ) async {
+    seedRequests([
+      _tracker(id: 'a', host: 'alpha.test'),
+      _tracker(id: 'b', host: 'beta.test'),
+    ]);
+    await pumpRequests(tester);
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'alpha.test');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('beta.test'), findsNothing);
+    expect(find.byType(TrackerInfoItem), findsOneWidget);
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byType(TrackerInfoItem),
+            matching: find.textContaining('alpha.test'),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(TrackerInfoDetailView), findsOneWidget);
+    expect(find.text('DOMAIN(alpha.test)'), findsOneWidget);
+    expect(find.text('1.1.1.1:443'), findsOneWidget);
+    final context = tester.element(find.byType(TrackerInfoDetailView));
+    Navigator.of(context).pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(find.byType(TrackerInfoItem), findsNWidgets(2));
+    expect(container.read(requestsProvider).list.map((item) => item.id), [
+      'a',
+      'b',
+    ]);
+    expect(tester.takeException(), isNull);
     await teardownView(tester);
   });
 
