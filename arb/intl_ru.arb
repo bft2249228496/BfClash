@@ -623,7 +623,7 @@
   "subStoreTitle": "Sub-Store",
   "subStoreMode": "Режим сервера",
   "subStoreLocalMode": "Сервер на устройстве",
-  "subStoreLocalModeDesc": "Запустить официальный сервер Sub-Store приватно на этом Android-устройстве",
+  "subStoreLocalModeDesc": "Запустить официальный сервер Sub-Store приватно на этом устройстве",
   "subStoreRemoteMode": "Сервер на удалённом VPS",
   "subStoreRemoteModeDesc": "Подключить официальную консоль к сервису Sub-Store на другом сервере",
   "subStoreLocalBackend": "Локальный сервис",
@@ -641,5 +641,16 @@
   "subStoreFailed": "Сбой сервера Sub-Store",
   "subStoreStartFailed": "Не удалось запустить сервер Sub-Store",
   "subStoreStartFirst": "Сначала запустите сервер на устройстве",
-  "subStoreAndroidOnly": "Сервер на устройстве доступен только на Android"
+  "subStoreAndroidOnly": "Сервер на устройстве доступен только на Android",
+  "proxyRunning": "Прокси работает",
+  "proxyStopped": "Прокси остановлен",
+  "windowsUpdateUnavailable": "Нет проверяемого установщика для этой архитектуры Windows и канала обновлений.",
+  "windowsUpdateLaunchFailed": "Windows не запустила установщик. Возможно, разрешение отменено или запуск заблокирован контролем приложений. Текущая версия остаётся доступной.",
+  "windowsUpdateIdentityUnknown": "Не удалось определить сборку или архитектуру этой бета-версии Windows. Установите официальную бета-версию Windows и повторите попытку.",
+  "subStoreRuntimeMissing": "Встроенная среда Sub-Store отсутствует. Переустановите BfClash или используйте удалённый сервер.",
+  "subStoreScriptMissing": "Файлы сервера Sub-Store отсутствуют. Переустановите BfClash.",
+  "subStorePortInUse": "Порт локального Sub-Store уже занят. Остановите другой сервис и повторите попытку.",
+  "pauseDownloadAndReturn": "Приостановить и вернуться",
+  "resumeUpdateDownloadHint": "Загруженные данные сохранятся. При необходимости смените узел и снова проверьте обновления, чтобы продолжить.",
+  "restartUpdateDownloadHint": "Можно сменить узел и повторить попытку. Источник не предоставляет контрольную сумму, поэтому загрузка начнётся заново."
 }

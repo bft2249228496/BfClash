@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
@@ -5,6 +6,18 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
 final _log = Logger('options');
+
+bool windowsBetaBuild(String rootDir) {
+  if (!Platform.isWindows) return false;
+  final file = File(p.join(rootDir, 'env.json'));
+  if (file.existsSync()) {
+    final values = jsonDecode(file.readAsStringSync());
+    if (values is Map && values['APP_BETA'] is String) {
+      return values['APP_BETA'] == 'true';
+    }
+  }
+  return Platform.environment['APP_BETA'] == 'true';
+}
 
 class BuildConfig {
   const BuildConfig({
@@ -50,11 +63,15 @@ class BuildConfig {
       tags: yaml['tags'] as String? ?? _defaults.tags,
       goLdflags: yaml['go_ldflags'] as String? ?? _defaults.goLdflags,
       coreDir: yaml['core_dir'] as String? ?? _defaults.coreDir,
-      coreName: yaml['core_name'] as String? ?? _defaults.coreName,
+      coreName: windowsBetaBuild(rootDir)
+          ? 'BfClashCoreBeta'
+          : yaml['core_name'] as String? ?? _defaults.coreName,
       libName: yaml['lib_name'] as String? ?? _defaults.libName,
       outputDir: yaml['output_dir'] as String? ?? _defaults.outputDir,
       helperDir: yaml['helper_dir'] as String? ?? _defaults.helperDir,
-      helperName: yaml['helper_name'] as String? ?? _defaults.helperName,
+      helperName: windowsBetaBuild(rootDir)
+          ? 'BfClashHelperServiceBeta'
+          : yaml['helper_name'] as String? ?? _defaults.helperName,
     );
   }
 

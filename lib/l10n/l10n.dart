@@ -5150,10 +5150,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Run the official Sub-Store backend privately on this Android device`
+  /// `Run the official Sub-Store backend privately on this device`
   String get subStoreLocalModeDesc {
     return Intl.message(
-      'Run the official Sub-Store backend privately on this Android device',
+      'Run the official Sub-Store backend privately on this device',
       name: 'subStoreLocalModeDesc',
       desc: '',
       args: [],
@@ -5335,6 +5335,116 @@ class AppLocalizations {
     return Intl.message(
       'The on-device backend is available on Android',
       name: 'subStoreAndroidOnly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy running`
+  String get proxyRunning {
+    return Intl.message(
+      'Proxy running',
+      name: 'proxyRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy stopped`
+  String get proxyStopped {
+    return Intl.message(
+      'Proxy stopped',
+      name: 'proxyStopped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No verified installer is available for this Windows version and channel.`
+  String get windowsUpdateUnavailable {
+    return Intl.message(
+      'No verified installer is available for this Windows version and channel.',
+      name: 'windowsUpdateUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.`
+  String get windowsUpdateLaunchFailed {
+    return Intl.message(
+      'Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.',
+      name: 'windowsUpdateLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.`
+  String get windowsUpdateIdentityUnknown {
+    return Intl.message(
+      'This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.',
+      name: 'windowsUpdateIdentityUnknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.`
+  String get subStoreRuntimeMissing {
+    return Intl.message(
+      'The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.',
+      name: 'subStoreRuntimeMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The Sub-Store backend files are missing. Reinstall BfClash.`
+  String get subStoreScriptMissing {
+    return Intl.message(
+      'The Sub-Store backend files are missing. Reinstall BfClash.',
+      name: 'subStoreScriptMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The local Sub-Store port is already in use. Stop the other service and try again.`
+  String get subStorePortInUse {
+    return Intl.message(
+      'The local Sub-Store port is already in use. Stop the other service and try again.',
+      name: 'subStorePortInUse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause and return`
+  String get pauseDownloadAndReturn {
+    return Intl.message(
+      'Pause and return',
+      name: 'pauseDownloadAndReturn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.`
+  String get resumeUpdateDownloadHint {
+    return Intl.message(
+      'Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.',
+      name: 'resumeUpdateDownloadHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can switch nodes and retry. This source has no checksum, so the download will restart safely.`
+  String get restartUpdateDownloadHint {
+    return Intl.message(
+      'You can switch nodes and retry. This source has no checksum, so the download will restart safely.',
+      name: 'restartUpdateDownloadHint',
       desc: '',
       args: [],
     );

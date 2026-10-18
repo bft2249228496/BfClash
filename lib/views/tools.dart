@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
-import 'package:bfclash/l10n/l10n.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/views/about.dart';
@@ -12,6 +11,7 @@ import 'package:bfclash/views/config/config.dart';
 import 'package:bfclash/views/hotkey.dart';
 import 'package:bfclash/views/sub_store.dart';
 import 'package:bfclash/widgets/widgets.dart';
+import 'package:bfclash/widgets/locale_setting_item.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' show dirname, join;
@@ -69,7 +69,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       title: context.appLocalizations.settings,
       items: [
         const _SubStoreItem(),
-        const _LocaleItem(),
+        const LocaleSettingItem(),
         const _ThemeItem(),
         const _BackupItem(),
         if (system.isDesktop) const _HotkeyItem(),
@@ -129,37 +129,6 @@ class _SubStoreItem extends StatelessWidget {
       title: Text(context.appLocalizations.subStoreTitle),
       subtitle: Text(context.appLocalizations.subStoreLocalModeDesc),
       widget: const SubStoreView(),
-    );
-  }
-}
-
-class _LocaleItem extends ConsumerWidget {
-  const _LocaleItem();
-
-  String _getLocaleString(BuildContext context, Locale? locale) {
-    if (locale == null) return context.appLocalizations.defaultText;
-    return locale.label;
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(
-      appSettingProvider.select((state) => state.locale),
-    );
-    final currentLocale = getLocaleForString(locale);
-    return ListItem<Locale?>.options(
-      leading: const Icon(Icons.language_outlined),
-      title: Text(context.appLocalizations.language),
-      subtitle: Text(_getLocaleString(context, currentLocale)),
-      dialogTitle: context.appLocalizations.language,
-      options: [null, ...AppLocalizations.delegate.supportedLocales],
-      onChanged: (Locale? locale) {
-        ref
-            .read(appSettingProvider.notifier)
-            .update((state) => state.copyWith(locale: locale?.toString()));
-      },
-      textBuilder: (locale) => _getLocaleString(context, locale),
-      value: currentLocale,
     );
   }
 }

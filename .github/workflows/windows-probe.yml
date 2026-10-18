@@ -1,0 +1,141 @@
+name: Windows Build Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/windows-desktop-v0227
+    paths:
+      - '.github/workflows/windows-probe.yml'
+      - 'windows/**'
+      - 'plugins/**'
+      - 'services/**'
+      - 'core/**'
+      - 'setup.dart'
+      - 'build_config.yaml'
+      - 'lib/**'
+      - 'test/**'
+      - 'tool/**'
+
+env:
+  FLUTTER_VERSION: '3.47.1'
+  GO_VERSION: '1.26.4'
+
+jobs:
+  probe-windows:
+    name: Probe Windows AMD64 Build
+    runs-on: windows-2022
+    steps:
+      - name: Enable longpaths
+        run: git config --global core.longpaths true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: core/go.sum
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Verify installer cancellation and confirmed cleanup
+        run: ./tool/check_windows_uninstall.ps1
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Update Channel and Architecture Tests
+        run: flutter test test/setup_test.dart test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_download_test.dart test/common/resumable_download_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart
+
+      - name: Run Desktop Navigation Flow Widget Tests
+        run: flutter test test/views/desktop_navigation_flow_test.dart test/views/desktop_dashboard_visual_test.dart test/common/window_position_test.dart test/common/window_test.dart
+
+      - name: Run Desktop Shared Core Integration Tests
+        run: flutter test test/views/desktop_shared_core_integration_test.dart
+
+      - name: Run Desktop Sub-Store Lifecycle Tests
+        run: flutter test test/views/sub_store_backend_service_test.dart test/views/sub_store_status_test.dart test/providers/system_action_test.dart
+
+      - name: Run Core Setup and TUN Authorization Tests
+        run: flutter test test/providers/setup_action_test.dart
+
+      - name: Run Windows Build Probe via setup.dart
+        run: dart setup.dart windows --env stable --targets exe,zip -v
+
+      - name: Verify stable packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash.exe
+
+      - name: Run Windows Native Proxy Tests
+        run: |
+          cmake -S windows -B build/windows/x64 -Dinclude_proxy_tests=ON
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test configuration failed" }
+          cmake --build build/windows/x64 --config Release --target proxy_test
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test build failed" }
+          & ./build/windows/x64/plugins/proxy/Release/proxy_test.exe
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy tests failed" }
+
+      - name: Test packaged Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Preserve stable probe artifacts
+        run: |
+          New-Item -ItemType Directory -Path dist/stable -Force | Out-Null
+          Get-ChildItem -Path dist -File | Move-Item -Destination dist/stable
+
+      - name: Reset build state before beta probe
+        run: |
+          flutter clean
+          flutter pub get
+      - name: Select isolated beta installer identity
+        run: Copy-Item windows/packaging/exe/make_config.beta.yaml windows/packaging/exe/make_config.yaml -Force
+
+      - name: Run Windows Beta Build Probe via setup.dart
+        run: dart setup.dart windows --env pre --targets exe,zip -v
+
+      - name: Verify beta packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash-Beta.exe -Beta
+
+      - name: Test packaged beta Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Preserve beta probe artifacts
+        run: |
+          New-Item -ItemType Directory -Path dist/beta -Force | Out-Null
+          Get-ChildItem -Path dist -File | Move-Item -Destination dist/beta
+
+      - name: List Artifacts
+        if: always()
+        run: |
+          Get-ChildItem -Path dist -Recurse -ErrorAction SilentlyContinue
+
+      - name: Upload Windows Probe Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bfclash-windows-probe
+          path: |
+            dist/
+            .dart_tool/setup_build_cache/
+            hook.log
+            build/windows/

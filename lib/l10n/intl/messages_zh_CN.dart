@@ -533,6 +533,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("调色板"),
     "password": MessageLookupByLibrary.simpleMessage("密码"),
     "paste": MessageLookupByLibrary.simpleMessage("粘贴"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage("暂停并返回"),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("从相册选择"),
     "pinWindow": MessageLookupByLibrary.simpleMessage("窗口置顶"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage("请绑定WebDAV"),
@@ -593,6 +594,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProviders": MessageLookupByLibrary.simpleMessage("代理集"),
     "proxyProvidersEmpty": MessageLookupByLibrary.simpleMessage("代理集为空"),
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage("代理集不能为空"),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("代理运行中"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("代理未启动"),
     "proxyType": MessageLookupByLibrary.simpleMessage("代理类型"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("修剪缓存"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("纯黑模式"),
@@ -622,6 +625,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "restart": MessageLookupByLibrary.simpleMessage("重启"),
     "restartCoreTip": MessageLookupByLibrary.simpleMessage("您确定要重启核心吗？"),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "可返回切换节点再试；此下载源未提供校验值，继续时将安全地重新下载。",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("恢复"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage("恢复所有数据"),
     "restoreException": MessageLookupByLibrary.simpleMessage("恢复异常"),
@@ -634,6 +640,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreStrategyCompatible": MessageLookupByLibrary.simpleMessage("兼容"),
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("覆盖"),
     "restoreSuccess": MessageLookupByLibrary.simpleMessage("恢复成功"),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "保留已下载内容；可先切换节点，再次检查更新即可继续下载。",
+    ),
     "routeAddress": MessageLookupByLibrary.simpleMessage("路由地址"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage("配置监听路由地址"),
     "routeMode": MessageLookupByLibrary.simpleMessage("路由模式"),
@@ -800,14 +809,17 @@ class MessageLookup extends MessageLookupByLibrary {
       "请输入有效的 HTTP 或 HTTPS 后端地址",
     ),
     "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage("本机服务"),
-    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("安卓本机后端"),
+    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("本机后端"),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "在这台安卓设备上私有运行官方 Sub-Store 后端",
+      "在这台设备上私有运行官方 Sub-Store 后端",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("后端模式"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage("尚未配置"),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "打开官方 Sub-Store 管理界面",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "本地 Sub-Store 端口已被占用，请停止占用该端口的服务后重试。",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage("远程服务"),
     "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage("后端地址"),
@@ -819,6 +831,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "让官方管理界面连接其他服务器上的 Sub-Store 服务",
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage("Sub-Store 后端正在运行"),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "内置 Sub-Store 运行组件缺失，请重新安装 BfClash，或改用远程后端。",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store 后端文件缺失，请重新安装 BfClash。",
+    ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "无法启动 Sub-Store 后端",
     ),
@@ -897,6 +915,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "无法识别此 Windows 测试版的构建编号或架构。请安装官方 Windows 测试版后重试。",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows 未能启动安装器，可能已取消授权或被应用程序控制拦截。当前版本仍可使用。",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "没有适用于此 Windows 架构和发布渠道、且可校验的安装包。",
+    ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };

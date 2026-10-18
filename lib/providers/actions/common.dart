@@ -4,6 +4,7 @@ part of '../action.dart';
 class CommonAction extends _$CommonAction {
   CoreController get _core => ref.read(coreHandlerProvider);
   bool _isUpdatingTraffic = false;
+  bool _installingUpdate = false;
 
   @override
   void build() {}
@@ -75,9 +76,13 @@ class CommonAction extends _$CommonAction {
 
   Future<bool> autoCheckUpdate() async {
     if (!ref.read(appSettingProvider).autoCheckUpdate) return false;
-    final res = await request.checkForUpdate();
-    await checkUpdateResultHandle(data: res);
-    return res != null;
+    try {
+      final res = await request.checkForUpdate();
+      await checkUpdateResultHandle(data: res);
+      return res != null;
+    } catch (_) {
+      return false;
+    }
   }
 
   TextSpan _releaseSpan(
@@ -169,6 +174,15 @@ class CommonAction extends _$CommonAction {
       final isAndroid = system.isAndroid;
       final currentVer = globalState.packageInfo.version;
       final assetInfo = isAndroid ? await androidUpdateAssetInfo(data) : null;
+      final windowsAsset = system.isWindows
+          ? selectWindowsUpdateAsset(
+              data,
+              beta: WindowsChannelConfig.isBeta,
+              architecture:
+                  Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '',
+            )
+          : null;
+      if (!context.mounted) return;
 
       final res = await dialogs.showMessage(
         title: currentAppLocalizations.discoverNewVersion,
@@ -177,9 +191,9 @@ class CommonAction extends _$CommonAction {
           data['tag_name'] as String,
           data['body'] as String?,
           currentVersion: currentVer,
-          packageBytes: assetInfo?.size,
+          packageBytes: assetInfo?.size ?? windowsAsset?.size,
         ),
-        confirmText: isAndroid
+        confirmText: (isAndroid || system.isWindows)
             ? (currentAppLocalizations.updateNow)
             : currentAppLocalizations.goDownload,
         cancelText: isUser
@@ -188,11 +202,23 @@ class CommonAction extends _$CommonAction {
       );
       if (res == true) {
         if (system.isAndroid) {
-          unawaited(_installAndroidUpdate(data, assetInfo: assetInfo));
+          unawaited(_installAppUpdate(data, assetInfo: assetInfo));
+        } else if (system.isWindows) {
+          if (windowsAsset == null) {
+            dialogs.showNotifier(
+              currentAppLocalizations.windowsUpdateUnavailable,
+              level: MessageLevel.error,
+            );
+            return;
+          }
+          unawaited(_installAppUpdate(data, windowsAsset: windowsAsset));
         } else {
           unawaited(
             launchUrl(
-              Uri.parse('https://github.com/$repository/releases/latest'),
+              Uri.parse(
+                data['html_url'] as String? ??
+                    'https://github.com/$repository/releases/latest',
+              ),
             ),
           );
         }
@@ -211,12 +237,16 @@ class CommonAction extends _$CommonAction {
     }
   }
 
-  Future<void> _installAndroidUpdate(
+  Future<void> _installAppUpdate(
     Map<String, dynamic> release, {
     AndroidUpdateAsset? assetInfo,
+    WindowsUpdateAsset? windowsAsset,
   }) async {
-    final asset = assetInfo ?? await androidUpdateAssetInfo(release);
-    final url = asset?.url;
+    final asset = windowsAsset == null
+        ? (assetInfo ?? await androidUpdateAssetInfo(release))
+        : null;
+    final packageSize = windowsAsset?.size ?? asset?.size ?? 0;
+    final url = windowsAsset?.url ?? asset?.url;
     if (url == null || url.isEmpty) {
       await launchUrl(
         Uri.parse('https://github.com/$repository/releases/latest'),
@@ -225,7 +255,10 @@ class CommonAction extends _$CommonAction {
     }
     final context = globalState.navigatorKey.currentContext!;
     if (!context.mounted) return;
+    if (_installingUpdate) return;
+    _installingUpdate = true;
     final progress = ValueNotifier<UpdateDownloadProgress?>(null);
+    final downloadCancel = CancelToken();
     final colorScheme = context.colorScheme;
     final dialogFuture = showDialog<void>(
       context: context,
@@ -253,7 +286,13 @@ class CommonAction extends _$CommonAction {
                     currentVer.startsWith('v') || currentVer.startsWith('V')
                     ? currentVer
                     : 'v$currentVer';
-                final targetV = release['tag_name'] ?? '';
+                final targetV = windowsAsset == null
+                    ? release['tag_name'] ?? ''
+                    : RegExp(r'BfClash-(.+)-windows-')
+                              .firstMatch(Uri.decodeComponent(windowsAsset.url))
+                              ?.group(1) ??
+                          release['tag_name'] ??
+                          '';
 
                 return Column(
                   mainAxisSize: MainAxisSize.min,
@@ -319,13 +358,31 @@ class CommonAction extends _$CommonAction {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            downloadCancel.cancel('paused by user'),
+                        icon: const Icon(Icons.pause_rounded),
+                        label: Text(
+                          currentAppLocalizations.pauseDownloadAndReturn,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      windowsAsset != null || asset?.sha256Digest != null
+                          ? currentAppLocalizations.resumeUpdateDownloadHint
+                          : currentAppLocalizations.restartUpdateDownloadHint,
+                      style: context.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           info != null && info.speedBytesPerSec > 0
                               ? '🚀 ${info.formattedSpeed}'
-                              : '🚀 连接中...',
+                              : '🚀 ${currentAppLocalizations.connecting}',
                           style: context.textTheme.labelSmall?.copyWith(
                             color: colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -333,8 +390,8 @@ class CommonAction extends _$CommonAction {
                         ),
                         Text(
                           info == null
-                              ? '0 B / ${(asset?.size ?? 0) > 0 ? UpdateDownloadProgress.formatBytes(asset!.size) : '--'}'
-                              : '${info.formattedReceived} / ${info.total > 0 ? info.formattedTotal : ((asset?.size ?? 0) > 0 ? UpdateDownloadProgress.formatBytes(asset!.size) : '--')}',
+                              ? '0 B / ${packageSize > 0 ? UpdateDownloadProgress.formatBytes(packageSize) : '--'}'
+                              : '${info.formattedReceived} / ${info.total > 0 ? info.formattedTotal : (packageSize > 0 ? UpdateDownloadProgress.formatBytes(packageSize) : '--')}',
                           style: context.textTheme.labelSmall?.copyWith(
                             color: colorScheme.outline,
                           ),
@@ -349,16 +406,41 @@ class CommonAction extends _$CommonAction {
         ),
       ),
     );
+    var downloadDialogClosed = false;
     try {
-      final file = await downloadAndroidUpdate(
-        request.clashDio,
-        url,
-        onUpdateProgress: (info) {
-          progress.value = info;
-        },
-      );
+      final file = windowsAsset != null
+          ? await downloadWindowsUpdate(
+              request.clashDio,
+              windowsAsset,
+              cancelToken: downloadCancel,
+              onUpdateProgress: (info) => progress.value = info,
+            )
+          : await downloadAndroidUpdate(
+              request.clashDio,
+              url,
+              expectedSize: asset?.size ?? 0,
+              sha256Digest: asset?.sha256Digest,
+              cancelToken: downloadCancel,
+              onUpdateProgress: (info) => progress.value = info,
+            );
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
       await dialogFuture;
+      downloadDialogClosed = true;
+      if (windowsAsset != null) {
+        final launched =
+            windows?.runas(
+              file.path,
+              '/DIR="${appPath.executableDirPath}" /NORESTART',
+            ) ??
+            false;
+        if (!launched) {
+          throw MessageException(
+            currentAppLocalizations.windowsUpdateLaunchFailed,
+          );
+        }
+        await ref.read(systemActionProvider.notifier).handleExit();
+        return;
+      }
       final installed = await app?.installApk(file.path) ?? false;
       if (!installed) {
         await launchUrl(
@@ -366,10 +448,13 @@ class CommonAction extends _$CommonAction {
         );
       }
     } catch (error) {
-      if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-      await dialogFuture;
+      if (!downloadDialogClosed) {
+        if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+        await dialogFuture;
+      }
+      if (error is DioException && CancelToken.isCancel(error)) return;
       commonPrint.log(
-        'Android update failed: ${compactError(error)}',
+        'App update failed: ${compactError(error)}',
         logLevel: LogLevel.warning,
       );
       dialogs.showNotifier(
@@ -377,6 +462,7 @@ class CommonAction extends _$CommonAction {
         level: MessageLevel.error,
       );
     } finally {
+      _installingUpdate = false;
       progress.dispose();
     }
   }

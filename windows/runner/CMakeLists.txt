@@ -29,6 +29,9 @@ target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_BUILD=${FLUTT
 
 # Disable Windows macros that collide with C++ standard library functions.
 target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")
+if("$ENV{APP_BETA}" STREQUAL "true")
+  target_compile_definitions(${BINARY_NAME} PRIVATE "BFCLASH_BETA=1")
+endif()
 
 # Add dependency libraries and include directories. Add any application-specific
 # dependencies here.

@@ -14,6 +14,7 @@ class TestApp extends StatelessWidget {
   final List<Override> overrides;
   final Widget Function(Widget child) homeBuilder;
   final Locale? locale;
+  final ThemeData? theme;
 
   const TestApp({
     super.key,
@@ -24,6 +25,7 @@ class TestApp extends StatelessWidget {
     this.overrides = const [],
     this.homeBuilder = _identity,
     this.locale,
+    this.theme,
   });
 
   static Widget _identity(Widget child) => child;
@@ -33,6 +35,7 @@ class TestApp extends StatelessWidget {
     final app = MaterialApp(
       navigatorKey: includeNavigatorKey ? globalState.navigatorKey : null,
       locale: locale,
+      theme: theme,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         ...GlobalMaterialLocalizations.delegates,

@@ -1,9 +1,54 @@
+import 'dart:io';
+
 import 'package:test/test.dart';
 
 import '../setup.dart' as setup;
 
 void main() {
   group('setup.dart', () {
+    test('Windows builds and retries get distinct app and file versions', () {
+      expect(
+        setup.createWindowsBuildVersion('0.2.27+55', runNumber: 27, beta: true),
+        '0.2.27-beta.1271+1271',
+      );
+      expect(
+        setup.createWindowsBuildVersion('0.2.27+55', runNumber: 28, beta: true),
+        '0.2.27-beta.1281+1281',
+      );
+      expect(
+        setup.createWindowsBuildVersion(
+          '0.2.27+55',
+          runNumber: 28,
+          runAttempt: 2,
+          beta: true,
+        ),
+        '0.2.27-beta.1282+1282',
+      );
+      expect(
+        setup.createWindowsBuildVersion(
+          '0.2.27+55',
+          runNumber: 28,
+          beta: false,
+        ),
+        '0.2.27+1281',
+      );
+    });
+    test('rejects invalid or overflowing Windows build identities', () {
+      expect(
+        () =>
+            setup.createWindowsBuildVersion('0.2.27', runNumber: 0, beta: true),
+        throwsArgumentError,
+      );
+      expect(
+        () => setup.createWindowsBuildVersion(
+          '0.2.27',
+          runNumber: 10000,
+          beta: true,
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('parses -v as verbose mode', () {
       final results = setup.createSetupArgParser().parse(['android', '-v']);
 
@@ -22,7 +67,11 @@ void main() {
     });
 
     test('Flutter build environment does not depend on Core SHA256', () {
-      expect(setup.createBuildEnvironment('dev'), {'APP_ENV': 'dev'});
+      expect(setup.createBuildEnvironment('dev'), {
+        'APP_ENV': 'dev',
+        'APP_BETA': 'true',
+        'WINDOWS_CI_RUN_ID': Platform.environment['GITHUB_RUN_ID'] ?? '',
+      });
     });
 
     test('omits verbose from flutter build args by default', () {

@@ -622,8 +622,8 @@
   "installedAppsPermissionDeniedMessage": "读取应用列表权限已被拒绝，无法获取已安装的应用。请前往系统设置手动开启。",
   "subStoreTitle": "Sub-Store",
   "subStoreMode": "后端模式",
-  "subStoreLocalMode": "安卓本机后端",
-  "subStoreLocalModeDesc": "在这台安卓设备上私有运行官方 Sub-Store 后端",
+  "subStoreLocalMode": "本机后端",
+  "subStoreLocalModeDesc": "在这台设备上私有运行官方 Sub-Store 后端",
   "subStoreRemoteMode": "远程 VPS 后端",
   "subStoreRemoteModeDesc": "让官方管理界面连接其他服务器上的 Sub-Store 服务",
   "subStoreLocalBackend": "本机服务",
@@ -641,5 +641,16 @@
   "subStoreFailed": "Sub-Store 后端运行失败",
   "subStoreStartFailed": "无法启动 Sub-Store 后端",
   "subStoreStartFirst": "请先启动安卓本机后端",
-  "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用"
+  "subStoreAndroidOnly": "安卓本机后端仅在 Android 上可用",
+  "proxyRunning": "代理运行中",
+  "proxyStopped": "代理未启动",
+  "windowsUpdateUnavailable": "没有适用于此 Windows 架构和发布渠道、且可校验的安装包。",
+  "windowsUpdateLaunchFailed": "Windows 未能启动安装器，可能已取消授权或被应用程序控制拦截。当前版本仍可使用。",
+  "windowsUpdateIdentityUnknown": "无法识别此 Windows 测试版的构建编号或架构。请安装官方 Windows 测试版后重试。",
+  "subStoreRuntimeMissing": "内置 Sub-Store 运行组件缺失，请重新安装 BfClash，或改用远程后端。",
+  "subStoreScriptMissing": "Sub-Store 后端文件缺失，请重新安装 BfClash。",
+  "subStorePortInUse": "本地 Sub-Store 端口已被占用，请停止占用该端口的服务后重试。",
+  "pauseDownloadAndReturn": "暂停并返回",
+  "resumeUpdateDownloadHint": "保留已下载内容；可先切换节点，再次检查更新即可继续下载。",
+  "restartUpdateDownloadHint": "可返回切换节点再试；此下载源未提供校验值，继续时将安全地重新下载。"
 }

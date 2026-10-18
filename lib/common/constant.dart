@@ -1,6 +1,9 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:io';
 import 'dart:math';
+
+import 'channel_config.dart';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
@@ -10,15 +13,19 @@ import 'package:bfclash/models/models.dart';
 import 'package:material_ui/material_ui.dart';
 
 const appName = 'BfClash';
-const appHelperService = 'BfClashHelperService';
+final appHelperService = Platform.isWindows
+    ? WindowsChannelConfig.helperServiceName
+    : 'BfClashHelperService';
 const coreManifestName = 'manifest.json';
 const coreName = 'clash.meta';
 const browserUa =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 const packageName = 'com.bfclash.client';
 final unixSocketPath = '/tmp/BfClashSocket_${Random().nextInt(10000)}.sock';
-final windowsPipeName = '\\\\.\\pipe\\BfClashCore_${_randomPipeId()}';
-const helperPort = 47890;
+final windowsPipeName = '${WindowsChannelConfig.pipePrefix}${_randomPipeId()}';
+final helperPort = Platform.isWindows && WindowsChannelConfig.isBeta
+    ? 47891
+    : 47890;
 const helperSocketPath = '/run/bfclash/helper.sock';
 const helperProtocolVersionHeader = 'x-bfclash-helper-protocol';
 const helperProtocolVersion = '6';

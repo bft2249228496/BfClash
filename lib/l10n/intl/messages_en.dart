@@ -750,6 +750,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage(
+      "Pause and return",
+    ),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Choose from album"),
     "pinWindow": MessageLookupByLibrary.simpleMessage("Pin window"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(
@@ -832,6 +835,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Proxy providers cannot be empty",
     ),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("Proxy running"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("Proxy stopped"),
     "proxyType": MessageLookupByLibrary.simpleMessage("Proxy type"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("Prune cache"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("Pure black mode"),
@@ -875,6 +880,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartCoreTip": MessageLookupByLibrary.simpleMessage(
       "Are you sure you want to restart the core?",
     ),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "You can switch nodes and retry. This source has no checksum, so the download will restart safely.",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("Restore"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage("Restore all data"),
     "restoreException": MessageLookupByLibrary.simpleMessage("Restore error"),
@@ -894,6 +902,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("Override"),
     "restoreSuccess": MessageLookupByLibrary.simpleMessage(
       "Restore successful",
+    ),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
     ),
     "routeAddress": MessageLookupByLibrary.simpleMessage("Route addresses"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(
@@ -1119,7 +1130,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "On-device backend",
     ),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "Run the official Sub-Store backend privately on this Android device",
+      "Run the official Sub-Store backend privately on this device",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("Backend mode"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
@@ -1127,6 +1138,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "Open official Sub-Store console",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "The local Sub-Store port is already in use. Stop the other service and try again.",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
       "Remote service",
@@ -1145,6 +1159,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Sub-Store backend is running",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "The Sub-Store backend files are missing. Reinstall BfClash.",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Unable to start Sub-Store backend",
@@ -1252,6 +1272,15 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No verified installer is available for this Windows version and channel.",
+    ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };

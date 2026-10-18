@@ -776,6 +776,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Палитра"),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
     "paste": MessageLookupByLibrary.simpleMessage("Вставить"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage(
+      "Приостановить и вернуться",
+    ),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Выбрать из галереи"),
     "pinWindow": MessageLookupByLibrary.simpleMessage(
       "Закрепить поверх всех окон",
@@ -864,6 +867,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Провайдеры прокси не могут быть пустыми",
     ),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("Прокси работает"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("Прокси остановлен"),
     "proxyType": MessageLookupByLibrary.simpleMessage("Тип прокси"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("Очистить кэш"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("Чисто чёрный режим"),
@@ -907,6 +912,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartCoreTip": MessageLookupByLibrary.simpleMessage(
       "Вы уверены, что хотите перезапустить ядро?",
     ),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Можно сменить узел и повторить попытку. Источник не предоставляет контрольную сумму, поэтому загрузка начнётся заново.",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("Восстановить"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage(
       "Восстановить все данные",
@@ -934,6 +942,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "restoreSuccess": MessageLookupByLibrary.simpleMessage(
       "Восстановление выполнено",
+    ),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Загруженные данные сохранятся. При необходимости смените узел и снова проверьте обновления, чтобы продолжить.",
     ),
     "routeAddress": MessageLookupByLibrary.simpleMessage("Адреса маршрутов"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(
@@ -1167,7 +1178,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Сервер на устройстве",
     ),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "Запустить официальный сервер Sub-Store приватно на этом Android-устройстве",
+      "Запустить официальный сервер Sub-Store приватно на этом устройстве",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("Режим сервера"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
@@ -1175,6 +1186,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "Открыть официальную консоль Sub-Store",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "Порт локального Sub-Store уже занят. Остановите другой сервис и повторите попытку.",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
       "Удалённый сервис",
@@ -1193,6 +1207,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Сервер Sub-Store работает",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "Встроенная среда Sub-Store отсутствует. Переустановите BfClash или используйте удалённый сервер.",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Файлы сервера Sub-Store отсутствуют. Переустановите BfClash.",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось запустить сервер Sub-Store",
@@ -1309,6 +1329,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
+    ),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "Не удалось определить сборку или архитектуру этой бета-версии Windows. Установите официальную бета-версию Windows и повторите попытку.",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows не запустила установщик. Возможно, разрешение отменено или запуск заблокирован контролем приложений. Текущая версия остаётся доступной.",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет проверяемого установщика для этой архитектуры Windows и канала обновлений.",
     ),
     "yearsAgo": m30,
     "zhCN": MessageLookupByLibrary.simpleMessage("Упрощённый китайский"),

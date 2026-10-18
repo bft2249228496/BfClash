@@ -623,7 +623,7 @@
   "subStoreTitle": "Sub-Store",
   "subStoreMode": "Backend mode",
   "subStoreLocalMode": "On-device backend",
-  "subStoreLocalModeDesc": "Run the official Sub-Store backend privately on this Android device",
+  "subStoreLocalModeDesc": "Run the official Sub-Store backend privately on this device",
   "subStoreRemoteMode": "Remote VPS backend",
   "subStoreRemoteModeDesc": "Connect the official console to a Sub-Store service on another server",
   "subStoreLocalBackend": "On-device service",
@@ -641,5 +641,16 @@
   "subStoreFailed": "Sub-Store backend failed",
   "subStoreStartFailed": "Unable to start Sub-Store backend",
   "subStoreStartFirst": "Start the on-device backend first",
-  "subStoreAndroidOnly": "The on-device backend is available on Android"
+  "subStoreAndroidOnly": "The on-device backend is available on Android",
+  "proxyRunning": "Proxy running",
+  "proxyStopped": "Proxy stopped",
+  "windowsUpdateUnavailable": "No verified installer is available for this Windows version and channel.",
+  "windowsUpdateLaunchFailed": "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
+  "windowsUpdateIdentityUnknown": "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
+  "subStoreRuntimeMissing": "The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.",
+  "subStoreScriptMissing": "The Sub-Store backend files are missing. Reinstall BfClash.",
+  "subStorePortInUse": "The local Sub-Store port is already in use. Stop the other service and try again.",
+  "pauseDownloadAndReturn": "Pause and return",
+  "resumeUpdateDownloadHint": "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
+  "restartUpdateDownloadHint": "You can switch nodes and retry. This source has no checksum, so the download will restart safely."
 }

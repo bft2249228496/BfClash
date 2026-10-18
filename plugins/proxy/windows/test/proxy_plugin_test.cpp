@@ -3,9 +3,13 @@
 #include <flutter/standard_method_codec.h>
 #include <gtest/gtest.h>
 
+#include <windows.h>
+#include <wininet.h>
+
 #include <memory>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "proxy_plugin.h"
 
@@ -14,6 +18,7 @@ namespace test {
 
 namespace {
 
+using flutter::EncodableList;
 using flutter::EncodableMap;
 using flutter::EncodableValue;
 using flutter::MethodCall;
@@ -31,6 +36,38 @@ TEST(ProxyPlugin, UnknownMethodIsNotImplemented) {
           [&not_implemented]() { not_implemented = true; }));
 
   EXPECT_TRUE(not_implemented);
+}
+
+TEST(ProxyPlugin, StopBeforeStartDoesNotChangeWindowsProxy) {
+  DWORD before_size = 0;
+  InternetQueryOption(nullptr, INTERNET_OPTION_PROXY, nullptr, &before_size);
+  std::vector<BYTE> before(before_size);
+  ASSERT_TRUE(InternetQueryOption(
+      nullptr, INTERNET_OPTION_PROXY, before.data(), &before_size));
+  const auto* before_info = reinterpret_cast<const INTERNET_PROXY_INFO*>(before.data());
+  const DWORD access_type = before_info->dwAccessType;
+  const std::wstring server = before_info->lpszProxy == nullptr ? L"" : before_info->lpszProxy;
+  const std::wstring bypass = before_info->lpszProxyBypass == nullptr ? L"" : before_info->lpszProxyBypass;
+
+  ProxyPlugin plugin;
+  bool acknowledged = false;
+  plugin.HandleMethodCall(
+      MethodCall("StopProxy", std::make_unique<EncodableValue>()),
+      std::make_unique<MethodResultFunctions<>>(
+          [&acknowledged](const EncodableValue* value) {
+            acknowledged = value != nullptr && std::get<bool>(*value);
+          }, nullptr, nullptr));
+  EXPECT_TRUE(acknowledged);
+
+  DWORD after_size = 0;
+  InternetQueryOption(nullptr, INTERNET_OPTION_PROXY, nullptr, &after_size);
+  std::vector<BYTE> after(after_size);
+  ASSERT_TRUE(InternetQueryOption(
+      nullptr, INTERNET_OPTION_PROXY, after.data(), &after_size));
+  const auto* after_info = reinterpret_cast<const INTERNET_PROXY_INFO*>(after.data());
+  EXPECT_EQ(access_type, after_info->dwAccessType);
+  EXPECT_EQ(server, after_info->lpszProxy == nullptr ? L"" : after_info->lpszProxy);
+  EXPECT_EQ(bypass, after_info->lpszProxyBypass == nullptr ? L"" : after_info->lpszProxyBypass);
 }
 
 TEST(ProxyPlugin, StartProxyRejectsMissingArguments) {

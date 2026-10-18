@@ -347,7 +347,7 @@ final class CheckIpProvider
   }
 }
 
-String _$checkIpHash() => r'0e28032041d80297dcd12e8d659dbac741874073';
+String _$checkIpHash() => r'37a13b8dfba8a59e4d8f4d1c7761c96ce6ea5410';
 
 @ProviderFor(shouldPatchSystemDns)
 final shouldPatchSystemDnsProvider = ShouldPatchSystemDnsProvider._();
@@ -640,7 +640,7 @@ final class GenColorSchemeProvider
   }
 }
 
-String _$genColorSchemeHash() => r'2b413948f7d0fbcd3b1263a0053c3d35cbbd4db5';
+String _$genColorSchemeHash() => r'efd1b490355f9ac452e36e59e78e1e1817ffc194';
 
 final class GenColorSchemeFamily extends $Family
     with
