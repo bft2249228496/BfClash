@@ -73,10 +73,12 @@ void main() {
       String host = 'example.com',
       String destinationIP = '1.2.3.4',
       String process = 'chrome',
+      String destinationPort = '443',
     }) => Metadata(
       network: network,
       host: host,
       destinationIP: destinationIP,
+      destinationPort: destinationPort,
       process: process,
     );
 
@@ -156,6 +158,40 @@ void main() {
       );
       expect(state.list.length, 1);
       expect(state.list[0].id, '2');
+    });
+
+    test('IP queries ignore surrounding whitespace', () {
+      final state = TrackerInfosState(
+        trackerInfos: [
+          tracker('1'),
+          tracker('2', metadata: meta(destinationIP: '192.168.1.1')),
+        ],
+        query: ' 192.168.1.1 ',
+      );
+      expect(state.list.map((item) => item.id), ['2']);
+    });
+
+    test('query matches displayed destination port and endpoint', () {
+      final state = TrackerInfosState(
+        trackerInfos: [
+          tracker('1'),
+          tracker('2', metadata: meta(destinationPort: '53827')),
+        ],
+        query: '53827',
+      );
+      expect(state.list.map((item) => item.id), ['2']);
+      expect(
+        state
+            .copyWith(query: ' EXAMPLE.COM:53827 ')
+            .list
+            .map((item) => item.id),
+        ['2'],
+      );
+      expect(
+        state.copyWith(query: '1.2.3.4:53827').list.map((item) => item.id),
+        ['2'],
+      );
+      expect(state.copyWith(keywords: ['other']).list, isEmpty);
     });
 
     test('query matches chains text', () {
