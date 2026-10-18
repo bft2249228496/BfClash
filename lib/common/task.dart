@@ -616,7 +616,7 @@ Future<String> writeBackupArchive({
       await tempDBFile.safeDelete();
       rethrow;
     } finally {
-      source.dispose();
+      source.close();
     }
   }
   final encoder = ZipFileEncoder();

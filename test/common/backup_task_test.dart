@@ -487,7 +487,7 @@ void main() {
       () async {
         await seedDatabase();
         final writer = sqlite.sqlite3.open(databasePath);
-        addTearDown(writer.dispose);
+        addTearDown(writer.close);
         expect(
           writer.select('PRAGMA journal_mode=WAL').single.values.single,
           'wal',
