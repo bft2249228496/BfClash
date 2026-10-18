@@ -6,6 +6,7 @@ import 'package:bfclash/common/resumable_download.dart';
 import 'package:bfclash/common/update.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const payload = [1, 2, 3, 4];
@@ -225,6 +226,81 @@ void main() {
         realDio.close(force: true);
         await handler.cancel();
         await server.close(force: true);
+      }
+    },
+  );
+
+  test(
+    'paused transfer uses the new proxy for its next range request',
+    () async {
+      final bytes = List<int>.generate(65536, (index) => index % 251);
+      final first = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final second = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final release = Completer<void>();
+      final seen = <(int, String?)>[];
+      final subscriptions = <StreamSubscription<HttpRequest>>[];
+      for (final server in [first, second]) {
+        subscriptions.add(
+          server.listen((request) async {
+            final range = request.headers.value(HttpHeaders.rangeHeader);
+            seen.add((server.port, range));
+            try {
+              if (server == first) {
+                request.response.contentLength = bytes.length;
+                request.response.add(bytes.sublist(0, 32768));
+                await request.response.flush();
+                await release.future;
+              } else {
+                final start = int.parse(range!.substring(6).split('-').first);
+                request.response.statusCode = 206;
+                request.response.headers.set(
+                  HttpHeaders.contentRangeHeader,
+                  'bytes $start-65535/65536',
+                );
+                request.response.contentLength = bytes.length - start;
+                request.response.add(bytes.sublist(start));
+              }
+              await request.response.close();
+            } catch (_) {}
+          }),
+        );
+      }
+      var proxyPort = first.port;
+      final realDio = Dio()
+        ..httpClientAdapter = IOHttpClientAdapter(
+          createHttpClient: () =>
+              HttpClient()..findProxy = (_) => 'PROXY 127.0.0.1:$proxyPort',
+        );
+      final token = CancelToken();
+      Future<File> transfer(CancelToken? current) => downloadResumableFile(
+        realDio,
+        url: 'http://update.example.invalid/update.exe',
+        directory: root,
+        fileName: 'verified.exe',
+        expectedSize: bytes.length,
+        expectedSha256: sha256.convert(bytes).toString(),
+        cancelToken: current,
+        onProgress: (received, _, _) {
+          if (current != null && received >= 32768) {
+            current.cancel('pause');
+            if (!release.isCompleted) release.complete();
+          }
+        },
+      );
+      try {
+        await expectLater(transfer(token), throwsA(isA<DioException>()));
+        expect(await File('${root.path}/download.part').length(), 32768);
+        proxyPort = second.port;
+        expect(await (await transfer(null)).readAsBytes(), bytes);
+        expect(seen, [(first.port, null), (second.port, 'bytes=32768-')]);
+      } finally {
+        if (!release.isCompleted) release.complete();
+        realDio.close(force: true);
+        for (final subscription in subscriptions) {
+          await subscription.cancel();
+        }
+        await first.close(force: true);
+        await second.close(force: true);
       }
     },
   );
