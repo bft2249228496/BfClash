@@ -35,3 +35,9 @@ This audit retains the user scope. A source path, green CI, synthetic rendering 
 The full goal is **not achieved**. Desktop source/package delivery and isolated regression checks are concrete progress; they do not close device gaps. Do not mark complete or promote either platform solely from CI.
 
 The independent test CI39114401192 is now terminal success. The fresh1441 SubStore UI regression is additional device progress, not1551 visual or whole-app acceptance. Next safe independent work can validate a synthetic filename edit canceled before saving to resolve prior IME/input problems, before any isolated WebDAV UI archive action. A real-account roundtrip must use a unique filename and preserve the shared remote backup, with local snapshot and unchanged-data guards before restore. Do not pad work with repeated version/foreground reads or invented changes. Manual1551 upgrade and battery-record requests were already given once; do not repeatedly prompt. Automation remains ACTIVE.
+
+## Additional acceptance progress18:02–18:12CST
+
+Actual1441 filename input tested/cancelled: single-batch Ctrl+A concatenated; splitting each native key transition100ms then350ms before Unicode replaced text exactly. All attempts cancelled, no settings/upload/restore, dashboard/proxy204 restored and probe tasks empty. This resolves remote input timing only; real account roundtrip remains pending.
+
+Chinese840x592/130% text/long-label regression caught TrafficUsage legend4px bottom overflow after scrolling; desktop card typography-aware height fixes it.36 visual/scroll cases and targeted analyze pass. Not installed1551 acceptance or Xiaomi battery evidence.
