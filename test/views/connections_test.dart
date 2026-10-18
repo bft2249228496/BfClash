@@ -295,14 +295,14 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: TestApp(
-          locale: const Locale('zh', 'CN'),
+        child: const TestApp(
+          locale: Locale('zh', 'CN'),
           child: MediaQuery(
             data: MediaQueryData(
-              size: const Size(360, 600),
+              size: Size(360, 600),
               textScaler: TextScaler.linear(1.3),
             ),
-            child: const ConnectionsView(),
+            child: ConnectionsView(),
           ),
         ),
       ),
