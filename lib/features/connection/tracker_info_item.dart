@@ -70,6 +70,25 @@ class TrackerInfoItem extends ConsumerWidget {
     );
   }
 
+  Widget _buildTrafficAmount(
+    BuildContext context,
+    IconData icon,
+    String label,
+    int bytes,
+  ) {
+    return Tooltip(
+      message: label,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        spacing: 4,
+        children: [
+          Icon(icon, size: 14, color: context.colorScheme.onSurfaceVariant),
+          Text(bytes.traffic.show, style: context.textTheme.bodySmall),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDesktopRow(BuildContext context) {
     final metadata = trackerInfo.metadata;
     final secondary = [
@@ -126,13 +145,17 @@ class TrackerInfoItem extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 spacing: 4,
                 children: [
-                  Text(
-                    '↑ ${trackerInfo.upload.traffic.show}',
-                    style: context.textTheme.bodySmall,
+                  _buildTrafficAmount(
+                    context,
+                    Icons.arrow_upward_rounded,
+                    context.appLocalizations.upload,
+                    trackerInfo.upload,
                   ),
-                  Text(
-                    '↓ ${trackerInfo.download.traffic.show}',
-                    style: context.textTheme.bodySmall,
+                  _buildTrafficAmount(
+                    context,
+                    Icons.arrow_downward_rounded,
+                    context.appLocalizations.download,
+                    trackerInfo.download,
                   ),
                 ],
               ),

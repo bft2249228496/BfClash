@@ -51,6 +51,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
+      if (width >= 880) {
+        expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.arrow_downward_rounded), findsOneWidget);
+      }
       await tester.tap(find.text('Test proxy'));
       await tester.pump();
       expect(keywords, ['Test proxy']);

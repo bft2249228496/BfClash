@@ -14,6 +14,8 @@ import 'package:bfclash/views/desktop_tools.dart';
 import 'package:bfclash/views/profiles/profiles.dart';
 import 'package:bfclash/views/proxies/proxies.dart';
 import 'package:bfclash/views/proxies/card.dart';
+import 'package:bfclash/views/connection/connections.dart';
+import 'package:bfclash/views/logs.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,7 +45,14 @@ void main() {
       }
     }
   });
-  for (final screen in ['desktop', 'tools', 'profiles', 'proxies']) {
+  for (final screen in [
+    'desktop',
+    'tools',
+    'profiles',
+    'proxies',
+    'connections',
+    'logs',
+  ]) {
     for (final width in [900.0, 1400.0]) {
       for (final brightness in Brightness.values) {
         testWidgets('$screen overview at $width in ${brightness.name}', (
@@ -132,6 +141,8 @@ void main() {
               'desktop' => PageLabel.dashboard,
               'profiles' => PageLabel.profiles,
               'proxies' => PageLabel.proxies,
+              'connections' => PageLabel.connections,
+              'logs' => PageLabel.logs,
               _ => PageLabel.tools,
             },
           );
@@ -157,6 +168,27 @@ void main() {
                       'desktop' => const DesktopDashboardView(),
                       'profiles' => const ProfilesView(),
                       'proxies' => const ProxiesView(),
+                      'connections' => ConnectionsView(
+                        connectionsReader: () async => [
+                          TrackerInfo(
+                            id: 'preview',
+                            metadata: const Metadata(
+                              network: 'tcp',
+                              host: 'example.test',
+                              process: 'Browser.exe',
+                              destinationIP: '192.0.2.1',
+                              destinationPort: '443',
+                            ),
+                            upload: 2048,
+                            download: 16384,
+                            start: DateTime(2026, 10, 18),
+                            chains: ['Example node', 'PROXY'],
+                            rule: 'Match',
+                            rulePayload: '',
+                          ),
+                        ],
+                      ),
+                      'logs' => const LogsView(),
                       _ => const DesktopToolsView(),
                     },
                   ),
@@ -164,6 +196,18 @@ void main() {
               ),
             ),
           );
+          if (screen == 'logs') {
+            container
+                .read(logsProvider.notifier)
+                .add(
+                  const Log(
+                    payload:
+                        '[TCP] example.test:443 matched Match using PROXY[Example node]',
+                    dateTime: '2026-10-18 16:00:00',
+                  ),
+                );
+            await tester.pump(const Duration(milliseconds: 350));
+          }
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           if (screen == 'desktop') {
@@ -173,6 +217,12 @@ void main() {
               find.byIcon(Icons.power_settings_new_rounded),
               findsOneWidget,
             );
+          } else if (screen == 'connections') {
+            expect(find.textContaining('example.test'), findsWidgets);
+            expect(find.byIcon(Icons.block), findsOneWidget);
+          } else if (screen == 'logs') {
+            expect(find.textContaining('[TCP] example.test'), findsOneWidget);
+            expect(find.byIcon(Icons.save_as_outlined), findsOneWidget);
           } else if (screen == 'proxies') {
             expect(find.byType(ProxyCard), findsWidgets);
             if (width >= 1400) {
