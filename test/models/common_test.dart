@@ -165,6 +165,36 @@ void main() {
   });
 
   group('TrackerInfoExt', () {
+    test('IPv6 descriptions and pasted bracketed endpoint searches agree', () {
+      final tracker = TrackerInfo(
+        id: 'ipv6',
+        start: DateTime(2026),
+        metadata: const Metadata(
+          network: 'tcp',
+          destinationIP: '2001:db8::1',
+          destinationPort: '443',
+        ),
+        chains: const [],
+        rule: 'MATCH',
+        rulePayload: '',
+      );
+      expect(tracker.desc, 'tcp://[2001:db8::1]:443');
+      expect(
+        tracker
+            .copyWith(metadata: tracker.metadata.copyWith(destinationPort: ''))
+            .desc,
+        'tcp://[2001:db8::1]',
+      );
+      for (final query in [
+        '[2001:db8::1]:443',
+        '2001:db8::1:443',
+        '2001:db8::1',
+      ]) {
+        final state = TrackerInfosState(trackerInfos: [tracker], query: query);
+        expect(state.list, [tracker]);
+      }
+    });
+
     test('builds destination description and process text', () {
       final trackerInfo = TrackerInfo(
         id: '1',
