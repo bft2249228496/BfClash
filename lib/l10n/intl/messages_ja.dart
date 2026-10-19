@@ -583,6 +583,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "ドメインごとのネームサーバーポリシーを指定します",
     ),
+    "navGroupDiagnostics": MessageLookupByLibrary.simpleMessage("診断"),
+    "navGroupMonitor": MessageLookupByLibrary.simpleMessage("モニター"),
+    "navGroupNetwork": MessageLookupByLibrary.simpleMessage("ネットワーク"),
     "network": MessageLookupByLibrary.simpleMessage("ネットワーク"),
     "networkDesc": MessageLookupByLibrary.simpleMessage("ネットワーク関連の設定を変更します"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("ネットワーク検出"),

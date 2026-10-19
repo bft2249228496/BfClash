@@ -586,9 +586,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -726,6 +727,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "Задать политику DNS-серверов для доменов",
     ),
+    "navGroupDiagnostics": MessageLookupByLibrary.simpleMessage("Диагностика"),
+    "navGroupMonitor": MessageLookupByLibrary.simpleMessage("Мониторинг"),
+    "navGroupNetwork": MessageLookupByLibrary.simpleMessage("Сеть"),
     "network": MessageLookupByLibrary.simpleMessage("Сеть"),
     "networkDesc": MessageLookupByLibrary.simpleMessage(
       "Настройки, связанные с сетью",

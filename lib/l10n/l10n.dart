@@ -5549,6 +5549,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Monitor`
+  String get navGroupMonitor {
+    return Intl.message('Monitor', name: 'navGroupMonitor', desc: '', args: []);
+  }
+
+  /// `Network`
+  String get navGroupNetwork {
+    return Intl.message('Network', name: 'navGroupNetwork', desc: '', args: []);
+  }
+
+  /// `Diagnostics`
+  String get navGroupDiagnostics {
+    return Intl.message(
+      'Diagnostics',
+      name: 'navGroupDiagnostics',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

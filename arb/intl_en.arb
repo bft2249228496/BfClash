@@ -663,5 +663,8 @@
   "androidUpdateIncompatible": "This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.",
   "androidUpdateNotNewer": "This package is not newer than the installed app. Repeated installation was stopped.",
   "androidUpdateInstallPermission": "Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.",
-  "androidUpdateLaunchFailed": "The system installer could not be opened. The update is not installed; please retry."
+  "androidUpdateLaunchFailed": "The system installer could not be opened. The update is not installed; please retry.",
+  "navGroupMonitor": "Monitor",
+  "navGroupNetwork": "Network",
+  "navGroupDiagnostics": "Diagnostics"
 }

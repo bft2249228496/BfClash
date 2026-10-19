@@ -340,11 +340,17 @@ void main() {
                 findsWidgets,
               );
             }
-            expect(find.byType(NavigationRail), findsOneWidget);
-            final rail = tester.widget<NavigationRail>(
-              find.byType(NavigationRail),
-            );
-            expect(rail.extended, width >= 1100);
+            if (width >= 1100) {
+              expect(find.byType(NavigationRail), findsNothing);
+              expect(find.text('Monitor'), findsOneWidget);
+              expect(find.text('Network'), findsOneWidget);
+              expect(find.text('Diagnostics'), findsOneWidget);
+            } else {
+              final rail = tester.widget<NavigationRail>(
+                find.byType(NavigationRail),
+              );
+              expect(rail.extended, isFalse);
+            }
             final output = Platform.environment['BFCLASH_SCREENSHOT_DIR'];
             if (output != null) {
               final boundary = tester.renderObject<RenderRepaintBoundary>(
