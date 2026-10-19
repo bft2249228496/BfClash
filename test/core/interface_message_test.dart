@@ -101,6 +101,34 @@ void main() {
     expect(await core.setupConfig(_setupParams), isEmpty);
   });
 
+  test('missing connection response is a failure, not an empty list', () {
+    expect(core.getConnections(), throwsA(isA<CoreMethodException>()));
+  });
+
+  test('actual empty core snapshots remain empty', () async {
+    for (final connections in [null, <Object?>[]]) {
+      expect(
+        await _SnapshotCore({'connections': connections}).getConnections(),
+        isEmpty,
+      );
+    }
+  });
+
+  test('malformed snapshots cannot clear a valid connection list', () async {
+    for (final snapshot in <Map<String, dynamic>>[
+      {},
+      {'connections': 'invalid'},
+      {
+        'connections': [42],
+      },
+    ]) {
+      await expectLater(
+        _SnapshotCore(snapshot).getConnections(),
+        throwsA(isA<CoreMethodException>()),
+      );
+    }
+  });
+
   test('calls that legitimately degrade are left alone', () async {
     expect(await core.isInit, isFalse);
     expect(await core.forceGc(), isFalse);
@@ -123,4 +151,17 @@ class _AnsweringCore extends _SilentCore {
   }) async {
     return message as T;
   }
+}
+
+class _SnapshotCore extends _SilentCore {
+  _SnapshotCore(this.snapshot);
+
+  final Map<String, dynamic> snapshot;
+
+  @override
+  Future<T?> invokeMethod<T>({
+    required CoreMethod method,
+    Object? arguments,
+    Duration? timeout,
+  }) async => snapshot as T;
 }

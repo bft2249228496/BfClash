@@ -262,14 +262,30 @@ abstract class CoreHandlerInterface with CoreInterface {
     final data = await _invokeMethod<Map<String, dynamic>>(
       method: CoreMethod.getConnections,
     );
-    final connections = data?['connections'];
-    if (connections is! List) {
-      return [];
+    if (data == null) {
+      throw const CoreMethodException(
+        code: 'no_response',
+        message: 'Core did not answer getConnections',
+      );
     }
-    return connections
-        .whereType<Map>()
-        .map((item) => TrackerInfo.fromJson(Map<String, Object?>.from(item)))
-        .toList();
+    final connections = data['connections'];
+    if (!data.containsKey('connections') ||
+        (connections != null && connections is! List)) {
+      throw const CoreMethodException(
+        code: 'invalid_response',
+        message: 'Core returned an invalid connections snapshot',
+      );
+    }
+    if (connections == null) return [];
+    return (connections as List).map((item) {
+      if (item is! Map) {
+        throw const CoreMethodException(
+          code: 'invalid_response',
+          message: 'Core returned an invalid connection',
+        );
+      }
+      return TrackerInfo.fromJson(Map<String, Object?>.from(item));
+    }).toList();
   }
 
   @override
