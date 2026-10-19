@@ -6,6 +6,8 @@ import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
+import 'tool/windows_signed_package.dart';
+
 const _allTargets = <String, String>{
   'android': 'apk',
   'linux': 'deb,appimage,rpm',
@@ -100,10 +102,10 @@ Future<void> main(List<String> args) async {
       stdout.writeln('Windows package version: $buildVersion');
     }
     if (platform == 'windows') {
-      final signing = createWindowsSigningDefines(
-        rootDir,
-        Platform.environment,
-      );
+      final signing = {
+        ...createWindowsSigningDefines(rootDir, Platform.environment),
+        'BFCLASH_BUILD_ENVIRONMENT': env,
+      };
       final current = await pubspecFile.readAsString();
       final line = '      windows_signing: ${jsonEncode(signing)}';
       final pattern = RegExp(r'^      windows_signing:.*$', multiLine: true);
@@ -281,6 +283,17 @@ Future<int> _package(
 
   final depExit = await _ensureDependencies(platform);
   if (depExit != 0) return depExit;
+
+  if (platform == 'windows' &&
+      Platform.environment['BFCLASH_WINDOWS_SIGNING_REQUIRED'] == 'true') {
+    return packageSignedWindows(
+      rootDir: rootDir,
+      arch: arch,
+      beta: createBuildEnvironment(env)['APP_BETA'] == 'true',
+      targets: targets,
+      flutterBuildArgs: flutterBuildArgs,
+    );
+  }
 
   final activateResult = await Process.run('dart', [
     'pub',

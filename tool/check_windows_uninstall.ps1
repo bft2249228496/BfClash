@@ -56,6 +56,14 @@ UnsignedPayloadBlocked=Unsigned payload blocked before installation.
 [Code]
 $blockedCode
 "@
+  $trustedSettings=[regex]::Match($template,'(?s)#ifdef BFCLASH_TRUSTED_PAYLOAD\s+SignTool=.*?#endif').Value
+  if(!$trustedSettings){throw 'Trusted installer settings are missing'}
+  $trustedFixture=$blockedScript.Replace('[Files]', $trustedSettings+"`n[Files]")
+  $trustedFixture|Set-Content "$testRoot/trusted-without-signer.iss" -Encoding UTF8
+  & $compiler /Q /DBFCLASH_TRUSTED_PAYLOAD "$testRoot/trusted-without-signer.iss" 2>&1|Out-Host
+  if($LASTEXITCODE -eq 0){throw 'Trusted installer compiled without its required signing tool'}
+  if(Test-Path "$testRoot/policy-blocked-setup.exe"){throw 'Unsigned output escaped trusted compilation'}
+  Write-Output 'Trusted installer cannot compile without its signing backend'
   $blockedScript|Set-Content "$testRoot/policy-blocked.iss" -Encoding UTF8
   & $compiler /Q "$testRoot/policy-blocked.iss"
   if($LASTEXITCODE -ne 0){throw 'Policy fixture compile failed'}

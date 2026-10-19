@@ -20,13 +20,18 @@ PrivilegesRequired={{PRIVILEGES_REQUIRED}}
 ArchitecturesAllowed={{ARCH}}
 ArchitecturesInstallIn64BitMode={{ARCH}}
 
+#ifdef BFCLASH_TRUSTED_PAYLOAD
+SignTool=bfclashTrusted
+SignedUninstaller=yes
+#endif
+
 [Code]
 function InitializeSetup(): Boolean;
 var
   PolicyState: Cardinal;
 begin
   Result := True;
-  { Current packages have no verified trusted payload signatures. }
+  #ifndef BFCLASH_TRUSTED_PAYLOAD
   if RegQueryDWordValue(HKLM,
     'SYSTEM\CurrentControlSet\Control\CI\Policy',
     'VerifiedAndReputablePolicyState', PolicyState) and (PolicyState = 1) then
@@ -34,6 +39,7 @@ begin
     SuppressibleMsgBox(CustomMessage('UnsignedPayloadBlocked'), mbCriticalError, MB_OK, IDOK);
     Result := False;
   end;
+  #endif
 end;
 
 procedure UnregisterHelperService;

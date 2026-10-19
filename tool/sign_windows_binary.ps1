@@ -1,6 +1,7 @@
 param(
   [Parameter(Mandatory=$true)][string]$FilePath,
-  [switch]$VerifyOnly
+  [switch]$VerifyOnly,
+  [string]$ReceiptDirectory
 )
 $ErrorActionPreference='Stop'
 $ProgressPreference='SilentlyContinue'
@@ -25,3 +26,9 @@ if($signature.Status -ne 'Valid' -or !$signature.SignerCertificate -or !$signatu
 if($signature.SignerCertificate.Subject -cne $env:BFCLASH_SIGNER_SUBJECT){throw 'Signing publisher differs from the authorized publisher'}
 if($signature.SignerCertificate.PublicKey.Oid.Value -ne '1.2.840.113549.1.1.1'){throw 'Smart App Control signing requires the configured RSA identity'}
 Write-Output 'Trusted signature and publisher verified'
+
+if($ReceiptDirectory -and !$VerifyOnly){
+  if(!(Test-Path -LiteralPath $ReceiptDirectory -PathType Container)){throw 'Signing receipt directory is unavailable'}
+  $receipt=@{file=[IO.Path]::GetFileName($FilePath);sha256=(Get-FileHash -LiteralPath $FilePath -Algorithm SHA256).Hash.ToLowerInvariant();publisher=$signature.SignerCertificate.Subject;verified=$true}
+  $receipt|ConvertTo-Json -Compress|Set-Content -LiteralPath (Join-Path $ReceiptDirectory ([guid]::NewGuid().ToString('N')+'.json')) -Encoding UTF8
+}

@@ -16,8 +16,8 @@ The PowerShell backend uses Microsoft's SignTool/dlib metadata flow, SHA256 and 
 
 - Obtain an authorized identity/account/profile and configure it without sharing private keys or passwords in chat. No account creation, purchase or external application submission is authorized by this file.
 - Verify the backend on real Windows with that identity; reject wrong publisher/untrusted/missing timestamp/failing service responses.
-- Sign/verify the Flutter runner and every executable/DLL payload after build and before packaging. Do not alter Core after Helper compilation.
-- Sign the uninstaller through Inno and verify it, then sign/verify the final installer; calculate ZIP/installer release hashes only after all signing steps.
+- Validate the new staged whole-payload signing path against the real backend. It scans PE content (including app.so), preserves signed Core/Helper bytes and signs unsigned payloads. Existing trusted timestamped third-party signatures are retained. No real backend run has occurred.
+- Validate new Inno automatic uninstaller/installer signing and callback receipts on the authorized Windows build host. Final hashes are written only after both callbacks and final installer verification; actual installed uninstaller verification remains required.
 - Replace unsigned-only updater/installer refusal with actual verified trusted-signature handling for the signed distribution. Do not remove protection merely to permit another unsigned package.
 - Run packaged Helper/Core hash validation and actual startup/TUN/exit on the user's enforced-policy device, followed by remaining complete UI/update/feature acceptance.
 
@@ -30,3 +30,9 @@ Official integration references: https://learn.microsoft.com/en-us/azure/artifac
 ## Hook cache and entrypoint
 
 Use `dart setup.dart windows` for this signing path. It stamps only public signing configuration and content digests into the setup hook user defines, then restores pubspec in finally. Native hooks strip arbitrary environment variables and do not invalidate their outer cache on environment changes; reading BFCLASH variables only inside the hook would therefore be unsafe. The hook receives this explicit input and forwards the required public variables to the signing subprocess. Changes to signing mode, publisher, tools, metadata or script alter hook inputs. Direct Flutter builds do not configure this signing entrypoint and are not trusted release commands. Authentication must be available via the authorized managed host identity/credential store; no secrets are written into user defines.
+
+## Signed packaging entrypoint implementation
+
+`setup.dart windows` now branches to an explicit signed packager when trusted signing is required. It builds Flutter, renders the existing stable/beta installer template using the same Liquid renderer, stages files into a unique dist directory, checks channel/required runner/Flutter/AOT/Node files and the signed Core manifest, and signs/verifies PE payloads without changing Core/Helper. The compiler is invoked with an explicit named signer and SignedUninstaller=yes. Signature receipts from Inno callbacks and final installer verification are required before EXE/ZIP/signature proof move into dist. Staging is deleted on failure. No installation or release upload is performed by this command.
+
+Unsigned default builds retain the policy refusal. The trusted compile define is used only after staged payload verification and requires the compiler signing command; without that command compilation must fail. Whole-build test coverage includes rendering both identities, original lifecycle/entry sections and rejection of an unknown architecture; actual Artifact Signing and enforced-device startup are not established by those tests. The current in-app unsigned-update preflight still conservatively blocks under enforcement; signature-aware updates are a remaining stage and must not be bypassed based solely on a new filename or compile flag.
