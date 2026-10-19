@@ -259,6 +259,22 @@ class CommonAction extends _$CommonAction {
     final context = globalState.navigatorKey.currentContext!;
     if (!context.mounted) return;
     if (_installingUpdate) return;
+    var allowUnsigned = false;
+    if (windowsAsset != null) {
+      final policyState = windowsApplicationControlState();
+      if (policyState != WindowsApplicationControlState.inactive) {
+        final confirmed = await dialogs.showMessage(
+          title: currentAppLocalizations.windowsUnsignedUpdateTitle,
+          message: TextSpan(
+            text: currentAppLocalizations.windowsUnsignedUpdateConfirm,
+          ),
+          confirmText: currentAppLocalizations.updateNow,
+        );
+        if (confirmed != true) return;
+        if (!context.mounted) return;
+        allowUnsigned = true;
+      }
+    }
     _installingUpdate = true;
     final progress = ValueNotifier<UpdateDownloadProgress?>(null);
     final downloadCancel = CancelToken();
@@ -411,7 +427,6 @@ class CommonAction extends _$CommonAction {
     );
     var downloadDialogClosed = false;
     try {
-      if (windowsAsset != null) ensureWindowsUpdateDownloadAllowed();
       final file = windowsAsset != null
           ? await downloadWindowsUpdate(
               request.clashDio,
@@ -437,6 +452,7 @@ class CommonAction extends _$CommonAction {
           launcher: (file, arguments) =>
               windows?.runas(file, arguments) ?? false,
           exitApplication: ref.read(systemActionProvider.notifier).handleExit,
+          allowUnsignedWhenEnforced: allowUnsigned,
         );
         return;
       }

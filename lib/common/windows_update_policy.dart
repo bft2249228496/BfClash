@@ -12,31 +12,79 @@ int? readWindowsApplicationControlState() => LOCAL_MACHINE.getInt(
   path: r'SYSTEM\CurrentControlSet\Control\CI\Policy',
 );
 
-void ensureUnsignedWindowsUpdateAllowed({int? Function()? policyStateReader}) {
+/// Smart App Control (application control) visibility for an unsigned update.
+enum WindowsApplicationControlState {
+  /// Off, evaluation mode, or not configured: Windows does not block
+  /// unsigned installers, so updating can proceed without extra prompts.
+  inactive,
+
+  /// Enforcement is on: unsigned installers are likely to be blocked or
+  /// flagged by Windows, so the user should confirm before updating.
+  enforced,
+
+  /// The state could not be read or is an unknown value: stay cautious.
+  unknown,
+}
+
+WindowsApplicationControlState windowsApplicationControlState({
+  int? Function()? policyStateReader,
+}) {
   int? state;
   try {
     state = (policyStateReader ?? readWindowsApplicationControlState)();
   } catch (_) {
-    throw MessageException(
-      currentAppLocalizations.windowsUnsignedUpdateBlocked,
-    );
+    return WindowsApplicationControlState.unknown;
   }
-  if (state != null && state != 0 && state != 2) {
-    throw MessageException(
-      currentAppLocalizations.windowsUnsignedUpdateBlocked,
-    );
-  }
+  return switch (state) {
+    null || 0 || 2 => WindowsApplicationControlState.inactive,
+    1 => WindowsApplicationControlState.enforced,
+    _ => WindowsApplicationControlState.unknown,
+  };
+}
+
+void ensureUnsignedWindowsUpdateAllowed({
+  int? Function()? policyStateReader,
+  bool allowWhenEnforced = false,
+}) {
+  final state = windowsApplicationControlState(
+    policyStateReader: policyStateReader,
+  );
+  if (state == WindowsApplicationControlState.inactive) return;
+  if (allowWhenEnforced) return;
+  throw MessageException(
+    currentAppLocalizations.windowsUnsignedUpdateBlocked,
+  );
 }
 
 const windowsUpdatePublisher = String.fromEnvironment('WINDOWS_SIGNER_SUBJECT');
 
-void ensureWindowsUpdateDownloadAllowed({
-  String expectedPublisher = windowsUpdatePublisher,
+Future<void> launchWindowsUpdate({
+  required String filePath,
+  required String installDirectory,
+  required bool Function(String, String) launcher,
+  required Future<void> Function() exitApplication,
   int? Function()? policyStateReader,
-}) {
+  String expectedPublisher = windowsUpdatePublisher,
+  Future<bool> Function(String, String)? signatureVerifier,
+  bool allowUnsignedWhenEnforced = false,
+}) async {
   if (expectedPublisher.isEmpty) {
-    ensureUnsignedWindowsUpdateAllowed(policyStateReader: policyStateReader);
+    ensureUnsignedWindowsUpdateAllowed(
+      policyStateReader: policyStateReader,
+      allowWhenEnforced: allowUnsignedWhenEnforced,
+    );
+  } else if (!await (signatureVerifier ?? verifyWindowsInstallerSignature)(
+    filePath,
+    expectedPublisher,
+  )) {
+    throw MessageException(
+      currentAppLocalizations.windowsUnsignedUpdateBlocked,
+    );
   }
+  if (!launcher(filePath, '/DIR="$installDirectory" /NORESTART')) {
+    throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
+  }
+  await exitApplication();
 }
 
 Future<bool> verifyWindowsInstallerSignature(
@@ -77,29 +125,4 @@ $signature=Get-AuthenticodeSignature -LiteralPath $path
   } catch (_) {
     return false;
   }
-}
-
-Future<void> launchWindowsUpdate({
-  required String filePath,
-  required String installDirectory,
-  required bool Function(String, String) launcher,
-  required Future<void> Function() exitApplication,
-  int? Function()? policyStateReader,
-  String expectedPublisher = windowsUpdatePublisher,
-  Future<bool> Function(String, String)? signatureVerifier,
-}) async {
-  if (expectedPublisher.isEmpty) {
-    ensureUnsignedWindowsUpdateAllowed(policyStateReader: policyStateReader);
-  } else if (!await (signatureVerifier ?? verifyWindowsInstallerSignature)(
-    filePath,
-    expectedPublisher,
-  )) {
-    throw MessageException(
-      currentAppLocalizations.windowsUnsignedUpdateBlocked,
-    );
-  }
-  if (!launcher(filePath, '/DIR="$installDirectory" /NORESTART')) {
-    throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
-  }
-  await exitApplication();
 }

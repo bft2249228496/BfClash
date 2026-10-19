@@ -1316,6 +1316,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.",
     ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "This update package has no code signature. Windows may show an \"unknown publisher\" confirmation, or block the installation if Smart App Control is on. Continue to download and install?",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "Unsigned update package",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
     ),

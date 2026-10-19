@@ -671,5 +671,7 @@
   "aboutCredits": "クレジット",
   "aboutBaseProject": "クライアント基盤プロジェクト",
   "aboutCoreProject": "高性能ルーティングプロキシコア",
-  "aboutOpenSourceLicense": "オープンソースライセンス"
+  "aboutOpenSourceLicense": "オープンソースライセンス",
+  "windowsUnsignedUpdateTitle": "未署名の更新パッケージ",
+  "windowsUnsignedUpdateConfirm": "この更新パッケージはコード署名されていません。Windows が「不明な発行元」の確認を表示したり、スマート アプリ制御が有効な場合はインストールがブロックされる可能性があります。ダウンロードしてインストールを続行しますか？"
 }

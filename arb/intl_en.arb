@@ -671,5 +671,7 @@
   "aboutCredits": "Credits & upstream",
   "aboutBaseProject": "Client base project",
   "aboutCoreProject": "High-performance routing proxy core",
-  "aboutOpenSourceLicense": "Open-source license"
+  "aboutOpenSourceLicense": "Open-source license",
+  "windowsUnsignedUpdateTitle": "Unsigned update package",
+  "windowsUnsignedUpdateConfirm": "This update package has no code signature. Windows may show an \"unknown publisher\" confirmation, or block the installation if Smart App Control is on. Continue to download and install?"
 }

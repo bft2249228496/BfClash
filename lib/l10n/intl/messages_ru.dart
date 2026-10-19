@@ -1372,6 +1372,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "Пакет обновления не подписан. Контроль приложений включён либо его состояние не удалось проверить. Обновление остановлено до запуска установщика и выхода из BfClash. Требуется сборка с доверенной подписью; не отключайте защиту Windows.",
     ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "Этот пакет обновления не имеет цифровой подписи. Windows может запросить подтверждение «неизвестный издатель» или заблокировать установку, если включён контроль приложений. Продолжить загрузку и установку?",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "Обновление без подписи",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "Не удалось определить сборку или архитектуру этой бета-версии Windows. Установите официальную бета-версию Windows и повторите попытку.",
     ),

@@ -671,5 +671,7 @@
   "aboutCredits": "鸣谢与上游",
   "aboutBaseProject": "客户端底座项目",
   "aboutCoreProject": "高性能路由代理内核",
-  "aboutOpenSourceLicense": "开源许可证"
+  "aboutOpenSourceLicense": "开源许可证",
+  "windowsUnsignedUpdateTitle": "更新包未签名",
+  "windowsUnsignedUpdateConfirm": "此更新包没有代码签名。Windows 可能弹出「未知发布者」确认；若开启了智能应用控制，安装可能被拦截。仍要继续下载并安装吗？"
 }

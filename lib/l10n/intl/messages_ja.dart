@@ -1098,6 +1098,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。",
     ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "この更新パッケージはコード署名されていません。Windows が「不明な発行元」の確認を表示したり、スマート アプリ制御が有効な場合はインストールがブロックされる可能性があります。ダウンロードしてインストールを続行しますか？",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "未署名の更新パッケージ",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "この Windows ベータ版のビルド番号またはアーキテクチャを識別できません。公式 Windows ベータ版をインストールして再試行してください。",
     ),

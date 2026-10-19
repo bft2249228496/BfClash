@@ -122,6 +122,55 @@ void main() {
     expect(actions, isEmpty);
   });
 
+  test(
+    'explicitly confirmed unsigned update launches under enforced policy',
+    () async {
+      final actions = <String>[];
+      await launchWindowsUpdate(
+        filePath: 'owned setup.exe',
+        installDirectory: 'owned app',
+        policyStateReader: () => 1,
+        allowUnsignedWhenEnforced: true,
+        launcher: (file, args) {
+          expect(file, 'owned setup.exe');
+          expect(args, '/DIR="owned app" /NORESTART');
+          actions.add('launch');
+          return true;
+        },
+        exitApplication: () async => actions.add('exit'),
+      );
+      expect(actions, ['launch', 'exit']);
+    },
+  );
+
+  test('policy state maps registry values to caution levels', () {
+    expect(
+      windowsApplicationControlState(policyStateReader: () => null),
+      WindowsApplicationControlState.inactive,
+    );
+    for (final value in [0, 2]) {
+      expect(
+        windowsApplicationControlState(
+          policyStateReader: () => value,
+        ),
+        WindowsApplicationControlState.inactive,
+      );
+    }
+    expect(
+      windowsApplicationControlState(policyStateReader: () => 1),
+      WindowsApplicationControlState.enforced,
+    );
+    for (final reader in <int? Function()>[
+      () => throw StateError('access denied'),
+      () => 99,
+    ]) {
+      expect(
+        windowsApplicationControlState(policyStateReader: reader),
+        WindowsApplicationControlState.unknown,
+      );
+    }
+  });
+
   test('unreadable or unknown policy fails closed', () {
     for (final reader in <int? Function()>[
       () => throw StateError('access denied'),

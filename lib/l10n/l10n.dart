@@ -5614,6 +5614,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Unsigned update package`
+  String get windowsUnsignedUpdateTitle {
+    return Intl.message(
+      'Unsigned update package',
+      name: 'windowsUnsignedUpdateTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This update package has no code signature. Windows may show an "unknown publisher" confirmation, or block the installation if Smart App Control is on. Continue to download and install?`
+  String get windowsUnsignedUpdateConfirm {
+    return Intl.message(
+      'This update package has no code signature. Windows may show an "unknown publisher" confirmation, or block the installation if Smart App Control is on. Continue to download and install?',
+      name: 'windowsUnsignedUpdateConfirm',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

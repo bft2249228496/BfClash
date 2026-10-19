@@ -950,6 +950,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。",
     ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "此更新包没有代码签名。Windows 可能弹出「未知发布者」确认；若开启了智能应用控制，安装可能被拦截。仍要继续下载并安装吗？",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "更新包未签名",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "无法识别此 Windows 测试版的构建编号或架构。请安装官方 Windows 测试版后重试。",
     ),
