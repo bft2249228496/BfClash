@@ -659,5 +659,9 @@
   "retry": "Retry",
   "refresh": "Refresh",
   "connectionSnapshotUnavailable": "Connection data is unavailable",
-  "windowsUnsignedUpdateBlocked": "This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled."
+  "windowsUnsignedUpdateBlocked": "This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.",
+  "androidUpdateIncompatible": "This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.",
+  "androidUpdateNotNewer": "This package is not newer than the installed app. Repeated installation was stopped.",
+  "androidUpdateInstallPermission": "Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.",
+  "androidUpdateLaunchFailed": "The system installer could not be opened. The update is not installed; please retry."
 }

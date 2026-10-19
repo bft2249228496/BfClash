@@ -127,6 +127,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowBypassDesc": MessageLookupByLibrary.simpleMessage("开启后部分应用可绕过VPN"),
     "allowLan": MessageLookupByLibrary.simpleMessage("局域网代理"),
     "allowLanDesc": MessageLookupByLibrary.simpleMessage("允许通过局域网访问代理"),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "此安装包无法更新当前应用：应用身份不匹配或文件无效。已停止安装，请使用相同渠道的更新包。",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "已打开安装权限设置。允许安装后请返回并重新点击更新；更新尚未安装。",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "未能打开系统安装器，更新尚未安装，请重试。",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "安装包版本未高于当前版本，已停止重复安装。",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("应用"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage("应用访问控制"),
     "appendSystemDns": MessageLookupByLibrary.simpleMessage("追加系统DNS"),

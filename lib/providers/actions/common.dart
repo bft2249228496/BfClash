@@ -248,8 +248,11 @@ class CommonAction extends _$CommonAction {
     final packageSize = windowsAsset?.size ?? asset?.size ?? 0;
     final url = windowsAsset?.url ?? asset?.url;
     if (url == null || url.isEmpty) {
-      await launchUrl(
-        Uri.parse('https://github.com/$repository/releases/latest'),
+      dialogs.showNotifier(
+        windowsAsset != null
+            ? currentAppLocalizations.windowsUpdateUnavailable
+            : currentAppLocalizations.androidUpdateIncompatible,
+        level: MessageLevel.error,
       );
       return;
     }
@@ -437,10 +440,10 @@ class CommonAction extends _$CommonAction {
         );
         return;
       }
-      final installed = await app?.installApk(file.path) ?? false;
-      if (!installed) {
-        await launchUrl(
-          Uri.parse('https://github.com/$repository/releases/latest'),
+      final installerOpened = await app?.installApk(file.path) ?? false;
+      if (!installerOpened) {
+        throw MessageException(
+          currentAppLocalizations.androidUpdateLaunchFailed,
         );
       }
     } catch (error) {

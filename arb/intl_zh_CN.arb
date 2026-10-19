@@ -659,5 +659,9 @@
   "retry": "重试",
   "refresh": "刷新",
   "connectionSnapshotUnavailable": "暂时无法获取连接",
-  "windowsUnsignedUpdateBlocked": "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。"
+  "windowsUnsignedUpdateBlocked": "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。",
+  "androidUpdateIncompatible": "此安装包无法更新当前应用：应用身份不匹配或文件无效。已停止安装，请使用相同渠道的更新包。",
+  "androidUpdateNotNewer": "安装包版本未高于当前版本，已停止重复安装。",
+  "androidUpdateInstallPermission": "已打开安装权限设置。允许安装后请返回并重新点击更新；更新尚未安装。",
+  "androidUpdateLaunchFailed": "未能打开系统安装器，更新尚未安装，请重试。"
 }

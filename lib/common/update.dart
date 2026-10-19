@@ -58,6 +58,23 @@ class UpdateDownloadProgress {
   String get formattedSpeed => '${formatBytes(speedBytesPerSec.round())}/s';
 }
 
+bool isAndroidReleaseCompatible(
+  Map<String, dynamic> release,
+  String packageName,
+) {
+  final tag = (release['tag_name'] as String? ?? '').toLowerCase();
+  final targetPackage = tag.contains('beta')
+      ? 'com.lansway.client.beta'
+      : 'com.bfclash.client';
+  final assets = release['assets'] as List<dynamic>?;
+  return packageName == targetPackage &&
+      (assets?.whereType<Map<String, dynamic>>().any(
+            (asset) =>
+                (asset['name'] as String? ?? '').toLowerCase().endsWith('.apk'),
+          ) ??
+          false);
+}
+
 @visibleForTesting
 Map<String, dynamic>? selectAndroidUpdateAssetEntry(
   List<dynamic>? assets,

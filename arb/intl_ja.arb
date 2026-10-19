@@ -659,5 +659,9 @@
   "retry": "再試行",
   "refresh": "更新",
   "connectionSnapshotUnavailable": "接続情報を取得できません",
-  "windowsUnsignedUpdateBlocked": "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。"
+  "windowsUnsignedUpdateBlocked": "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。",
+  "androidUpdateIncompatible": "アプリの識別情報が異なるか、ファイルが無効なため、このパッケージでは更新できません。同じチャネルの更新を使用してください。",
+  "androidUpdateNotNewer": "このパッケージはインストール済みのバージョンより新しくありません。繰り返しのインストールを停止しました。",
+  "androidUpdateInstallPermission": "インストール権限の設定を開きました。許可後に戻って更新を再試行してください。更新はまだインストールされていません。",
+  "androidUpdateLaunchFailed": "システムのインストーラーを開けませんでした。更新はまだインストールされていません。再試行してください。"
 }

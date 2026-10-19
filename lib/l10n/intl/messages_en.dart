@@ -161,6 +161,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowLanDesc": MessageLookupByLibrary.simpleMessage(
       "Allow proxy access over the LAN",
     ),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "The system installer could not be opened. The update is not installed; please retry.",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "This package is not newer than the installed app. Repeated installation was stopped.",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("App"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage(
       "App access control",

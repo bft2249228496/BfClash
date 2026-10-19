@@ -75,6 +75,9 @@ class Request {
   Future<Map<String, dynamic>?> checkForUpdate() async {
     try {
       final version = globalState.packageInfo.version;
+      final androidPackage = system.isAndroid
+          ? globalState.packageInfo.packageName
+          : null;
       final isCurrentBeta =
           (system.isWindows && WindowsChannelConfig.isBeta) ||
           isPreReleaseVersion(version);
@@ -91,6 +94,10 @@ class Request {
           );
         }
         final data = response.data as Map<String, dynamic>;
+        if (androidPackage != null &&
+            !isAndroidReleaseCompatible(data, androidPackage)) {
+          return null;
+        }
         final remoteVersion = data['tag_name'] as String? ?? '';
         final cleanTag = remoteVersion.replaceFirst(RegExp(r'^[vV]'), '');
         if (isPreReleaseVersion(cleanTag)) return null;
@@ -127,6 +134,10 @@ class Request {
 
       for (final release in list) {
         if (release['draft'] == true) continue;
+        if (androidPackage != null &&
+            !isAndroidReleaseCompatible(release, androidPackage)) {
+          continue;
+        }
         final tagName = release['tag_name'] as String? ?? '';
         if (tagName.isEmpty) continue;
         final cleanTag = tagName.replaceFirst(RegExp(r'^[vV]'), '');
