@@ -658,5 +658,6 @@
   "connectionRefreshFailedTip": "无法刷新连接，列表可能已过期。",
   "retry": "重试",
   "refresh": "刷新",
-  "connectionSnapshotUnavailable": "暂时无法获取连接"
+  "connectionSnapshotUnavailable": "暂时无法获取连接",
+  "windowsUnsignedUpdateBlocked": "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。"
 }

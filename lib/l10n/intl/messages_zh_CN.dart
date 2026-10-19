@@ -927,6 +927,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "无法识别此 Windows 测试版的构建编号或架构。请安装官方 Windows 测试版后重试。",
     ),

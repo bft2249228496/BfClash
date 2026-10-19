@@ -1,0 +1,14 @@
+name: Windows installer safety regression
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  installer-safety:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+      - name: Verify blocked update and uninstall safety
+        run: ./tool/check_windows_uninstall.ps1

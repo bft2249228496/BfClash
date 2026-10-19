@@ -408,6 +408,7 @@ class CommonAction extends _$CommonAction {
     );
     var downloadDialogClosed = false;
     try {
+      if (windowsAsset != null) ensureUnsignedWindowsUpdateAllowed();
       final file = windowsAsset != null
           ? await downloadWindowsUpdate(
               request.clashDio,
@@ -427,18 +428,13 @@ class CommonAction extends _$CommonAction {
       await dialogFuture;
       downloadDialogClosed = true;
       if (windowsAsset != null) {
-        final launched =
-            windows?.runas(
-              file.path,
-              '/DIR="${appPath.executableDirPath}" /NORESTART',
-            ) ??
-            false;
-        if (!launched) {
-          throw MessageException(
-            currentAppLocalizations.windowsUpdateLaunchFailed,
-          );
-        }
-        await ref.read(systemActionProvider.notifier).handleExit();
+        await launchUnsignedWindowsUpdate(
+          filePath: file.path,
+          installDirectory: appPath.executableDirPath,
+          launcher: (file, arguments) =>
+              windows?.runas(file, arguments) ?? false,
+          exitApplication: ref.read(systemActionProvider.notifier).handleExit,
+        );
         return;
       }
       final installed = await app?.installApk(file.path) ?? false;

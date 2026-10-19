@@ -5499,6 +5499,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.`
+  String get windowsUnsignedUpdateBlocked {
+    return Intl.message(
+      'This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.',
+      name: 'windowsUnsignedUpdateBlocked',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

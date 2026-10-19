@@ -34,6 +34,36 @@ int main(int argc, char** argv) {
   $template=Get-Content 'windows/packaging/exe/inno_setup.iss' -Raw
   $code=($template -split '\[Code\]',2)[1] -split '\[Languages\]',2|Select-Object -First 1
   $code=$code.Replace('{{HELPER_SERVICE_EXECUTABLE_NAME}}','Helper.exe')
+  $blockedInstall=Join-Path $testRoot 'policy-blocked'
+  $blockedMarker=Join-Path $testRoot 'policy-blocked-marker.txt'
+  $env:BFCLASH_UNINSTALL_TEST_MARKER=$blockedMarker
+  $blockedCode=[regex]::Replace($code, '(?s)if RegQueryDWordValue\(HKLM,.*?\(PolicyState = 1\) then', 'if True then')
+  if($blockedCode -eq $code){throw 'Policy fixture failed to replace the registry read'}
+  $blockedScript=@"
+[Setup]
+AppId=BfClashPolicyFixture
+AppName=BfClash Policy Fixture
+AppVersion=1.0
+DefaultDirName=$blockedInstall
+PrivilegesRequired=lowest
+CreateUninstallRegKey=no
+OutputDir=$testRoot
+OutputBaseFilename=policy-blocked-setup
+[Files]
+Source: "$testRoot\build\Release\Helper.exe"; DestDir: "{app}"
+[CustomMessages]
+UnsignedPayloadBlocked=Unsigned payload blocked before installation.
+[Code]
+$blockedCode
+"@
+  $blockedScript|Set-Content "$testRoot/policy-blocked.iss" -Encoding UTF8
+  & $compiler /Q "$testRoot/policy-blocked.iss"
+  if($LASTEXITCODE -ne 0){throw 'Policy fixture compile failed'}
+  $exitCode=RunFixture "$testRoot/policy-blocked-setup.exe" '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+  if($exitCode -eq 0){throw 'Enforcing policy did not reject unsigned installation'}
+  if(Test-Path "$blockedInstall/Helper.exe"){throw 'Blocked installer changed app files'}
+  if(Test-Path $blockedMarker){throw 'Blocked installer removed Helper'}
+  Write-Output 'Enforcing policy rejects unsigned payload before file or Helper changes'
   foreach($cancel in @($true,$false)){
     $label=if($cancel){'cancel'}else{'confirmed'}
     $install=Join-Path $testRoot $label
@@ -55,6 +85,8 @@ OutputDir=$testRoot
 OutputBaseFilename=$label-setup
 [Files]
 Source: "$testRoot\build\Release\Helper.exe"; DestDir: "{app}"
+[CustomMessages]
+UnsignedPayloadBlocked=Unsigned payload blocked before installation.
 [Code]
 $code
 "@

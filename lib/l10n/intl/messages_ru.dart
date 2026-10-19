@@ -1344,6 +1344,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "Пакет обновления не подписан. Контроль приложений включён либо его состояние не удалось проверить. Обновление остановлено до запуска установщика и выхода из BfClash. Требуется сборка с доверенной подписью; не отключайте защиту Windows.",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "Не удалось определить сборку или архитектуру этой бета-версии Windows. Установите официальную бета-версию Windows и повторите попытку.",
     ),

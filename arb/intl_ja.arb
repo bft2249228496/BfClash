@@ -658,5 +658,6 @@
   "connectionRefreshFailedTip": "接続を更新できません。リストが古い可能性があります。",
   "retry": "再試行",
   "refresh": "更新",
-  "connectionSnapshotUnavailable": "接続情報を取得できません"
+  "connectionSnapshotUnavailable": "接続情報を取得できません",
+  "windowsUnsignedUpdateBlocked": "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。"
 }

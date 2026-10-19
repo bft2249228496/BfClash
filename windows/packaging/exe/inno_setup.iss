@@ -21,6 +21,21 @@ ArchitecturesAllowed={{ARCH}}
 ArchitecturesInstallIn64BitMode={{ARCH}}
 
 [Code]
+function InitializeSetup(): Boolean;
+var
+  PolicyState: Cardinal;
+begin
+  Result := True;
+  { Current packages have no verified trusted payload signatures. }
+  if RegQueryDWordValue(HKLM,
+    'SYSTEM\CurrentControlSet\Control\CI\Policy',
+    'VerifiedAndReputablePolicyState', PolicyState) and (PolicyState = 1) then
+  begin
+    SuppressibleMsgBox(CustomMessage('UnsignedPayloadBlocked'), mbCriticalError, MB_OK, IDOK);
+    Result := False;
+  end;
+end;
+
 procedure UnregisterHelperService;
 var
   HelperPath: String;
@@ -74,6 +89,14 @@ Name: "chineseSimplified"; MessagesFile: {% if locale.file %}{{ locale.file }}{%
 {% if locale.lang == 'es' %}Name: "spanish"; MessagesFile: "compiler:Languages\\Spanish.isl"{% endif %}
 {% if locale.lang == 'tr' %}Name: "turkish"; MessagesFile: "compiler:Languages\\Turkish.isl"{% endif %}
 {% if locale.lang == 'uk' %}Name: "ukrainian"; MessagesFile: "compiler:Languages\\Ukrainian.isl"{% endif %}
+{% endfor %}
+
+[CustomMessages]
+UnsignedPayloadBlocked=This package is unsigned and Application Control is enabled. Installation was stopped before changing existing files or services. A trusted signed build is required. Keep Windows protection enabled.
+{% for locale in LOCALES %}
+{% if locale.lang == 'zh' %}chineseSimplified.UnsignedPayloadBlocked=当前安装包未签名，且应用控制已启用。已在修改现有文件或服务前停止安装。需要可信签名版本，请保留 Windows 安全保护。{% endif %}
+{% if locale.lang == 'ja' %}japanese.UnsignedPayloadBlocked=このパッケージは未署名で、アプリ制御が有効です。既存のファイルやサービスを変更する前にインストールを停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。{% endif %}
+{% if locale.lang == 'ru' %}russian.UnsignedPayloadBlocked=Этот пакет не подписан, а контроль приложений включён. Установка остановлена до изменения файлов или служб. Требуется сборка с доверенной подписью. Не отключайте защиту Windows.{% endif %}
 {% endfor %}
 
 [Tasks]

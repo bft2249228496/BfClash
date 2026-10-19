@@ -1073,6 +1073,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPNの再起動後に有効になります"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "この Windows ベータ版のビルド番号またはアーキテクチャを識別できません。公式 Windows ベータ版をインストールして再試行してください。",
     ),

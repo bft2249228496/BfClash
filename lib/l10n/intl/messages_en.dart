@@ -1286,6 +1286,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.",
+    ),
     "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
       "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
     ),
