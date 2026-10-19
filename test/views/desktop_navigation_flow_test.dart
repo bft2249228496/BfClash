@@ -154,11 +154,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Proxy stopped'), findsOneWidget);
+      // Hero card state plus the header status capsule.
+      expect(find.text('Proxy stopped'), findsWidgets);
       expect(find.text('Proxy running'), findsNothing);
       container.read(runTimeProvider.notifier).value = 65000;
       await tester.pump();
-      expect(find.text('Proxy running'), findsOneWidget);
+      expect(find.text('Proxy running'), findsWidgets);
       expect(find.text('Time: 00:01:05'), findsOneWidget);
       expect(find.textContaining('1970'), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());

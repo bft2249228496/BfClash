@@ -1,7 +1,7 @@
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/enum/enum.dart';
-import 'package:bfclash/models/models.dart' show Group;
+import 'package:bfclash/models/models.dart' show Group, TrafficShowExt;
 import 'package:bfclash/providers/providers.dart' hide NetworkDetection;
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/dashboard/widgets/core_status_button.dart';
@@ -136,47 +136,190 @@ class DesktopDashboardView extends ConsumerWidget {
   }
 }
 
-class _DesktopTopStatusBar extends ConsumerWidget {
+class _DesktopTopStatusBar extends StatelessWidget {
   const _DesktopTopStatusBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = context.appLocalizations;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final showRates = constraints.maxWidth >= 760;
+        return Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'BfClash',
+                    style: context.textTheme.labelMedium?.copyWith(
+                      color: context.colorScheme.onSurfaceVariant,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    labels.dashboard,
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _DesktopStatusCapsule(showRates: showRates),
+            const Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: _CheckUpdateButton(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CheckUpdateButton extends ConsumerWidget {
+  const _CheckUpdateButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final labels = context.appLocalizations;
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'BfClash',
-                style: context.textTheme.labelMedium?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                  letterSpacing: 0.5,
+    return IconButton.outlined(
+      tooltip: labels.checkUpdate,
+      icon: const Icon(Icons.system_update_alt_rounded, size: 20),
+      onPressed: () async {
+        await globalState.safeRun(() async {
+          final data = await request.checkForUpdate();
+          if (!context.mounted) return;
+          await ref
+              .read(commonActionProvider.notifier)
+              .checkUpdateResultHandle(data: data, isUser: true);
+        }, title: labels.checkUpdate);
+      },
+    );
+  }
+}
+
+/// Pill in the dashboard header: core status plus the live up/down rates
+/// streamed by [trafficsProvider], mirroring the prototype's header strip.
+class _DesktopStatusCapsule extends ConsumerWidget {
+  const _DesktopStatusCapsule({required this.showRates});
+
+  final bool showRates;
+
+  static const _online = Color(0xFF34D399);
+  static const _warning = Color(0xFFFBBF24);
+  static const _downTint = Color(0xFF38BDF8);
+  static const _upTint = Color(0xFFC084FC);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final labels = context.appLocalizations;
+    final colors = context.colorScheme;
+    final status = ref.watch(coreStatusProvider);
+    final running = ref.watch(isStartProvider);
+
+    late final String label;
+    late final Color tone;
+    if (status == CoreStatus.connecting) {
+      label = labels.connecting;
+      tone = _warning;
+    } else if (!running) {
+      label = labels.proxyStopped;
+      tone = colors.onSurfaceVariant;
+    } else if (status == CoreStatus.connected) {
+      label = labels.proxyRunning;
+      tone = _online;
+    } else {
+      label = labels.disconnected;
+      tone = _warning;
+    }
+
+    final traffic = ref.watch(trafficsProvider).list.lastOrNull;
+    final active = running && status == CoreStatus.connected;
+
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colors.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: tone,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: tone.withValues(alpha: active ? 0.55 : 0.2),
+                  blurRadius: 6,
+                  spreadRadius: 1,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                labels.dashboard,
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        IconButton.outlined(
-          tooltip: labels.checkUpdate,
-          icon: const Icon(Icons.system_update_alt_rounded, size: 20),
-          onPressed: () async {
-            await globalState.safeRun(() async {
-              final data = await request.checkForUpdate();
-              if (!context.mounted) return;
-              await ref
-                  .read(commonActionProvider.notifier)
-                  .checkUpdateResultHandle(data: data, isUser: true);
-            }, title: labels.checkUpdate);
-          },
+          const SizedBox(width: 9),
+          Text(
+            label,
+            style: context.textTheme.labelMedium?.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (showRates) ...[
+            const SizedBox(width: 12),
+            Container(width: 1, height: 16, color: colors.outlineVariant),
+            const SizedBox(width: 12),
+            _RateText(
+              icon: Icons.arrow_downward_rounded,
+              tint: _downTint,
+              value: traffic?.down,
+            ),
+            const SizedBox(width: 12),
+            _RateText(
+              icon: Icons.arrow_upward_rounded,
+              tint: _upTint,
+              value: traffic?.up,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RateText extends StatelessWidget {
+  const _RateText({required this.icon, required this.tint, this.value});
+
+  final IconData icon;
+  final Color tint;
+  final num? value;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colorScheme;
+    final muted = colors.onSurfaceVariant;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: value == null ? muted : tint),
+        const SizedBox(width: 4),
+        Text(
+          value == null ? '—' : '${value!.shortTraffic.show}/s',
+          style: context.textTheme.labelMedium?.copyWith(
+            color: colors.onSurface,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ],
     );

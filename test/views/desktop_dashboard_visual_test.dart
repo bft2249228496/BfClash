@@ -293,9 +293,10 @@ void main() {
             await tester.pumpAndSettle();
             expect(tester.takeException(), isNull);
             if (screen == 'desktop') {
+              // Hero card state plus the header status capsule.
               expect(
                 find.text(chinese ? '代理运行中' : 'Proxy running'),
-                findsOneWidget,
+                findsWidgets,
               );
               expect(
                 find.byIcon(Icons.power_settings_new_rounded),
