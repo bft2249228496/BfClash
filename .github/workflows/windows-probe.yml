@@ -2,6 +2,11 @@ name: Windows Build Probe
 
 on:
   workflow_dispatch:
+    inputs:
+      installer_only:
+        description: Run only isolated installer safety fixtures
+        type: boolean
+        default: false
   push:
     branches:
       - feat/windows-desktop-v0227
@@ -23,6 +28,7 @@ env:
 
 jobs:
   probe-windows:
+    if: github.event_name != 'workflow_dispatch' || !inputs.installer_only
     name: Probe Windows AMD64 Build
     runs-on: windows-2022
     steps:
@@ -145,3 +151,13 @@ jobs:
             .dart_tool/setup_build_cache/
             hook.log
             build/windows/
+
+  installer-safety:
+    if: github.event_name == 'workflow_dispatch' && inputs.installer_only
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+      - name: Verify blocked update and uninstall safety
+        run: ./tool/check_windows_uninstall.ps1
