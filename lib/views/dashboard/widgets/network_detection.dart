@@ -62,11 +62,14 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                   const SizedBox(width: 8),
                   Flexible(
                     flex: 1,
-                    child: TooltipText(
-                      text: Text(
+                    // Scale instead of clipping so the full label stays
+                    // readable inside narrow dashboard tiles.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
                         appLocalizations.networkDetection,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: descTextStyle,
                       ),
                     ),
