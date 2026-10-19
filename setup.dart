@@ -270,7 +270,13 @@ Future<int> _package(
   required bool verbose,
 }) async {
   final file = File(p.join(rootDir, 'env.json'));
-  await file.writeAsString(jsonEncode(createBuildEnvironment(env)));
+  final buildEnvironment = createBuildEnvironment(env);
+  if (platform == 'windows' &&
+      Platform.environment['BFCLASH_WINDOWS_SIGNING_REQUIRED'] == 'true') {
+    buildEnvironment['WINDOWS_SIGNER_SUBJECT'] =
+        Platform.environment['BFCLASH_SIGNER_SUBJECT']!;
+  }
+  await file.writeAsString(jsonEncode(buildEnvironment));
 
   final flutterBuildArgs = createFlutterBuildArgs(
     platform: platform,

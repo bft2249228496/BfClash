@@ -411,7 +411,7 @@ class CommonAction extends _$CommonAction {
     );
     var downloadDialogClosed = false;
     try {
-      if (windowsAsset != null) ensureUnsignedWindowsUpdateAllowed();
+      if (windowsAsset != null) ensureWindowsUpdateDownloadAllowed();
       final file = windowsAsset != null
           ? await downloadWindowsUpdate(
               request.clashDio,
@@ -431,7 +431,7 @@ class CommonAction extends _$CommonAction {
       await dialogFuture;
       downloadDialogClosed = true;
       if (windowsAsset != null) {
-        await launchUnsignedWindowsUpdate(
+        await launchWindowsUpdate(
           filePath: file.path,
           installDirectory: appPath.executableDirPath,
           launcher: (file, arguments) =>

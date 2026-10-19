@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bfclash/common/common.dart';
@@ -7,10 +10,104 @@ import 'package:bfclash/l10n/l10n.dart';
 void main() {
   setUp(() async => AppLocalizations.load(const Locale('en')));
 
+  test(
+    'signed update verifies publisher before launch under enforced policy',
+    () async {
+      final actions = <String>[];
+      await launchWindowsUpdate(
+        filePath: 'owned.exe',
+        installDirectory: 'owned',
+        expectedPublisher: 'CN=Owner',
+        policyStateReader: () => 1,
+        signatureVerifier: (file, publisher) async {
+          expect(file, 'owned.exe');
+          expect(publisher, 'CN=Owner');
+          actions.add('verify');
+          return true;
+        },
+        launcher: (_, _) {
+          actions.add('launch');
+          return true;
+        },
+        exitApplication: () async => actions.add('exit'),
+      );
+      expect(actions, ['verify', 'launch', 'exit']);
+    },
+  );
+
+  test('untrusted signed update cannot launch or exit', () async {
+    var launched = false;
+    await expectLater(
+      launchWindowsUpdate(
+        filePath: 'owned.exe',
+        installDirectory: 'owned',
+        expectedPublisher: 'CN=Owner',
+        signatureVerifier: (_, _) async => false,
+        launcher: (_, _) {
+          launched = true;
+          return true;
+        },
+        exitApplication: () async {
+          fail('must not exit');
+        },
+      ),
+      throwsA(isA<MessageException>()),
+    );
+    expect(launched, isFalse);
+  });
+
+  test(
+    'Authenticode result requires exact publisher trust timestamp and RSA',
+    () async {
+      final valid = {
+        'valid': true,
+        'publisher': 'CN=Owner',
+        'timestamp': true,
+        'rsa': true,
+      };
+      for (final response in [
+        valid,
+        {...valid, 'publisher': 'CN=Other'},
+        {...valid, 'valid': false},
+        {...valid, 'timestamp': false},
+        {...valid, 'rsa': false},
+      ]) {
+        expect(
+          await verifyWindowsInstallerSignature(
+            "C:/owned ' setup.exe",
+            'CN=Owner',
+            processRunner: (executable, args) async {
+              expect(executable, 'powershell.exe');
+              expect(args, isNot(contains('-ExecutionPolicy')));
+              return ProcessResult(0, 0, jsonEncode(response), '');
+            },
+          ),
+          response == valid,
+        );
+      }
+      expect(
+        await verifyWindowsInstallerSignature(
+          'owned.exe',
+          'CN=Owner',
+          processRunner: (_, _) async => ProcessResult(0, 1, '', 'failed'),
+        ),
+        isFalse,
+      );
+      expect(
+        await verifyWindowsInstallerSignature(
+          'owned.exe',
+          'CN=Owner',
+          processRunner: (_, _) async => ProcessResult(0, 0, 'invalid', ''),
+        ),
+        isFalse,
+      );
+    },
+  );
+
   test('enforced policy blocks installer and exit', () async {
     final actions = <String>[];
     await expectLater(
-      launchUnsignedWindowsUpdate(
+      launchWindowsUpdate(
         filePath: 'owned setup.exe',
         installDirectory: 'owned app',
         policyStateReader: () => 1,
@@ -42,7 +139,7 @@ void main() {
     () async {
       for (final state in [null, 0, 2]) {
         final actions = <String>[];
-        await launchUnsignedWindowsUpdate(
+        await launchWindowsUpdate(
           filePath: 'owned setup.exe',
           installDirectory: 'owned app',
           policyStateReader: () => state,
@@ -64,7 +161,7 @@ void main() {
     () async {
       var exited = false;
       await expectLater(
-        launchUnsignedWindowsUpdate(
+        launchWindowsUpdate(
           filePath: 'owned setup.exe',
           installDirectory: 'owned app',
           policyStateReader: () => 0,
