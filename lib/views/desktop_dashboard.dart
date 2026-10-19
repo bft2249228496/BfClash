@@ -9,6 +9,7 @@ import 'package:bfclash/views/backup_and_restore.dart';
 import 'package:bfclash/views/sub_store.dart';
 import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
 import 'package:bfclash/views/dashboard/widgets/network_detection.dart';
+import 'package:bfclash/views/dashboard/widgets/intranet_ip.dart';
 import 'package:bfclash/views/dashboard/widgets/outbound_mode.dart';
 import 'package:bfclash/views/dashboard/widgets/quick_options.dart';
 import 'package:bfclash/views/dashboard/widgets/traffic_usage.dart';
@@ -28,6 +29,7 @@ class DesktopDashboardView extends ConsumerWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final wide = constraints.maxWidth >= 840;
+          final tiles = constraints.maxWidth >= 1080;
           const controls = Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -42,6 +44,7 @@ class DesktopDashboardView extends ConsumerWidget {
               ),
             ],
           );
+          const quickAccess = _DesktopQuickAccessPanel();
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
@@ -78,25 +81,51 @@ class DesktopDashboardView extends ConsumerWidget {
                   ],
                   const SizedBox(height: 12),
                   const _DesktopTrafficStatsRow(),
-                  const SizedBox(height: 16),
-                  controls,
-                  const SizedBox(height: 16),
-                  if (wide)
+                  if (tiles) ...[
+                    const SizedBox(height: 16),
+                    const Row(
+                      children: [
+                        Expanded(child: OutboundModeV2()),
+                        SizedBox(width: 12),
+                        Expanded(child: SystemProxyButton()),
+                        SizedBox(width: 12),
+                        Expanded(child: TUNButton()),
+                        SizedBox(width: 12),
+                        Expanded(child: NetworkDetection()),
+                        SizedBox(width: 12),
+                        Expanded(child: IntranetIP()),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: NetworkDetection()),
+                        SizedBox(width: 360, child: TrafficUsage()),
                         SizedBox(width: 16),
-                        Expanded(child: TrafficUsage()),
+                        Expanded(child: quickAccess),
                       ],
-                    )
-                  else ...[
-                    const NetworkDetection(),
-                    const SizedBox(height: 12),
-                    const TrafficUsage(),
+                    ),
+                  ] else ...[
+                    const SizedBox(height: 16),
+                    controls,
+                    const SizedBox(height: 16),
+                    if (wide)
+                      const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: NetworkDetection()),
+                          SizedBox(width: 16),
+                          Expanded(child: TrafficUsage()),
+                        ],
+                      )
+                    else ...[
+                      const NetworkDetection(),
+                      const SizedBox(height: 12),
+                      const TrafficUsage(),
+                    ],
+                    const SizedBox(height: 16),
+                    quickAccess,
                   ],
-                  const SizedBox(height: 16),
-                  const _DesktopQuickAccessPanel(),
                 ],
               ),
             ),

@@ -96,7 +96,10 @@ void main() {
         addTearDown(tester.view.resetDevicePixelRatio);
         final fixture = FixedNetworkDetection();
         final container = ProviderContainer(
-          overrides: [networkDetectionProvider.overrideWith(() => fixture)],
+          overrides: [
+            networkDetectionProvider.overrideWith(() => fixture),
+            localIpProvider.overrideWithBuild((_, _) => '192.168.31.22'),
+          ],
         );
         addTearDown(container.dispose);
         globalState.container = container;
@@ -132,6 +135,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
+          localIpProvider.overrideWithBuild((_, _) => '192.168.31.22'),
         ],
       );
       addTearDown(container.dispose);
@@ -171,6 +175,7 @@ void main() {
         final container = ProviderContainer(
           overrides: [
             networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
+            localIpProvider.overrideWithBuild((_, _) => '192.168.31.22'),
           ],
         );
         addTearDown(container.dispose);

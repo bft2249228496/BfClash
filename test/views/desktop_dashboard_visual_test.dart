@@ -29,6 +29,11 @@ import '../helpers/test_profiles.dart';
 
 void main() {
   setUpAll(() async {
+    final home = Directory.systemTemp;
+    AppPath.supportDirectory = () async => home;
+    AppPath.temporaryDirectory = () async => home;
+    AppPath.cacheDirectory = () async => home;
+    AppPath.downloadDirectory = () async => home;
     final root = Platform.environment['FLUTTER_ROOT'] ?? '/opt/flutter';
     final cjkFont = Platform.environment['BFCLASH_CJK_FONT'];
     if (cjkFont != null) {
@@ -128,6 +133,9 @@ void main() {
                   ),
                 ],
                 if (screen == 'desktop') ...[
+                  appSettingProvider.overrideWithBuild(
+                    (_, _) => const AppSettingProps(),
+                  ),
                   currentGroupsStateProvider.overrideWithValue(
                     const GroupsState(value: groups),
                   ),
@@ -137,6 +145,11 @@ void main() {
                         'Example node': 42,
                       },
                     },
+                  ),
+                ],
+                if (screen != 'desktop' && screen != 'proxies') ...[
+                  currentGroupsStateProvider.overrideWithValue(
+                    const GroupsState(value: []),
                   ),
                 ],
                 if (screen == 'proxies') ...[
@@ -165,6 +178,7 @@ void main() {
                 networkDetectionProvider.overrideWith(
                   FixedNetworkDetection.new,
                 ),
+                localIpProvider.overrideWithBuild((_, _) => '192.168.31.22'),
               ],
             );
             addTearDown(container.dispose);

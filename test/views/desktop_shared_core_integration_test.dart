@@ -254,6 +254,7 @@ void main() {
         overrides: [
           coreHandlerProvider.overrideWithValue(testCoreController),
           networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
+          localIpProvider.overrideWithBuild((_, _) => '192.168.31.22'),
         ],
       );
       addTearDown(container.dispose);
