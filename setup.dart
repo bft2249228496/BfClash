@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
@@ -98,6 +99,21 @@ Future<void> main(List<String> args) async {
       );
       stdout.writeln('Windows package version: $buildVersion');
     }
+    if (platform == 'windows') {
+      final signing = createWindowsSigningDefines(
+        rootDir,
+        Platform.environment,
+      );
+      final current = await pubspecFile.readAsString();
+      final line = '      windows_signing: ${jsonEncode(signing)}';
+      final pattern = RegExp(r'^      windows_signing:.*$', multiLine: true);
+      stampedVersion = true;
+      await pubspecFile.writeAsString(
+        pattern.hasMatch(current)
+            ? current.replaceFirst(pattern, line)
+            : current.replaceFirst('    setup:\n', '    setup:\n$line\n'),
+      );
+    }
     result = await _package(
       platform,
       env,
@@ -111,6 +127,44 @@ Future<void> main(List<String> args) async {
     if (stampedVersion) await pubspecFile.writeAsString(originalPubspec);
   }
   exit(result);
+}
+
+/// Public signing configuration is a hook input, so mode/profile/tool changes
+/// invalidate Flutter's outer hook cache as well as the Core/Helper cache.
+Map<String, String> createWindowsSigningDefines(
+  String rootDir,
+  Map<String, String> environment,
+) {
+  final required = environment['BFCLASH_WINDOWS_SIGNING_REQUIRED'];
+  if (required == null || required == 'false') return {};
+  if (required != 'true') {
+    throw StateError('BFCLASH_WINDOWS_SIGNING_REQUIRED must be true or false');
+  }
+  final result = <String, String>{'BFCLASH_WINDOWS_SIGNING_REQUIRED': 'true'};
+  for (final key in [
+    'BFCLASH_SIGNTOOL',
+    'BFCLASH_SIGNING_DLIB',
+    'BFCLASH_SIGNING_METADATA',
+    'BFCLASH_SIGNER_SUBJECT',
+  ]) {
+    final value = environment[key];
+    if (value == null || value.trim().isEmpty) {
+      throw StateError('Missing signing configuration: $key');
+    }
+    result[key] = value;
+  }
+  final inputs = [
+    p.join(rootDir, 'tool', 'sign_windows_binary.ps1'),
+    result['BFCLASH_SIGNTOOL']!,
+    result['BFCLASH_SIGNING_DLIB']!,
+    result['BFCLASH_SIGNING_METADATA']!,
+  ];
+  for (var index = 0; index < inputs.length; index++) {
+    result['input_$index'] = sha256
+        .convert(File(inputs[index]).readAsBytesSync())
+        .toString();
+  }
+  return result;
 }
 
 String createWindowsBuildVersion(

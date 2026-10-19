@@ -6,6 +6,46 @@ import '../setup.dart' as setup;
 
 void main() {
   group('setup.dart', () {
+    test('signing hook configuration changes with mode and file content', () {
+      final root = Directory.systemTemp.createTempSync('bf_signing_defines_');
+      addTearDown(() => root.deleteSync(recursive: true));
+      Directory('${root.path}/tool').createSync();
+      final script = File('${root.path}/tool/sign_windows_binary.ps1')
+        ..writeAsStringSync('script');
+      final tool = File('${root.path}/signtool.exe')..writeAsStringSync('tool');
+      final dlib = File('${root.path}/client.dll')..writeAsStringSync('client');
+      final metadata = File('${root.path}/metadata.json')
+        ..writeAsStringSync('profile A');
+      final env = <String, String>{
+        'BFCLASH_WINDOWS_SIGNING_REQUIRED': 'true',
+        'BFCLASH_SIGNTOOL': tool.path,
+        'BFCLASH_SIGNING_DLIB': dlib.path,
+        'BFCLASH_SIGNING_METADATA': metadata.path,
+        'BFCLASH_SIGNER_SUBJECT': 'CN=Fixture',
+      };
+      expect(setup.createWindowsSigningDefines(root.path, {}), isEmpty);
+      expect(
+        () => setup.createWindowsSigningDefines(root.path, {
+          'BFCLASH_WINDOWS_SIGNING_REQUIRED': 'TRUE',
+        }),
+        throwsStateError,
+      );
+      expect(
+        () => setup.createWindowsSigningDefines(root.path, {
+          'BFCLASH_WINDOWS_SIGNING_REQUIRED': 'true',
+        }),
+        throwsStateError,
+      );
+      final first = setup.createWindowsSigningDefines(root.path, env);
+      metadata.writeAsStringSync('profile B');
+      final second = setup.createWindowsSigningDefines(root.path, env);
+      expect(second['input_3'], isNot(first['input_3']));
+      script.writeAsStringSync('script changed');
+      expect(
+        setup.createWindowsSigningDefines(root.path, env)['input_0'],
+        isNot(first['input_0']),
+      );
+    });
     test('Windows builds and retries get distinct app and file versions', () {
       expect(
         setup.createWindowsBuildVersion('0.2.27+55', runNumber: 27, beta: true),

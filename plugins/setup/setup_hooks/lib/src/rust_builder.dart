@@ -8,6 +8,7 @@ import 'fingerprint.dart';
 import 'options.dart';
 import 'target.dart';
 import 'util.dart';
+import 'windows_signing.dart';
 
 final _log = Logger('rust_builder');
 
@@ -18,6 +19,7 @@ class RustBuilder {
     required this.cache,
     required this.notice,
     this.harnessInputs = const [],
+    this.signer,
   });
 
   final String rootDir;
@@ -25,6 +27,7 @@ class RustBuilder {
   final BuildCache cache;
   final BuildNotice notice;
   final List<String> harnessInputs;
+  final WindowsSigningBackend? signer;
 
   String get _helperPath => p.join(rootDir, config.helperDir);
   String get _outputPath => p.join(rootDir, config.outputDir);
@@ -79,7 +82,16 @@ class RustBuilder {
         );
 
         ensureDir(destDir);
-        copyFile(srcPath, destPath);
+        final staged =
+            '${p.withoutExtension(destPath)}.signing-staged${target.executableExtension}';
+        try {
+          copyFile(srcPath, staged);
+          if (signer != null) await signer!.sign(staged);
+          replaceFile(staged, destPath);
+        } finally {
+          final pending = File(staged);
+          if (pending.existsSync()) pending.deleteSync();
+        }
 
         _log.info('Built: $destPath');
         return [destPath];
@@ -95,11 +107,14 @@ class RustBuilder {
     final builder = FingerprintBuilder(rootDir: rootDir)
       ..addValue('cache_schema', BuildCache.schemaVersion)
       ..addValue('kind', 'helper')
+      ..addValue('trusted_signing', signer?.identity)
       ..addValue('target', {'goos': target.goos, 'goarch': target.goarch})
       ..addValue('arguments', args)
       ..addValue('core_sha256', coreSha256)
       ..addValue('environment', _rustEnvironment())
       ..addValue('config', config.toFingerprintMap());
+
+    if (signer != null) builder.addFiles(signer!.inputs);
 
     final cargoVersion = runCommand('cargo', [
       '--version',

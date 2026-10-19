@@ -9,6 +9,7 @@ import 'options.dart';
 import 'rust_builder.dart';
 import 'target.dart';
 import 'util.dart';
+import 'windows_signing.dart';
 
 final _log = Logger('setup_hooks');
 
@@ -31,6 +32,7 @@ class BuildRequest {
     required this.target,
     this.harnessDir,
     this.androidToolchain,
+    this.signer,
   });
 
   final String rootDir;
@@ -38,6 +40,7 @@ class BuildRequest {
 
   final String? harnessDir;
   final AndroidToolchain? androidToolchain;
+  final WindowsSigningBackend? signer;
 }
 
 class BuildReport {
@@ -67,6 +70,9 @@ Future<BuildReport> buildPlatform(BuildRequest request) async {
   final rootDir = request.rootDir;
   final config = BuildConfig.load(rootDir: rootDir);
   final cache = BuildCache(rootDir: rootDir);
+  final signer =
+      request.signer ??
+      WindowsBinarySigner.load(rootDir: rootDir, goos: target.goos);
   final notice = BuildNotice();
   final harnessInputs = switch (request.harnessDir) {
     null => const <String>[],
@@ -80,12 +86,14 @@ Future<BuildReport> buildPlatform(BuildRequest request) async {
     notice: notice,
     harnessInputs: harnessInputs,
     androidToolchain: request.androidToolchain,
+    signer: signer,
   ).build(target);
   if (!target.hasHelper) {
     _log.info('Done in ${stopwatch.elapsed}: ${core.primaryOutput}');
     return _report([core]);
   }
 
+  if (signer != null) await signer.verify(core.primaryOutput);
   final coreSha256 = await calcSha256(core.primaryOutput);
   final helper = await RustBuilder(
     rootDir: rootDir,
@@ -93,7 +101,9 @@ Future<BuildReport> buildPlatform(BuildRequest request) async {
     cache: cache,
     notice: notice,
     harnessInputs: harnessInputs,
+    signer: signer,
   ).build(target, coreSha256);
+  if (signer != null) await signer.verify(helper.primaryOutput);
   final manifestPath = p.join(
     rootDir,
     config.outputDir,

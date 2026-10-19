@@ -75,6 +75,33 @@ void main() {
   }
 
   group('requestFor', () {
+    test(
+      'hook signing input is validated rather than relying on stripped environment',
+      () {
+        expect(
+          () => const CoreBuilder().requestFor(
+            buildInput(
+              os: OS.windows,
+              architecture: Architecture.x64,
+              userDefines: {
+                'windows_signing': {'BFCLASH_WINDOWS_SIGNING_REQUIRED': 'true'},
+              },
+            ),
+          ),
+          throwsA(isA<BuildException>()),
+        );
+        expect(
+          () => const CoreBuilder().requestFor(
+            buildInput(
+              os: OS.windows,
+              architecture: Architecture.x64,
+              userDefines: {'windows_signing': 'invalid'},
+            ),
+          ),
+          throwsA(isA<BuildException>()),
+        );
+      },
+    );
     test('has nothing to build without code assets or on iOS', () {
       const builder = CoreBuilder();
 
