@@ -1,6 +1,7 @@
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/models/models.dart' show Group;
 import 'package:bfclash/providers/providers.dart' hide NetworkDetection;
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/dashboard/widgets/core_status_button.dart';
@@ -75,6 +76,8 @@ class DesktopDashboardView extends ConsumerWidget {
                     const SizedBox(height: 16),
                     const NetworkSpeed(height: 260, showRates: true),
                   ],
+                  const SizedBox(height: 12),
+                  const _DesktopTrafficStatsRow(),
                   const SizedBox(height: 16),
                   controls,
                   const SizedBox(height: 16),
@@ -226,7 +229,7 @@ class _DesktopConnectionCard extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   Text(
                     active ? labels.proxyRunning : labels.proxyStopped,
                     textAlign: TextAlign.center,
@@ -244,6 +247,10 @@ class _DesktopConnectionCard extends ConsumerWidget {
                       color: colors.onSurfaceVariant,
                     ),
                   ),
+                  if (active) ...[
+                    const SizedBox(height: 12),
+                    const _DesktopCurrentNodeRow(),
+                  ],
                   const Spacer(),
                 ],
               ),
@@ -251,6 +258,148 @@ class _DesktopConnectionCard extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DesktopCurrentNodeRow extends ConsumerWidget {
+  const _DesktopCurrentNodeRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colorScheme;
+    final groups = ref.watch(currentGroupsStateProvider).value;
+    Group? selector;
+    for (final group in groups) {
+      if (group.type == GroupType.Selector) {
+        selector = group;
+        break;
+      }
+    }
+    final node = selector?.now;
+    if (node == null || node.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final delay = ref.watch(delayProvider(proxyName: node));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: Text(
+              node,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+          if (delay != null) ...[
+            const SizedBox(width: 8),
+            DecoratedBox(
+              decoration: ShapeDecoration(
+                color: colors.primary.withValues(alpha: 0.14),
+                shape: AppShape.full,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 2,
+                ),
+                child: Text(
+                  '$delay ms',
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopTrafficStatsRow extends ConsumerWidget {
+  const _DesktopTrafficStatsRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final labels = context.appLocalizations;
+    final colors = context.colorScheme;
+    final totalTraffic = ref.watch(totalTrafficProvider);
+    return CommonCard(
+      radius: AppCorner.lg,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: _DesktopTrafficStatItem(
+                icon: Icons.arrow_downward_rounded,
+                iconColor: colors.secondary,
+                label: labels.download,
+                value: totalTraffic.down,
+              ),
+            ),
+            Expanded(
+              child: _DesktopTrafficStatItem(
+                icon: Icons.arrow_upward_rounded,
+                iconColor: colors.primary,
+                label: labels.upload,
+                value: totalTraffic.up,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DesktopTrafficStatItem extends StatelessWidget {
+  const _DesktopTrafficStatItem({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final num value;
+
+  @override
+  Widget build(BuildContext context) {
+    final traffic = value.traffic;
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: iconColor),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: context.textTheme.bodySmall?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          traffic.value,
+          style: context.textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          traffic.unit,
+          style: context.textTheme.bodySmall?.toLighter,
+        ),
+      ],
     );
   }
 }

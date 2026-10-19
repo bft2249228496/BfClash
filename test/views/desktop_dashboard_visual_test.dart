@@ -127,6 +127,18 @@ void main() {
                     (_, _) => profiles.first.id,
                   ),
                 ],
+                if (screen == 'desktop') ...[
+                  currentGroupsStateProvider.overrideWithValue(
+                    const GroupsState(value: groups),
+                  ),
+                  delayDataSourceProvider.overrideWithValue(
+                    const {
+                      'https://www.gstatic.com/generate_204': {
+                        'Example node': 42,
+                      },
+                    },
+                  ),
+                ],
                 if (screen == 'proxies') ...[
                   proxiesStyleSettingProvider.overrideWithBuild(
                     (_, _) => const ProxiesStyleProps(type: ProxiesType.tab),
