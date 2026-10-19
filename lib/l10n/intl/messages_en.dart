@@ -100,6 +100,17 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("About"),
+    "aboutAuthor": MessageLookupByLibrary.simpleMessage("Author"),
+    "aboutBaseProject": MessageLookupByLibrary.simpleMessage(
+      "Client base project",
+    ),
+    "aboutCoreProject": MessageLookupByLibrary.simpleMessage(
+      "High-performance routing proxy core",
+    ),
+    "aboutCredits": MessageLookupByLibrary.simpleMessage("Credits & upstream"),
+    "aboutOpenSourceLicense": MessageLookupByLibrary.simpleMessage(
+      "Open-source license",
+    ),
     "accessControl": MessageLookupByLibrary.simpleMessage("Access control"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "Only selected apps go through the VPN",

@@ -88,6 +88,11 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("关于"),
+    "aboutAuthor": MessageLookupByLibrary.simpleMessage("作者"),
+    "aboutBaseProject": MessageLookupByLibrary.simpleMessage("客户端底座项目"),
+    "aboutCoreProject": MessageLookupByLibrary.simpleMessage("高性能路由代理内核"),
+    "aboutCredits": MessageLookupByLibrary.simpleMessage("鸣谢与上游"),
+    "aboutOpenSourceLicense": MessageLookupByLibrary.simpleMessage("开源许可证"),
     "accessControl": MessageLookupByLibrary.simpleMessage("访问控制"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "只允许选中应用进入VPN",

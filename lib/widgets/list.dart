@@ -664,6 +664,35 @@ Widget generateListView(List<Widget> items) {
   );
 }
 
+/// Groups adjacent setting rows into one rounded card, matching the section
+/// containers rendered by [_DesktopSettingsList] on desktop.
+class SettingsGroupCard extends StatelessWidget {
+  const SettingsGroupCard({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Material(
+        color: context.colorScheme.surfaceContainerLow,
+        shape: RoundedSuperellipseBorder(
+          borderRadius: AppRadius.lg,
+          side: BorderSide(
+            color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [...children.separated(const Divider(height: 0))],
+        ),
+      ),
+    );
+  }
+}
+
 class _DesktopSettingsList extends StatelessWidget {
   const _DesktopSettingsList({required this.items});
 

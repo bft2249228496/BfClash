@@ -65,13 +65,16 @@ class AboutView extends ConsumerWidget {
   }
 
   List<Widget> _buildCreditsSection(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
     return generateSection(
       separated: false,
-      title: '鸣谢与上游 (Credits)',
+      title: appLocalizations.aboutCredits,
       items: [
         ListItem(
           title: const Text('BfClash'),
-          subtitle: const Text('客户端底座项目 (chen08209/FlClash)'),
+          subtitle: Text(
+            '${appLocalizations.aboutBaseProject} (chen08209/FlClash)',
+          ),
           onTap: () {
             dialogs.openUrl('https://github.com/chen08209/FlClash');
           },
@@ -79,7 +82,7 @@ class AboutView extends ConsumerWidget {
         ),
         ListItem(
           title: const Text('Mihomo (Clash.Meta)'),
-          subtitle: const Text('高性能路由代理内核'),
+          subtitle: Text(appLocalizations.aboutCoreProject),
           onTap: () {
             dialogs.openUrl(
               'https://github.com/chen08209/Clash.Meta/tree/BfClash',
@@ -88,7 +91,7 @@ class AboutView extends ConsumerWidget {
           trailing: const Icon(Icons.launch),
         ),
         ListItem(
-          title: const Text('开源许可证 (License)'),
+          title: Text(appLocalizations.aboutOpenSourceLicense),
           subtitle: const Text('GNU General Public License v3.0'),
           onTap: () {
             dialogs.openUrl(
@@ -104,7 +107,7 @@ class AboutView extends ConsumerWidget {
   List<Widget> _buildContributorsSection(AppLocalizations appLocalizations) {
     return generateSection(
       separated: false,
-      title: '作者',
+      title: appLocalizations.aboutAuthor,
       items: [
         ListItem(
           title: const Text('不负 (bft2249228496)'),

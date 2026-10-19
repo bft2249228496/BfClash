@@ -5569,6 +5569,51 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Author`
+  String get aboutAuthor {
+    return Intl.message('Author', name: 'aboutAuthor', desc: '', args: []);
+  }
+
+  /// `Credits & upstream`
+  String get aboutCredits {
+    return Intl.message(
+      'Credits & upstream',
+      name: 'aboutCredits',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Client base project`
+  String get aboutBaseProject {
+    return Intl.message(
+      'Client base project',
+      name: 'aboutBaseProject',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `High-performance routing proxy core`
+  String get aboutCoreProject {
+    return Intl.message(
+      'High-performance routing proxy core',
+      name: 'aboutCoreProject',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open-source license`
+  String get aboutOpenSourceLicense {
+    return Intl.message(
+      'Open-source license',
+      name: 'aboutOpenSourceLicense',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

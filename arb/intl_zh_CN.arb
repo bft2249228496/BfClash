@@ -666,5 +666,10 @@
   "androidUpdateLaunchFailed": "未能打开系统安装器，更新尚未安装，请重试。",
   "navGroupMonitor": "监控",
   "navGroupNetwork": "代理网络",
-  "navGroupDiagnostics": "诊断"
+  "navGroupDiagnostics": "诊断",
+  "aboutAuthor": "作者",
+  "aboutCredits": "鸣谢与上游",
+  "aboutBaseProject": "客户端底座项目",
+  "aboutCoreProject": "高性能路由代理内核",
+  "aboutOpenSourceLicense": "开源许可证"
 }

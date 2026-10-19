@@ -666,5 +666,10 @@
   "androidUpdateLaunchFailed": "システムのインストーラーを開けませんでした。更新はまだインストールされていません。再試行してください。",
   "navGroupMonitor": "モニター",
   "navGroupNetwork": "ネットワーク",
-  "navGroupDiagnostics": "診断"
+  "navGroupDiagnostics": "診断",
+  "aboutAuthor": "作者",
+  "aboutCredits": "クレジット",
+  "aboutBaseProject": "クライアント基盤プロジェクト",
+  "aboutCoreProject": "高性能ルーティングプロキシコア",
+  "aboutOpenSourceLicense": "オープンソースライセンス"
 }

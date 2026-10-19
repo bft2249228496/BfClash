@@ -666,5 +666,10 @@
   "androidUpdateLaunchFailed": "The system installer could not be opened. The update is not installed; please retry.",
   "navGroupMonitor": "Monitor",
   "navGroupNetwork": "Network",
-  "navGroupDiagnostics": "Diagnostics"
+  "navGroupDiagnostics": "Diagnostics",
+  "aboutAuthor": "Author",
+  "aboutCredits": "Credits & upstream",
+  "aboutBaseProject": "Client base project",
+  "aboutCoreProject": "High-performance routing proxy core",
+  "aboutOpenSourceLicense": "Open-source license"
 }

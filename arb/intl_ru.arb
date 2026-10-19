@@ -666,5 +666,10 @@
   "androidUpdateLaunchFailed": "Не удалось открыть системный установщик. Обновление ещё не установлено; повторите попытку.",
   "navGroupMonitor": "Мониторинг",
   "navGroupNetwork": "Сеть",
-  "navGroupDiagnostics": "Диагностика"
+  "navGroupDiagnostics": "Диагностика",
+  "aboutAuthor": "Автор",
+  "aboutCredits": "Благодарности",
+  "aboutBaseProject": "Основа клиента",
+  "aboutCoreProject": "Высокопроизводительное прокси-ядро",
+  "aboutOpenSourceLicense": "Лицензия открытого кода"
 }
