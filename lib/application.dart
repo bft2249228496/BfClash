@@ -1,9 +1,9 @@
-import 'package:bfclash/common/bfclash_theme.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/common/window.dart';
 import 'package:bfclash/bootstrap.dart';
 import 'package:bfclash/common/system_dns.dart';
@@ -69,6 +69,10 @@ class ApplicationState extends ConsumerState<Application> {
       TargetPlatform.macOS: commonSharedXPageTransitions,
     },
   );
+
+  ThemeData _platformTheme(ThemeData theme) {
+    return system.isDesktop ? buildDesktopTheme(theme) : theme;
+  }
 
   ColorScheme _getAppColorScheme({required Brightness brightness}) {
     return ref.read(genColorSchemeProvider(brightness));
@@ -178,11 +182,13 @@ class ApplicationState extends ConsumerState<Application> {
           locale: getLocaleForString(locale),
           supportedLocales: AppLocalizations.delegate.supportedLocales,
           themeMode: themeProps.themeMode,
-          theme: ThemeData(
-            useMaterial3: true,
-            pageTransitionsTheme: _pageTransitionsTheme,
-            colorScheme: _getAppColorScheme(brightness: Brightness.light),
-          ).withAppShapes,
+          theme: _platformTheme(
+            ThemeData(
+              useMaterial3: true,
+              pageTransitionsTheme: _pageTransitionsTheme,
+              colorScheme: _getAppColorScheme(brightness: Brightness.light),
+            ).withAppShapes,
+          ),
           darkTheme: () {
             final colorScheme = _getAppColorScheme(
               brightness: Brightness.dark,
@@ -197,20 +203,22 @@ class ApplicationState extends ConsumerState<Application> {
               brightness: Brightness.dark,
               base: baseTheme.textTheme,
             );
-            return baseTheme
-                .copyWith(
-                  textTheme: customTextTheme,
-                  listTileTheme: baseTheme.listTileTheme.copyWith(
-                    titleTextStyle: customTextTheme.bodyLarge?.copyWith(
-                      color: const Color(0xFFEDE9FE),
-                      fontWeight: FontWeight.w500,
+            return _platformTheme(
+              baseTheme
+                  .copyWith(
+                    textTheme: customTextTheme,
+                    listTileTheme: baseTheme.listTileTheme.copyWith(
+                      titleTextStyle: customTextTheme.bodyLarge?.copyWith(
+                        color: const Color(0xFFEDE9FE),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      subtitleTextStyle: customTextTheme.bodySmall?.copyWith(
+                        color: const Color(0xFFA5B4FC),
+                      ),
                     ),
-                    subtitleTextStyle: customTextTheme.bodySmall?.copyWith(
-                      color: const Color(0xFFA5B4FC),
-                    ),
-                  ),
-                )
-                .withAppShapes;
+                  )
+                  .withAppShapes,
+            );
           }(),
           home: child!,
         );

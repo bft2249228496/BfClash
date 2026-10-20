@@ -1,0 +1,37 @@
+function(bfclash_prepare_substore)
+  if(FLUTTER_TARGET_PLATFORM STREQUAL "windows-arm64")
+    set(node_arch "arm64")
+    set(node_hash "33dad22e4cef5ee8f9fbb1b0d037fdacd0e56d12a4580f0d63f68b894deab535")
+  elseif(FLUTTER_TARGET_PLATFORM STREQUAL "windows-x64")
+    set(node_arch "x64")
+    set(node_hash "2b0ff57b049cda1bbcea2240eec20467018713c1efe1f7360c2681859b90ed71")
+  else()
+    message(FATAL_ERROR "Unsupported Sub-Store runtime architecture: ${FLUTTER_TARGET_PLATFORM}")
+  endif()
+  set(runtime_dir "${CMAKE_BINARY_DIR}/substore-runtime")
+  file(MAKE_DIRECTORY "${runtime_dir}")
+  set(node_archive "node-v22.23.3-win-${node_arch}")
+  file(DOWNLOAD "https://nodejs.org/dist/v22.23.3/${node_archive}.zip"
+    "${runtime_dir}/node.zip" EXPECTED_HASH "SHA256=${node_hash}"
+    TLS_VERIFY ON STATUS node_download TIMEOUT 180)
+  list(GET node_download 0 node_result)
+  if(NOT node_result EQUAL 0)
+    message(FATAL_ERROR "Node runtime download failed: ${node_download}")
+  endif()
+  execute_process(COMMAND "${CMAKE_COMMAND}" -E tar xf node.zip
+    WORKING_DIRECTORY "${runtime_dir}" RESULT_VARIABLE node_extract)
+  if(NOT node_extract EQUAL 0)
+    message(FATAL_ERROR "Node runtime extraction failed")
+  endif()
+  file(DOWNLOAD "https://github.com/sub-store-org/Sub-Store/releases/download/2.39.8/sub-store.bundle.js"
+    "${runtime_dir}/sub-store.bundle.js"
+    EXPECTED_HASH "SHA256=5c0a5d812a6694627b5834a61fe2d4a991b84a7ee5c0f74b5ec79545caad91f7"
+    TLS_VERIFY ON STATUS backend_download TIMEOUT 180)
+  list(GET backend_download 0 backend_result)
+  if(NOT backend_result EQUAL 0)
+    message(FATAL_ERROR "Sub-Store backend download failed: ${backend_download}")
+  endif()
+  set(BFCLASH_NODE_EXECUTABLE "${runtime_dir}/${node_archive}/node.exe" PARENT_SCOPE)
+  set(BFCLASH_NODE_LICENSE "${runtime_dir}/${node_archive}/LICENSE" PARENT_SCOPE)
+  set(BFCLASH_SUBSTORE_BACKEND "${runtime_dir}/sub-store.bundle.js" PARENT_SCOPE)
+endfunction()

@@ -84,6 +84,7 @@ dependencies:
   setup:
     path: plugins/setup
 dev_dependencies:
+  liquid_engine: 0.2.2
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0

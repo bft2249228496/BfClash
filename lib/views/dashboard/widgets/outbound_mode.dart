@@ -126,7 +126,9 @@ class _ModeRadioList extends StatelessWidget {
 }
 
 class OutboundModeV2 extends StatelessWidget {
-  const OutboundModeV2({super.key});
+  const OutboundModeV2({super.key, this.height});
+
+  final double? height;
 
   void _handleChangeMode(Mode mode, WidgetRef ref) {
     ref.read(setupActionProvider.notifier).changeMode(mode);
@@ -142,11 +144,17 @@ class OutboundModeV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = getWidgetHeight(1);
+    final height = this.height ?? getWidgetHeight(1);
     return SizedBox(
       height: height,
       child: CommonCard(
         radius: AppCorner.lg,
+        info: height >= 110
+            ? Info(
+                label: context.appLocalizations.outboundMode,
+                iconData: Icons.call_split_sharp,
+              )
+            : null,
         child: Consumer(
           builder: (_, ref, _) {
             final mode = ref.watch(
@@ -157,47 +165,77 @@ class OutboundModeV2 extends StatelessWidget {
               Mode.global => globalState.theme.darken3PrimaryContainer,
               Mode.direct => context.colorScheme.tertiaryContainer,
             };
-            return LayoutBuilder(
-              builder: (_, constraints) {
-                return Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        constraints: const BoxConstraints.expand(),
-                        child: CommonTabBar<Mode>(
-                          children: {
-                            for (final item in Mode.values)
-                              item: _ModeTab(
-                                label: item.label,
-                                height: height - 8.ap - 24,
-                                color: item == mode
-                                    ? _getTextColor(context, item)
-                                    : null,
-                              ),
-                          },
-                          padding: const EdgeInsets.symmetric(horizontal: 0),
-                          groupValue: mode,
-                          onValueChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-                            _handleChangeMode(value, ref);
-                          },
-                          thumbColor: thumbColor,
+            if (height < 110) {
+              return LayoutBuilder(
+                builder: (_, constraints) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          constraints: const BoxConstraints.expand(),
+                          child: CommonTabBar<Mode>(
+                            children: {
+                              for (final item in Mode.values)
+                                item: _ModeTab(
+                                  label: item.label,
+                                  height: height - 8.ap - 24,
+                                  color: item == mode
+                                      ? _getTextColor(context, item)
+                                      : null,
+                                ),
+                            },
+                            padding: const EdgeInsets.symmetric(horizontal: 0),
+                            groupValue: mode,
+                            onValueChanged: (value) {
+                              if (value == null) {
+                                return;
+                              }
+                              _handleChangeMode(value, ref);
+                            },
+                            thumbColor: thumbColor,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      color: thumbColor.opacity50,
-                      height: 8.ap,
-                      width: constraints.maxWidth,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                  ],
-                );
-              },
+                      Container(
+                        color: thumbColor.opacity50,
+                        height: 8.ap,
+                        width: constraints.maxWidth,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+            return Container(
+              padding: baseInfoEdgeInsets.copyWith(top: 0, bottom: 10),
+              child: LayoutBuilder(
+                builder: (_, constraints) {
+                  return CommonTabBar<Mode>(
+                    children: {
+                      for (final item in Mode.values)
+                        item: _ModeTab(
+                          label: item.label,
+                          height: constraints.maxHeight,
+                          color: item == mode
+                              ? _getTextColor(context, item)
+                              : null,
+                        ),
+                    },
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    groupValue: mode,
+                    onValueChanged: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      _handleChangeMode(value, ref);
+                    },
+                    thumbColor: thumbColor,
+                  );
+                },
+              ),
             );
           },
         ),

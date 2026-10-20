@@ -9,6 +9,7 @@ import 'build.dart';
 import 'error.dart';
 import 'logging.dart';
 import 'target.dart';
+import 'windows_signing.dart';
 
 typedef CoreBuildFunction = Future<BuildReport> Function(BuildRequest request);
 
@@ -123,9 +124,32 @@ final class CoreBuilder implements Builder {
       rootDir: rootDir,
       harnessDir: p.join(p.fromUri(input.packageRoot), 'setup_hooks'),
       target: target,
+      signer: signingFor(input, rootDir, platform),
       androidToolchain: code.targetOS == OS.android
           ? _androidToolchain(code)
           : null,
+    );
+  }
+
+  WindowsBinarySigner? signingFor(
+    BuildInput input,
+    String rootDir,
+    String platform,
+  ) {
+    final value = input.userDefines['windows_signing'];
+    if (value == null) return null;
+    if (value is! Map ||
+        value.entries.any(
+          (entry) => entry.key is! String || entry.value is! String,
+        )) {
+      throw BuildException(
+        'windows_signing must contain public string configuration',
+      );
+    }
+    return WindowsBinarySigner.load(
+      rootDir: rootDir,
+      goos: platform,
+      environment: Map<String, String>.from(value),
     );
   }
 

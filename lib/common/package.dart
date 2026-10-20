@@ -4,105 +4,14 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'common.dart';
 
+export 'release_tag.dart';
+
 extension PackageInfoExtension on PackageInfo {
   String get ua => [
     '$appName/v$version',
     'clash-verge',
     'Platform/${Platform.operatingSystem}',
   ].join(' ');
-}
-
-class VersionInfo {
-  final int major;
-  final int minor;
-  final int patch;
-  final String? preRelease;
-  final int? preReleaseNum;
-  final int build;
-
-  VersionInfo({
-    required this.major,
-    required this.minor,
-    required this.patch,
-    this.preRelease,
-    this.preReleaseNum,
-    required this.build,
-  });
-
-  static VersionInfo parse(String raw) {
-    var v = raw.trim();
-    if (v.startsWith('v') || v.startsWith('V')) {
-      v = v.substring(1);
-    }
-    int build = 0;
-    if (v.contains('+')) {
-      final parts = v.split('+');
-      v = parts[0];
-      build = int.tryParse(parts[1]) ?? 0;
-    }
-
-    String? preRelease;
-    int? preReleaseNum;
-    if (v.contains('-')) {
-      final parts = v.split('-');
-      v = parts[0];
-      final pre = parts.sublist(1).join('-');
-      final preParts = pre.split('.');
-      final last = preParts.last;
-      final parsedLast = int.tryParse(last);
-      if (parsedLast != null) {
-        preReleaseNum = parsedLast;
-        preRelease = preParts.length > 1
-            ? preParts.sublist(0, preParts.length - 1).join('.')
-            : '';
-      } else {
-        preRelease = pre;
-      }
-    }
-
-    final nums = v.split('.');
-    final major = nums.isNotEmpty ? (int.tryParse(nums[0]) ?? 0) : 0;
-    final minor = nums.length > 1 ? (int.tryParse(nums[1]) ?? 0) : 0;
-    final patch = nums.length > 2 ? (int.tryParse(nums[2]) ?? 0) : 0;
-
-    return VersionInfo(
-      major: major,
-      minor: minor,
-      patch: patch,
-      preRelease: preRelease,
-      preReleaseNum: preReleaseNum,
-      build: build,
-    );
-  }
-
-  int compareTo(VersionInfo other) {
-    if (major != other.major) return major.compareTo(other.major);
-    if (minor != other.minor) return minor.compareTo(other.minor);
-    if (patch != other.patch) return patch.compareTo(other.patch);
-
-    final thisIsPre = preRelease != null;
-    final otherIsPre = other.preRelease != null;
-    if (thisIsPre && !otherIsPre) return -1;
-    if (!thisIsPre && otherIsPre) return 1;
-    if (thisIsPre && otherIsPre) {
-      if (preRelease != other.preRelease) {
-        return (preRelease ?? '').compareTo(other.preRelease ?? '');
-      }
-      final p1 = preReleaseNum ?? 0;
-      final p2 = other.preReleaseNum ?? 0;
-      if (p1 != p2) return p1.compareTo(p2);
-    }
-
-    return build.compareTo(other.build);
-  }
-}
-
-int compareVersions(String version1, String version2) {
-  return VersionInfo.parse(version1).compareTo(VersionInfo.parse(version2));
-}
-
-bool isPreReleaseVersion(String version) {
-  return VersionInfo.parse(version).preRelease != null;
 }
 
 const releaseNotesBeginMarker = '<!-- bfclash:changelog:begin -->';

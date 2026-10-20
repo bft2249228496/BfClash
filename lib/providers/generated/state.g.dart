@@ -347,7 +347,7 @@ final class CheckIpProvider
   }
 }
 
-String _$checkIpHash() => r'0e28032041d80297dcd12e8d659dbac741874073';
+String _$checkIpHash() => r'37a13b8dfba8a59e4d8f4d1c7761c96ce6ea5410';
 
 @ProviderFor(shouldPatchSystemDns)
 final shouldPatchSystemDnsProvider = ShouldPatchSystemDnsProvider._();

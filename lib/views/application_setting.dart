@@ -114,12 +114,14 @@ class ApplicationSettingView extends StatelessWidget {
     ];
     return BaseScaffold(
       title: context.appLocalizations.application,
-      body: ListView.separated(
-        padding: const EdgeInsets.only(bottom: 20),
-        itemBuilder: (_, index) => items[index],
-        separatorBuilder: (_, _) => const Divider(height: 0),
-        itemCount: items.length,
-      ),
+      body: system.isDesktop
+          ? generateListView(items)
+          : ListView.separated(
+              padding: const EdgeInsets.only(bottom: 20),
+              itemBuilder: (_, index) => items[index],
+              separatorBuilder: (_, _) => const Divider(height: 0),
+              itemCount: items.length,
+            ),
     );
   }
 }

@@ -121,7 +121,7 @@ HotKeyAction getHotKeyAction(Ref ref, HotAction hotAction) {
   return (
     isInit: isInit,
     checkIpNum: checkIpNum,
-    containsDetection: containsDetection,
+    containsDetection: system.isDesktop || containsDetection,
   );
 }
 

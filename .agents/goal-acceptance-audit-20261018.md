@@ -1,0 +1,51 @@
+# Three-goal acceptance audit — 2026-10-18
+
+This audit retains the user scope. A source path, green CI, synthetic rendering or HTTP probe is not installed-app acceptance.
+
+## Authoritative snapshots inspected
+
+- Published Windows1551: runtime0b5b0e1c, CI39112137033 success, original logs/PE/ZIP/public verification in `/root/projects/.bf-delivery/39112137033`. Current release API still has the exact verified two asset sizes/digests and prerelease status. Both archive-contained PE versions1551/AMD64 and certificate-table0bytes were inspected.
+- Current test-only Windows25d6861e adds the isolated app WebDAV regression and CI/documentation; runtime files remain those published in1551. CI39114401192 completed successfully; the standard backup/WebDAV suite60 and explicit Windows beta UI roundtrip1 both passed. Original log is `/root/projects/.bf-delivery/39114401192/test-build.log`. No new test-only package is released.
+- AndroidRC1 runtime da37ff56, published original-signature package. Current461a04b4 differs from the published RC tag only in downloader tests. Published Windows/Android `resumable_download.dart` bytes are identical. Android test-only CI39111530023 succeeded.
+- Device last read: Windows1441/app46596/core45208 and7890; earlier passive check found Bf not foreground. A later bounded1441 SubStore UI cycle used fresh cropped screenshots, native foreground/window-point identity guards and a same-user administrator diagnostic task because the already-running app is elevated. Stopped/running/stopped labels matched owned backend health and listener state; baseline restored, proxy unchanged. This is1441 evidence only. Xiaomi15 user says RC1 installed but drain context unknown. Current local ADB inventory has zero authorized devices.
+
+## Requirement-to-evidence audit
+
+| Requirement | Evidence now | What remains / verdict |
+| --- | --- | --- |
+| Pause Windows/Android update without quitting; return to change node; continue | Shared runtime cancels requests and retains URL+SHA-identified partial; real HTTP cancel/range and proxyA->proxyB resume+SHA tests; Windows update CI44 | Component behavior proved. Continue entry is another check-for-updates; no independent download task page. Installed-app Windows and Android pause/navigation/node-change/continue still missing |
+| Resume after reopening and reject bad/unsupported partial | Disk partial identity, strict206 start/total,200 restart, size/digest/cache tests, unverified assets never append | Protocol tests prove these paths. Actual app kill/reopen, error/retry feedback and installer/APK handoff remain unverified |
+| Trae visual baseline | Exact657b3284 HTML reference; six runtime pages adapted;24 light/dark900/1400 Flutter renders, visual image review, bundled-icon fix | Synthetic render/interaction proof only. Chinese/real data/window and user-device experience still pending |
+| Retain dashboard control/state/update/IP/traffic | Existing real provider/action callbacks; navigation/core/mode/status tests | Actual1551 start/stop, modes, system proxy/TUN, IP refresh and update flow pending |
+| Retain groups/nodes/delay/search/styles/providers | Same TabController/ProxyGroupView/ProxyCard actions; wide group panel selection/resize/empty-return tests; list style retained | Actual selection, timing/error feedback, provider actions and persistence on1551 pending |
+| Retain import/edit/preview/switch/refresh/sort/overrides/scripts | Same profile menus/actions; profile focus/import/preview and UI tests; vertical desktop list | Real import/edit/refresh/failure/restart/override scripts pending |
+| Retain connections/requests/logs | Seven navigation entries including Requests; real details/filters/close controls; delayed close failure/re-enable and active-page/app polling regressions; selectable logs/export callbacks | Actual1551 traffic, details/individual/all close/search/log pause/export/visibility preference/persistence pending |
+| Retain all tools/configuration | Locale/resources/basic+advanced config/DNS/ports/rules/providers/application/theme/hotkeys/loopback/About/developer builders retained; grouped cards reuse every row/action | Actual resource/config operations, failures and saved settings after restart still pending |
+| Retain local backup/restore | Historical1321 installed UI+JSON/SQLite6-table19-profile-hash evidence; production archive and provider tests | New1551 UI/restart and further restore cases not established by historical proof |
+| Retain WebDAV full roundtrip/error handling | Existing real Dio live-server/auth/status tests.25d test drives real screen callbacks, Dio loopback, archive workers/applyRestore with temporary file SQLite and full-profile/script/rule/link/group/files/current-selection assertions;401 and corrupt-data preservation.39 related local checks pass | Background isolate dispatch is replaced to inject fixture paths; app-wide proxy override and real account/device paths are not proved. Windows standard60/beta1 CI passed. Installed-app full roundtrip still pending; shared remote backup.zip must never be overwritten for testing |
+| Retain local/remote SubStore lifecycle/front end/conversion/import | Both1551 packaged channel health/conversion/restart persistence pass; historical1321/1431 component proof and fresh1441 UI stopped->running->stopped with owned Node/health/status consistency | Actual1551 frontend launch+conversion/import, status refresh and full app exit lifecycle still pending; do not misread a deliberately cleaned test Node as start failure |
+| Retain window/tray/startup/hotkeys/exit/geometry | Navigation/focus/geometry tests and original controls retained | Actual1551 drag/maximize/restore/tray/startup/hotkeys/cleanup/persistence pending |
+| Windows distribution/coexistence/uninstall/signing |1551 original asset digests, upload digest, draft re-download and public re-download match;81 ZIP entries fully read; cancellation/confirmed isolated uninstall fixtures pass | User installs manually; no1551 device upgrade yet. Real coexistence/uninstall not proved by fixture. Trusted formal signing still unavailable; unsigned prerelease is not final release acceptance |
+| Xiaomi15 screen-off/background reduction | Notification1s tick really canceled screen-off; Flutter UI polls stopped outside resumed; native96 tests and released signed RC1 | Real screen-state/notification/VPN/recovery behavior on phone still missing |
+| Xiaomi15 health/recovery tradeoff | Healthy screen-off probe5min, interactive/suspect1min, deep-idle external probe skipped; network-change recovery thresholds preserved in source/native tests | Hidden fault discovery can be later; real idle/network restoration comparison required, cannot claim zero behavior change |
+| Xiaomi15 measured power improvement | RC1 user installation confirmed only | No battery screenshot/batterystats, OS/version confirmation or same-node/network foreground-vs-locked comparison. No savings percentage or unique root cause can be claimed |
+
+## Completion / blocking conclusion
+
+The full goal is **not achieved**. Desktop source/package delivery and isolated regression checks are concrete progress; they do not close device gaps. Do not mark complete or promote either platform solely from CI.
+
+The independent test CI39114401192 is now terminal success. The fresh1441 SubStore UI regression is additional device progress, not1551 visual or whole-app acceptance. Next safe independent work can validate a synthetic filename edit canceled before saving to resolve prior IME/input problems, before any isolated WebDAV UI archive action. A real-account roundtrip must use a unique filename and preserve the shared remote backup, with local snapshot and unchanged-data guards before restore. Do not pad work with repeated version/foreground reads or invented changes. Manual1551 upgrade and battery-record requests were already given once; do not repeatedly prompt. Automation remains ACTIVE.
+
+## Additional acceptance progress18:02–18:12CST
+
+Actual1441 filename input tested/cancelled: single-batch Ctrl+A concatenated; splitting each native key transition100ms then350ms before Unicode replaced text exactly. All attempts cancelled, no settings/upload/restore, dashboard/proxy204 restored and probe tasks empty. This resolves remote input timing only; real account roundtrip remains pending.
+
+Chinese840x592/130% text/long-label regression caught TrafficUsage legend4px bottom overflow after scrolling; desktop card typography-aware height fixes it.36 visual/scroll cases and targeted analyze pass. Not installed1551 acceptance or Xiaomi battery evidence.
+
+## WebDAV upload and database consistency18:15CST
+
+Actual1441 app remote-backup success dialog observed after setting an isolated GUID filename; independent GET200116708bytes/21 ZIP entries read, original shared hash unchanged. UI Reset restored original filename; decoded DAV semantics unchanged; test DELETE204/HEAD404 and dashboard/proxy204/core45208 healthy. No restore invoked. Mac evidence1441-webdav-upload holds safe screenshots and proofs. Initial active DB/cache file-copy/hash manifest is NOT a consistent snapshot. Subsequently Python sqlite backup API opened source read-only and created device-local integrity-ok snapshot6tables/19rows, original preferences copied. This is preparation only.
+
+Source regression then reproduced raw-file archive dropping committed WAL changes: expected Committed in WAL, got Backed up. Replaced dbFile.copy with read-only SQLite VACUUM INTO a bound destination,5sec busy timeout and snapshot-failure cleanup.22 archive cases plus real Dio/UI WebDAV regression23 pass, targeted analyze clean. New runtime fix is not in1551/AndroidRC1 and requires platform CI/package+device validation. Does not prove actual user database uses WAL or suffered this loss.
+
+WAL validation correction: the first analyze run returned success with3info diagnostics (sqlite3 was dev-only and dispose deprecated); these are now corrected by declaring sqlite3 runtime dependency and using close(). Final pub get/analyze on both Windows and Android report no issues;22 archive tests pass independently on each branch. Earlier Windows real Dio/UI regression passed too. CI/build and new package/device acceptance still required; published1551/RC1 are unchanged.

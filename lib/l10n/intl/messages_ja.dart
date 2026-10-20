@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
   static String m0(code) =>
-      "Windows が BfClashCore.exe の実行を拒否しました（エラー ${code}）。スマート アプリ コントロールや AppLocker などのアプリ制御ポリシーは未署名のプログラムをブロックします。ポリシーで BfClash を許可するか、ポリシーを無効にしてから再試行してください。";
+      "Windows が BfClashCore.exe の実行を拒否しました（エラー ${code}）。信頼された署名付きビルド、または既存のアプリ制御ポリシーに沿った管理者の確認が必要です。操作は完了していません。";
 
   static String m1(name) =>
       "アプリの起動が2回連続で完了しませんでした。クラッシュループを断ち切るため、プロファイル ${name} の選択を解除し、今回の自動セットアップをスキップしました。いつでも選択し直せます。";
@@ -83,11 +83,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "${label}はURLである必要があります";
 
-  static String m30(count) => "${count} 年前";
+  static String m30(detail, log) =>
+      "上書き更新でエラーが発生しました: ${detail}\n\n更新前のファイルへの復元を試みました。ログ: ${log}";
+
+  static String m31(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("アプリについて"),
+    "aboutAuthor": MessageLookupByLibrary.simpleMessage("作者"),
+    "aboutBaseProject": MessageLookupByLibrary.simpleMessage("クライアント基盤プロジェクト"),
+    "aboutCoreProject": MessageLookupByLibrary.simpleMessage("高性能ルーティングプロキシコア"),
+    "aboutCredits": MessageLookupByLibrary.simpleMessage("クレジット"),
+    "aboutOpenSourceLicense": MessageLookupByLibrary.simpleMessage(
+      "オープンソースライセンス",
+    ),
     "accessControl": MessageLookupByLibrary.simpleMessage("アクセス制御"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "選択したアプリのみVPNを経由します",
@@ -109,6 +119,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionStart": MessageLookupByLibrary.simpleMessage("開始/停止"),
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionView": MessageLookupByLibrary.simpleMessage("表示/非表示"),
+    "activeConnections": MessageLookupByLibrary.simpleMessage("アクティブな接続"),
     "add": MessageLookupByLibrary.simpleMessage("追加"),
     "addProfile": MessageLookupByLibrary.simpleMessage("プロファイルを追加"),
     "addProxies": MessageLookupByLibrary.simpleMessage("プロキシを追加"),
@@ -255,6 +266,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("接続済み"),
     "connecting": MessageLookupByLibrary.simpleMessage("接続中..."),
     "connection": MessageLookupByLibrary.simpleMessage("接続"),
+    "connectionConsole": MessageLookupByLibrary.simpleMessage("接続コンソール"),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "接続を更新できません。リストが古い可能性があります。",
     ),
@@ -296,6 +308,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("切り取り"),
     "dark": MessageLookupByLibrary.simpleMessage("ダーク"),
     "dashboard": MessageLookupByLibrary.simpleMessage("ダッシュボード"),
+    "dashboardSubtitle": MessageLookupByLibrary.simpleMessage(
+      "コア状態・リアルタイム速度・アウトバウンドモードの概要",
+    ),
     "dataChangedSave": MessageLookupByLibrary.simpleMessage(
       "データの変更を検出しました。保存しますか？",
     ),
@@ -328,6 +343,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "サードパーティAPIに依存しているため、参考値です",
     ),
     "developerMode": MessageLookupByLibrary.simpleMessage("開発者モード"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage("デバッグと高度な状態監視"),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage(
       "開発者モードが有効になりました。",
     ),
@@ -544,6 +560,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "logsTest": MessageLookupByLibrary.simpleMessage("ログテスト"),
     "loopback": MessageLookupByLibrary.simpleMessage("ループバック解除ツール"),
     "loopbackDesc": MessageLookupByLibrary.simpleMessage("UWPのループバック解除に使用します"),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows がループバックツールを開けませんでした。承認がキャンセルされたか、アプリ制御によってブロックされた可能性があります。ツールのファイルが存在することを確認してください。",
+    ),
     "loose": MessageLookupByLibrary.simpleMessage("ゆったり"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage("送信元IPにマッチ"),
     "matchTarget": MessageLookupByLibrary.simpleMessage("MATCH-TARGET"),
@@ -555,6 +574,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "maxLengthTip": m19,
     "maximize": MessageLookupByLibrary.simpleMessage("最大化"),
     "memoryInfo": MessageLookupByLibrary.simpleMessage("メモリ情報"),
+    "memoryUsage": MessageLookupByLibrary.simpleMessage("メモリ使用量"),
     "messageTest": MessageLookupByLibrary.simpleMessage("メッセージテスト"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage("これはメッセージです。"),
     "min": MessageLookupByLibrary.simpleMessage("最小"),
@@ -579,6 +599,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "ドメインごとのネームサーバーポリシーを指定します",
     ),
+    "navGroupDiagnostics": MessageLookupByLibrary.simpleMessage("診断"),
+    "navGroupMonitor": MessageLookupByLibrary.simpleMessage("モニター"),
+    "navGroupNetwork": MessageLookupByLibrary.simpleMessage("ネットワーク"),
     "network": MessageLookupByLibrary.simpleMessage("ネットワーク"),
     "networkDesc": MessageLookupByLibrary.simpleMessage("ネットワーク関連の設定を変更します"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("ネットワーク検出"),
@@ -647,6 +670,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "port": MessageLookupByLibrary.simpleMessage("ポート"),
     "portConflictTip": MessageLookupByLibrary.simpleMessage("別のポートを入力してください"),
+    "portLabel": MessageLookupByLibrary.simpleMessage("ポート"),
     "portTip": m24,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage("DoHでHTTP/3を優先します"),
     "prerequisites": MessageLookupByLibrary.simpleMessage("前提条件"),
@@ -708,6 +732,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage(
       "プロキシプロバイダーは空にできません",
     ),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("プロキシ稼働中"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("プロキシ停止中"),
     "proxyType": MessageLookupByLibrary.simpleMessage("プロキシタイプ"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("キャッシュを整理"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("ピュアブラックモード"),
@@ -717,6 +743,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickFill": MessageLookupByLibrary.simpleMessage("クイック入力"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("レインボー"),
+    "realtimeRate": MessageLookupByLibrary.simpleMessage("リアルタイム速度"),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redirポート"),
     "redo": MessageLookupByLibrary.simpleMessage("やり直す"),
     "refresh": MessageLookupByLibrary.simpleMessage("更新"),
@@ -879,6 +906,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("ルールターゲット"),
     "rules": MessageLookupByLibrary.simpleMessage("ルール"),
     "rulesCount": m26,
+    "runtimeLabel": MessageLookupByLibrary.simpleMessage("稼働時間"),
     "save": MessageLookupByLibrary.simpleMessage("保存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("変更を保存しますか？"),
     "script": MessageLookupByLibrary.simpleMessage("スクリプト"),
@@ -938,6 +966,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "start": MessageLookupByLibrary.simpleMessage("開始"),
     "startVpn": MessageLookupByLibrary.simpleMessage("VPNを起動しています..."),
+    "stateOff": MessageLookupByLibrary.simpleMessage("オフ"),
+    "stateOn": MessageLookupByLibrary.simpleMessage("オン"),
     "status": MessageLookupByLibrary.simpleMessage("状態"),
     "statusDesc": MessageLookupByLibrary.simpleMessage("無効にすると、システムDNSを使用します"),
     "stop": MessageLookupByLibrary.simpleMessage("停止"),
@@ -959,12 +989,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage("端末内サービス"),
     "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("端末内バックエンド"),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "この Android 端末で公式 Sub-Store バックエンドを非公開で実行します",
+      "この端末で公式 Sub-Store バックエンドを非公開で実行します",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("バックエンドモード"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage("未設定"),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "公式 Sub-Store コンソールを開く",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "ローカル Sub-Store のポートは使用中です。他のサービスを停止してから再試行してください。",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage("リモートサービス"),
     "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage(
@@ -981,6 +1014,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Sub-Store バックエンドは実行中です",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "内蔵の Sub-Store 実行環境がありません。BfClash を再インストールするか、リモートバックエンドを使用してください。",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store のバックエンドファイルがありません。BfClash を再インストールしてください。",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Sub-Store バックエンドを起動できません",
@@ -1070,7 +1109,32 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPNの再起動後に有効になります"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
-    "yearsAgo": m30,
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "更新を完了できませんでした",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "スマート アプリ コントロールが有効なため、インストーラーを実行せず、インストール済みファイルを上書きする方式で更新します。ダウンロード後に自動で再起動します。プロファイルや購読、設定は変更されません。",
+    ),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。",
+    ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "この更新パッケージはコード署名されていません。Windows が「不明な発行元」の確認を表示したり、スマート アプリ制御が有効な場合はインストールがブロックされる可能性があります。ダウンロードしてインストールを続行しますか？",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "未署名の更新パッケージ",
+    ),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "この Windows ベータ版のビルド番号またはアーキテクチャを識別できません。公式 Windows ベータ版をインストールして再試行してください。",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "インストーラーを起動できませんでした。承認がキャンセルされたか、アプリ制御によりブロックされた可能性があります。現在のバージョンは引き続き利用できます。",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "この Windows の構成と更新チャネルに対応する検証可能なインストーラーがありません。",
+    ),
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };
 }

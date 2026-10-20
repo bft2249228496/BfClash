@@ -232,8 +232,13 @@ namespace proxy
   {
     if (method_call.method_name() == "StopProxy")
     {
+      if (!proxy_applied_)
+      {
+        result->Success(true);
+        return;
+      }
       const bool stopped = stopProxy();
-      proxy_applied_ = proxy_applied_ && !stopped;
+      proxy_applied_ = !stopped;
       result->Success(stopped);
     }
     else if (method_call.method_name() == "StartProxy")

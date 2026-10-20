@@ -35,32 +35,33 @@ class HotKeyView extends StatelessWidget {
     final appLocalizations = context.appLocalizations;
     return BaseScaffold(
       title: appLocalizations.hotkeyManagement,
-      body: ListView.builder(
-        itemCount: HotAction.values.length,
-        itemBuilder: (_, index) {
-          final hotAction = HotAction.values[index];
-          return Consumer(
-            builder: (_, ref, _) {
-              final hotKeyAction = ref.watch(
-                getHotKeyActionProvider(hotAction),
-              );
-              return ListItem(
-                title: Text(hotAction.label),
-                subtitle: Text(
-                  getSubtitle(context, hotKeyAction),
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.primary,
-                  ),
-                ),
-                onTap: () {
-                  dialogs.showCommonDialog(
-                    child: HotKeyRecorder(hotKeyAction: hotKeyAction),
+      body: generateListView(
+        generateSection(
+          items: [
+            for (final hotAction in HotAction.values)
+              Consumer(
+                builder: (_, ref, _) {
+                  final hotKeyAction = ref.watch(
+                    getHotKeyActionProvider(hotAction),
+                  );
+                  return ListItem(
+                    title: Text(hotAction.label),
+                    subtitle: Text(
+                      getSubtitle(context, hotKeyAction),
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.primary,
+                      ),
+                    ),
+                    onTap: () {
+                      dialogs.showCommonDialog(
+                        child: HotKeyRecorder(hotKeyAction: hotKeyAction),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          );
-        },
+              ),
+          ],
+        ),
       ),
     );
   }

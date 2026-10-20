@@ -94,8 +94,13 @@ BEGIN
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "clash" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.follow. All rights reserved." "\0"
-            VALUE "OriginalFilename", "BfClash.exe" "\0"
+#ifdef BFCLASH_BETA
+            VALUE "ProductName", "com.bfclash.client.beta" "\0"
+            VALUE "OriginalFilename", "BfClash-Beta.exe" "\0"
+#else
             VALUE "ProductName", "clash" "\0"
+            VALUE "OriginalFilename", "BfClash.exe" "\0"
+#endif
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -196,7 +196,12 @@ class CommonCard extends StatelessWidget {
       return colorScheme.surfaceContainerHigh;
     }
     if (isSelected) {
-      return colorScheme.secondaryContainer;
+      return system.isDesktop
+          ? Color.alphaBlend(
+              colorScheme.primary.withValues(alpha: 0.10),
+              colorScheme.surfaceContainerLow,
+            )
+          : colorScheme.secondaryContainer;
     }
     return colorScheme.surfaceContainerLow;
   }

@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BfClash · 桌面端重设计</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BfClash Desktop Redesign — Obsidian × Aurora
+   ============================================================ */
+:root{
+  --bg:#08080D;
+  --bg-app:#0B0B12;
+  --surface:#12121B;
+  --surface-2:#161620;
+  --surface-3:#1C1C28;
+  --hairline:rgba(255,255,255,.065);
+  --hairline-strong:rgba(255,255,255,.11);
+  --text:#EDEAF5;
+  --text-2:#A6A2B8;
+  --text-3:#6B6879;
+  --sky:#38BDF8;
+  --indigo:#818CF8;
+  --purple:#C084FC;
+  --aurora:linear-gradient(135deg,#38BDF8 0%,#818CF8 50%,#C084FC 100%);
+  --aurora-soft:linear-gradient(135deg,rgba(56,189,248,.14),rgba(129,140,248,.14) 50%,rgba(192,132,252,.14));
+  --ok:#34D399;
+  --warn:#FBBF24;
+  --bad:#FB7185;
+  --sidebar-w:236px;
+  --titlebar-h:52px;
+  --r-lg:16px;
+  --r-md:10px;
+  --r-sm:7px;
+  --font-ui:"Inter","PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font-ui);
+  background:#050507;
+  color:var(--text);
+  font-size:13.5px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+::selection{background:rgba(129,140,248,.35)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:99px;border:2.5px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18);background-clip:padding-box;border:2.5px solid transparent}
+::-webkit-scrollbar-track{background:transparent}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input{font-family:inherit}
+
+/* ---------- App window ---------- */
+.app{
+  width:100vw;height:100vh;
+  background:var(--bg-app);
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 40px 120px rgba(0,0,0,.7);
+}
+@media(min-width:1100px){
+  .app{width:100vw;height:100vh;border-radius:0}
+}
+
+/* ambient aurora */
+.ambient{position:absolute;inset:0;pointer-events:none;z-index:0;transition:opacity .8s}
+.ambient::before,.ambient::after{content:"";position:absolute;border-radius:50%;filter:blur(110px)}
+.ambient::before{width:560px;height:560px;right:-160px;top:-220px;
+  background:radial-gradient(circle,rgba(129,140,248,.13),transparent 65%)}
+.ambient::after{width:520px;height:520px;left:200px;top:-260px;
+  background:radial-gradient(circle,rgba(56,189,248,.08),transparent 65%)}
+body.off .ambient{opacity:.25}
+
+/* ---------- Title bar ---------- */
+.titlebar{
+  height:var(--titlebar-h);flex:none;z-index:20;
+  display:flex;align-items:center;gap:14px;padding:0 6px 0 18px;
+  border-bottom:1px solid var(--hairline);
+  background:rgba(11,11,18,.78);backdrop-filter:blur(20px);
+}
+.tb-brand{display:flex;align-items:center;gap:11px;min-width:var(--sidebar-w);padding-right:14px}
+.logo{
+  width:31px;height:31px;border-radius:9px;flex:none;
+  background:var(--aurora);
+  display:grid;place-items:center;
+  box-shadow:0 4px 14px rgba(129,140,248,.4), inset 0 1px 0 rgba(255,255,255,.35);
+  position:relative;
+}
+.logo svg{width:16px;height:16px}
+.tb-name{font-size:14.5px;font-weight:700;letter-spacing:.2px}
+.tb-name b{font-weight:800;background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tb-ver{font-family:var(--font-mono);font-size:10px;color:var(--text-3);border:1px solid var(--hairline-strong);padding:2px 6px;border-radius:5px;margin-left:2px}
+
+.tb-center{flex:1;display:flex;align-items:center;gap:10px}
+.core-pill{
+  display:flex;align-items:center;gap:8px;padding:5px 12px 5px 10px;border-radius:99px;
+  border:1px solid var(--hairline);background:rgba(255,255,255,.03);font-size:12px;color:var(--text-2)
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);position:relative;flex:none}
+.dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--ok);opacity:.5;animation:pulse 2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.5);opacity:0}}
+body.off .dot{background:var(--text-3)}
+body.off .dot::after{display:none}
+.core-pill b{color:var(--text);font-weight:600}
+.tb-sep{width:1px;height:18px;background:var(--hairline-strong)}
+.tb-traffic{display:flex;align-items:center;gap:14px;font-family:var(--font-mono);font-size:11.5px;color:var(--text-2)}
+.tb-traffic .d{color:var(--sky)} .tb-traffic .u{color:var(--purple)}
+.tb-traffic svg{vertical-align:-2px;margin-right:4px}
+.tb-clock{font-family:var(--font-mono);font-size:11.5px;color:var(--text-3);margin-left:2px}
+.win-ctrl{display:flex;align-items:center;height:100%}
+.win-ctrl button{width:46px;height:100%;display:grid;place-items:center;color:var(--text-2);transition:background .15s,color .15s}
+.win-ctrl button svg{width:11px;height:11px}
+.win-ctrl button:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.win-ctrl button.close:hover{background:#E8453C;color:#fff}
+
+/* ---------- Body ---------- */
+.body{flex:1;display:flex;min-height:0;position:relative;z-index:1}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  width:var(--sidebar-w);flex:none;
+  border-right:1px solid var(--hairline);
+  background:rgba(9,9,14,.6);
+  display:flex;flex-direction:column;
+  padding:16px 12px 14px;
+}
+.nav-group{margin-bottom:18px}
+.nav-label{font-size:10.5px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--text-3);padding:0 12px 8px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;width:100%;
+  padding:8.5px 12px;border-radius:9px;margin-bottom:2px;
+  font-size:13.5px;font-weight:500;color:var(--text-2);
+  position:relative;transition:color .18s,background .18s;
+}
+.nav-item svg{width:17px;height:17px;flex:none;stroke-width:1.8}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.045)}
+.nav-item.active{color:var(--text);background:linear-gradient(90deg,rgba(56,189,248,.13),rgba(192,132,252,.08))}
+.nav-item.active::before{content:"";position:absolute;left:-12px;top:7px;bottom:7px;width:3px;border-radius:99px;background:var(--aurora);box-shadow:0 0 10px rgba(129,140,248,.8)}
+.nav-item.active svg{stroke:url(#navGrad)}
+.nav-badge{margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--text-3);background:rgba(255,255,255,.05);padding:1.5px 7px;border-radius:6px}
+.nav-item.active .nav-badge{color:var(--indigo);background:rgba(129,140,248,.13)}
+.sb-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--hairline)}
+.sb-meta{display:flex;align-items:center;justify-content:space-between;padding:0 12px;margin-top:10px;font-size:10.5px;color:var(--text-3)}
+.sb-meta .mono{font-family:var(--font-mono)}
+
+/* ---------- Main ---------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.view{flex:1;display:none;flex-direction:column;min-height:0;animation:viewIn .45s cubic-bezier(.22,.8,.3,1)}
+.view.active{display:flex}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.page-head{flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:24px 30px 18px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:.2px}
+.page-sub{font-size:12.5px;color:var(--text-3);margin-top:3px}
+.head-actions{display:flex;align-items:center;gap:9px}
+
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  height:34px;padding:0 15px;border-radius:9px;font-size:13px;font-weight:600;
+  border:1px solid var(--hairline-strong);background:rgba(255,255,255,.04);color:var(--text);
+  transition:all .18s;white-space:nowrap;
+}
+.btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18)}
+.btn svg{width:14px;height:14px}
+.btn.primary{background:var(--aurora);border:none;color:#0B0B12;font-weight:700;
+  box-shadow:0 4px 18px rgba(129,140,248,.35), inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.primary:hover{filter:brightness(1.08);box-shadow:0 6px 24px rgba(129,140,248,.5), inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.ghost{background:transparent}
+.btn.sm{height:28px;padding:0 11px;font-size:12px;border-radius:7px}
+.icon-btn{width:31px;height:31px;border-radius:8px;display:grid;place-items:center;color:var(--text-2);border:1px solid transparent;transition:all .15s}
+.icon-btn:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.icon-btn svg{width:15px;height:15px}
+
+.content{flex:1;overflow-y:auto;padding:0 30px 30px}
+
+/* ---------- Generic panel ---------- */
+.panel{
+  background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.008)),var(--surface);
+  border:1px solid var(--hairline);border-radius:var(--r-lg);position:relative;
+}
+.panel-head{display:flex;align-items:center;gap:10px;padding:16px 18px 0}
+.overline{font-size:10.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-3)}
+.panel-title{font-size:14.5px;font-weight:650}
+.panel-body{padding:18px}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+.dash-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+
+/* hero / power */
+.hero{grid-column:span 5;padding:22px 24px;display:flex;flex-direction:column;overflow:hidden}
+.hero::after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;
+  left:50%;top:54%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(129,140,248,.14),transparent 62%);pointer-events:none}
+body.off .hero::after{background:radial-gradient(circle,rgba(255,255,255,.04),transparent 62%)}
+.hero-top{display:flex;align-items:center;justify-content:space-between}
+.mode-chip{font-size:11px;font-family:var(--font-mono);color:var(--text-2);border:1px solid var(--hairline-strong);padding:3px 9px;border-radius:6px}
+.power-wrap{flex:1;display:grid;place-items:center;padding:14px 0 6px;position:relative;z-index:1}
+.power{position:relative;width:188px;height:188px;display:grid;place-items:center;cursor:pointer;outline:none}
+.ring-rotate{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--sky),var(--indigo),var(--purple),var(--sky));
+  animation:spin 7s linear infinite;
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));
+  filter:drop-shadow(0 0 7px rgba(129,140,248,.55));
+  transition:opacity .5s;
+}
+.ring-glow{position:absolute;inset:14px;border-radius:50%;
+  background:radial-gradient(circle,rgba(129,140,248,.12),transparent 70%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.power-core{
+  position:relative;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle at 50% 32%,#23232F,#14141D 70%);
+  border:1px solid rgba(255,255,255,.09);
+  display:grid;place-items:center;
+  box-shadow:inset 0 2px 12px rgba(0,0,0,.6), 0 10px 40px rgba(0,0,0,.5);
+  transition:transform .25s;
+}
+.power:hover .power-core{transform:scale(1.025)}
+.power:active .power-core{transform:scale(.97)}
+.power-core svg{width:46px;height:46px;color:var(--text-2);transition:color .4s,filter .4s}
+body:not(.off) .power-core svg{color:#fff;filter:drop-shadow(0 0 10px rgba(129,140,248,.9))}
+body.off .ring-rotate{animation:none;opacity:.18;filter:none;background:conic-gradient(#555,#3a3a44,#555)}
+.hero-status{text-align:center;position:relative;z-index:1}
+.hero-state{font-size:17px;font-weight:700;letter-spacing:.5px}
+.hero-state.on{background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-node{margin-top:7px;font-size:12.5px;color:var(--text-2);display:flex;align-items:center;justify-content:center;gap:7px}
+.latency{font-family:var(--font-mono);font-size:11px;color:var(--ok);border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);padding:1.5px 7px;border-radius:6px}
+.latency.warn{color:var(--warn);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08)}
+.hero-meta{display:flex;justify-content:center;gap:16px;margin-top:13px;font-size:11px;color:var(--text-3);font-family:var(--font-mono)}
+.hero-meta span b{color:var(--text-2);font-weight:500}
+
+/* chart panel */
+.chart-panel{grid-column:span 7;padding:22px 24px 20px;display:flex;flex-direction:column;min-height:348px}
+.chart-top{display:flex;align-items:flex-start;justify-content:space-between}
+.legend{display:flex;gap:16px;font-size:11.5px;color:var(--text-2)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.legend .ld i{background:var(--sky);box-shadow:0 0 6px var(--sky)}
+.legend .lu i{background:var(--purple);box-shadow:0 0 6px var(--purple)}
+.speed-numbers{display:flex;gap:34px;margin:16px 0 6px}
+.speed-item .k{font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:5px}
+.speed-item .k svg{width:12px;height:12px}
+.speed-item.d .k{color:var(--sky)} .speed-item.u .k{color:var(--purple)}
+.speed-item .v{font-family:var(--font-mono);font-size:30px;font-weight:700;letter-spacing:-.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+.speed-item .v small{font-size:12px;font-weight:500;color:var(--text-3);margin-left:4px}
+.chart-canvas-wrap{flex:1;min-height:128px;position:relative}
+#speedChart{position:absolute;inset:0;width:100%;height:100%}
+.chart-foot{display:flex;gap:0;border-top:1px solid var(--hairline);margin-top:12px;padding-top:14px}
+.chart-foot .cell{flex:1;padding-right:18px}
+.chart-foot .cell+.cell{border-left:1px solid var(--hairline);padding-left:18px}
+.chart-foot .k{font-size:11px;color:var(--text-3)}
+.chart-foot .v{font-family:var(--font-mono);font-size:13.5px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums}
+.chart-foot .v small{color:var(--text-3);font-weight:400;font-size:10.5px}
+
+/* status strip */
+.strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr)}
+.strip .cell{padding:20px 22px;min-width:0}
+.strip .cell+.cell{border-left:1px solid var(--hairline)}
+.cell-label{font-size:11px;color:var(--text-3);letter-spacing:.4px;margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.cell-label svg{width:12.5px;height:12.5px}
+.segmented{display:flex;background:rgba(0,0,0,.35);border:1px solid var(--hairline);border-radius:8px;padding:3px;gap:2px}
+.segmented button{flex:1;height:27px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text-3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.segmented button svg{width:12px;height:12px}
+.segmented button.on{color:#0B0B12;font-weight:700;background:var(--aurora);box-shadow:0 2px 8px rgba(129,140,248,.35)}
+.segmented.binary button.on{background:var(--text);box-shadow:none}
+.cell-value{font-family:var(--font-mono);font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.cell-sub{font-size:11px;color:var(--text-3);margin-top:5px;font-family:var(--font-mono)}
+.mem-bar{height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:10px}
+.mem-bar i{display:block;height:100%;width:38%;border-radius:99px;background:var(--aurora);box-shadow:0 0 8px rgba(129,140,248,.6);transition:width 1s}
+
+/* switch */
+.switch{width:38px;height:22px;border-radius:99px;background:rgba(255,255,255,.1);position:relative;transition:background .25s;flex:none;cursor:pointer;border:1px solid transparent}
+.switch i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.34,1.4,.64,1);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.switch.on{background:var(--aurora);box-shadow:0 0 10px rgba(129,140,248,.45)}
+.switch.on i{transform:translateX(16px)}
+.row-inline{display:flex;align-items:center;gap:10px}
+
+/* ============================================================
+   PROXIES
+   ============================================================ */
+.proxies-layout{display:grid;grid-template-columns:218px 1fr;gap:18px;height:100%;min-height:0}
+.group-list{padding:10px;overflow-y:auto;align-self:start;max-height:100%}
+.group-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:9px;margin-bottom:3px;text-align:left;transition:all .18s;position:relative}
+.group-item:hover{background:rgba(255,255,255,.045)}
+.group-item.on{background:linear-gradient(90deg,rgba(56,189,248,.13),rgba(192,132,252,.07));border:1px solid rgba(129,140,248,.22);padding:9px 11px}
+.group-item.on::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:99px;background:var(--aurora)}
+.g-flag{font-size:16px;width:22px;text-align:center;flex:none}
+.g-info{min-width:0;flex:1}
+.g-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-type{font-size:10.5px;color:var(--text-3);font-family:var(--font-mono);margin-top:1px}
+.g-count{font-family:var(--font-mono);font-size:10.5px;color:var(--text-3);flex:none}
+
+.nodes-panel{display:flex;flex-direction:column;min-height:0}
+.nodes-toolbar{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--hairline)}
+.search{
+  height:33px;width:230px;display:flex;align-items:center;gap:8px;padding:0 11px;
+  background:rgba(0,0,0,.3);border:1px solid var(--hairline);border-radius:8px;color:var(--text-3);
+  transition:border-color .2s,box-shadow .2s;flex:none;
+}
+.search:focus-within{border-color:rgba(129,140,248,.5);box-shadow:0 0 0 3px rgba(129,140,248,.12)}
+.search svg{width:13.5px;height:13.5px;flex:none}
+.search input{background:none;border:none;outline:none;color:var(--text);font-size:12.5px;width:100%}
+.search input::placeholder{color:var(--text-3)}
+.select{height:33px;display:flex;align-items:center;gap:8px;padding:0 11px;background:rgba(0,0,0,.3);border:1px solid var(--hairline);border-radius:8px;font-size:12.5px;color:var(--text-2);flex:none;cursor:pointer}
+.select svg{width:12px;height:12px;color:var(--text-3)}
+.nodes-toolbar .spacer{flex:1}
+.nodes-stats{font-size:11.5px;color:var(--text-3);font-family:var(--font-mono)}
+.nodes-stats b{color:var(--text);font-weight:600}
+
+.node-table{flex:1;overflow-y:auto;padding:6px 10px 10px}
+.node-row{
+  display:grid;grid-template-columns:30px 1fr 92px 86px 90px;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;margin-top:2px;cursor:pointer;transition:background .15s;position:relative;
+}
+.node-row:hover{background:rgba(255,255,255,.04)}
+.node-row.sel{background:linear-gradient(90deg,rgba(56,189,248,.10),rgba(192,132,252,.05))}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(255,255,255,.22);display:grid;place-items:center;flex:none;transition:all .2s}
+.node-row.sel .radio{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(129,140,248,.15)}
+.radio i{width:8px;height:8px;border-radius:50%;background:var(--aurora);transform:scale(0);transition:transform .2s}
+.node-row.sel .radio i{transform:scale(1)}
+.node-main{display:flex;align-items:center;gap:10px;min-width:0}
+.n-flag{font-size:18px;width:24px;text-align:center}
+.n-name{font-size:13px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.node-row.sel .n-name{color:#fff}
+.fav{color:var(--text-3);transition:color .2s}
+.fav:hover,.fav.on{color:var(--warn)}
+.fav svg{width:14px;height:14px}
+.tag{font-family:var(--font-mono);font-size:10px;color:var(--text-2);background:rgba(255,255,255,.06);border:1px solid var(--hairline);padding:2.5px 7px;border-radius:5px;text-align:center;text-transform:uppercase;letter-spacing:.4px;justify-self:start}
+.tag.hy2{color:#7DD3FC;background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.2)}
+.tag.tj{color:#C4B5FD;background:rgba(129,140,248,.08);border-color:rgba(129,140,248,.22)}
+.tag.vm{color:#F0ABFC;background:rgba(192,132,252,.08);border-color:rgba(192,132,252,.22)}
+.n-region{font-size:11.5px;color:var(--text-3)}
+.delay{justify-self:end;font-family:var(--font-mono);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:6px;display:flex;align-items:center;gap:5px}
+.delay.ok{color:var(--ok);background:rgba(52,211,153,.08)}
+.delay.warn{color:var(--warn);background:rgba(251,191,36,.08)}
+.delay.bad{color:var(--bad);background:rgba(251,113,133,.08)}
+.delay.testing{color:var(--text-3);background:rgba(255,255,255,.04)}
+.spinner{width:11px;height:11px;border:1.8px solid rgba(255,255,255,.18);border-top-color:var(--indigo);border-radius:50%;animation:spin .7s linear infinite}
+.node-row .row-actions{position:absolute;right:90px;display:flex;gap:2px;opacity:0;transition:opacity .15s}
+.node-row:hover .row-actions{opacity:1}
+.mini-icon{width:25px;height:25px;border-radius:6px;display:grid;place-items:center;color:var(--text-3)}
+.mini-icon:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.mini-icon svg{width:13px;height:13px}
+
+/* ============================================================
+   PROFILES
+   ============================================================ */
+.prof-active{padding:24px 26px;margin-bottom:18px;display:flex;align-items:center;gap:24px;overflow:hidden;position:hidden}
+.prof-active::before{content:"";position:absolute;right:-80px;top:-120px;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle,rgba(129,140,248,.13),transparent 65%)}
+.pa-badge{width:52px;height:52px;border-radius:14px;background:var(--aurora-soft);border:1px solid rgba(129,140,248,.25);display:grid;place-items:center;flex:none}
+.pa-badge svg{width:24px;height:24px;stroke:var(--indigo)}
+.pa-info{flex:1;min-width:0;position:relative;z-index:1}
+.pa-label{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--indigo);font-weight:600}
+.pa-name{font-size:18px;font-weight:700;margin:3px 0 10px}
+.pa-progress{display:flex;align-items:center;gap:13px}
+.traffic-bar{flex:1;max-width:340px;height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.traffic-bar i{display:block;height:100%;width:33.6%;border-radius:99px;background:var(--aurora);box-shadow:0 0 10px rgba(129,140,248,.55)}
+.pa-traffic{font-family:var(--font-mono);font-size:11.5px;color:var(--text-2);white-space:nowrap}
+.pa-traffic b{color:var(--text);font-weight:600}
+.pa-side{text-align:right;font-size:11.5px;color:var(--text-3);position:relative;z-index:1;line-height:1.9;flex:none}
+.pa-side b{color:var(--text-2);font-weight:500;font-family:var(--font-mono)}
+
+.prof-list{padding:4px 0}
+.prof-row{display:grid;grid-template-columns:44px 1.6fr 1fr .9fr .8fr 150px;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--hairline);transition:background .15s}
+.prof-row:last-child{border-bottom:none}
+.prof-row:hover{background:rgba(255,255,255,.025)}
+.p-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.045);border:1px solid var(--hairline);display:grid;place-items:center;color:var(--text-2)}
+.p-icon svg{width:17px;height:17px}
+.p-name{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px}
+.using-tag{font-size:10px;font-weight:700;color:var(--indigo);background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);padding:1.5px 7px;border-radius:5px;letter-spacing:.5px}
+.p-desc{font-size:11.5px;color:var(--text-3);margin-top:3px;font-family:var(--font-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.p-col .k{font-size:10.5px;color:var(--text-3)}
+.p-col .v{font-size:12.5px;margin-top:3px;font-family:var(--font-mono);color:var(--text-2)}
+.p-actions{display:flex;gap:3px;justify-content:flex-end;opacity:.65;transition:opacity .15s}
+.prof-row:hover .p-actions{opacity:1}
+
+/* ============================================================
+   CONNECTIONS
+   ============================================================ */
+.conn-strip{display:grid;grid-template-columns:repeat(5,1fr);margin-bottom:18px}
+.conn-strip .cell{padding:18px 22px}
+.conn-strip .cell+.cell{border-left:1px solid var(--hairline)}
+.conn-strip .k{font-size:11px;color:var(--text-3)}
+.conn-strip .v{font-family:var(--font-mono);font-size:21px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.conn-strip .v small{font-size:11px;font-weight:500;color:var(--text-3);margin-left:3px}
+.tabs{display:flex;gap:2px;background:rgba(0,0,0,.3);border:1px solid var(--hairline);border-radius:8px;padding:3px}
+.tabs button{height:27px;padding:0 13px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text-3);transition:all .2s}
+.tabs button.on{background:rgba(255,255,255,.1);color:var(--text)}
+table.data{width:100%;border-collapse:collapse}
+.data thead th{
+  font-size:10.5px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);
+  text-align:left;padding:0 14px;height:38px;border-bottom:1px solid var(--hairline);white-space:nowrap;
+}
+.data tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .12s;animation:rowIn .35s ease}
+@keyframes rowIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.data tbody tr:hover{background:rgba(255,255,255,.035)}
+.data td{padding:10px 14px;font-size:12.5px;vertical-align:middle}
+.host{display:flex;align-items:center;gap:10px;min-width:0}
+.favicon{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,.06);display:grid;place-items:center;flex:none;font-size:10px;font-weight:700;color:var(--text-2);font-family:var(--font-mono)}
+.host .h-main{min-width:0}
+.host .h-name{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.host .h-proc{font-size:10.5px;color:var(--text-3);font-family:var(--font-mono)}
+.net-tag{font-family:var(--font-mono);font-size:10px;font-weight:600;padding:2.5px 7px;border-radius:5px}
+.net-tag.tcp{color:#7DD3FC;background:rgba(56,189,248,.08)}
+.net-tag.udp{color:#FCD34D;background:rgba(251,191,36,.08)}
+.rule-chain{font-size:11.5px;color:var(--text-2)}
+.rule-chain b{color:var(--text);font-weight:600}
+.chain{display:inline-flex;align-items:center;gap:5px;color:var(--indigo);font-family:var(--font-mono);font-size:11px;margin-top:3px}
+.chain svg{width:10px;height:10px;color:var(--text-3)}
+.num{font-family:var(--font-mono);font-size:11.5px;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.x-btn{width:23px;height:23px;border-radius:6px;display:grid;place-items:center;color:var(--text-3);opacity:0;transition:all .15s}
+tr:hover .x-btn{opacity:1}
+.x-btn:hover{background:rgba(251,113,133,.15);color:var(--bad)}
+.x-btn svg{width:11px;height:11px}
+
+/* ============================================================
+   LOGS
+   ============================================================ */
+.logs-panel{display:flex;flex-direction:column;height:100%;min-height:0}
+.log-toolbar{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--hairline)}
+.chip{height:28px;padding:0 12px;border-radius:7px;font-size:11.5px;font-weight:600;font-family:var(--font-mono);color:var(--text-3);border:1px solid transparent;transition:all .18s}
+.chip:hover{color:var(--text)}
+.chip.on{color:var(--text);background:rgba(255,255,255,.07);border-color:var(--hairline-strong)}
+.log-body{flex:1;overflow-y:auto;padding:10px 18px;font-family:var(--font-mono);font-size:12px;line-height:1.95;background:
+  repeating-linear-gradient(0deg,transparent 0 27px,rgba(255,255,255,.012) 27px 28px)}
+.log-line{display:flex;gap:13px;white-space:nowrap;animation:logIn .3s ease}
+@keyframes logIn{from{opacity:0}to{opacity:1}}
+.log-time{color:var(--text-3);flex:none}
+.log-level{width:48px;flex:none;font-weight:600}
+.log-level.info{color:var(--sky)}
+.log-level.warning{color:var(--warn)}
+.log-level.error{color:var(--bad)}
+.log-level.debug{color:var(--text-3)}
+.log-tag{color:var(--indigo);flex:none}
+.log-msg{color:var(--text-2);white-space:normal}
+.log-msg b{color:var(--text);font-weight:500}
+.log-msg .direct{color:var(--ok)}
+.log-msg .proxy{color:#C4B5FD}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.settings-layout{display:grid;grid-template-columns:190px 1fr;gap:24px;align-items:start}
+.set-nav{position:sticky;top:0;display:flex;flex-direction:column;gap:2px}
+.set-nav button{text-align:left;padding:9px 13px;border-radius:8px;font-size:13px;color:var(--text-2);font-weight:500;transition:all .15s;border-left:2px solid transparent}
+.set-nav button:hover{color:var(--text)}
+.set-nav button.on{color:var(--text);background:rgba(129,140,248,.1);border-left-color:var(--indigo)}
+.set-section{margin-bottom:26px}
+.set-section > .k{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--text-3);font-weight:600;margin-bottom:10px;display:block}
+.set-card{overflow:hidden}
+.set-row{display:flex;align-items:center;gap:16px;padding:15px 20px;border-bottom:1px solid var(--hairline)}
+.set-row:last-child{border-bottom:none}
+.set-row .txt{flex:1;min-width:0}
+.set-row .t{font-size:13px;font-weight:550}
+.set-row .d{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.field{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);border:1px solid var(--hairline);border-radius:8px;height:32px;padding:0 11px;font-family:var(--font-mono);font-size:12px;color:var(--text-2)}
+.field input{background:none;border:none;outline:none;color:var(--text);width:90px;font-family:var(--font-mono);font-size:12px}
+.swatches{display:flex;gap:8px}
+.swatch{width:22px;height:22px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+.swatch:hover{transform:scale(1.12)}
+.swatch.on{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,18px);
+  background:rgba(28,28,40,.92);backdrop-filter:blur(14px);
+  border:1px solid var(--hairline-strong);border-radius:10px;
+  padding:11px 18px;font-size:12.5px;color:var(--text);
+  display:flex;align-items:center;gap:9px;z-index:99;opacity:0;pointer-events:none;
+  transition:all .35s cubic-bezier(.22,.8,.3,1);box-shadow:0 14px 44px rgba(0,0,0,.55);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:15px;height:15px;color:var(--ok)}
+</style>
+</head>
+<body class="">
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="navGrad" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#38BDF8"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#C084FC"/>
+</linearGradient></defs></svg>
+
+<div class="app">
+  <div class="ambient"></div>
+
+  <!-- ============ Title bar ============ -->
+  <header class="titlebar">
+    <div class="tb-brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z" fill="#0B0B12" stroke="#0B0B12" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="tb-name"><b>BfClash</b></span>
+      <span class="tb-ver">v2.0.1</span>
+    </div>
+    <div class="tb-center">
+      <div class="core-pill"><span class="dot"></span><span id="coreState"><b>Mihomo</b> 内核运行中</span></div>
+      <div class="tb-sep"></div>
+      <div class="tb-traffic">
+        <span class="d"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 4v14m0 0 5-5m-5 5-5-5"/></svg><span id="tbDown">0 KB/s</span></span>
+        <span class="u"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 20V6m0 0 5 5m-5-5-5 5"/></svg><span id="tbUp">0 KB/s</span></span>
+      </div>
+      <div class="tb-sep"></div>
+      <span class="tb-clock" id="tbClock">--:--:--</span>
+    </div>
+    <div class="win-ctrl">
+      <button title="最小化"><svg viewBox="0 0 12 12"><rect y="5.5" width="12" height="1" fill="currentColor"/></svg></button>
+      <button title="最大化"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor"><rect x="1" y="1" width="10" height="10"/></svg></button>
+      <button class="close" title="关闭"><svg viewBox="0 0 12 12" stroke="currentColor" stroke-width="1.1"><path d="m1 1 10 10M11 1 1 11"/></svg></button>
+    </div>
+  </header>
+
+  <div class="body">
+    <!-- ============ Sidebar ============ -->
+    <nav class="sidebar">
+      <div class="nav-group">
+        <div class="nav-label">监控</div>
+        <button class="nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>
+          仪表盘
+        </button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">代理网络</div>
+        <button class="nav-item" data-view="proxies">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+          代理
+          <span class="nav-badge">128</span>
+        </button>
+        <button class="nav-item" data-view="profiles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7a2 2 0 0 1 2-2h5l2 2.5h5a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z"/><path d="M8 13h8"/></svg>
+          订阅配置
+          <span class="nav-badge">4</span>
+        </button>
+        <button class="nav-item" data-view="connections">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3v6L4.5 17A2 2 0 0 0 6.3 20h11.4a2 2 0 0 0 1.8-3L15 9V3"/><path d="M7.5 3h9M6.5 14h11"/></svg>
+          活动连接
+          <span class="nav-badge" id="navConn">12</span>
+        </button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">诊断</div>
+        <button class="nav-item" data-view="logs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 17 4-5 4 3 4-7 4 5"/><path d="M4 20h16"/></svg>
+          实时日志
+        </button>
+      </div>
+
+      <div class="sb-foot">
+        <button class="nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H1a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 2.6 7a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 2.6V2.5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+          设置
+        </button>
+        <div class="sb-meta"><span class="mono">Mihomo v1.18.10</span><span>GPL-3.0</span></div>
+      </div>
+    </nav>
+
+    <!-- ============ Main ============ -->
+    <main class="main">
+
+      <!-- ====== DASHBOARD ====== -->
+      <section class="view active" id="view-dashboard">
+        <div class="page-head">
+          <div>
+            <div class="page-title">仪表盘</div>
+            <div class="page-sub">内核状态、实时速率与出站模式一览</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn sm" data-toast="已刷新订阅与节点延迟"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>刷新</button>
+            <button class="btn sm primary" data-toast="已复制局域网代理地址 192.168.31.22:7890"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>分享代理</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="dash-grid">
+
+            <!-- power hero -->
+            <div class="panel hero">
+              <div class="hero-top">
+                <span class="overline">连接控制台</span>
+                <span class="mode-chip" id="heroModeChip">rule · :7890</span>
+              </div>
+              <div class="power-wrap">
+                <div class="power" id="powerBtn" title="启动 / 停止内核">
+                  <div class="ring-rotate"></div>
+                  <div class="ring-glow"></div>
+                  <div class="power-core">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-status">
+                <div class="hero-state on" id="heroState">已连接</div>
+                <div class="hero-node"><span>🇭🇰</span><span id="heroNode">香港 IPLC · 专线 01</span><span class="latency" id="heroLatency">42 ms</span></div>
+                <div class="hero-meta">
+                  <span>运行时长 <b id="uptime">00:00:00</b></span>
+                  <span>出站模式 <b id="modeName">规则分流</b></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- speed chart -->
+            <div class="panel chart-panel">
+              <div class="chart-top">
+                <div>
+                  <div class="overline">实时速率</div>
+                  <div class="speed-numbers">
+                    <div class="speed-item d">
+                      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v14m0 0 5-5m-5 5-5-5"/></svg>下载</div>
+                      <div class="v"><span id="spDown">12.4</span><small id="spDownUnit">MB/s</small></div>
+                    </div>
+                    <div class="speed-item u">
+                      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V6m0 0 5 5m-5-5-5 5"/></svg>上传</div>
+                      <div class="v"><span id="spUp">1.8</span><small id="spUpUnit">MB/s</small></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="legend">
+                  <span class="ld"><i></i>Download</span>
+                  <span class="lu"><i></i>Upload</span>
+                </div>
+              </div>
+              <div class="chart-canvas-wrap"><canvas id="speedChart"></canvas></div>
+              <div class="chart-foot">
+                <div class="cell"><div class="k">今日下载</div><div class="v"><span id="tdDown">18.2</span><small> GB</small></div></div>
+                <div class="cell"><div class="k">今日上传</div><div class="v"><span id="tdUp">2.14</span><small> GB</small></div></div>
+                <div class="cell"><div class="k">活动连接</div><div class="v" id="tdConn">128<small> 条</small></div></div>
+                <div class="cell"><div class="k">内存占用</div><div class="v">128.6<small> MB</small></div></div>
+              </div>
+            </div>
+
+            <!-- status strip -->
+            <div class="panel strip">
+              <div class="cell">
+                <div class="cell-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>出站模式</div>
+                <div class="segmented" id="modeSeg">
+                  <button data-mode="rule" class="on">规则</button>
+                  <button data-mode="global">全局</button>
+                  <button data-mode="direct">直连</button>
+                </div>
+              </div>
+              <div class="cell">
+                <div class="cell-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="9" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>系统代理</div>
+                <div class="row-inline">
+                  <div class="switch on" data-switch><i></i></div>
+                  <div><div class="cell-value">已开启</div><div class="cell-sub">HTTP · 127.0.0.1:7890</div></div>
+                </div>
+              </div>
+              <div class="cell">
+                <div class="cell-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/></svg>TUN 模式</div>
+                <div class="row-inline">
+                  <div class="switch" data-switch><i></i></div>
+                  <div><div class="cell-value">未开启</div><div class="cell-sub">虚拟网卡 · gVisor</div></div>
+                </div>
+              </div>
+              <div class="cell">
+                <div class="cell-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.2" fill="currentColor"/></svg>网络检测</div>
+                <div class="cell-value"><span class="latency">24 ms</span><span style="font-size:11.5px;color:var(--text-3);font-family:var(--font-mono)">gateway</span></div>
+                <div class="cell-sub">公网 203.0.113.8 · 香港</div>
+              </div>
+              <div class="cell">
+                <div class="cell-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M8 21h8M12 18v3"/></svg>本机地址</div>
+                <div class="cell-value" style="font-size:13.5px">192.168.31.22</div>
+                <div class="mem-bar"><i id="memBar" style="width:38%"></i></div>
+                <div class="cell-sub" style="margin-top:7px">内存 128.6 / 512 MB</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== PROXIES ====== -->
+      <section class="view" id="view-proxies">
+        <div class="page-head">
+          <div>
+            <div class="page-title">代理</div>
+            <div class="page-sub">选择策略组与出口节点，支持延迟测速与收藏</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn sm" data-toast="已对当前策略组发起延迟测试"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h3l2.5-6 4 12L15 12h6"/></svg>组内测速</button>
+            <button class="btn sm primary" id="testAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>全部测速</button>
+          </div>
+        </div>
+        <div class="content" style="display:flex;min-height:0">
+          <div class="proxies-layout" style="width:100%">
+            <div class="panel group-list" id="groupList"></div>
+            <div class="panel nodes-panel">
+              <div class="nodes-toolbar">
+                <div class="search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                  <input placeholder="搜索节点名称 / 协议…" id="nodeSearch">
+                </div>
+                <div class="select">全部协议 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+                <div class="select">按延迟排序 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+                <div class="spacer"></div>
+                <span class="nodes-stats" id="nodesStats"><b>12</b> / 12 节点</span>
+              </div>
+              <div class="node-table" id="nodeTable"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== PROFILES ====== -->
+      <section class="view" id="view-profiles">
+        <div class="page-head">
+          <div>
+            <div class="page-title">订阅配置</div>
+            <div class="page-sub">管理远程订阅与本地配置文件，支持定时自动同步</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn sm" data-toast="已从剪贴板识别订阅链接"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>剪贴板导入</button>
+            <button class="btn sm primary" data-toast="新建订阅：请输入订阅地址"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>新建配置</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="panel prof-active">
+            <div class="pa-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M6 6h12l4 6v5a1 1 0 0 1-1 1h-1"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+            <div class="pa-info">
+              <div class="pa-label">当前使用 · 自动选择</div>
+              <div class="pa-name">机场旗舰订阅 · Premium</div>
+              <div class="pa-progress">
+                <div class="traffic-bar"><i></i></div>
+                <span class="pa-traffic"><b>168.2 GB</b> / 500 GB</span>
+              </div>
+            </div>
+            <div class="pa-side">
+              <div>到期时间 <b>2026-12-01</b></div>
+              <div>上次更新 <b>8 分钟前</b> · 每 24 小时</div>
+              <div>节点 <b>128</b> 个 · 规则 <b>42,186</b> 条</div>
+            </div>
+          </div>
+
+          <div class="panel prof-list" id="profList"></div>
+        </div>
+      </section>
+
+      <!-- ====== CONNECTIONS ====== -->
+      <section class="view" id="view-connections">
+        <div class="page-head">
+          <div>
+            <div class="page-title">活动连接</div>
+            <div class="page-sub">实时查看每条连接的命中规则、节点链与流量</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn sm" id="killAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>关闭全部</button>
+          </div>
+        </div>
+        <div class="content" style="display:flex;flex-direction:column;min-height:0">
+          <div class="panel conn-strip">
+            <div class="cell"><div class="k">活动连接</div><div class="v" id="cCount">128<small>条</small></div></div>
+            <div class="cell"><div class="k">下载速率</div><div class="v" style="color:var(--sky)"><span id="cDown">12.4</span><small>MB/s</small></div></div>
+            <div class="cell"><div class="k">上传速率</div><div class="v" style="color:var(--purple)"><span id="cUp">1.8</span><small>MB/s</small></div></div>
+            <div class="cell"><div class="k">累计下载</div><div class="v"><span id="cTd">18.2</span><small>GB</small></div></div>
+            <div class="cell"><div class="k">累计上传</div><div class="v"><span id="cTu">2.14</span><small>GB</small></div></div>
+          </div>
+          <div class="panel" style="display:flex;flex-direction:column;flex:1;min-height:0">
+            <div class="nodes-toolbar" style="border-bottom:1px solid var(--hairline)">
+              <div class="tabs" id="connTabs">
+                <button class="on">全部 128</button><button>TCP 112</button><button>UDP 16</button><button>直连 34</button>
+              </div>
+              <div class="spacer" style="flex:1"></div>
+              <div class="search" style="width:200px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input placeholder="筛选主机 / 进程…">
+              </div>
+            </div>
+            <div style="overflow-y:auto;flex:1">
+              <table class="data">
+                <thead><tr>
+                  <th style="width:26%">主机 / 进程</th><th>网络</th><th>命中规则</th><th>节点链</th><th>下载</th><th>上传</th><th>时长</th><th></th>
+                </tr></thead>
+                <tbody id="connBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== LOGS ====== -->
+      <section class="view" id="view-logs">
+        <div class="page-head">
+          <div>
+            <div class="page-title">实时日志</div>
+            <div class="page-sub">Mihomo 内核运行日志，自动滚动跟随最新输出</div>
+          </div>
+        </div>
+        <div class="content" style="display:flex;min-height:0;padding-top:0">
+          <div class="panel logs-panel">
+            <div class="log-toolbar">
+              <div class="tabs" id="logLevel" style="background:rgba(0,0,0,.3)">
+                <button class="on" data-lv="all">ALL</button><button data-lv="info">INFO</button><button data-lv="warning">WARN</button><button data-lv="error">ERROR</button><button data-lv="debug">DEBUG</button>
+              </div>
+              <div style="flex:1"></div>
+              <div class="search" style="width:200px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input placeholder="过滤日志内容…">
+              </div>
+              <div class="row-inline" style="gap:7px;font-size:11.5px;color:var(--text-3)"><div class="switch on" style="width:32px;height:19px" data-switch><i style="width:13px;height:13px"></i></div>自动滚动</div>
+              <button class="btn sm" id="clearLogs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>清空</button>
+              <button class="btn sm" data-toast="日志已导出到 Downloads/bfclash-log.txt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>导出</button>
+            </div>
+            <div class="log-body" id="logBody"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== SETTINGS ====== -->
+      <section class="view" id="view-settings">
+        <div class="page-head">
+          <div>
+            <div class="page-title">设置</div>
+            <div class="page-sub">应用行为、内核参数、外观与数据同步</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="settings-layout">
+            <div class="set-nav" id="setNav">
+              <button class="on">常规</button><button>内核</button><button>外观</button><button>快捷键</button><button>备份与同步</button><button>关于</button>
+            </div>
+            <div>
+              <div class="set-section">
+                <span class="k">常规</span>
+                <div class="panel set-card">
+                  <div class="set-row"><div class="txt"><div class="t">语言</div><div class="d">界面显示语言</div></div><div class="select">简体中文 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">开机自启动</div><div class="d">登录系统后在后台自动启动 BfClash</div></div><div class="switch" data-switch><i></i></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">启动后自动开启系统代理</div><div class="d">应用启动时立即接管系统流量</div></div><div class="switch on" data-switch><i></i></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">允许局域网连接</div><div class="d">局域网内其他设备可使用本机代理</div></div><div class="switch on" data-switch><i></i></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">静默通知</div><div class="d">仅在连接中断时弹出系统通知</div></div><div class="switch" data-switch><i></i></div></div>
+                </div>
+              </div>
+              <div class="set-section">
+                <span class="k">内核与端口</span>
+                <div class="panel set-card">
+                  <div class="set-row"><div class="txt"><div class="t">混合代理端口</div><div class="d">HTTP / SOCKS5 共用端口</div></div><div class="field">127.0.0.1 : <input value="7890"></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">外部控制 API</div><div class="d">RESTful 控制接口</div></div><div class="field">127.0.0.1 : <input value="9090"></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">TUN 协议栈</div><div class="d">gVisor 兼容性最佳，system 性能更高</div></div><div class="select">gVisor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div></div>
+                  <div class="set-row"><div class="txt"><div class="t">订阅自动更新</div><div class="d">到达间隔后在后台静默同步</div></div>
+                    <div class="segmented binary" style="width:210px"><button>2 小时</button><button class="on">24 小时</button><button>手动</button></div>
+                  </div>
+                </div>
+              </div>
+              <div class="set-section">
+                <span class="k">外观</span>
+                <div class="panel set-card">
+                  <div class="set-row"><div class="txt"><div class="t">主题模式</div><div class="d">黑曜派对为默认深色霓虹主题</div></div>
+                    <div class="segmented binary" style="width:230px"><button class="on">黑曜</button><button>雾感紫</button><button>浅色</button></div>
+                  </div>
+                  <div class="set-row"><div class="txt"><div class="t">霓虹强调色</div><div class="d">用于主操作、状态与实时图表</div></div>
+                    <div class="swatches">
+                      <div class="swatch on" style="background:linear-gradient(135deg,#38BDF8,#818CF8,#C084FC)"></div>
+                      <div class="swatch" style="background:linear-gradient(135deg,#34D399,#22D3EE)"></div>
+                      <div class="swatch" style="background:linear-gradient(135deg,#F472B6,#FB7185)"></div>
+                      <div class="swatch" style="background:linear-gradient(135deg,#FBBF24,#F97316)"></div>
+                    </div>
+                  </div>
+                  <div class="set-row"><div class="txt"><div class="t">界面动效</div><div class="d">极光流光、过渡与微动效</div></div><div class="switch on" data-switch><i></i></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg">已完成</span></div>
+
+<script>
+/* ============================================================
+   State
+   ============================================================ */
+const state={
+  on:true, mode:'rule', uptime:12496,
+  down:12.4, up:1.8, td:18.2, tu:2.14,
+  histD:[], histU:[], shownD:[], shownU:[],
+  lv:'all', group:0
+};
+const N=64;
+for(let i=0;i<N;i++){state.histD.push(2+Math.random()*5);state.histU.push(.4+Math.random()*1.2);state.shownD.push(state.histD[i]);state.shownU.push(state.histU[i])}
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fmtSpeed=v=>v>=1?[v.toFixed(1),'MB/s']:[Math.round(v*1024)+'','KB/s'];
+
+/* ---------- Navigation ---------- */
+$$('.nav-item[data-view]').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('.nav-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $$('.view').forEach(v=>v.classList.remove('active'));
+  const v=$('#view-'+btn.dataset.view);v.classList.add('active');
+  v.style.animation='none';void v.offsetWidth;v.style.animation='';
+  if(btn.dataset.view==='logs')scrollLog();
+}));
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function toast(msg){const t=$('#toast');$('#toastMsg').textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-toast]');if(b)toast(b.dataset.toast)});
+
+/* ---------- Switches ---------- */
+document.addEventListener('click',e=>{
+  const sw=e.target.closest('.switch');if(!sw)return;
+  sw.classList.toggle('on');
+  const label=sw.closest('.cell')?.querySelector('.cell-value');
+  if(label)label.textContent=sw.classList.contains('on')?'已开启':'未开启';
+});
+
+/* ---------- Mode segmented ---------- */
+$$('#modeSeg button').forEach(b=>b.addEventListener('click',()=>{
+  $$('#modeSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  state.mode=b.dataset.mode;
+  const map={rule:['规则分流','rule · :7890'],global:['全局代理','global · :7890'],direct:['直接连接','direct · :7890']};
+  $('#modeName').textContent=map[state.mode][0];$('#heroModeChip').textContent=map[state.mode][1];
+  toast('出站模式已切换为 '+b.textContent);
+}));
+
+/* ---------- Power ---------- */
+$('#powerBtn').addEventListener('click',()=>{
+  state.on=!state.on;document.body.classList.toggle('off',!state.on);
+  $('#heroState').textContent=state.on?'已连接':'已断开';
+  $('#heroState').className='hero-state '+(state.on?'on':'');
+  $('#coreState').innerHTML=state.on?'<b>Mihomo</b> 内核运行中':'<b>Mihomo</b> 内核已停止';
+  if(!state.on){state.down=0;state.up=0}
+  toast(state.on?'内核已启动，正在建立连接…':'内核已停止，全部连接已断开');
+});
+
+/* ============================================================
+   Speed chart
+   ============================================================ */
+const canvas=$('#speedChart'),ctx=canvas.getContext('2d');
+let cw=0,ch=0,dpr=Math.min(devicePixelRatio||1,2);
+function resize(){
+  const r=canvas.parentElement.getBoundingClientRect();
+  cw=r.width;ch=r.height;
+  canvas.width=cw*dpr;canvas.height=ch*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+new ResizeObserver(resize).observe(canvas.parentElement);resize();
+
+function draw(t){
+  ctx.clearRect(0,0,cw,ch);
+  const pad=6,maxV=24,w=cw-pad*2,h=ch-8;
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let i=1;i<4;i++){const y=h*i/4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cw,y);ctx.stroke()}
+  const X=i=>pad+i/(N-1)*w, Y=v=>h-Math.min(v,maxV)/maxV*h;
+  function area(arr,rgb,glow){
+    // ease
+    for(let i=0;i<N;i++){state['shown'+(arr===state.histD?'D':'U')][i]+=(arr[i]-state['shown'+(arr===state.histD?'D':'U')][i])*.12}
+    const sh=arr===state.histD?state.shownD:state.shownU;
+    const g=ctx.createLinearGradient(0,0,cw,0);
+    g.addColorStop(0,'#38BDF8');g.addColorStop(.5,'#818CF8');g.addColorStop(1,'#C084FC');
+    // fill
+    ctx.beginPath();ctx.moveTo(X(0),h);
+    sh.forEach((v,i)=>ctx.lineTo(X(i),Y(v)));
+    ctx.lineTo(X(N-1),h);ctx.closePath();
+    const fg=ctx.createLinearGradient(0,0,0,h);
+    fg.addColorStop(0,arr===state.histD?'rgba(56,189,248,.22)':'rgba(192,132,252,.16)');
+    fg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=fg;ctx.fill();
+    // line
+    ctx.beginPath();sh.forEach((v,i)=>i?ctx.lineTo(X(i),Y(v)):ctx.moveTo(X(i),Y(v)));
+    ctx.strokeStyle=arr===state.histD?'rgba(56,189,248,.95)':'rgba(192,132,252,.9)';
+    ctx.lineWidth=1.8;ctx.lineJoin='round';
+    ctx.shadowColor=arr===state.histD?'rgba(56,189,248,.7)':'rgba(192,132,252,.6)';ctx.shadowBlur=9;
+    ctx.stroke();ctx.shadowBlur=0;
+    // head dot
+    const lx=X(N-1),ly=Y(sh[N-1]);
+    ctx.beginPath();ctx.arc(lx,ly,3,0,7);ctx.fillStyle=arr===state.histD?'#38BDF8':'#C084FC';ctx.fill();
+    ctx.beginPath();ctx.arc(lx,ly,6.5,0,7);ctx.fillStyle=arr===state.histD?'rgba(56,189,248,.18)':'rgba(192,132,252,.16)';ctx.fill();
+  }
+  area(state.histU);area(state.histD);
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+/* ---------- Simulation ---------- */
+function pad(n){return String(n).padStart(2,'0')}
+function tick(){
+  if(state.on){
+    const targetD=4+Math.sin(Date.now()/9000)*4+Math.random()*7+ (Math.random()<.04?10:0);
+    const targetU=.6+Math.sin(Date.now()/7000)*.5+Math.random()*1.4;
+    state.down+= (targetD-state.down)*.25;
+    state.up+= (targetU-state.up)*.25;
+    state.td+=state.down/60/60;state.tu+=state.up/60/60;
+    state.uptime++;
+  }else{state.down=0;state.up=0}
+  state.histD.push(state.down);state.histD.shift();
+  state.histU.push(state.up);state.histU.shift();
+
+  const [du,duu]=fmtSpeed(state.down),[uu,uuu]=fmtSpeed(state.up);
+  $('#spDown').textContent=du;$('#spDownUnit').textContent=duu;
+  $('#spUp').textContent=uu;$('#spUpUnit').textContent=uuu;
+  $('#tbDown').textContent=du+' '+duu;$('#tbUp').textContent=uu+' '+uuu;
+  $('#cDown').textContent=du;$('#cUp').textContent=uu;
+  $('#tdDown').textContent=state.td.toFixed(1);$('#tdUp').textContent=state.tu.toFixed(2);
+  $('#cTd').textContent=state.td.toFixed(1);$('#cTu').textContent=state.tu.toFixed(2);
+  const h=Math.floor(state.uptime/3600),m=Math.floor(state.uptime%3600/60),s=state.uptime%60;
+  $('#uptime').textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;
+  // memory
+  const mem=34+Math.sin(Date.now()/11000)*6+Math.random()*5;
+  $('#memBar').style.width=mem.toFixed(0)+'%';
+}
+setInterval(tick,1000);
+
+setInterval(()=>{
+  const d=new Date();
+  $('#tbClock').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+},1000);
+
+/* ============================================================
+   Proxies
+   ============================================================ */
+const groups=[
+  ['🚀','自动选择','url-test · 12'],['⚖️','负载均衡','load-balance · 12'],
+  ['🇭🇰','香港中转','select · 6'],['🇹🇼','台湾节点','select · 3'],
+  ['🇸🇬','新加坡节点','select · 4'],['🇯🇵','日本节点','select · 5'],
+  ['🇺🇸','美国节点','select · 6'],['🇰🇷','韩国节点','select · 3'],
+  ['🛡️','故障转移','fallback · 12'],['⬇️','DIRECT 直连','select']
+];
+const nodes=[
+  ['🇭🇰','香港 IPLC · 专线 01','Hysteria2','hy2','香港 · 九龙',42,true],
+  ['🇭🇰','香港 IPLC · 专线 02','Hysteria2','hy2','香港 · 新界',58,false],
+  ['🇭🇰','香港 BGP · 流媒体 03','Trojan','tj','香港 · 港岛',86,true],
+  ['🇭🇰','香港 BGP · 大带宽 04','Trojan','tj','香港 · 荃湾',121,false],
+  ['🇭🇰','香港 CMI · 中转 05','Vmess','vm','香港 · 元朗',203,false],
+  ['🇸🇬','新加坡 · 高防 01','Hysteria2','hy2','新加坡 · 裕廊',138,false],
+  ['🇸🇬','新加坡 · BGP 02','Trojan','tj','新加坡 · 樟宜',167,false],
+  ['🇯🇵','日本 · 东京 01','Vmess','vm','日本 · 东京',96,false],
+  ['🇯🇵','日本 · 大阪 02','Hysteria2','hy2','日本 · 大阪',142,false],
+  ['🇺🇸','美国 · 洛杉矶 01','Trojan','tj','美国 · LA',189,false],
+  ['🇺🇸','美国 · 圣何塞 02','Vmess','vm','美国 · SJ',245,false],
+  ['🇺🇸','美国 · 西雅图 03','Hysteria2','hy2','美国 · SEA',0,false],
+];
+function delayHtml(d,testing){
+  if(testing)return '<span class="delay testing"><span class="spinner"></span>测速</span>';
+  if(d===0)return '<span class="delay bad">超时</span>';
+  return `<span class="delay ${d<100?'ok':d<220?'warn':'bad'}">${d} ms</span>`;
+}
+function renderGroups(){
+  $('#groupList').innerHTML=groups.map((g,i)=>`
+    <button class="group-item ${i===state.group?'on':''}" data-i="${i}">
+      <span class="g-flag">${g[0]}</span>
+      <span class="g-info"><span class="g-name">${g[1]}</span><span class="g-type">${g[2]}</span></span>
+    </button>`).join('');
+}
+function renderNodes(filter=''){
+  const list=nodes.filter(n=>n[1].toLowerCase().includes(filter.toLowerCase())||n[2].toLowerCase().includes(filter.toLowerCase()));
+  $('#nodesStats').innerHTML=`<b>${list.length}</b> / ${nodes.length} 节点`;
+  $('#nodeTable').innerHTML=list.map(n=>{
+    const i=nodes.indexOf(n);
+    return `<div class="node-row ${i===0?'sel':''}" data-i="${i}">
+      <span class="radio"><i></i></span>
+      <span class="node-main">
+        <span class="n-flag">${n[0]}</span>
+        <span class="n-name">${n[1]}</span>
+        <span class="fav ${n[6]?'on':''}" data-fav><svg viewBox="0 0 24 24" fill="${n[6]?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8"><path d="m12 2 3 6.5 7 .9-5 4.8 1.3 7L12 17.8 5.7 21.2 7 14.2 2 9.4l7-.9L12 2Z"/></svg></span>
+      </span>
+      <span class="tag ${n[3]}">${n[2]}</span>
+      <span class="n-region">${n[4]}</span>
+      <span class="d-cell">${delayHtml(n[5])}</span>
+    </div>`;
+  }).join('');
+}
+renderGroups();renderNodes();
+$('#groupList').addEventListener('click',e=>{
+  const b=e.target.closest('.group-item');if(!b)return;
+  state.group=+b.dataset.i;renderGroups();toast('已切换策略组：'+groups[state.group][1]);
+});
+let selectedNode=0;
+$('#nodeTable').addEventListener('click',e=>{
+  if(e.target.closest('[data-fav]')){const f=e.target.closest('[data-fav]');f.classList.toggle('on');f.querySelector('path').setAttribute('fill',f.classList.contains('on')?'currentColor':'none');return}
+  const row=e.target.closest('.node-row');if(!row)return;
+  selectedNode=+row.dataset.i;
+  $$('.node-row').forEach(r=>r.classList.remove('sel'));row.classList.add('sel');
+  const n=nodes[selectedNode];
+  $('#heroNode').textContent=n[1];
+  toast('已切换至 '+n[1]);
+});
+$('#nodeSearch').addEventListener('input',e=>renderNodes(e.target.value));
+
+function testOne(row){
+  const cell=row.querySelector('.d-cell');cell.innerHTML='<span class="delay testing"><span class="spinner"></span>测速</span>';
+  setTimeout(()=>{
+    const d=Math.random()<.08?0:32+Math.round(Math.random()*260);
+    nodes[+row.dataset.i][5]=d;cell.innerHTML=delayHtml(d);
+  },700+Math.random()*900);
+}
+$('#testAll').addEventListener('click',()=>{$$('.node-row').forEach((r,i)=>setTimeout(()=>testOne(r),i*120));toast('正在对全部节点进行延迟测试…')});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-toast]');});
+
+/* ============================================================
+   Profiles list
+   ============================================================ */
+const profiles=[
+  ['cloud','机场旗舰订阅 · Premium','https://sub.example.com/api/v1/client/subscribe','128 节点','8 分钟前','24 小时',true],
+  ['cloud','中转专线订阅','https://sub.transit.io/link/abc','24 节点','2 小时前','24 小时',false],
+  ['cloud','免费节点合集','https://free.nodes.dev/sub?token=****','56 节点','昨天 23:10','手动',false],
+  ['file','本地配置 local.yaml','C:\\Users\\Bf\\configs\\local.yaml','本地文件','3 天前','—',false],
+];
+$('#profList').innerHTML=profiles.map((p,i)=>`
+  <div class="prof-row">
+    <div class="p-icon">${p[0]==='cloud'
+      ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.5 19a4.5 4.5 0 0 0 .5-9 6 6 0 0 0-11.6-1.5A4 4 0 0 0 7 19h10.5Z"/></svg>'
+      :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/></svg>'}
+    </div>
+    <div><div class="p-name">${p[1]} ${p[6]?'<span class="using-tag">使用中</span>':''}</div><div class="p-desc">${p[2]}</div></div>
+    <div class="p-col"><div class="k">规模</div><div class="v">${p[3]}</div></div>
+    <div class="p-col"><div class="k">上次更新</div><div class="v">${p[4]}</div></div>
+    <div class="p-col"><div class="k">自动同步</div><div class="v">${p[5]}</div></div>
+    <div class="p-actions">
+      <button class="icon-btn" title="立即更新" data-toast="正在同步订阅…"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg></button>
+      <button class="icon-btn" title="编辑"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg></button>
+      <button class="icon-btn" title="复制链接"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+      <button class="icon-btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+    </div>
+  </div>`).join('');
+
+/* ============================================================
+   Connections
+   ============================================================ */
+const hosts=[
+  ['github.com','chrome.exe','TCP','DomainSuffix → 代理','🔗 香港 IPLC 01',true],
+  ['api.github.com','chrome.exe','TCP','DomainKeyword(github) → 代理','🔗 香港 IPLC 01',true],
+  ['www.google.com','chrome.exe','TCP','GeoIP,HK → 代理','🔗 香港 IPLC 02',true],
+  ['redirector.googlevideo.com','chrome.exe','TCP','DomainSuffix → 媒体解锁','🔗 香港 BGP 03',true],
+  ['web.telegram.org','Telegram.exe','TCP','DomainSet(telegram) → 代理','🔗 新加坡 01',true],
+  ['api.steampowered.com','steam.exe','TCP','ProcessName → 代理','🔗 日本 东京 01',true],
+  ['www.youtube.com','chrome.exe','TCP','DomainSuffix → 媒体解锁','🔗 香港 BGP 03',true],
+  ['chatgpt.com','chrome.exe','TCP','DomainSuffix → OpenAI','🔗 美国 LA 01',true],
+  ['cdn.jsdelivr.net','chrome.exe','TCP','GeoIP,US → 代理','🔗 美国 SJ 02',true],
+  ['www.bilibili.com','chrome.exe','TCP','GeoIP,CN → 直连','DIRECT',false],
+  ['dl.delivery.mp.microsoft.com','svchost.exe','TCP','GeoIP,CN → 直连','DIRECT',false],
+  ['www.icloud.com','iCloudServices.exe','TCP','GeoIP,CN → 直连','DIRECT',false],
+  ['windows.update.com','TiWorker.exe','TCP','ProcessName → 直连','DIRECT',false],
+  ['claude.ai','chrome.exe','TCP','DomainSuffix → 代理','🔗 美国 LA 01',true],
+  ['netflix.com','chrome.exe','TCP','DomainSuffix → 媒体解锁','🔗 香港 IPLC 02',true],
+];
+let conns=hosts.map((h,i)=>({h,t:8+Math.random()*400,dn:Math.random()*240,up:Math.random()*40,id:i}));
+function fav(letter,proxy){return `<div class="favicon" style="${proxy?'color:#C4B5FD;background:rgba(129,140,248,.1)':'color:#6EE7B7;background:rgba(52,211,153,.08)'}">${letter}</div>`}
+function renderConnRow(c){
+  const [host,proc,net,rule,chain,proxy]=c.h;
+  return `<tr data-id="${c.id}">
+    <td><div class="host">${fav(host[0].toUpperCase(),proxy)}<div class="h-main"><div class="h-name">${host}:443</div><div class="h-proc">${proc}</div></div></div></td>
+    <td><span class="net-tag ${net.toLowerCase()}">${net}</span></td>
+    <td><div class="rule-chain">${rule.split(' → ')[0]}<br><span style="color:var(--text-3);font-size:10.5px">→ <b style="color:${proxy?'#C4B5FD':'var(--ok)'}">${rule.split(' → ')[1]}</b></span></div></td>
+    <td><div class="chain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>${chain}</div></td>
+    <td class="num">${c.dn.toFixed(1)} MB</td>
+    <td class="num">${c.up.toFixed(1)} MB</td>
+    <td class="num">${Math.floor(c.t/60)}:${pad(Math.floor(c.t%60))}</td>
+    <td><button class="x-btn" data-kill title="关闭连接"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></td>
+  </tr>`;
+}
+function renderConns(){$('#connBody').innerHTML=conns.map(renderConnRow).join('');$('#cCount').innerHTML=conns.length*9+'<small>条</small>';$('#navConn').textContent=conns.length}
+renderConns();
+setInterval(()=>{
+  if(!state.on)return;
+  conns.forEach(c=>{if(Math.random()<.5){c.dn+=Math.random()*3.2;c.up+=Math.random()*.8;c.t+=1}});
+  if(Math.random()<.25&&conns.length<hosts.length){
+    const unused=hosts.find((h,i)=>!conns.some(c=>c.id===i));
+    if(unused){const id=hosts.indexOf(unused);conns.push({h:unused,t:Math.random()*8,dn:0,up:0,id});conns.sort((a,b)=>b.t-a.t)}
+  }
+  if(Math.random()<.15&&conns.length>6){conns.splice(Math.floor(Math.random()*conns.length),1)}
+  renderConns();
+},2400);
+$('#connBody').addEventListener('click',e=>{
+  const b=e.target.closest('[data-kill]');if(!b)return;
+  const id=+b.closest('tr').dataset.id;conns=conns.filter(c=>c.id!==id);renderConns();toast('连接已关闭');
+});
+$('#killAll').addEventListener('click',()=>{conns=conns.slice(0,3);renderConns();toast('已关闭全部活动连接')});
+$$('#connTabs button').forEach(b=>b.addEventListener('click',()=>{$$('#connTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}));
+
+/* ============================================================
+   Logs
+   ============================================================ */
+const logTemplates=[
+  ['info','[TCP] dial <b>github.com:443</b> match <b>DomainKeyword(github)</b> via <span class="proxy">香港IPLC-01</span>'],
+  ['info','[TCP] dial <b>www.bilibili.com:443</b> match <b>GeoIP(CN)</b> via <span class="direct">DIRECT</span>'],
+  ['debug','[UDP] dns query <b>api.telegram.org</b> type AAAA → 8.8.8.8'],
+  ['info','[TCP] dial <b>redirector.googlevideo.com:443</b> match <b>RuleSet(media)</b> via <span class="proxy">香港BGP-03</span>'],
+  ['warning','connection timeout: <b>美国-西雅图-03</b> (3000ms), fallback → <span class="proxy">美国-LA-01</span>'],
+  ['info','[UDP] dial <b>ntp.aliyun.com:123</b> match <b>GeoIP(CN)</b> via <span class="direct">DIRECT</span>'],
+  ['debug','reloading profile: <b>机场旗舰订阅</b> · 128 proxies, 42186 rules'],
+  ['info','[TCP] dial <b>chatgpt.com:443</b> match <b>DomainSuffix(openai)</b> via <span class="proxy">美国-LA-01</span>'],
+  ['error','connect <b>45.77.22.9:443</b>: connection refused'],
+  ['info','GET /proxies 200 · 1.2ms · 127.0.0.1:51842'],
+  ['info','subscription updated: <b>free-nodes</b> (56 nodes, 312 KB)'],
+  ['debug','sniff host: <b>steamserver.net</b> → process steam.exe'],
+];
+const tagMap={info:'INFO',warning:'WARN',error:'ERROR',debug:'DEBUG'};
+function nowLog(){const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+function addLog(level,msg){
+  if(state.lv!=='all'&&state.lv!==level)return;
+  const line=document.createElement('div');line.className='log-line';
+  line.innerHTML=`<span class="log-time">${nowLog()}</span><span class="log-level ${level}">${tagMap[level]}</span><span class="log-tag">[Mihomo]</span><span class="log-msg">${msg}</span>`;
+  const body=$('#logBody');body.appendChild(line);
+  while(body.children.length>220)body.firstChild.remove();
+  if(body.scrollHeight-body.scrollTop-body.clientHeight<120)body.scrollTop=body.scrollHeight;
+}
+function scrollLog(){const b=$('#logBody');b.scrollTop=b.scrollHeight}
+for(let i=0;i<14;i++){const t=logTemplates[i%logTemplates.length];addLog(t[0],t[1])}
+scrollLog();
+setInterval(()=>{if(!state.on)return;const t=logTemplates[Math.floor(Math.random()*logTemplates.length)];addLog(t[0],t[1])},1400);
+$$('#logLevel button').forEach(b=>b.addEventListener('click',()=>{
+  $$('#logLevel button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  state.lv=b.dataset.lv;$('#logBody').innerHTML='';
+  for(let i=0;i<8;i++){const t=logTemplates[Math.floor(Math.random()*logTemplates.length)];
+    if(state.lv==='all'||state.lv===t[0])addLog(t[0],t[1])}
+}));
+$('#clearLogs').addEventListener('click',()=>{$('#logBody').innerHTML='';toast('日志已清空')});
+
+/* settings nav + swatches demo */
+$$('#setNav button').forEach(b=>b.addEventListener('click',()=>{$$('#setNav button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}));
+$$('.swatch').forEach(s=>s.addEventListener('click',()=>{$$('.swatch').forEach(x=>x.classList.remove('on'));s.classList.add('on');toast('霓虹强调色已更新')}));
+$$('.segmented.binary button,.segmented:not(#modeSeg) button').forEach(b=>{
+  if(b.closest('#logLevel')||b.closest('#connTabs'))return;
+  b.addEventListener('click',()=>{const seg=b.parentElement;seg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
+});
+</script>
+</body>
+</html>

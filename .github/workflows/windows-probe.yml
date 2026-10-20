@@ -1,0 +1,163 @@
+name: Windows Build Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      installer_only:
+        description: Run only isolated installer safety fixtures
+        type: boolean
+        default: false
+  push:
+    branches:
+      - feat/windows-desktop-v0227
+    paths:
+      - '.github/workflows/windows-probe.yml'
+      - 'windows/**'
+      - 'plugins/**'
+      - 'services/**'
+      - 'core/**'
+      - 'setup.dart'
+      - 'build_config.yaml'
+      - 'lib/**'
+      - 'test/**'
+      - 'tool/**'
+
+env:
+  FLUTTER_VERSION: '3.47.1'
+  GO_VERSION: '1.26.4'
+
+jobs:
+  probe-windows:
+    if: github.event_name != 'workflow_dispatch' || !inputs.installer_only
+    name: Probe Windows AMD64 Build
+    runs-on: windows-2022
+    steps:
+      - name: Enable longpaths
+        run: git config --global core.longpaths true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: core/go.sum
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Verify installer cancellation and confirmed cleanup
+        run: ./tool/check_windows_uninstall.ps1
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Update Channel and Architecture Tests
+        run: flutter test test/common/android_update_identity_test.dart test/common/windows_update_policy_test.dart test/setup_test.dart test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_download_test.dart test/common/resumable_download_test.dart test/common/resumable_download_process_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart test/common/loopback_test.dart
+
+      - name: Run Desktop Navigation Flow Widget Tests
+        run: flutter test test/views/desktop_navigation_flow_test.dart test/views/desktop_dashboard_visual_test.dart test/common/desktop_style_test.dart test/widgets/desktop_settings_list_test.dart test/widgets/profile_focus_test.dart test/widgets/edit_profile_focus_test.dart test/widgets/proxies_tab_test.dart test/views/proxies_group_offsets_test.dart test/pages/home_test.dart test/common/window_position_test.dart test/common/window_test.dart
+
+      - name: Run Desktop Shared Core Integration Tests
+        run: flutter test test/core/interface_message_test.dart test/views/desktop_shared_core_integration_test.dart test/widgets/desktop_connection_row_test.dart test/widgets/connection_actions_test.dart test/widgets/connections_view_test.dart test/views/logs_view_test.dart test/common/filter_test.dart test/models/rule_test.dart test/models/config_test.dart test/views/connections_test.dart test/views/requests_test.dart test/views/desktop_connection_polling_flow_test.dart test/widgets/connection_item_test.dart test/models/common_test.dart
+
+      - name: Run Desktop Sub-Store Lifecycle Tests
+        run: flutter test test/views/sub_store_backend_service_test.dart test/views/sub_store_status_test.dart test/providers/system_action_test.dart
+
+      - name: Run Backup and WebDAV UI Tests
+        run: flutter test test/views/webdav_roundtrip_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart test/common/dav_client_test.dart test/common/webdav_test.dart test/common/backup_task_test.dart
+
+      - name: Run Beta WebDAV UI Roundtrip
+        run: flutter test --dart-define=APP_BETA=true test/views/webdav_roundtrip_test.dart
+
+      - name: Run Core Setup and TUN Authorization Tests
+        run: flutter test test/providers/setup_action_test.dart
+
+      - name: Run Windows Build Probe via setup.dart
+        run: dart setup.dart windows --env stable --targets exe,zip -v
+
+      - name: Verify stable packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash.exe
+
+      - name: Run Windows Native Proxy Tests
+        run: |
+          cmake -S windows -B build/windows/x64 -Dinclude_proxy_tests=ON
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test configuration failed" }
+          cmake --build build/windows/x64 --config Release --target proxy_test
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test build failed" }
+          & ./build/windows/x64/plugins/proxy/Release/proxy_test.exe
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy tests failed" }
+
+      - name: Test packaged Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Preserve stable probe artifacts
+        run: |
+          New-Item -ItemType Directory -Path dist/stable -Force | Out-Null
+          Get-ChildItem -Path dist -File | Move-Item -Destination dist/stable
+
+      - name: Reset build state before beta probe
+        run: |
+          flutter clean
+          flutter pub get
+      - name: Select isolated beta installer identity
+        run: Copy-Item windows/packaging/exe/make_config.beta.yaml windows/packaging/exe/make_config.yaml -Force
+
+      - name: Run Windows Beta Build Probe via setup.dart
+        run: dart setup.dart windows --env pre --targets exe,zip -v
+
+      - name: Verify beta packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash-Beta.exe -Beta
+
+      - name: Test packaged beta Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Preserve beta probe artifacts
+        run: |
+          New-Item -ItemType Directory -Path dist/beta -Force | Out-Null
+          Get-ChildItem -Path dist -File | Move-Item -Destination dist/beta
+
+      - name: List Artifacts
+        if: always()
+        run: |
+          Get-ChildItem -Path dist -Recurse -ErrorAction SilentlyContinue
+
+      - name: Upload Windows Probe Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bfclash-windows-probe
+          path: |
+            dist/
+            .dart_tool/setup_build_cache/
+            hook.log
+            build/windows/
+
+  installer-safety:
+    if: github.event_name == 'workflow_dispatch' && inputs.installer_only
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+      - name: Verify blocked update and uninstall safety
+        run: ./tool/check_windows_uninstall.ps1

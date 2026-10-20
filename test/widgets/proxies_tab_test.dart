@@ -70,6 +70,44 @@ void main() {
     return key;
   }
 
+  testWidgets(
+    'desktop group panel preserves selection across resize and empty state',
+    (tester) async {
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final key = await pumpTabView(tester);
+      await tester.pumpAndSettle();
+      expect(find.byType(TabBar), findsNothing);
+      expect(find.byType(ListTile), findsNWidgets(2));
+      await tester.tap(find.byKey(const ValueKey('desktop-proxy-group-C')));
+      await tester.pumpAndSettle();
+      expect(key.currentState?.currentGroup?.name, 'C');
+      expect(
+        globalContainer.read(currentProfileProvider)?.currentGroupName,
+        'C',
+      );
+      tester.view.physicalSize = const Size(800, 900);
+      await tester.pumpAndSettle();
+      expect(find.byType(TabBar), findsOneWidget);
+      expect(key.currentState?.currentGroup?.name, 'C');
+      tester.view.physicalSize = const Size(1280, 900);
+      await tester.pumpAndSettle();
+      globalContainer.read(_tabStateProvider.notifier).set(_tabState([]));
+      await tester.pumpAndSettle();
+      expect(key.currentState?.currentGroup, isNull);
+      expect(tester.takeException(), isNull);
+      globalContainer
+          .read(_tabStateProvider.notifier)
+          .set(_tabState([_group('B'), _group('C')]));
+      await tester.pumpAndSettle();
+      expect(find.byType(ListTile), findsNWidgets(2));
+      expect(key.currentState?.currentGroup?.name, 'B');
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('current group follows the rendered tab list', (tester) async {
     final key = await pumpTabView(tester);
 

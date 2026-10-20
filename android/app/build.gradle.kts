@@ -39,7 +39,13 @@ android {
         buildConfig = true
     }
 
-    val isBeta = flutter.versionName?.contains("beta", ignoreCase = true) == true
+    // 通道只看版本号的预发布段（-beta.N / -rc.N）。见 docs/release-versioning.md：
+    // 测试通道必须是独立包名，否则无法与正式版同机共存。
+    val channelVersionName = flutter.versionName ?: ""
+    val isBeta = channelVersionName.contains("beta", ignoreCase = true) ||
+        channelVersionName.contains("rc", ignoreCase = true)
+    // Beta 包名继续沿用旧品牌标识：存量测试用户以此为升级身份，
+    // 改动会让他们的下一次更新变成"装了另一个应用"而非覆盖升级。
     val appPackageId = if (isBeta) "com.lansway.client.beta" else "com.bfclash.client"
     val appDisplayName = if (isBeta) "BfClash Beta" else "BfClash"
 

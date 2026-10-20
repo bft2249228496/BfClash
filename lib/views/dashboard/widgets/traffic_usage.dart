@@ -13,8 +13,12 @@ class TrafficUsage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
+    final fontSize = context.textTheme.bodySmall?.fontSize ?? 14;
+    final textScale =
+        MediaQuery.textScalerOf(context).scale(fontSize) / fontSize;
+    final height = getWidgetHeight(2);
     return SizedBox(
-      height: getWidgetHeight(2),
+      height: system.isDesktop ? height * max(1, textScale) : height,
       child: RepaintBoundary(
         child: CommonCard(
           radius: AppCorner.lg,
