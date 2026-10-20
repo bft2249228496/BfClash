@@ -78,9 +78,11 @@ class Request {
       final androidPackage = system.isAndroid
           ? globalState.packageInfo.packageName
           : null;
-      final isCurrentBeta =
-          (system.isWindows && WindowsChannelConfig.isBeta) ||
-          isPreReleaseVersion(version);
+      // 设备当前通道由**已安装版本号**的预发布段决定。
+      // rc 与 beta 的差别很重要：rc 必须能升到同号正式版，否则就是死胡同。
+      final currentChannel = (system.isWindows && WindowsChannelConfig.isBeta)
+          ? ReleaseChannel.beta
+          : channelOfVersion(version);
 
       final list = await _fetchReleases();
 
@@ -96,7 +98,7 @@ class Request {
       return _selectRelease(
         list,
         version: version,
-        beta: isCurrentBeta,
+        currentChannel: currentChannel,
         androidPackage: androidPackage,
       );
     } on WindowsUpdateIdentityException {
@@ -122,23 +124,30 @@ class Request {
         .toList();
   }
 
-  /// 通道严格隔离：正式版只认无 stage 后缀的 tag，测试版只认 `-beta.N` / `-rc.N`。
-  /// 平台由 tag 主线号段 + 资产类型双重判定，不再依赖 tag 字符串包含关系。
+  /// 通道隔离：每条通道只接受 [acceptedChannelsFor] 允许的 tag 通道。
+  ///
+  /// 正式版只看正式版；rc 看正式版 + 更新的 rc（这样候选版能走到终点）；
+  /// beta 只看 beta。平台由 tag 主线号段 + 资产类型双重判定，不读 tag 字符串。
   Map<String, dynamic>? _selectRelease(
     List<Map<String, dynamic>> releases, {
     required String version,
-    required bool beta,
+    required ReleaseChannel currentChannel,
     required String? androidPackage,
   }) {
-    final channel = beta ? ReleaseChannel.beta : ReleaseChannel.stable;
+    final channels = acceptedChannelsFor(currentChannel);
     Map<String, dynamic>? best;
     String? bestVersion;
     for (final release in releases) {
       if (release['draft'] == true) continue;
-      if ((release['prerelease'] == true) != beta) continue;
       final tag = ReleaseTag.tryParse(release['tag_name'] as String?);
       if (tag == null) continue;
-      if (tag.channel != channel) continue;
+      if (!channels.contains(tag.channel)) continue;
+      // prerelease 标记必须与 tag 通道自洽，避免发布时漏勾 prerelease
+      // 导致 rc 被当成正式版塞给所有人。
+      if ((release['prerelease'] == true) !=
+          (tag.channel != ReleaseChannel.stable)) {
+        continue;
+      }
       if (!_platformAccepts(tag, release, androidPackage)) continue;
       if (compareVersions(tag.version, version) <= 0) continue;
       if (bestVersion == null ||

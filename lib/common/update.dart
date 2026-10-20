@@ -68,6 +68,13 @@ const androidBetaPackage = 'com.lansway.client.beta';
 /// 曾短暂使用过的 Beta 包名，仍需接受，避免漏掉这批安装。
 const alternateAndroidBetaPackage = 'com.bfclash.client.beta';
 
+/// 一个 release 的安装身份由它的通道决定，而不是“有没有预发布后缀”：
+///
+/// - `beta` → 独立测试包名（与正式版同机共存）
+/// - `rc` / 正式版 → 正式包名
+///
+/// rc 必须落在正式包名上：它本来就是同号正式版的候选构建，用测试包名会让
+/// 正式版**无法覆盖安装**它，rc 用户就永远回不到正式版。
 bool isAndroidReleaseCompatible(
   Map<String, dynamic> release,
   String packageName,
@@ -76,7 +83,7 @@ bool isAndroidReleaseCompatible(
   if (tag == null) return false;
   // Android 只吃 0.x 主线，Windows 的 1.x tag 永远不可见。
   if (tag.major != androidReleaseMajor) return false;
-  final accepted = tag.isBeta
+  final accepted = tag.channel == ReleaseChannel.beta
       ? const {androidBetaPackage, alternateAndroidBetaPackage}
       : const {androidStablePackage};
   if (!accepted.contains(packageName)) return false;

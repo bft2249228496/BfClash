@@ -15,7 +15,34 @@ void main() {
     expect(beta.info.preReleaseNum, 1861);
 
     final rc = ReleaseTag.tryParse('v0.3.0-rc.2')!;
-    expect(rc.channel, ReleaseChannel.beta, reason: 'rc 属于测试通道');
+    expect(rc.channel, ReleaseChannel.rc, reason: 'rc 是正式版候选，不是 beta');
+    expect(rc.isBeta, isFalse);
+  });
+
+  test('设备通道由已安装版本号判定', () {
+    expect(channelOfVersion('0.3.0'), ReleaseChannel.stable);
+    expect(channelOfVersion('0.2.29-rc.3'), ReleaseChannel.rc);
+    expect(channelOfVersion('0.2.29-beta.3'), ReleaseChannel.beta);
+    expect(channelOfVersion('0.3.1-rc.1'), ReleaseChannel.rc);
+  });
+
+  test('rc 能收到正式版，beta 只收 beta', () {
+    expect(
+      acceptedChannelsFor(ReleaseChannel.rc),
+      contains(ReleaseChannel.stable),
+      reason: 'rc 的终点就是同号正式版，必须能升级过去',
+    );
+    expect(acceptedChannelsFor(ReleaseChannel.rc), contains(ReleaseChannel.rc));
+    expect(
+      acceptedChannelsFor(ReleaseChannel.beta),
+      unorderedEquals([ReleaseChannel.beta]),
+      reason: '测试通道不接收正式版，避免测试构建被静默替换',
+    );
+    expect(
+      acceptedChannelsFor(ReleaseChannel.stable),
+      unorderedEquals([ReleaseChannel.stable]),
+      reason: '正式版不接收任何预发布构建',
+    );
   });
 
   test('大小写 v 前缀都可解析', () {

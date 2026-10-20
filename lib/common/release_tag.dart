@@ -97,9 +97,37 @@ bool isPreReleaseVersion(String version) {
   return VersionInfo.parse(version).preRelease != null;
 }
 
-/// Release channel encoded in the tag itself: `-beta.N` / `-rc.N` is a test
-/// build, a bare `vX.Y.Z` is a stable build.
-enum ReleaseChannel { stable, beta }
+/// Release channel encoded in the tag itself:
+///
+/// - `vX.Y.Z`       → [ReleaseChannel.stable]
+/// - `vX.Y.Z-rc.N`  → [ReleaseChannel.rc]（正式版的前置构建）
+/// - `vX.Y.Z-beta.N` → [ReleaseChannel.beta]（独立测试通道）
+enum ReleaseChannel { stable, rc, beta }
+
+/// 从**已安装版本号**判断设备当前所在通道（版本号可能不带 `v` 前缀）。
+///
+/// 注意 rc 与 beta 的语义差别：rc 是“即将发布的正式版”的候选构建，它的终点
+/// 就是同号正式版，所以必须能收到正式版更新；beta 是长期并行的测试通道，
+/// 只收 beta。
+ReleaseChannel channelOfVersion(String version) {
+  final pre = VersionInfo.parse(version).preRelease;
+  if (pre == null) return ReleaseChannel.stable;
+  return pre.toLowerCase().startsWith('rc')
+      ? ReleaseChannel.rc
+      : ReleaseChannel.beta;
+}
+
+/// 各通道能收到哪些通道的更新。
+///
+/// 关键一条：rc 用户必须能吃正式版，否则候选版就成了死胡同——rc 的意义就是
+/// 验证即将发布的正式版，正式版发出后它就该被替换掉。
+Set<ReleaseChannel> acceptedChannelsFor(ReleaseChannel current) {
+  return switch (current) {
+    ReleaseChannel.stable => const {ReleaseChannel.stable},
+    ReleaseChannel.rc => const {ReleaseChannel.stable, ReleaseChannel.rc},
+    ReleaseChannel.beta => const {ReleaseChannel.beta},
+  };
+}
 
 /// Android 产品线占 0.x，Windows 占 1.x，两条线永不交叉，避免 tag 撞号。
 const androidReleaseMajor = 0;
@@ -132,8 +160,11 @@ class ReleaseTag {
 
   int get major => info.major;
 
-  ReleaseChannel get channel =>
-      info.preRelease == null ? ReleaseChannel.stable : ReleaseChannel.beta;
+  ReleaseChannel get channel => switch (info.preRelease?.toLowerCase()) {
+    null => ReleaseChannel.stable,
+    final pre when pre.startsWith('rc') => ReleaseChannel.rc,
+    _ => ReleaseChannel.beta,
+  };
 
   bool get isBeta => channel == ReleaseChannel.beta;
 }

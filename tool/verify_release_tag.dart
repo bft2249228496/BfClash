@@ -80,25 +80,31 @@ void main(List<String> args) {
     exit(1);
   }
 
-  final channel = parsed!.isBeta ? 'Beta' : '正式';
+  final channelLabel = switch (parsed!.channel) {
+    ReleaseChannel.stable => '正式',
+    ReleaseChannel.rc => 'RC（正式版候选，可升正式版）',
+    ReleaseChannel.beta => 'Beta',
+  };
+  // 只有 beta 用独立测试身份；rc 与正式版共用正式身份，否则无法互相覆盖升级。
+  final usesBetaIdentity = parsed.channel == ReleaseChannel.beta;
   final platformLabel = switch (parsed.major) {
     androidReleaseMajor => 'Android',
     windowsReleaseMajor => 'Windows',
     _ => 'Unknown',
   };
   final packageOrAppId = parsed.major == androidReleaseMajor
-      ? (parsed.isBeta ? 'com.bfclash.client.beta' : 'com.bfclash.client')
-      : (parsed.isBeta ? 'A19F870C-…' : '728B3532-…');
+      ? (usesBetaIdentity ? 'com.lansway.client.beta' : 'com.bfclash.client')
+      : (usesBetaIdentity ? 'A19F870C-…' : '728B3532-…');
 
   stdout.writeln('tag 校验通过');
   stdout.writeln('  tag          : $tag');
   stdout.writeln('  版本         : ${parsed.version}');
-  stdout.writeln('  平台 / 通道  : $platformLabel / $channel');
-  stdout.writeln('  prerelease   : ${parsed.isBeta}');
+  stdout.writeln('  平台 / 通道  : $platformLabel / $channelLabel');
+  stdout.writeln('  prerelease   : ${parsed.channel != ReleaseChannel.stable}');
   stdout.writeln('  通道身份     : $packageOrAppId');
   stdout.writeln(
     '  Release 标题 : BfClash $platformLabel'
-    '${parsed.isBeta ? ' Beta' : ''} ${parsed.version}',
+    '${usesBetaIdentity ? ' Beta' : ''} ${parsed.version}',
   );
   stdout.writeln(
     '  资产名前缀   : BfClash-${parsed.version}-'
