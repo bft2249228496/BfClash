@@ -100,13 +100,16 @@ class DesktopDashboardView extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: gutter),
-                    const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(width: sideWidth, child: TrafficUsage()),
-                        SizedBox(width: gutter),
-                        Expanded(child: quickAccess),
-                      ],
+                    // 流量统计与工具等高：stretch 使两卡底边始终对齐。
+                    const IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(width: sideWidth, child: TrafficUsage()),
+                          SizedBox(width: gutter),
+                          Expanded(child: quickAccess),
+                        ],
+                      ),
                     ),
                   ] else ...[
                     const SizedBox(height: gutter),
