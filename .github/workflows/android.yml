@@ -84,7 +84,11 @@ jobs:
           build=$(sed -n 's/^version: .*+\([0-9]*\)$/\1/p' pubspec.yaml)
           test -n "$version" -a -n "$build"
           package_id=com.bfclash.client
-          if [[ "${version,,}" == *beta* ]]; then package_id=com.lansway.client.beta; fi
+          # 通道判定必须与 android/app/build.gradle.kts 的 isBeta 一致：
+          # rc 与 beta 同属测试通道，都落在 Beta 包名上。
+          case "${version,,}" in
+            *-beta.*|*-rc.*) package_id=com.lansway.client.beta ;;
+          esac
           for abi in arm64-v8a armeabi-v7a x86_64; do
             case "$abi" in
               arm64-v8a) code=$((2000 + build)) ;;
