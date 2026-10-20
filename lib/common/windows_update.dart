@@ -34,12 +34,14 @@ Map<String, dynamic>? selectWindowsBetaRelease(
   };
   if (arch == null) throw const WindowsUpdateIdentityException();
   Map<String, dynamic>? best;
-  String? bestTag;
+  String? bestBase;
+  int? bestRun;
   for (final release in releases.whereType<Map<String, dynamic>>()) {
     if (release['draft'] == true || release['prerelease'] != true) continue;
     final tag = release['tag_name'] as String? ?? '';
+    // 新格式 `v1.0.1-beta.1861`；`-windows-ci.N` 仅用于兼容历史 tag。
     final match = RegExp(
-      r'^v?(\d+\.\d+\.\d+)-windows-ci\.(\d+)$',
+      r'^v?(\d+\.\d+\.\d+)-(?:beta|rc|windows-ci)\.(\d+)$',
     ).firstMatch(tag);
     if (match == null) continue;
     final base = match.group(1)!;
@@ -61,9 +63,20 @@ Map<String, dynamic>? selectWindowsBetaRelease(
           Uri.tryParse(url)?.scheme == 'https';
     });
     if (!hasInstaller) continue;
-    if (bestTag == null || compareVersions(tag, bestTag) > 0) {
+    // 新旧两种 tag 都带预发布段，直接比较原始 tag 会因 stage 名称不同而失序，
+    // 因此按 (基础版本, 构建号) 显式比较。
+    if (bestBase == null || bestRun == null) {
       best = release;
-      bestTag = tag;
+      bestBase = base;
+      bestRun = run;
+      continue;
+    }
+    final better = compareVersions(base, bestBase) > 0 ||
+        (compareVersions(base, bestBase) == 0 && run > bestRun);
+    if (better) {
+      best = release;
+      bestBase = base;
+      bestRun = run;
     }
   }
   return best;

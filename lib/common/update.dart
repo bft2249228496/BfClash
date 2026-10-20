@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:bfclash/common/package.dart';
 import 'package:bfclash/common/resumable_download.dart';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -58,21 +59,40 @@ class UpdateDownloadProgress {
   String get formattedSpeed => '${formatBytes(speedBytesPerSec.round())}/s';
 }
 
+const androidStablePackage = 'com.bfclash.client';
+const androidBetaPackage = 'com.bfclash.client.beta';
+
+/// 旧品牌遗留的 Beta 包名，存量用户仍在使用，安装包身份判定需继续接受。
+const legacyAndroidBetaPackage = 'com.lansway.client.beta';
+
 bool isAndroidReleaseCompatible(
   Map<String, dynamic> release,
   String packageName,
 ) {
-  final tag = (release['tag_name'] as String? ?? '').toLowerCase();
-  final targetPackage = tag.contains('beta')
-      ? 'com.lansway.client.beta'
-      : 'com.bfclash.client';
-  final assets = release['assets'] as List<dynamic>?;
-  return packageName == targetPackage &&
-      (assets?.whereType<Map<String, dynamic>>().any(
-            (asset) =>
-                (asset['name'] as String? ?? '').toLowerCase().endsWith('.apk'),
-          ) ??
-          false);
+  final tag = ReleaseTag.tryParse(release['tag_name'] as String?);
+  if (tag == null) return false;
+  // Android 只吃 0.x 主线，Windows 的 1.x tag 永远不可见。
+  if (tag.major != androidReleaseMajor) return false;
+  final accepted = tag.isBeta
+      ? const {androidBetaPackage, legacyAndroidBetaPackage}
+      : const {androidStablePackage};
+  if (!accepted.contains(packageName)) return false;
+  return _hasAssetWithExtension(release, '.apk');
+}
+
+bool isWindowsReleaseCompatible(Map<String, dynamic> release) {
+  final tag = ReleaseTag.tryParse(release['tag_name'] as String?);
+  if (tag != null && tag.major != windowsReleaseMajor) return false;
+  return _hasAssetWithExtension(release, '.exe') ||
+      _hasAssetWithExtension(release, '.zip');
+}
+
+bool _hasAssetWithExtension(Map<String, dynamic> release, String extension) {
+  final assets = release['assets'];
+  if (assets is! List) return false;
+  return assets.whereType<Map<String, dynamic>>().any(
+    (asset) => (asset['name'] as String? ?? '').toLowerCase().endsWith(extension),
+  );
 }
 
 @visibleForTesting

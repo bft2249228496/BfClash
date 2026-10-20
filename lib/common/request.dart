@@ -82,43 +82,7 @@ class Request {
           (system.isWindows && WindowsChannelConfig.isBeta) ||
           isPreReleaseVersion(version);
 
-      if (!isCurrentBeta) {
-        // 正式版：只检测官方最新正式发布版本
-        final response = await _clashDio.get(
-          'https://api.github.com/repos/$repository/releases/latest',
-          options: _updateRequestOptions,
-        );
-        if (response.statusCode != 200) {
-          throw HttpException(
-            'Update check returned HTTP ${response.statusCode}',
-          );
-        }
-        final data = response.data as Map<String, dynamic>;
-        if (androidPackage != null &&
-            !isAndroidReleaseCompatible(data, androidPackage)) {
-          return null;
-        }
-        final remoteVersion = data['tag_name'] as String? ?? '';
-        final cleanTag = remoteVersion.replaceFirst(RegExp(r'^[vV]'), '');
-        if (isPreReleaseVersion(cleanTag)) return null;
-        final hasUpdate = compareVersions(cleanTag, version) > 0;
-        if (!hasUpdate) return null;
-        return data;
-      }
-
-      // Beta / 预发布版：只检测同为 Beta / 预发布版本的更新
-      final response = await _clashDio.get(
-        'https://api.github.com/repos/$repository/releases?per_page=100',
-        options: _updateRequestOptions,
-      );
-      if (response.statusCode != 200) {
-        throw HttpException(
-          'Update check returned HTTP ${response.statusCode}',
-        );
-      }
-      final list = (response.data as List<dynamic>)
-          .whereType<Map<String, dynamic>>()
-          .toList();
+      final list = await _fetchReleases();
 
       if (system.isWindows && WindowsChannelConfig.isBeta) {
         return selectWindowsBetaRelease(
@@ -129,33 +93,12 @@ class Request {
         );
       }
 
-      Map<String, dynamic>? bestRelease;
-      String? bestVersion;
-
-      for (final release in list) {
-        if (release['draft'] == true) continue;
-        if (androidPackage != null &&
-            !isAndroidReleaseCompatible(release, androidPackage)) {
-          continue;
-        }
-        final tagName = release['tag_name'] as String? ?? '';
-        if (tagName.isEmpty) continue;
-        final cleanTag = tagName.replaceFirst(RegExp(r'^[vV]'), '');
-        // 严格隔离：Beta 版本只接受同样带有 preRelease/Beta 标识的更新
-        final isRemoteBeta =
-            (release['prerelease'] == true) || isPreReleaseVersion(cleanTag);
-        if (!isRemoteBeta) continue;
-
-        if (compareVersions(cleanTag, version) > 0) {
-          if (bestVersion == null ||
-              compareVersions(cleanTag, bestVersion) > 0) {
-            bestVersion = cleanTag;
-            bestRelease = release;
-          }
-        }
-      }
-
-      return bestRelease;
+      return _selectRelease(
+        list,
+        version: version,
+        beta: isCurrentBeta,
+        androidPackage: androidPackage,
+      );
     } on WindowsUpdateIdentityException {
       throw MessageException(
         currentAppLocalizations.windowsUpdateIdentityUnknown,
@@ -164,6 +107,60 @@ class Request {
       commonPrint.log('checkForUpdate failed: $e', logLevel: LogLevel.warning);
       rethrow;
     }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchReleases() async {
+    final response = await _clashDio.get(
+      'https://api.github.com/repos/$repository/releases?per_page=100',
+      options: _updateRequestOptions,
+    );
+    if (response.statusCode != 200) {
+      throw HttpException('Update check returned HTTP ${response.statusCode}');
+    }
+    return (response.data as List<dynamic>).whereType<Map<String, dynamic>>().toList();
+  }
+
+  /// 通道严格隔离：正式版只认无 stage 后缀的 tag，测试版只认 `-beta.N` / `-rc.N`。
+  /// 平台由 tag 主线号段 + 资产类型双重判定，不再依赖 tag 字符串包含关系。
+  Map<String, dynamic>? _selectRelease(
+    List<Map<String, dynamic>> releases, {
+    required String version,
+    required bool beta,
+    required String? androidPackage,
+  }) {
+    final channel = beta ? ReleaseChannel.beta : ReleaseChannel.stable;
+    Map<String, dynamic>? best;
+    String? bestVersion;
+    for (final release in releases) {
+      if (release['draft'] == true) continue;
+      if ((release['prerelease'] == true) != beta) continue;
+      final tag = ReleaseTag.tryParse(release['tag_name'] as String?);
+      if (tag == null) continue;
+      if (tag.channel != channel) continue;
+      if (!_platformAccepts(tag, release, androidPackage)) continue;
+      if (compareVersions(tag.version, version) <= 0) continue;
+      if (bestVersion == null || compareVersions(tag.version, bestVersion) > 0) {
+        bestVersion = tag.version;
+        best = release;
+      }
+    }
+    return best;
+  }
+
+  bool _platformAccepts(
+    ReleaseTag tag,
+    Map<String, dynamic> release,
+    String? androidPackage,
+  ) {
+    if (androidPackage != null) {
+      return isAndroidReleaseCompatible(release, androidPackage);
+    }
+    if (system.isWindows) {
+      return tag.major == windowsReleaseMajor &&
+          isWindowsReleaseCompatible(release);
+    }
+    // 其他平台沿用“取最高版本”的宽松策略。
+    return true;
   }
 
   Options get _updateRequestOptions => Options(
