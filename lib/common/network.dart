@@ -58,3 +58,13 @@ Future<String?> getLocalIpAddress() async {
   }
   return '';
 }
+
+String formatNetworkHost(String address) {
+  if (address.contains(':') && !address.startsWith('[')) return '[$address]';
+  return address;
+}
+
+String formatNetworkEndpoint(String address, String port) {
+  if (address.isEmpty || port.isEmpty) return address;
+  return '${formatNetworkHost(address)}:$port';
+}

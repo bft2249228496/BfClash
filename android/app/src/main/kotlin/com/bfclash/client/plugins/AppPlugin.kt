@@ -181,7 +181,11 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
 
             "installApk" -> {
-                result.success(installApk(call.argument<String>("path")))
+                try {
+                    result.success(installApk(call.argument<String>("path")))
+                } catch (error: ApkUpdateRejected) {
+                    result.error(error.code, error.code, null)
+                }
             }
 
             "didCrashOnPreviousExecution" -> reply(result) {
@@ -268,12 +272,19 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun installApk(path: String?): Boolean {
         val activity = activity ?: return false
         if (path.isNullOrBlank()) return false
         val source = java.io.File(path)
         if (!source.isFile) return false
         return try {
+            val archive = activity.packageManager.getPackageArchiveInfo(source.path, 0)
+                ?: throw ApkUpdateRejected("APK_UPDATE_INVALID")
+            val installed = activity.packageManager.getPackageInfo(activity.packageName, 0)
+            val candidateCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) archive.longVersionCode else archive.versionCode.toLong()
+            val currentCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) installed.longVersionCode else installed.versionCode.toLong()
+            ApkUpdatePolicy.validate(activity.packageName, currentCode, archive.packageName, candidateCode)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 !activity.packageManager.canRequestPackageInstalls()
             ) {
@@ -282,6 +293,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                         data = "package:${activity.packageName}".toUri()
                     },
                 )
+                throw ApkUpdateRejected("APK_INSTALL_PERMISSION_REQUIRED")
             }
             val target = java.io.File(activity.cacheDir, "bfclash_update.apk")
             if (source.canonicalPath != target.canonicalPath) {
@@ -299,6 +311,8 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 },
             )
             true
+        } catch (error: ApkUpdateRejected) {
+            throw error
         } catch (error: Exception) {
             GlobalState.log("Failed to launch APK installer: $error")
             false

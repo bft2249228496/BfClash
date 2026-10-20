@@ -11,6 +11,7 @@ import 'fingerprint.dart';
 import 'options.dart';
 import 'target.dart';
 import 'util.dart';
+import 'windows_signing.dart';
 
 final _log = Logger('go_builder');
 
@@ -22,6 +23,7 @@ class GoBuilder {
     required this.notice,
     this.harnessInputs = const [],
     this.androidToolchain,
+    this.signer,
   });
 
   final String rootDir;
@@ -30,6 +32,7 @@ class GoBuilder {
   final BuildNotice notice;
   final List<String> harnessInputs;
   final AndroidToolchain? androidToolchain;
+  final WindowsSigningBackend? signer;
 
   String get _corePath => p.join(rootDir, config.coreDir);
   String get _outputPath => p.join(rootDir, config.outputDir);
@@ -97,6 +100,7 @@ class GoBuilder {
               ),
             );
           } else {
+            if (signer != null) await signer!.sign(staged);
             replaceFile(staged, outFile);
           }
 
@@ -137,6 +141,7 @@ class GoBuilder {
     final builder = FingerprintBuilder(rootDir: rootDir)
       ..addValue('cache_schema', BuildCache.schemaVersion)
       ..addValue('kind', 'go-core')
+      ..addValue('trusted_signing', signer?.identity)
       ..addValue('target', {
         'goos': target.goos,
         'goarch': target.goarch,
@@ -145,6 +150,8 @@ class GoBuilder {
       ..addValue('config', config.toFingerprintMap())
       ..addValue('environment', env)
       ..addValue('arguments', _buildArguments(target));
+
+    if (signer != null) builder.addFiles(signer!.inputs);
 
     final goEnvResult = runCommand(
       'go',

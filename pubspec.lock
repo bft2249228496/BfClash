@@ -862,6 +862,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
+  liquid_engine:
+    dependency: "direct dev"
+    description:
+      name: liquid_engine
+      sha256: "41ae12d5a72451c3efb8d4e7b901cdf0537917597bc7e7376e9b0a237f92df29"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   listen:
     dependency: transitive
     description:
@@ -1464,7 +1472,7 @@ packages:
     source: hosted
     version: "0.7.0+eol"
   sqlite3:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: sqlite3
       sha256: "64b2c63c8232dd20d14b34105a81ebfd74320442e8451f836179ec89986aa478"

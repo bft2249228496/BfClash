@@ -8,6 +8,8 @@ AppSupportURL={{PUBLISHER_URL}}
 AppUpdatesURL={{PUBLISHER_URL}}
 DefaultDirName={{INSTALL_DIR_NAME}}
 DisableProgramGroupPage=yes
+CloseApplications=yes
+RestartApplications=no
 OutputDir=.
 OutputBaseFilename={{OUTPUT_BASE_FILENAME}}
 Compression=lzma
@@ -18,27 +20,18 @@ PrivilegesRequired={{PRIVILEGES_REQUIRED}}
 ArchitecturesAllowed={{ARCH}}
 ArchitecturesInstallIn64BitMode={{ARCH}}
 
+#ifdef BFCLASH_TRUSTED_PAYLOAD
+SignTool=bfclashTrusted
+SignedUninstaller=yes
+#endif
+
 [Code]
-procedure KillProcesses;
-var
-  Processes: TArrayOfString;
-  i: Integer;
-  ResultCode: Integer;
-begin
-  Processes := ['BfClash.exe', 'BfClashCore.exe', 'BfClashHelperService.exe'];
-
-  for i := 0 to GetArrayLength(Processes)-1 do
-  begin
-    Exec('taskkill', '/f /im ' + Processes[i], '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  end;
-end;
-
 procedure UnregisterHelperService;
 var
   HelperPath: String;
   ResultCode: Integer;
 begin
-  HelperPath := ExpandConstant('{app}\\BfClashHelperService.exe');
+  HelperPath := ExpandConstant('{app}\\{{HELPER_SERVICE_EXECUTABLE_NAME}}');
   if FileExists(HelperPath) then
   begin
     Exec(HelperPath, 'uninstall', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
@@ -48,15 +41,13 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   UnregisterHelperService;
-  KillProcesses;
   Result := '';
 end;
 
-function InitializeUninstall(): Boolean;
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-  UnregisterHelperService;
-  KillProcesses;
-  Result := True;
+  if CurUninstallStep = usUninstall then
+    UnregisterHelperService;
 end;
 
 [Languages]
@@ -88,6 +79,14 @@ Name: "chineseSimplified"; MessagesFile: {% if locale.file %}{{ locale.file }}{%
 {% if locale.lang == 'es' %}Name: "spanish"; MessagesFile: "compiler:Languages\\Spanish.isl"{% endif %}
 {% if locale.lang == 'tr' %}Name: "turkish"; MessagesFile: "compiler:Languages\\Turkish.isl"{% endif %}
 {% if locale.lang == 'uk' %}Name: "ukrainian"; MessagesFile: "compiler:Languages\\Ukrainian.isl"{% endif %}
+{% endfor %}
+
+[CustomMessages]
+UnsignedPayloadBlocked=This package is unsigned and Application Control is enabled. Installation was stopped before changing existing files or services. A trusted signed build is required. Keep Windows protection enabled.
+{% for locale in LOCALES %}
+{% if locale.lang == 'zh' %}chineseSimplified.UnsignedPayloadBlocked=当前安装包未签名，且应用控制已启用。已在修改现有文件或服务前停止安装。需要可信签名版本，请保留 Windows 安全保护。{% endif %}
+{% if locale.lang == 'ja' %}japanese.UnsignedPayloadBlocked=このパッケージは未署名で、アプリ制御が有効です。既存のファイルやサービスを変更する前にインストールを停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。{% endif %}
+{% if locale.lang == 'ru' %}russian.UnsignedPayloadBlocked=Этот пакет не подписан, а контроль приложений включён. Установка остановлена до изменения файлов или служб. Требуется сборка с доверенной подписью. Не отключайте защиту Windows.{% endif %}
 {% endfor %}
 
 [Tasks]

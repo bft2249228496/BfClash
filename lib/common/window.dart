@@ -8,6 +8,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'window_position.dart';
+
 class Window implements WindowPort {
   static Window? _instance;
   bool _supportsPosition = false;
@@ -76,22 +78,21 @@ class Window implements WindowPort {
         await windowManager.setAlignment(Alignment.center);
       } else {
         final size = props.size;
-        final right = left + size.width;
-        final bottom = top + size.height;
+        final windowBounds = Rect.fromLTWH(left, top, size.width, size.height);
         final displays = await screenRetriever.getAllDisplays();
         final isPositionValid = displays.any((display) {
           final visiblePosition = display.visiblePosition;
           if (visiblePosition == null) {
             return false;
           }
+          final visibleSize = display.visibleSize ?? display.size;
           final displayBounds = Rect.fromLTWH(
             visiblePosition.dx,
             visiblePosition.dy,
-            display.size.width,
-            display.size.height,
+            visibleSize.width,
+            visibleSize.height,
           );
-          return displayBounds.contains(Offset(left, top)) ||
-              displayBounds.contains(Offset(right, bottom));
+          return hasReachableWindowTitle(windowBounds, displayBounds);
         });
         if (isPositionValid) {
           await windowManager.setPosition(Offset(left, top));

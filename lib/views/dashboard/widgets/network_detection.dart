@@ -7,7 +7,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NetworkDetection extends ConsumerStatefulWidget {
-  const NetworkDetection({super.key});
+  const NetworkDetection({super.key, this.height});
+
+  final double? height;
 
   @override
   ConsumerState<NetworkDetection> createState() => _NetworkDetectionState();
@@ -38,7 +40,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
       color: context.colorScheme.onSurfaceVariant,
     );
     return SizedBox(
-      height: getWidgetHeight(1),
+      height: widget.height ?? getWidgetHeight(1),
       child: CommonCard(
         radius: AppCorner.lg,
         onPressed: () {
@@ -62,11 +64,14 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                   const SizedBox(width: 8),
                   Flexible(
                     flex: 1,
-                    child: TooltipText(
-                      text: Text(
+                    // Scale instead of clipping so the full label stays
+                    // readable inside narrow dashboard tiles.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
                         appLocalizations.networkDetection,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: descTextStyle,
                       ),
                     ),

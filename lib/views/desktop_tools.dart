@@ -1,0 +1,234 @@
+import 'package:bfclash/common/common.dart';
+import 'package:bfclash/state.dart';
+import 'package:bfclash/common/desktop_style.dart';
+import 'package:bfclash/views/about.dart';
+import 'package:bfclash/views/resources.dart';
+import 'package:bfclash/widgets/locale_setting_item.dart';
+import 'package:bfclash/views/application_setting.dart';
+import 'package:bfclash/views/backup_and_restore.dart';
+import 'package:bfclash/views/config/config.dart';
+import 'package:bfclash/views/config/advanced.dart';
+import 'package:bfclash/views/developer.dart';
+import 'package:bfclash/views/hotkey.dart';
+import 'package:bfclash/views/sub_store.dart';
+import 'package:bfclash/views/theme.dart';
+import 'package:bfclash/widgets/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
+
+class DesktopToolsView extends ConsumerStatefulWidget {
+  const DesktopToolsView({super.key});
+
+  @override
+  ConsumerState<DesktopToolsView> createState() => _DesktopToolsViewState();
+}
+
+class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
+  Widget _selectedWidget = const BackupAndRestore();
+
+  void _selectView(Widget view) {
+    setState(() {
+      _selectedWidget = view;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
+
+    return CommonScaffold(
+      title: appLocalizations.tools,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 950;
+
+          final listMenu = ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            children: [
+              ListHeader(title: appLocalizations.settings),
+              const LocaleSettingItem(),
+              _buildMenuItem(
+                title: appLocalizations.resources,
+                subtitle: appLocalizations.resources,
+                icon: Icons.storage,
+                target: const ResourcesView(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.backupAndRestore,
+                subtitle: appLocalizations.backupAndRestoreDesc,
+                icon: Icons.cloud_sync,
+                target: const BackupAndRestore(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.subStoreTitle,
+                subtitle: appLocalizations.subStoreLocalModeDesc,
+                icon: Icons.hub,
+                iconColor: const Color(0xFF818CF8),
+                target: const SubStoreView(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.basicConfig,
+                subtitle: appLocalizations.basicConfigDesc,
+                icon: Icons.edit_note,
+                target: const ConfigView(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.advancedConfig,
+                subtitle: appLocalizations.advancedConfigDesc,
+                icon: Icons.build_circle_outlined,
+                target: const AdvancedConfigView(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.application,
+                subtitle: appLocalizations.applicationDesc,
+                icon: Icons.settings,
+                target: const ApplicationSettingView(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.theme,
+                subtitle: appLocalizations.themeDesc,
+                icon: Icons.palette_outlined,
+                target: const ThemeView(),
+                isWide: isWide,
+              ),
+              if (system.isDesktop)
+                _buildMenuItem(
+                  title: appLocalizations.hotkeyManagement,
+                  subtitle: appLocalizations.hotkeyManagementDesc,
+                  icon: Icons.keyboard,
+                  target: const HotKeyView(),
+                  isWide: isWide,
+                ),
+              if (system.isWindows)
+                ListItem(
+                  leading: const Icon(Icons.lock_open),
+                  title: Text(appLocalizations.loopback),
+                  subtitle: Text(appLocalizations.loopbackDesc),
+                  trailing: const Icon(Icons.arrow_outward, size: 18),
+                  onTap: () => globalState.safeRun<void>(launchLoopbackTool),
+                ),
+              ListHeader(title: appLocalizations.other),
+              _buildMenuItem(
+                title: appLocalizations.about,
+                subtitle: '${appLocalizations.about} BfClash',
+                icon: Icons.info_outline,
+                target: const AboutView(),
+                isWide: isWide,
+              ),
+              _buildMenuItem(
+                title: appLocalizations.developerMode,
+                subtitle: appLocalizations.developerModeDesc,
+                icon: Icons.developer_mode,
+                target: const DeveloperView(),
+                isWide: isWide,
+              ),
+            ],
+          );
+
+          if (isWide) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(width: 304, child: listMenu),
+                VerticalDivider(
+                  width: 1,
+                  color: context.colorScheme.outlineVariant.withValues(
+                    alpha: 0.3,
+                  ),
+                ),
+                Expanded(child: FocusTraversalGroup(child: _selectedWidget)),
+              ],
+            );
+          }
+
+          return listMenu;
+        },
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    Color? iconColor,
+    required Widget target,
+    required bool isWide,
+  }) {
+    final isSelected =
+        isWide && _selectedWidget.runtimeType == target.runtimeType;
+
+    return Tooltip(
+      message: isWide ? subtitle : '',
+      child: Container(
+        decoration: ShapeDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: desktopAccentGradient(context).colors
+                      .map((color) => color.withValues(alpha: 0.12))
+                      .toList(),
+                )
+              : null,
+          shape: AppShape.md,
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: AppRadius.md,
+          clipBehavior: Clip.antiAlias,
+          child: ListItem(
+            leading: Container(
+              padding: const EdgeInsets.all(7),
+              decoration: ShapeDecoration(
+                color: context.colorScheme.primary.withValues(
+                  alpha: isSelected ? 0.14 : 0.06,
+                ),
+                shape: AppShape.sm,
+              ),
+              child: Icon(
+                icon,
+                size: 18,
+                color: iconColor ?? context.colorScheme.primary,
+              ),
+            ),
+            title: Text(
+              title,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? context.colorScheme.onSecondaryContainer
+                    : null,
+              ),
+            ),
+            subtitle: isWide
+                ? null
+                : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: isWide
+                ? (isSelected
+                      ? Icon(
+                          Icons.chevron_right,
+                          color: context.colorScheme.primary,
+                        )
+                      : null)
+                : const Icon(Icons.chevron_right),
+            onTap: () {
+              if (isWide) {
+                _selectView(target);
+              } else {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => target));
+              }
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
   static String m0(code) =>
-      "Windows refused to run BfClashCore.exe (error ${code}). An app control policy such as Smart App Control or AppLocker blocks unsigned programs; allow BfClash in that policy or turn it off, then try again.";
+      "Windows refused to run BfClashCore.exe (error ${code}). A trusted signed build or an administrator review under the existing application control policy is required. The operation did not complete.";
 
   static String m1(name) =>
       "The app failed to finish launching twice in a row. To break the loop, the profile ${name} has been deselected and automatic setup was skipped. You can select it again at any time.";
@@ -94,12 +94,26 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "${label} must be a URL";
 
-  static String m30(count) =>
+  static String m30(detail, log) =>
+      "The in-place update failed: ${detail}\n\nAn attempt was made to restore the previous files. Log: ${log}";
+
+  static String m31(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("About"),
+    "aboutAuthor": MessageLookupByLibrary.simpleMessage("Author"),
+    "aboutBaseProject": MessageLookupByLibrary.simpleMessage(
+      "Client base project",
+    ),
+    "aboutCoreProject": MessageLookupByLibrary.simpleMessage(
+      "High-performance routing proxy core",
+    ),
+    "aboutCredits": MessageLookupByLibrary.simpleMessage("Credits & upstream"),
+    "aboutOpenSourceLicense": MessageLookupByLibrary.simpleMessage(
+      "Open-source license",
+    ),
     "accessControl": MessageLookupByLibrary.simpleMessage("Access control"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "Only selected apps go through the VPN",
@@ -123,6 +137,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionStart": MessageLookupByLibrary.simpleMessage("Start/Stop"),
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionView": MessageLookupByLibrary.simpleMessage("Show/Hide"),
+    "activeConnections": MessageLookupByLibrary.simpleMessage(
+      "Active connections",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Add"),
     "addProfile": MessageLookupByLibrary.simpleMessage("Add profile"),
     "addProxies": MessageLookupByLibrary.simpleMessage("Add proxies"),
@@ -160,6 +177,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowLan": MessageLookupByLibrary.simpleMessage("Allow LAN"),
     "allowLanDesc": MessageLookupByLibrary.simpleMessage(
       "Allow proxy access over the LAN",
+    ),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "The system installer could not be opened. The update is not installed; please retry.",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "This package is not newer than the installed app. Repeated installation was stopped.",
     ),
     "app": MessageLookupByLibrary.simpleMessage("App"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage(
@@ -303,6 +332,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("Connected"),
     "connecting": MessageLookupByLibrary.simpleMessage("Connecting..."),
     "connection": MessageLookupByLibrary.simpleMessage("Connection"),
+    "connectionConsole": MessageLookupByLibrary.simpleMessage(
+      "Connection console",
+    ),
+    "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
+      "Unable to refresh connections. The list may be out of date.",
+    ),
+    "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Connection data is unavailable",
+    ),
     "connections": MessageLookupByLibrary.simpleMessage("Connections"),
     "connectionsDesc": MessageLookupByLibrary.simpleMessage(
       "View current connection data",
@@ -344,6 +382,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Cut"),
     "dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Dashboard"),
+    "dashboardSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Core status, live rates and outbound mode at a glance",
+    ),
     "dataChangedSave": MessageLookupByLibrary.simpleMessage(
       "Data changes detected. Save them?",
     ),
@@ -384,6 +425,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Relies on a third-party API; for reference only",
     ),
     "developerMode": MessageLookupByLibrary.simpleMessage("Developer mode"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Debugging and advanced status monitoring",
+    ),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage(
       "Developer mode is enabled.",
     ),
@@ -551,9 +595,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -641,6 +686,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "loopbackDesc": MessageLookupByLibrary.simpleMessage(
       "Used for UWP loopback exemption",
     ),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows did not open the loopback tool. Authorization may have been cancelled or application control may have blocked it. Check that the tool file is present.",
+    ),
     "loose": MessageLookupByLibrary.simpleMessage("Loose"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage("Match source IP"),
     "matchTarget": MessageLookupByLibrary.simpleMessage("MATCH-TARGET"),
@@ -652,6 +700,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "maxLengthTip": m19,
     "maximize": MessageLookupByLibrary.simpleMessage("Maximize"),
     "memoryInfo": MessageLookupByLibrary.simpleMessage("Memory info"),
+    "memoryUsage": MessageLookupByLibrary.simpleMessage("Memory usage"),
     "messageTest": MessageLookupByLibrary.simpleMessage("Message test"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage(
       "This is a message.",
@@ -682,6 +731,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "Specify the nameserver policy for matching domains",
     ),
+    "navGroupDiagnostics": MessageLookupByLibrary.simpleMessage("Diagnostics"),
+    "navGroupMonitor": MessageLookupByLibrary.simpleMessage("Monitor"),
+    "navGroupNetwork": MessageLookupByLibrary.simpleMessage("Network"),
     "network": MessageLookupByLibrary.simpleMessage("Network"),
     "networkDesc": MessageLookupByLibrary.simpleMessage(
       "Adjust network-related settings",
@@ -750,6 +802,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage(
+      "Pause and return",
+    ),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Choose from album"),
     "pinWindow": MessageLookupByLibrary.simpleMessage("Pin window"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(
@@ -765,6 +820,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Please enter a different port",
     ),
+    "portLabel": MessageLookupByLibrary.simpleMessage("Port"),
     "portTip": m24,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Prefer HTTP/3 for DoH",
@@ -832,6 +888,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Proxy providers cannot be empty",
     ),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("Proxy running"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("Proxy stopped"),
     "proxyType": MessageLookupByLibrary.simpleMessage("Proxy type"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("Prune cache"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("Pure black mode"),
@@ -841,8 +899,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickFill": MessageLookupByLibrary.simpleMessage("Quick fill"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Rainbow"),
+    "realtimeRate": MessageLookupByLibrary.simpleMessage("Live rates"),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redir port"),
     "redo": MessageLookupByLibrary.simpleMessage("Redo"),
+    "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
     "remote": MessageLookupByLibrary.simpleMessage("Remote"),
     "remoteBackupDesc": MessageLookupByLibrary.simpleMessage(
       "Back up data to WebDAV",
@@ -875,6 +935,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartCoreTip": MessageLookupByLibrary.simpleMessage(
       "Are you sure you want to restart the core?",
     ),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "You can switch nodes and retry. This source has no checksum, so the download will restart safely.",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("Restore"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage("Restore all data"),
     "restoreException": MessageLookupByLibrary.simpleMessage("Restore error"),
@@ -895,6 +958,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreSuccess": MessageLookupByLibrary.simpleMessage(
       "Restore successful",
     ),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.",
+    ),
+    "retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "routeAddress": MessageLookupByLibrary.simpleMessage("Route addresses"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(
       "Configure the listened route addresses",
@@ -1021,6 +1088,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Rule target"),
     "rules": MessageLookupByLibrary.simpleMessage("Rules"),
     "rulesCount": m26,
+    "runtimeLabel": MessageLookupByLibrary.simpleMessage("Uptime"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("Save the changes?"),
     "script": MessageLookupByLibrary.simpleMessage("Script"),
@@ -1088,6 +1156,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "start": MessageLookupByLibrary.simpleMessage("Start"),
     "startVpn": MessageLookupByLibrary.simpleMessage("Starting VPN..."),
+    "stateOff": MessageLookupByLibrary.simpleMessage("Off"),
+    "stateOn": MessageLookupByLibrary.simpleMessage("On"),
     "status": MessageLookupByLibrary.simpleMessage("Status"),
     "statusDesc": MessageLookupByLibrary.simpleMessage(
       "When disabled, the system DNS is used",
@@ -1119,7 +1189,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "On-device backend",
     ),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "Run the official Sub-Store backend privately on this Android device",
+      "Run the official Sub-Store backend privately on this device",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("Backend mode"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
@@ -1127,6 +1197,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "Open official Sub-Store console",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "The local Sub-Store port is already in use. Stop the other service and try again.",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
       "Remote service",
@@ -1145,6 +1218,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Sub-Store backend is running",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "The Sub-Store backend files are missing. Reinstall BfClash.",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Unable to start Sub-Store backend",
@@ -1252,7 +1331,32 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
-    "yearsAgo": m30,
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "Update could not be completed",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "Smart App Control is on, so this update replaces the installed files directly instead of running the installer, which avoids the blocked-installer error. BfClash restarts itself after the download; your profiles, subscriptions and settings are untouched.",
+    ),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.",
+    ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "This update package has no code signature. Windows may show an \"unknown publisher\" confirmation, or block the installation if Smart App Control is on. Continue to download and install?",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "Unsigned update package",
+    ),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "No verified installer is available for this Windows version and channel.",
+    ),
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };
 }

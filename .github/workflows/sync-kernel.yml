@@ -87,17 +87,17 @@ jobs:
             const title = `[Kernel Adaptation Required] Clash.Meta upstream ${shortCommit} breaks core API`;
             const body = `### 🚨 上游内核接口变动，需要自动化适配
 
-- **旧内核 Commit**: \`${oldCommit}\`
-- **新内核 Commit**: \`${newCommit}\`
-- **触发原因**: \`go build -tags=with_gvisor -buildmode=c-shared\` 编译失败，上游接口发生破坏性重构。
+            - **旧内核 Commit**: \`${oldCommit}\`
+            - **新内核 Commit**: \`${newCommit}\`
+            - **触发原因**: \`go build -tags=with_gvisor -buildmode=c-shared\` 编译失败，上游接口发生破坏性重构。
 
----
+            ---
 
-\`\`\`log
-${{ steps.verify_build.outputs.build_error }}
-\`\`\`
+            \`\`\`log
+            ${{ steps.verify_build.outputs.build_error }}
+            \`\`\`
 
-> 本 Issue 由 \`sync-kernel\` 自动生成，OpenClaw 巡检机器人已捕获该任务，正在自动派发后台 AI 自动拉取变更并生成适配 Patch PR。`;
+            > 本 Issue 由 \`sync-kernel\` 自动生成，OpenClaw 巡检机器人已捕获该任务，正在自动派发后台 AI 自动拉取变更并生成适配 Patch PR。`;
 
             // Check if existing open issue already exists
             const issues = await github.rest.issues.listForRepo({

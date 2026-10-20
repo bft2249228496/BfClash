@@ -198,6 +198,54 @@ class LogItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (system.isDesktop) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final metadata = Wrap(
+              spacing: 12,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  log.dateTime,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                CommonChip(
+                  label: log.logLevel.name,
+                  onPressed: () => onClick?.call(log.logLevel.name),
+                ),
+              ],
+            );
+            final message = SelectableText(
+              log.payload,
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: log.logLevel.color(context),
+              ),
+            );
+            if (constraints.maxWidth < 720) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [metadata, message],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 20,
+              children: [
+                SizedBox(width: 260, child: metadata),
+                Expanded(child: message),
+              ],
+            );
+          },
+        ),
+      );
+    }
     return ListItem(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,

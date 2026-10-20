@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
+
+import 'tool/windows_signed_package.dart';
 
 const _allTargets = <String, String>{
   'android': 'apk',
@@ -71,16 +74,115 @@ Future<void> main(List<String> args) async {
   final androidArch = results['arch'] as String?;
   final verbose = results['verbose'] as bool;
 
-  final exitCode = await _package(
-    platform,
-    env,
-    targets,
-    rootDir,
-    arch,
-    androidArch: androidArch,
-    verbose: verbose,
+  final pubspecFile = File(p.join(rootDir, 'pubspec.yaml'));
+  final originalPubspec = await pubspecFile.readAsString();
+  final runNumber = int.tryParse(
+    Platform.environment['GITHUB_RUN_NUMBER'] ?? '',
   );
-  exit(exitCode);
+  var result = 1;
+  var stampedVersion = false;
+  try {
+    if (platform == 'windows' && runNumber != null) {
+      final document = loadYaml(originalPubspec) as YamlMap;
+      final buildVersion = createWindowsBuildVersion(
+        document['version'] as String,
+        runNumber: runNumber,
+        runAttempt: int.parse(
+          Platform.environment['GITHUB_RUN_ATTEMPT'] ?? '1',
+        ),
+        beta: env != 'stable',
+      );
+      stampedVersion = true;
+      await pubspecFile.writeAsString(
+        originalPubspec.replaceFirst(
+          RegExp(r'^version:.*$', multiLine: true),
+          'version: $buildVersion',
+        ),
+      );
+      stdout.writeln('Windows package version: $buildVersion');
+    }
+    if (platform == 'windows') {
+      final signing = {
+        ...createWindowsSigningDefines(rootDir, Platform.environment),
+        'BFCLASH_BUILD_ENVIRONMENT': env,
+      };
+      final current = await pubspecFile.readAsString();
+      final line = '      windows_signing: ${jsonEncode(signing)}';
+      final pattern = RegExp(r'^      windows_signing:.*$', multiLine: true);
+      stampedVersion = true;
+      await pubspecFile.writeAsString(
+        pattern.hasMatch(current)
+            ? current.replaceFirst(pattern, line)
+            : current.replaceFirst('    setup:\n', '    setup:\n$line\n'),
+      );
+    }
+    result = await _package(
+      platform,
+      env,
+      targets,
+      rootDir,
+      arch,
+      androidArch: androidArch,
+      verbose: verbose,
+    );
+  } finally {
+    if (stampedVersion) await pubspecFile.writeAsString(originalPubspec);
+  }
+  exit(result);
+}
+
+/// Public signing configuration is a hook input, so mode/profile/tool changes
+/// invalidate Flutter's outer hook cache as well as the Core/Helper cache.
+Map<String, String> createWindowsSigningDefines(
+  String rootDir,
+  Map<String, String> environment,
+) {
+  final required = environment['BFCLASH_WINDOWS_SIGNING_REQUIRED'];
+  if (required == null || required == 'false') return {};
+  if (required != 'true') {
+    throw StateError('BFCLASH_WINDOWS_SIGNING_REQUIRED must be true or false');
+  }
+  final result = <String, String>{'BFCLASH_WINDOWS_SIGNING_REQUIRED': 'true'};
+  for (final key in [
+    'BFCLASH_SIGNTOOL',
+    'BFCLASH_SIGNING_DLIB',
+    'BFCLASH_SIGNING_METADATA',
+    'BFCLASH_SIGNER_SUBJECT',
+  ]) {
+    final value = environment[key];
+    if (value == null || value.trim().isEmpty) {
+      throw StateError('Missing signing configuration: $key');
+    }
+    result[key] = value;
+  }
+  final inputs = [
+    p.join(rootDir, 'tool', 'sign_windows_binary.ps1'),
+    result['BFCLASH_SIGNTOOL']!,
+    result['BFCLASH_SIGNING_DLIB']!,
+    result['BFCLASH_SIGNING_METADATA']!,
+  ];
+  for (var index = 0; index < inputs.length; index++) {
+    result['input_$index'] = sha256
+        .convert(File(inputs[index]).readAsBytesSync())
+        .toString();
+  }
+  return result;
+}
+
+String createWindowsBuildVersion(
+  String sourceVersion, {
+  required int runNumber,
+  int runAttempt = 1,
+  required bool beta,
+}) {
+  final match = RegExp(r'^(\d+\.\d+\.\d+)').firstMatch(sourceVersion);
+  if (match == null || runNumber < 1 || runAttempt < 1 || runAttempt > 9) {
+    throw ArgumentError('Invalid Windows build identity');
+  }
+  final build = 1000 + runNumber * 10 + runAttempt;
+  if (build > 65535) throw ArgumentError('Windows build number exceeds 65535');
+  final base = match.group(1)!;
+  return beta ? '$base-beta.$build+$build' : '$base+$build';
 }
 
 ArgParser createSetupArgParser() {
@@ -125,7 +227,11 @@ List<String> createFlutterBuildArgs({
 }
 
 Map<String, String> createBuildEnvironment(String env) {
-  return {'APP_ENV': env};
+  return {
+    'APP_ENV': env,
+    'APP_BETA': env == 'pre' || env == 'dev' ? 'true' : 'false',
+    'WINDOWS_CI_RUN_ID': Platform.environment['GITHUB_RUN_ID'] ?? '',
+  };
 }
 
 /// Packages whose build hook `pubspec.yaml` turns into a no-op.
@@ -164,7 +270,13 @@ Future<int> _package(
   required bool verbose,
 }) async {
   final file = File(p.join(rootDir, 'env.json'));
-  await file.writeAsString(jsonEncode(createBuildEnvironment(env)));
+  final buildEnvironment = createBuildEnvironment(env);
+  if (platform == 'windows' &&
+      Platform.environment['BFCLASH_WINDOWS_SIGNING_REQUIRED'] == 'true') {
+    buildEnvironment['WINDOWS_SIGNER_SUBJECT'] =
+        Platform.environment['BFCLASH_SIGNER_SUBJECT']!;
+  }
+  await file.writeAsString(jsonEncode(buildEnvironment));
 
   final flutterBuildArgs = createFlutterBuildArgs(
     platform: platform,
@@ -177,6 +289,17 @@ Future<int> _package(
 
   final depExit = await _ensureDependencies(platform);
   if (depExit != 0) return depExit;
+
+  if (platform == 'windows' &&
+      Platform.environment['BFCLASH_WINDOWS_SIGNING_REQUIRED'] == 'true') {
+    return packageSignedWindows(
+      rootDir: rootDir,
+      arch: arch,
+      beta: createBuildEnvironment(env)['APP_BETA'] == 'true',
+      targets: targets,
+      flutterBuildArgs: flutterBuildArgs,
+    );
+  }
 
   final activateResult = await Process.run('dart', [
     'pub',
@@ -215,6 +338,7 @@ Future<int> _package(
       ...descriptionArgs,
     ],
     includeParentEnvironment: true,
+    environment: {'APP_BETA': createBuildEnvironment(env)['APP_BETA']!},
     runInShell: Platform.isWindows,
   );
 

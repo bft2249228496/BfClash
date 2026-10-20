@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bfclash/common/boot_record.dart';
+import 'package:bfclash/common/channel_config.dart';
+import 'package:bfclash/common/windows_preferences.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/system_dns.dart';
 import 'package:bfclash/enum/enum.dart';
@@ -16,9 +18,16 @@ class Preferences {
       await sharedPreferencesCompleter.future != null;
 
   Preferences._internal() {
-    SharedPreferences.getInstance()
+    _initialize()
         .then((value) => sharedPreferencesCompleter.complete(value))
         .onError((_, _) => sharedPreferencesCompleter.complete(null));
+  }
+
+  Future<SharedPreferences> _initialize() async {
+    if (system.isWindows && WindowsChannelConfig.isBeta) {
+      await migrateWindowsBetaPreferences(await appPath.dataDir.future);
+    }
+    return SharedPreferences.getInstance();
   }
 
   factory Preferences() {

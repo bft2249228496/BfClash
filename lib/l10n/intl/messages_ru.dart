@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
   static String m0(code) =>
-      "Windows отказалась запускать BfClashCore.exe (ошибка ${code}). Политики контроля приложений, такие как Smart App Control или AppLocker, блокируют неподписанные программы; разрешите BfClash в этой политике или отключите её и повторите попытку.";
+      "Windows отказалась запускать BfClashCore.exe (ошибка ${code}). Требуется сборка с доверенной подписью или проверка администратором в рамках действующей политики контроля приложений. Операция не завершена.";
 
   static String m1(name) =>
       "Приложение два раза подряд не смогло завершить запуск. Чтобы разорвать цикл, профиль ${name} снят с выбора, а автоматическая настройка пропущена. Вы можете выбрать его снова в любой момент.";
@@ -94,12 +94,24 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "Значение «${label}» должно быть URL";
 
-  static String m30(count) =>
+  static String m30(detail, log) =>
+      "Ошибка при обновлении поверх: ${detail}\n\nПредпринята попытка восстановить прежние файлы. Журнал: ${log}";
+
+  static String m31(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("О программе"),
+    "aboutAuthor": MessageLookupByLibrary.simpleMessage("Автор"),
+    "aboutBaseProject": MessageLookupByLibrary.simpleMessage("Основа клиента"),
+    "aboutCoreProject": MessageLookupByLibrary.simpleMessage(
+      "Высокопроизводительное прокси-ядро",
+    ),
+    "aboutCredits": MessageLookupByLibrary.simpleMessage("Благодарности"),
+    "aboutOpenSourceLicense": MessageLookupByLibrary.simpleMessage(
+      "Лицензия открытого кода",
+    ),
     "accessControl": MessageLookupByLibrary.simpleMessage("Контроль доступа"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "Через VPN проходят только выбранные приложения",
@@ -123,6 +135,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionStart": MessageLookupByLibrary.simpleMessage("Старт/Стоп"),
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionView": MessageLookupByLibrary.simpleMessage("Показать/Скрыть"),
+    "activeConnections": MessageLookupByLibrary.simpleMessage(
+      "Активные соединения",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Добавить"),
     "addProfile": MessageLookupByLibrary.simpleMessage("Добавить профиль"),
     "addProxies": MessageLookupByLibrary.simpleMessage("Добавить прокси"),
@@ -160,6 +175,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowLan": MessageLookupByLibrary.simpleMessage("Разрешить LAN"),
     "allowLanDesc": MessageLookupByLibrary.simpleMessage(
       "Разрешить доступ к прокси из локальной сети",
+    ),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "Этот пакет не может обновить приложение: другой идентификатор приложения или недействительный файл. Используйте обновление того же канала.",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "Открыты настройки разрешения установки. Разрешите установку, вернитесь и повторите обновление. Обновление ещё не установлено.",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось открыть системный установщик. Обновление ещё не установлено; повторите попытку.",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "Версия пакета не выше установленной. Повторная установка остановлена.",
     ),
     "app": MessageLookupByLibrary.simpleMessage("Приложение"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage(
@@ -311,6 +338,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("Подключено"),
     "connecting": MessageLookupByLibrary.simpleMessage("Подключение..."),
     "connection": MessageLookupByLibrary.simpleMessage("Соединение"),
+    "connectionConsole": MessageLookupByLibrary.simpleMessage(
+      "Консоль подключения",
+    ),
+    "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
+      "Не удалось обновить соединения. Список может быть устаревшим.",
+    ),
+    "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Данные о соединениях недоступны",
+    ),
     "connections": MessageLookupByLibrary.simpleMessage("Соединения"),
     "connectionsDesc": MessageLookupByLibrary.simpleMessage(
       "Просмотр данных о текущих соединениях",
@@ -352,6 +388,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Вырезать"),
     "dark": MessageLookupByLibrary.simpleMessage("Тёмная"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Панель"),
+    "dashboardSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Состояние ядра, скорость и режим соединения",
+    ),
     "dataChangedSave": MessageLookupByLibrary.simpleMessage(
       "Обнаружены изменения данных. Сохранить их?",
     ),
@@ -392,6 +431,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Использует сторонний API; только для справки",
     ),
     "developerMode": MessageLookupByLibrary.simpleMessage("Режим разработчика"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Отладка и расширенный мониторинг состояния",
+    ),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage(
       "Режим разработчика включён.",
     ),
@@ -565,9 +607,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -657,6 +700,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "loopbackDesc": MessageLookupByLibrary.simpleMessage(
       "Для снятия ограничения loopback у UWP-приложений",
     ),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows не открыла инструмент обратной петли. Разрешение могло быть отменено, либо запуск заблокирован контролем приложений. Проверьте наличие файла инструмента.",
+    ),
     "loose": MessageLookupByLibrary.simpleMessage("Свободный"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage(
       "Сопоставлять IP источника",
@@ -672,6 +718,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "maxLengthTip": m19,
     "maximize": MessageLookupByLibrary.simpleMessage("Развернуть"),
     "memoryInfo": MessageLookupByLibrary.simpleMessage("Память"),
+    "memoryUsage": MessageLookupByLibrary.simpleMessage("Использование памяти"),
     "messageTest": MessageLookupByLibrary.simpleMessage("Тест сообщения"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage("Это сообщение."),
     "min": MessageLookupByLibrary.simpleMessage("Минимальный"),
@@ -702,6 +749,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage(
       "Задать политику DNS-серверов для доменов",
     ),
+    "navGroupDiagnostics": MessageLookupByLibrary.simpleMessage("Диагностика"),
+    "navGroupMonitor": MessageLookupByLibrary.simpleMessage("Мониторинг"),
+    "navGroupNetwork": MessageLookupByLibrary.simpleMessage("Сеть"),
     "network": MessageLookupByLibrary.simpleMessage("Сеть"),
     "networkDesc": MessageLookupByLibrary.simpleMessage(
       "Настройки, связанные с сетью",
@@ -776,6 +826,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Палитра"),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
     "paste": MessageLookupByLibrary.simpleMessage("Вставить"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage(
+      "Приостановить и вернуться",
+    ),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Выбрать из галереи"),
     "pinWindow": MessageLookupByLibrary.simpleMessage(
       "Закрепить поверх всех окон",
@@ -793,6 +846,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Введите другой порт",
     ),
+    "portLabel": MessageLookupByLibrary.simpleMessage("Порт"),
     "portTip": m24,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Предпочитать HTTP/3 для DoH",
@@ -864,6 +918,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage(
       "Провайдеры прокси не могут быть пустыми",
     ),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("Прокси работает"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("Прокси остановлен"),
     "proxyType": MessageLookupByLibrary.simpleMessage("Тип прокси"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("Очистить кэш"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("Чисто чёрный режим"),
@@ -873,8 +929,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickFill": MessageLookupByLibrary.simpleMessage("Быстрое заполнение"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Радуга"),
+    "realtimeRate": MessageLookupByLibrary.simpleMessage(
+      "Скорость в реальном времени",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Порт Redir"),
     "redo": MessageLookupByLibrary.simpleMessage("Повторить"),
+    "refresh": MessageLookupByLibrary.simpleMessage("Обновить"),
     "remote": MessageLookupByLibrary.simpleMessage("Удалённо"),
     "remoteBackupDesc": MessageLookupByLibrary.simpleMessage(
       "Резервное копирование данных в WebDAV",
@@ -907,6 +967,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartCoreTip": MessageLookupByLibrary.simpleMessage(
       "Вы уверены, что хотите перезапустить ядро?",
     ),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Можно сменить узел и повторить попытку. Источник не предоставляет контрольную сумму, поэтому загрузка начнётся заново.",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("Восстановить"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage(
       "Восстановить все данные",
@@ -935,6 +998,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreSuccess": MessageLookupByLibrary.simpleMessage(
       "Восстановление выполнено",
     ),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "Загруженные данные сохранятся. При необходимости смените узел и снова проверьте обновления, чтобы продолжить.",
+    ),
+    "retry": MessageLookupByLibrary.simpleMessage("Повторить"),
     "routeAddress": MessageLookupByLibrary.simpleMessage("Адреса маршрутов"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage(
       "Настроить прослушиваемые адреса маршрутов",
@@ -1065,6 +1132,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Цель правила"),
     "rules": MessageLookupByLibrary.simpleMessage("Правила"),
     "rulesCount": m26,
+    "runtimeLabel": MessageLookupByLibrary.simpleMessage("Время работы"),
     "save": MessageLookupByLibrary.simpleMessage("Сохранить"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("Сохранить изменения?"),
     "script": MessageLookupByLibrary.simpleMessage("Скрипт"),
@@ -1136,6 +1204,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "start": MessageLookupByLibrary.simpleMessage("Старт"),
     "startVpn": MessageLookupByLibrary.simpleMessage("Запуск VPN..."),
+    "stateOff": MessageLookupByLibrary.simpleMessage("Выкл."),
+    "stateOn": MessageLookupByLibrary.simpleMessage("Вкл."),
     "status": MessageLookupByLibrary.simpleMessage("Статус"),
     "statusDesc": MessageLookupByLibrary.simpleMessage(
       "При отключении используется системный DNS",
@@ -1167,7 +1237,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Сервер на устройстве",
     ),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "Запустить официальный сервер Sub-Store приватно на этом Android-устройстве",
+      "Запустить официальный сервер Sub-Store приватно на этом устройстве",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("Режим сервера"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage(
@@ -1175,6 +1245,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "Открыть официальную консоль Sub-Store",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "Порт локального Sub-Store уже занят. Остановите другой сервис и повторите попытку.",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage(
       "Удалённый сервис",
@@ -1193,6 +1266,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage(
       "Сервер Sub-Store работает",
+    ),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "Встроенная среда Sub-Store отсутствует. Переустановите BfClash или используйте удалённый сервер.",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Файлы сервера Sub-Store отсутствуют. Переустановите BfClash.",
     ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось запустить сервер Sub-Store",
@@ -1310,7 +1389,32 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
-    "yearsAgo": m30,
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "Не удалось завершить обновление",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "Контроль приложений включён, поэтому обновление применяется перезаписью установленных файлов без запуска установщика. После загрузки BfClash перезапустится сам; профили, подписки и настройки не затрагиваются.",
+    ),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "Пакет обновления не подписан. Контроль приложений включён либо его состояние не удалось проверить. Обновление остановлено до запуска установщика и выхода из BfClash. Требуется сборка с доверенной подписью; не отключайте защиту Windows.",
+    ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "Этот пакет обновления не имеет цифровой подписи. Windows может запросить подтверждение «неизвестный издатель» или заблокировать установку, если включён контроль приложений. Продолжить загрузку и установку?",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "Обновление без подписи",
+    ),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "Не удалось определить сборку или архитектуру этой бета-версии Windows. Установите официальную бета-версию Windows и повторите попытку.",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows не запустила установщик. Возможно, разрешение отменено или запуск заблокирован контролем приложений. Текущая версия остаётся доступной.",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет проверяемого установщика для этой архитектуры Windows и канала обновлений.",
+    ),
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("Упрощённый китайский"),
   };
 }

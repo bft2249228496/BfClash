@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/features/features.dart';
 import 'package:bfclash/widgets/widgets.dart';
@@ -38,6 +39,59 @@ TrackerInfo _tracker({
 }
 
 void main() {
+  for (final address in ['2001:db8::1', '[2001:db8::1]', 'fe80::1%eth0']) {
+    testWidgets('IPv6 detail endpoint is unambiguous for $address', (
+      tester,
+    ) async {
+      final host = address.startsWith('[') ? address : '[$address]';
+      String? copied;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied = (call.arguments as Map)['text'] as String;
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await tester.pumpWidget(
+        TestApp(
+          homeBuilder: (child) => Scaffold(body: child),
+          child: SheetProvider(
+            type: SheetType.page,
+            child: TrackerInfoDetailView(
+              trackerInfo: _tracker(
+                sourceIP: address,
+                sourcePort: '8080',
+                destinationIP: address,
+                destinationPort: '443',
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.scrollUntilVisible(
+        find.text('$host:443'),
+        80,
+        scrollable: find.byType(Scrollable),
+      );
+      expect(find.text('$host:8080'), findsOneWidget);
+      expect(find.text('$host:443'), findsOneWidget);
+      await tester.tap(find.text('$host:443'));
+      await tester.pump();
+      expect(copied, '$host:443');
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
   testWidgets('TrackerInfoDetailView renders formatted connection fields', (
     tester,
   ) async {

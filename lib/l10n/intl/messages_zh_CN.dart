@@ -21,7 +21,7 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_CN';
 
   static String m0(code) =>
-      "Windows 拒绝运行 BfClashCore.exe（错误 ${code}）。智能应用控制、AppLocker 等应用控制策略会拦截未签名程序，请在该策略中放行 BfClash 或关闭策略后重试。";
+      "Windows 拒绝运行 BfClashCore.exe（错误 ${code}）。需要受信任签名的版本，或由管理员按现有应用控制策略处理。当前操作未完成。";
 
   static String m1(name) =>
       "应用连续两次未能完成启动。为打断崩溃循环，已取消选中配置 ${name}，并跳过本次自动配置，你可以随时重新选中它。";
@@ -83,11 +83,19 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "${label}必须为URL";
 
-  static String m30(count) => "${count} 年前";
+  static String m30(detail, log) =>
+      "覆盖更新时出错：${detail}\n\n已尝试恢复到更新前的文件。日志：${log}";
+
+  static String m31(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("关于"),
+    "aboutAuthor": MessageLookupByLibrary.simpleMessage("作者"),
+    "aboutBaseProject": MessageLookupByLibrary.simpleMessage("客户端底座项目"),
+    "aboutCoreProject": MessageLookupByLibrary.simpleMessage("高性能路由代理内核"),
+    "aboutCredits": MessageLookupByLibrary.simpleMessage("鸣谢与上游"),
+    "aboutOpenSourceLicense": MessageLookupByLibrary.simpleMessage("开源许可证"),
     "accessControl": MessageLookupByLibrary.simpleMessage("访问控制"),
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "只允许选中应用进入VPN",
@@ -107,6 +115,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionStart": MessageLookupByLibrary.simpleMessage("启动/停止"),
     "actionTun": MessageLookupByLibrary.simpleMessage("虚拟网卡"),
     "actionView": MessageLookupByLibrary.simpleMessage("显示/隐藏"),
+    "activeConnections": MessageLookupByLibrary.simpleMessage("活动连接"),
     "add": MessageLookupByLibrary.simpleMessage("添加"),
     "addProfile": MessageLookupByLibrary.simpleMessage("添加配置"),
     "addProxies": MessageLookupByLibrary.simpleMessage("添加代理"),
@@ -127,6 +136,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowBypassDesc": MessageLookupByLibrary.simpleMessage("开启后部分应用可绕过VPN"),
     "allowLan": MessageLookupByLibrary.simpleMessage("局域网代理"),
     "allowLanDesc": MessageLookupByLibrary.simpleMessage("允许通过局域网访问代理"),
+    "androidUpdateIncompatible": MessageLookupByLibrary.simpleMessage(
+      "此安装包无法更新当前应用：应用身份不匹配或文件无效。已停止安装，请使用相同渠道的更新包。",
+    ),
+    "androidUpdateInstallPermission": MessageLookupByLibrary.simpleMessage(
+      "已打开安装权限设置。允许安装后请返回并重新点击更新；更新尚未安装。",
+    ),
+    "androidUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "未能打开系统安装器，更新尚未安装，请重试。",
+    ),
+    "androidUpdateNotNewer": MessageLookupByLibrary.simpleMessage(
+      "安装包版本未高于当前版本，已停止重复安装。",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("应用"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage("应用访问控制"),
     "appendSystemDns": MessageLookupByLibrary.simpleMessage("追加系统DNS"),
@@ -217,6 +238,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("已连接"),
     "connecting": MessageLookupByLibrary.simpleMessage("连接中..."),
     "connection": MessageLookupByLibrary.simpleMessage("连接"),
+    "connectionConsole": MessageLookupByLibrary.simpleMessage("连接控制台"),
+    "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
+      "无法刷新连接，列表可能已过期。",
+    ),
+    "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
+      "暂时无法获取连接",
+    ),
     "connections": MessageLookupByLibrary.simpleMessage("连接"),
     "connectionsDesc": MessageLookupByLibrary.simpleMessage("查看当前连接数据"),
     "connectivity": MessageLookupByLibrary.simpleMessage("连通性："),
@@ -250,6 +278,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("剪切"),
     "dark": MessageLookupByLibrary.simpleMessage("深色"),
     "dashboard": MessageLookupByLibrary.simpleMessage("仪表盘"),
+    "dashboardSubtitle": MessageLookupByLibrary.simpleMessage(
+      "内核状态、实时速率与出站模式一览",
+    ),
     "dataChangedSave": MessageLookupByLibrary.simpleMessage("检测到数据有更改，是否保存"),
     "dataCollectionContent": MessageLookupByLibrary.simpleMessage(
       "本应用使用 Firebase Crashlytics 收集崩溃信息以改进应用稳定性。\n收集的数据包括设备信息和崩溃详情，不包含个人敏感数据。\n您可以在设置中关闭此功能。",
@@ -276,6 +307,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "details": m6,
     "detectionTip": MessageLookupByLibrary.simpleMessage("依赖第三方api，仅供参考"),
     "developerMode": MessageLookupByLibrary.simpleMessage("开发者模式"),
+    "developerModeDesc": MessageLookupByLibrary.simpleMessage("调试与高级状态监测"),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage("开发者模式已启用。"),
     "direct": MessageLookupByLibrary.simpleMessage("直连"),
     "disableUDP": MessageLookupByLibrary.simpleMessage("禁用UDP"),
@@ -458,6 +490,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "logsTest": MessageLookupByLibrary.simpleMessage("日志测试"),
     "loopback": MessageLookupByLibrary.simpleMessage("回环解锁工具"),
     "loopbackDesc": MessageLookupByLibrary.simpleMessage("用于UWP回环解锁"),
+    "loopbackLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows 未能打开回环工具，可能已取消授权或被应用控制阻止。请确认工具文件存在。",
+    ),
     "loose": MessageLookupByLibrary.simpleMessage("宽松"),
     "matchSourceIp": MessageLookupByLibrary.simpleMessage("匹配来源IP"),
     "matchTarget": MessageLookupByLibrary.simpleMessage("MATCH-TARGET"),
@@ -469,6 +504,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "maxLengthTip": m19,
     "maximize": MessageLookupByLibrary.simpleMessage("最大化"),
     "memoryInfo": MessageLookupByLibrary.simpleMessage("内存信息"),
+    "memoryUsage": MessageLookupByLibrary.simpleMessage("内存占用"),
     "messageTest": MessageLookupByLibrary.simpleMessage("消息测试"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage("这是一条消息。"),
     "min": MessageLookupByLibrary.simpleMessage("最小"),
@@ -487,6 +523,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nameserverDesc": MessageLookupByLibrary.simpleMessage("用于解析域名"),
     "nameserverPolicy": MessageLookupByLibrary.simpleMessage("域名服务器策略"),
     "nameserverPolicyDesc": MessageLookupByLibrary.simpleMessage("指定对应域名服务器策略"),
+    "navGroupDiagnostics": MessageLookupByLibrary.simpleMessage("诊断"),
+    "navGroupMonitor": MessageLookupByLibrary.simpleMessage("监控"),
+    "navGroupNetwork": MessageLookupByLibrary.simpleMessage("代理网络"),
     "network": MessageLookupByLibrary.simpleMessage("网络"),
     "networkDesc": MessageLookupByLibrary.simpleMessage("修改网络相关设置"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("网络检测"),
@@ -533,6 +572,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("调色板"),
     "password": MessageLookupByLibrary.simpleMessage("密码"),
     "paste": MessageLookupByLibrary.simpleMessage("粘贴"),
+    "pauseDownloadAndReturn": MessageLookupByLibrary.simpleMessage("暂停并返回"),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("从相册选择"),
     "pinWindow": MessageLookupByLibrary.simpleMessage("窗口置顶"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage("请绑定WebDAV"),
@@ -542,6 +582,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "port": MessageLookupByLibrary.simpleMessage("端口"),
     "portConflictTip": MessageLookupByLibrary.simpleMessage("请输入不同的端口"),
+    "portLabel": MessageLookupByLibrary.simpleMessage("端口"),
     "portTip": m24,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage("优先使用DOH的http/3"),
     "prerequisites": MessageLookupByLibrary.simpleMessage("前置条件"),
@@ -593,6 +634,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProviders": MessageLookupByLibrary.simpleMessage("代理集"),
     "proxyProvidersEmpty": MessageLookupByLibrary.simpleMessage("代理集为空"),
     "proxyProvidersNotEmpty": MessageLookupByLibrary.simpleMessage("代理集不能为空"),
+    "proxyRunning": MessageLookupByLibrary.simpleMessage("代理运行中"),
+    "proxyStopped": MessageLookupByLibrary.simpleMessage("代理未启动"),
     "proxyType": MessageLookupByLibrary.simpleMessage("代理类型"),
     "pruneCache": MessageLookupByLibrary.simpleMessage("修剪缓存"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("纯黑模式"),
@@ -600,8 +643,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "qrcodeDesc": MessageLookupByLibrary.simpleMessage("扫描二维码获取配置文件"),
     "quickFill": MessageLookupByLibrary.simpleMessage("一键填入"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("彩虹"),
+    "realtimeRate": MessageLookupByLibrary.simpleMessage("实时速率"),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redir端口"),
     "redo": MessageLookupByLibrary.simpleMessage("重做"),
+    "refresh": MessageLookupByLibrary.simpleMessage("刷新"),
     "remote": MessageLookupByLibrary.simpleMessage("远程"),
     "remoteBackupDesc": MessageLookupByLibrary.simpleMessage("备份数据到WebDAV"),
     "remoteDestination": MessageLookupByLibrary.simpleMessage("远程目标"),
@@ -622,6 +667,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "restart": MessageLookupByLibrary.simpleMessage("重启"),
     "restartCoreTip": MessageLookupByLibrary.simpleMessage("您确定要重启核心吗？"),
+    "restartUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "可返回切换节点再试；此下载源未提供校验值，继续时将安全地重新下载。",
+    ),
     "restore": MessageLookupByLibrary.simpleMessage("恢复"),
     "restoreAllData": MessageLookupByLibrary.simpleMessage("恢复所有数据"),
     "restoreException": MessageLookupByLibrary.simpleMessage("恢复异常"),
@@ -634,6 +682,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "restoreStrategyCompatible": MessageLookupByLibrary.simpleMessage("兼容"),
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("覆盖"),
     "restoreSuccess": MessageLookupByLibrary.simpleMessage("恢复成功"),
+    "resumeUpdateDownloadHint": MessageLookupByLibrary.simpleMessage(
+      "保留已下载内容；可先切换节点，再次检查更新即可继续下载。",
+    ),
+    "retry": MessageLookupByLibrary.simpleMessage("重试"),
     "routeAddress": MessageLookupByLibrary.simpleMessage("路由地址"),
     "routeAddressDesc": MessageLookupByLibrary.simpleMessage("配置监听路由地址"),
     "routeMode": MessageLookupByLibrary.simpleMessage("路由模式"),
@@ -730,6 +782,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("规则目标"),
     "rules": MessageLookupByLibrary.simpleMessage("规则"),
     "rulesCount": m26,
+    "runtimeLabel": MessageLookupByLibrary.simpleMessage("运行时长"),
     "save": MessageLookupByLibrary.simpleMessage("保存"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("是否保存更改？"),
     "script": MessageLookupByLibrary.simpleMessage("脚本"),
@@ -783,6 +836,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "start": MessageLookupByLibrary.simpleMessage("启动"),
     "startVpn": MessageLookupByLibrary.simpleMessage("正在启动VPN..."),
+    "stateOff": MessageLookupByLibrary.simpleMessage("已关闭"),
+    "stateOn": MessageLookupByLibrary.simpleMessage("已开启"),
     "status": MessageLookupByLibrary.simpleMessage("状态"),
     "statusDesc": MessageLookupByLibrary.simpleMessage("关闭后将使用系统DNS"),
     "stop": MessageLookupByLibrary.simpleMessage("暂停"),
@@ -800,14 +855,17 @@ class MessageLookup extends MessageLookupByLibrary {
       "请输入有效的 HTTP 或 HTTPS 后端地址",
     ),
     "subStoreLocalBackend": MessageLookupByLibrary.simpleMessage("本机服务"),
-    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("安卓本机后端"),
+    "subStoreLocalMode": MessageLookupByLibrary.simpleMessage("本机后端"),
     "subStoreLocalModeDesc": MessageLookupByLibrary.simpleMessage(
-      "在这台安卓设备上私有运行官方 Sub-Store 后端",
+      "在这台设备上私有运行官方 Sub-Store 后端",
     ),
     "subStoreMode": MessageLookupByLibrary.simpleMessage("后端模式"),
     "subStoreNotConfigured": MessageLookupByLibrary.simpleMessage("尚未配置"),
     "subStoreOpenConsole": MessageLookupByLibrary.simpleMessage(
       "打开官方 Sub-Store 管理界面",
+    ),
+    "subStorePortInUse": MessageLookupByLibrary.simpleMessage(
+      "本地 Sub-Store 端口已被占用，请停止占用该端口的服务后重试。",
     ),
     "subStoreRemoteBackend": MessageLookupByLibrary.simpleMessage("远程服务"),
     "subStoreRemoteEndpoint": MessageLookupByLibrary.simpleMessage("后端地址"),
@@ -819,6 +877,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "让官方管理界面连接其他服务器上的 Sub-Store 服务",
     ),
     "subStoreRunning": MessageLookupByLibrary.simpleMessage("Sub-Store 后端正在运行"),
+    "subStoreRuntimeMissing": MessageLookupByLibrary.simpleMessage(
+      "内置 Sub-Store 运行组件缺失，请重新安装 BfClash，或改用远程后端。",
+    ),
+    "subStoreScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "Sub-Store 后端文件缺失，请重新安装 BfClash。",
+    ),
     "subStoreStartFailed": MessageLookupByLibrary.simpleMessage(
       "无法启动 Sub-Store 后端",
     ),
@@ -897,7 +961,32 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
-    "yearsAgo": m30,
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "更新未能完成",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "检测到 Windows 智能应用控制已开启，本次更新改用免安装覆盖方式：下载完成后自动重启并替换程序文件，不会触发安装器拦截；你的配置、订阅与节点数据不受影响。",
+    ),
+    "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
+      "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。",
+    ),
+    "windowsUnsignedUpdateConfirm": MessageLookupByLibrary.simpleMessage(
+      "此更新包没有代码签名。Windows 可能弹出「未知发布者」确认；若开启了智能应用控制，安装可能被拦截。仍要继续下载并安装吗？",
+    ),
+    "windowsUnsignedUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "更新包未签名",
+    ),
+    "windowsUpdateIdentityUnknown": MessageLookupByLibrary.simpleMessage(
+      "无法识别此 Windows 测试版的构建编号或架构。请安装官方 Windows 测试版后重试。",
+    ),
+    "windowsUpdateLaunchFailed": MessageLookupByLibrary.simpleMessage(
+      "Windows 未能启动安装器，可能已取消授权或被应用程序控制拦截。当前版本仍可使用。",
+    ),
+    "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
+      "没有适用于此 Windows 架构和发布渠道、且可校验的安装包。",
+    ),
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }

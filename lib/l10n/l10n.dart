@@ -1685,6 +1685,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Windows did not open the loopback tool. Authorization may have been cancelled or application control may have blocked it. Check that the tool file is present.`
+  String get loopbackLaunchFailed {
+    return Intl.message(
+      'Windows did not open the loopback tool. Authorization may have been cancelled or application control may have blocked it. Check that the tool file is present.',
+      name: 'loopbackLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `External resources`
   String get providers {
     return Intl.message(
@@ -3760,10 +3770,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Windows refused to run BfClashCore.exe (error {code}). An app control policy such as Smart App Control or AppLocker blocks unsigned programs; allow BfClash in that policy or turn it off, then try again.`
+  /// `Windows refused to run BfClashCore.exe (error {code}). A trusted signed build or an administrator review under the existing application control policy is required. The operation did not complete.`
   String coreBlockedByPolicyTip(Object code) {
     return Intl.message(
-      'Windows refused to run BfClashCore.exe (error $code). An app control policy such as Smart App Control or AppLocker blocks unsigned programs; allow BfClash in that policy or turn it off, then try again.',
+      'Windows refused to run BfClashCore.exe (error $code). A trusted signed build or an administrator review under the existing application control policy is required. The operation did not complete.',
       name: 'coreBlockedByPolicyTip',
       desc: '',
       args: [code],
@@ -5150,10 +5160,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Run the official Sub-Store backend privately on this Android device`
+  /// `Run the official Sub-Store backend privately on this device`
   String get subStoreLocalModeDesc {
     return Intl.message(
-      'Run the official Sub-Store backend privately on this Android device',
+      'Run the official Sub-Store backend privately on this device',
       name: 'subStoreLocalModeDesc',
       desc: '',
       args: [],
@@ -5338,6 +5348,386 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Proxy running`
+  String get proxyRunning {
+    return Intl.message(
+      'Proxy running',
+      name: 'proxyRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy stopped`
+  String get proxyStopped {
+    return Intl.message(
+      'Proxy stopped',
+      name: 'proxyStopped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No verified installer is available for this Windows version and channel.`
+  String get windowsUpdateUnavailable {
+    return Intl.message(
+      'No verified installer is available for this Windows version and channel.',
+      name: 'windowsUpdateUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.`
+  String get windowsUpdateLaunchFailed {
+    return Intl.message(
+      'Windows did not start the installer. Installation may have been cancelled or blocked by application control. Your current version remains available.',
+      name: 'windowsUpdateLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.`
+  String get windowsUpdateIdentityUnknown {
+    return Intl.message(
+      'This Windows beta build or architecture could not be identified. Install an official Windows beta and try again.',
+      name: 'windowsUpdateIdentityUnknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.`
+  String get subStoreRuntimeMissing {
+    return Intl.message(
+      'The bundled Sub-Store runtime is missing. Reinstall BfClash or use a remote backend.',
+      name: 'subStoreRuntimeMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The Sub-Store backend files are missing. Reinstall BfClash.`
+  String get subStoreScriptMissing {
+    return Intl.message(
+      'The Sub-Store backend files are missing. Reinstall BfClash.',
+      name: 'subStoreScriptMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The local Sub-Store port is already in use. Stop the other service and try again.`
+  String get subStorePortInUse {
+    return Intl.message(
+      'The local Sub-Store port is already in use. Stop the other service and try again.',
+      name: 'subStorePortInUse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause and return`
+  String get pauseDownloadAndReturn {
+    return Intl.message(
+      'Pause and return',
+      name: 'pauseDownloadAndReturn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.`
+  String get resumeUpdateDownloadHint {
+    return Intl.message(
+      'Downloaded data is kept. Switch nodes if needed, then check for updates again to continue.',
+      name: 'resumeUpdateDownloadHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can switch nodes and retry. This source has no checksum, so the download will restart safely.`
+  String get restartUpdateDownloadHint {
+    return Intl.message(
+      'You can switch nodes and retry. This source has no checksum, so the download will restart safely.',
+      name: 'restartUpdateDownloadHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Debugging and advanced status monitoring`
+  String get developerModeDesc {
+    return Intl.message(
+      'Debugging and advanced status monitoring',
+      name: 'developerModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to refresh connections. The list may be out of date.`
+  String get connectionRefreshFailedTip {
+    return Intl.message(
+      'Unable to refresh connections. The list may be out of date.',
+      name: 'connectionRefreshFailedTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retry`
+  String get retry {
+    return Intl.message('Retry', name: 'retry', desc: '', args: []);
+  }
+
+  /// `Refresh`
+  String get refresh {
+    return Intl.message('Refresh', name: 'refresh', desc: '', args: []);
+  }
+
+  /// `Connection data is unavailable`
+  String get connectionSnapshotUnavailable {
+    return Intl.message(
+      'Connection data is unavailable',
+      name: 'connectionSnapshotUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.`
+  String get windowsUnsignedUpdateBlocked {
+    return Intl.message(
+      'This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.',
+      name: 'windowsUnsignedUpdateBlocked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.`
+  String get androidUpdateIncompatible {
+    return Intl.message(
+      'This package cannot update this app. Its app identity is different or the file is invalid. Use an update from the same channel.',
+      name: 'androidUpdateIncompatible',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This package is not newer than the installed app. Repeated installation was stopped.`
+  String get androidUpdateNotNewer {
+    return Intl.message(
+      'This package is not newer than the installed app. Repeated installation was stopped.',
+      name: 'androidUpdateNotNewer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.`
+  String get androidUpdateInstallPermission {
+    return Intl.message(
+      'Installation permission settings were opened. Allow installation, return, then retry the update. The update is not installed yet.',
+      name: 'androidUpdateInstallPermission',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The system installer could not be opened. The update is not installed; please retry.`
+  String get androidUpdateLaunchFailed {
+    return Intl.message(
+      'The system installer could not be opened. The update is not installed; please retry.',
+      name: 'androidUpdateLaunchFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Monitor`
+  String get navGroupMonitor {
+    return Intl.message('Monitor', name: 'navGroupMonitor', desc: '', args: []);
+  }
+
+  /// `Network`
+  String get navGroupNetwork {
+    return Intl.message('Network', name: 'navGroupNetwork', desc: '', args: []);
+  }
+
+  /// `Diagnostics`
+  String get navGroupDiagnostics {
+    return Intl.message(
+      'Diagnostics',
+      name: 'navGroupDiagnostics',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Author`
+  String get aboutAuthor {
+    return Intl.message('Author', name: 'aboutAuthor', desc: '', args: []);
+  }
+
+  /// `Credits & upstream`
+  String get aboutCredits {
+    return Intl.message(
+      'Credits & upstream',
+      name: 'aboutCredits',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Client base project`
+  String get aboutBaseProject {
+    return Intl.message(
+      'Client base project',
+      name: 'aboutBaseProject',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `High-performance routing proxy core`
+  String get aboutCoreProject {
+    return Intl.message(
+      'High-performance routing proxy core',
+      name: 'aboutCoreProject',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open-source license`
+  String get aboutOpenSourceLicense {
+    return Intl.message(
+      'Open-source license',
+      name: 'aboutOpenSourceLicense',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unsigned update package`
+  String get windowsUnsignedUpdateTitle {
+    return Intl.message(
+      'Unsigned update package',
+      name: 'windowsUnsignedUpdateTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This update package has no code signature. Windows may show an "unknown publisher" confirmation, or block the installation if Smart App Control is on. Continue to download and install?`
+  String get windowsUnsignedUpdateConfirm {
+    return Intl.message(
+      'This update package has no code signature. Windows may show an "unknown publisher" confirmation, or block the installation if Smart App Control is on. Continue to download and install?',
+      name: 'windowsUnsignedUpdateConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Smart App Control is on, so this update replaces the installed files directly instead of running the installer, which avoids the blocked-installer error. BfClash restarts itself after the download; your profiles, subscriptions and settings are untouched.`
+  String get windowsPortableUpdateHint {
+    return Intl.message(
+      'Smart App Control is on, so this update replaces the installed files directly instead of running the installer, which avoids the blocked-installer error. BfClash restarts itself after the download; your profiles, subscriptions and settings are untouched.',
+      name: 'windowsPortableUpdateHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update could not be completed`
+  String get windowsPortableUpdateFailedTitle {
+    return Intl.message(
+      'Update could not be completed',
+      name: 'windowsPortableUpdateFailedTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The in-place update failed: {detail}\n\nAn attempt was made to restore the previous files. Log: {log}`
+  String windowsPortableUpdateFailedBody(Object detail, Object log) {
+    return Intl.message(
+      'The in-place update failed: $detail\n\nAn attempt was made to restore the previous files. Log: $log',
+      name: 'windowsPortableUpdateFailedBody',
+      desc: '',
+      args: [detail, log],
+    );
+  }
+
+  /// `Core status, live rates and outbound mode at a glance`
+  String get dashboardSubtitle {
+    return Intl.message(
+      'Core status, live rates and outbound mode at a glance',
+      name: 'dashboardSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connection console`
+  String get connectionConsole {
+    return Intl.message(
+      'Connection console',
+      name: 'connectionConsole',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Live rates`
+  String get realtimeRate {
+    return Intl.message('Live rates', name: 'realtimeRate', desc: '', args: []);
+  }
+
+  /// `Active connections`
+  String get activeConnections {
+    return Intl.message(
+      'Active connections',
+      name: 'activeConnections',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Memory usage`
+  String get memoryUsage {
+    return Intl.message(
+      'Memory usage',
+      name: 'memoryUsage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uptime`
+  String get runtimeLabel {
+    return Intl.message('Uptime', name: 'runtimeLabel', desc: '', args: []);
+  }
+
+  /// `Port`
+  String get portLabel {
+    return Intl.message('Port', name: 'portLabel', desc: '', args: []);
+  }
+
+  /// `On`
+  String get stateOn {
+    return Intl.message('On', name: 'stateOn', desc: '', args: []);
+  }
+
+  /// `Off`
+  String get stateOff {
+    return Intl.message('Off', name: 'stateOff', desc: '', args: []);
   }
 }
 
