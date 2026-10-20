@@ -263,11 +263,15 @@ class _ModeTab extends StatelessWidget {
       decoration: const BoxDecoration(),
       height: height,
       padding: const EdgeInsets.all(4),
-      child: Text(
-        label,
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.adjustSize(1).copyWith(color: color),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          label,
+          maxLines: 1,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.adjustSize(1).copyWith(color: color),
+        ),
       ),
     );
   }

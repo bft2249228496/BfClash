@@ -16,6 +16,11 @@ class TestApp extends StatelessWidget {
   final Locale? locale;
   final ThemeData? theme;
 
+  /// Text scale used for [CommonTheme] and [Measure]. Defaults to 1 to keep
+  /// historical visual tests unchanged; pass the scenario's scale to emulate
+  /// the real app (see [ThemeManagerView.build]).
+  final double textScaleFactor;
+
   const TestApp({
     super.key,
     required this.child,
@@ -26,6 +31,7 @@ class TestApp extends StatelessWidget {
     this.homeBuilder = _identity,
     this.locale,
     this.theme,
+    this.textScaleFactor = 1,
   });
 
   static Widget _identity(Widget child) => child;
@@ -42,9 +48,9 @@ class TestApp extends StatelessWidget {
       ],
       supportedLocales: AppLocalizations.delegate.supportedLocales,
       builder: (context, child) {
-        globalState.measure = Measure.of(context, 1);
+        globalState.measure = Measure.of(context, textScaleFactor);
         if (setTheme) {
-          globalState.theme = CommonTheme.of(context, 1);
+          globalState.theme = CommonTheme.of(context, textScaleFactor);
         }
         // ignore: deprecated_member_use
         return MaterialUiCompatibilityBridge(

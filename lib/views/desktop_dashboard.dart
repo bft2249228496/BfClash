@@ -31,15 +31,19 @@ class DesktopDashboardView extends ConsumerWidget {
           final wide = constraints.maxWidth >= 840;
           final tiles = constraints.maxWidth >= 1080;
           const tileHeight = 124.0;
+          // 统一网格：所有列间距一致，左列（连接控制台 / 流量统计）同宽，
+          // 保证最大化时三行的竖向接缝对齐。
+          const gutter = 16.0;
+          const sideWidth = 320.0;
           const controls = Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               OutboundModeV2(height: tileHeight),
-              SizedBox(height: 12),
+              SizedBox(height: gutter),
               Row(
                 children: [
                   Expanded(child: SystemProxyButton(height: tileHeight)),
-                  SizedBox(width: 12),
+                  SizedBox(width: gutter),
                   Expanded(child: TUNButton(height: tileHeight)),
                 ],
               ),
@@ -60,13 +64,13 @@ class DesktopDashboardView extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: 320,
+                          width: sideWidth,
                           child: _DesktopConnectionCard(
                             running: running,
                             connected: connected,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: gutter),
                         const Expanded(
                           child: NetworkSpeed(height: 380, showRates: true),
                         ),
@@ -77,52 +81,52 @@ class DesktopDashboardView extends ConsumerWidget {
                       running: running,
                       connected: connected,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: gutter),
                     const NetworkSpeed(height: 320, showRates: true),
                   ],
                   if (tiles) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: gutter),
                     const Row(
                       children: [
                         Expanded(child: OutboundModeV2(height: tileHeight)),
-                        SizedBox(width: 12),
+                        SizedBox(width: gutter),
                         Expanded(child: SystemProxyButton(height: tileHeight)),
-                        SizedBox(width: 12),
+                        SizedBox(width: gutter),
                         Expanded(child: TUNButton(height: tileHeight)),
-                        SizedBox(width: 12),
+                        SizedBox(width: gutter),
                         Expanded(child: NetworkDetection(height: tileHeight)),
-                        SizedBox(width: 12),
+                        SizedBox(width: gutter),
                         Expanded(child: IntranetIP(height: tileHeight)),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: gutter),
                     const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(width: 360, child: TrafficUsage()),
-                        SizedBox(width: 16),
+                        SizedBox(width: sideWidth, child: TrafficUsage()),
+                        SizedBox(width: gutter),
                         Expanded(child: quickAccess),
                       ],
                     ),
                   ] else ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: gutter),
                     controls,
-                    const SizedBox(height: 16),
+                    const SizedBox(height: gutter),
                     if (wide)
                       const Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(child: NetworkDetection()),
-                          SizedBox(width: 16),
+                          SizedBox(width: gutter),
                           Expanded(child: TrafficUsage()),
                         ],
                       )
                     else ...[
                       const NetworkDetection(),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: gutter),
                       const TrafficUsage(),
                     ],
-                    const SizedBox(height: 16),
+                    const SizedBox(height: gutter),
                     quickAccess,
                   ],
                 ],
