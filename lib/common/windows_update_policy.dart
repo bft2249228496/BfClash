@@ -42,6 +42,34 @@ WindowsApplicationControlState windowsApplicationControlState({
   };
 }
 
+/// How an in-app Windows update is applied.
+enum WindowsUpdateStrategy {
+  /// Run the packaged Inno Setup installer, which registers the uninstaller and
+  /// shortcuts. Fine when Windows is not policing unsigned executables.
+  installer,
+
+  /// Unpack the portable archive over the installed files. Used when Smart App
+  /// Control is enforced (or unreadable): Windows blocks the installer's
+  /// extracted staging copy with error 4551, while plain file replacement of
+  /// already-trusted files is not intercepted.
+  portableOverwrite,
+}
+
+WindowsUpdateStrategy windowsUpdateStrategy({
+  int? Function()? policyStateReader,
+  bool? fixedPortable,
+}) {
+  if (fixedPortable != null) {
+    return fixedPortable
+        ? WindowsUpdateStrategy.portableOverwrite
+        : WindowsUpdateStrategy.installer;
+  }
+  return windowsApplicationControlState(policyStateReader: policyStateReader) ==
+          WindowsApplicationControlState.inactive
+      ? WindowsUpdateStrategy.installer
+      : WindowsUpdateStrategy.portableOverwrite;
+}
+
 void ensureUnsignedWindowsUpdateAllowed({
   int? Function()? policyStateReader,
   bool allowWhenEnforced = false,

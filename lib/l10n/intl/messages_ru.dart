@@ -94,7 +94,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "Значение «${label}» должно быть URL";
 
-  static String m30(count) =>
+  static String m30(detail, log) =>
+      "Ошибка при обновлении поверх: ${detail}\n\nПредпринята попытка восстановить прежние файлы. Журнал: ${log}";
+
+  static String m31(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1369,6 +1372,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "Не удалось завершить обновление",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "Контроль приложений включён, поэтому обновление применяется перезаписью установленных файлов без запуска установщика. После загрузки BfClash перезапустится сам; профили, подписки и настройки не затрагиваются.",
+    ),
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "Пакет обновления не подписан. Контроль приложений включён либо его состояние не удалось проверить. Обновление остановлено до запуска установщика и выхода из BfClash. Требуется сборка с доверенной подписью; не отключайте защиту Windows.",
     ),
@@ -1387,7 +1397,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
       "Нет проверяемого установщика для этой архитектуры Windows и канала обновлений.",
     ),
-    "yearsAgo": m30,
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("Упрощённый китайский"),
   };
 }

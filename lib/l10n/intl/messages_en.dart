@@ -94,7 +94,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "${label} must be a URL";
 
-  static String m30(count) =>
+  static String m30(detail, log) =>
+      "The in-place update failed: ${detail}\n\nAn attempt was made to restore the previous files. Log: ${log}";
+
+  static String m31(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1313,6 +1316,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "Update could not be completed",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "Smart App Control is on, so this update replaces the installed files directly instead of running the installer, which avoids the blocked-installer error. BfClash restarts itself after the download; your profiles, subscriptions and settings are untouched.",
+    ),
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "This update package is unsigned. Application Control is enabled, or its state could not be verified. The update was stopped before starting the installer or exiting BfClash. A trusted signed build is required; keep Windows protection enabled.",
     ),
@@ -1331,7 +1341,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
       "No verified installer is available for this Windows version and channel.",
     ),
-    "yearsAgo": m30,
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };
 }

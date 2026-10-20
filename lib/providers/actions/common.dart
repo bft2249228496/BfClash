@@ -174,12 +174,23 @@ class CommonAction extends _$CommonAction {
       final isAndroid = system.isAndroid;
       final currentVer = globalState.packageInfo.version;
       final assetInfo = isAndroid ? await androidUpdateAssetInfo(data) : null;
+      final architecture = Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '';
       final windowsAsset = system.isWindows
           ? selectWindowsUpdateAsset(
               data,
               beta: WindowsChannelConfig.isBeta,
-              architecture:
-                  Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '',
+              architecture: architecture,
+            )
+          : null;
+      final windowsPortableAsset =
+          system.isWindows &&
+              windowsAsset != null &&
+              windowsUpdateStrategy() ==
+                  WindowsUpdateStrategy.portableOverwrite
+          ? selectWindowsPortableUpdateAsset(
+              data,
+              beta: WindowsChannelConfig.isBeta,
+              architecture: architecture,
             )
           : null;
       if (!context.mounted) return;
@@ -191,7 +202,10 @@ class CommonAction extends _$CommonAction {
           data['tag_name'] as String,
           data['body'] as String?,
           currentVersion: currentVer,
-          packageBytes: assetInfo?.size ?? windowsAsset?.size,
+          packageBytes:
+              assetInfo?.size ??
+              windowsPortableAsset?.size ??
+              windowsAsset?.size,
         ),
         confirmText: (isAndroid || system.isWindows)
             ? (currentAppLocalizations.updateNow)
@@ -211,7 +225,13 @@ class CommonAction extends _$CommonAction {
             );
             return;
           }
-          unawaited(_installAppUpdate(data, windowsAsset: windowsAsset));
+          unawaited(
+            _installAppUpdate(
+              data,
+              windowsAsset: windowsAsset,
+              windowsPortableAsset: windowsPortableAsset,
+            ),
+          );
         } else {
           unawaited(
             launchUrl(
@@ -241,12 +261,14 @@ class CommonAction extends _$CommonAction {
     Map<String, dynamic> release, {
     AndroidUpdateAsset? assetInfo,
     WindowsUpdateAsset? windowsAsset,
+    WindowsUpdateAsset? windowsPortableAsset,
   }) async {
     final asset = windowsAsset == null
         ? (assetInfo ?? await androidUpdateAssetInfo(release))
         : null;
-    final packageSize = windowsAsset?.size ?? asset?.size ?? 0;
-    final url = windowsAsset?.url ?? asset?.url;
+    final packageSize =
+        windowsPortableAsset?.size ?? windowsAsset?.size ?? asset?.size ?? 0;
+    final url = windowsPortableAsset?.url ?? windowsAsset?.url ?? asset?.url;
     if (url == null || url.isEmpty) {
       dialogs.showNotifier(
         windowsAsset != null
@@ -260,7 +282,7 @@ class CommonAction extends _$CommonAction {
     if (!context.mounted) return;
     if (_installingUpdate) return;
     var allowUnsigned = false;
-    if (windowsAsset != null) {
+    if (windowsAsset != null && windowsPortableAsset == null) {
       final policyState = windowsApplicationControlState();
       if (policyState != WindowsApplicationControlState.inactive) {
         final confirmed = await dialogs.showMessage(
@@ -394,6 +416,15 @@ class CommonAction extends _$CommonAction {
                           : currentAppLocalizations.restartUpdateDownloadHint,
                       style: context.textTheme.bodySmall,
                     ),
+                    if (windowsPortableAsset != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        currentAppLocalizations.windowsPortableUpdateHint,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -427,7 +458,15 @@ class CommonAction extends _$CommonAction {
     );
     var downloadDialogClosed = false;
     try {
-      final file = windowsAsset != null
+      final file = windowsPortableAsset != null
+          ? await downloadWindowsUpdate(
+              request.clashDio,
+              windowsPortableAsset,
+              fileName: 'BfClash-update.zip',
+              cancelToken: downloadCancel,
+              onUpdateProgress: (info) => progress.value = info,
+            )
+          : windowsAsset != null
           ? await downloadWindowsUpdate(
               request.clashDio,
               windowsAsset,
@@ -445,6 +484,20 @@ class CommonAction extends _$CommonAction {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
       await dialogFuture;
       downloadDialogClosed = true;
+      if (windowsPortableAsset != null) {
+        await launchWindowsPortableUpdate(
+          zipPath: file.path,
+          installDirectory: appPath.executableDirPath,
+          executablePath: Platform.resolvedExecutable,
+          serviceName: appHelperService,
+          targetVersion: windowsPortableAsset.packagedVersion,
+          temporaryDirectory: file.parent.path,
+          launcher: (file, arguments) =>
+              windows?.runas(file, arguments) ?? false,
+          exitApplication: ref.read(systemActionProvider.notifier).handleExit,
+        );
+        return;
+      }
       if (windowsAsset != null) {
         await launchWindowsUpdate(
           filePath: file.path,

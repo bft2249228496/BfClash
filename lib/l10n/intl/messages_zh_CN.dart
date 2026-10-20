@@ -83,7 +83,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "${label}必须为URL";
 
-  static String m30(count) => "${count} 年前";
+  static String m30(detail, log) =>
+      "覆盖更新时出错：${detail}\n\n已尝试恢复到更新前的文件。日志：${log}";
+
+  static String m31(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -947,6 +950,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "更新未能完成",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "检测到 Windows 智能应用控制已开启，本次更新改用免安装覆盖方式：下载完成后自动重启并替换程序文件，不会触发安装器拦截；你的配置、订阅与节点数据不受影响。",
+    ),
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "当前更新包未签名。应用控制已启用，或无法确认其状态。已在启动安装器、退出 BfClash 之前停止更新。需要可信签名版本，请保留 Windows 安全保护。",
     ),
@@ -965,7 +975,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
       "没有适用于此 Windows 架构和发布渠道、且可校验的安装包。",
     ),
-    "yearsAgo": m30,
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 
 import 'package:bfclash/common/boot_guard.dart';
 import 'package:bfclash/common/channel_config.dart';
+import 'package:bfclash/common/windows_portable_update.dart';
 import 'package:bfclash/common/windows_update.dart';
 import 'package:bfclash/common/windows_update_policy.dart';
 import 'package:bfclash/common/common.dart';

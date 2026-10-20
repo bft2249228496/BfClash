@@ -74,17 +74,62 @@ class WindowsUpdateAsset {
   final int size;
   final String sha256Digest;
 
+  /// Release asset file name, used to read the packaged version for the
+  /// portable (overwrite) updater.
+  final String name;
+
   const WindowsUpdateAsset({
     required this.url,
     required this.size,
     required this.sha256Digest,
+    this.name = '',
   });
+
+  /// `0.2.27-beta.1811` from `BfClash-0.2.27-beta.1811-windows-amd64.zip`.
+  String get packagedVersion {
+    final match = RegExp(
+      r'^BfClash-(\d+\.\d+\.\d+(?:-beta\.\d+)?)-windows-',
+      caseSensitive: false,
+    ).firstMatch(name);
+    return match?.group(1) ?? '';
+  }
+}
+
+enum WindowsUpdateAssetKind {
+  /// Inno Setup installer, executed through `runas`.
+  installer,
+
+  /// Portable archive, unpacked over the installed files.
+  portable,
 }
 
 WindowsUpdateAsset? selectWindowsUpdateAsset(
   Map<String, dynamic> release, {
   required bool beta,
   required String architecture,
+}) => _selectWindowsAsset(
+  release,
+  beta: beta,
+  architecture: architecture,
+  kind: WindowsUpdateAssetKind.installer,
+);
+
+WindowsUpdateAsset? selectWindowsPortableUpdateAsset(
+  Map<String, dynamic> release, {
+  required bool beta,
+  required String architecture,
+}) => _selectWindowsAsset(
+  release,
+  beta: beta,
+  architecture: architecture,
+  kind: WindowsUpdateAssetKind.portable,
+);
+
+WindowsUpdateAsset? _selectWindowsAsset(
+  Map<String, dynamic> release, {
+  required bool beta,
+  required String architecture,
+  required WindowsUpdateAssetKind kind,
 }) {
   if (release['draft'] == true || (release['prerelease'] == true) != beta) {
     return null;
@@ -97,17 +142,37 @@ WindowsUpdateAsset? selectWindowsUpdateAsset(
   if (arch == null) return null;
   final assets = release['assets'];
   if (assets is! List) return null;
+  final patterns = switch (kind) {
+    WindowsUpdateAssetKind.installer => beta
+        ? [
+            RegExp(
+              '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-beta-setup\\.exe\$',
+            ),
+            RegExp(
+              '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-beta\\.[0-9]+-windows-$arch-setup\\.exe\$',
+            ),
+          ]
+        : [
+            RegExp(
+              '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-setup\\.exe\$',
+            ),
+          ],
+    WindowsUpdateAssetKind.portable => beta
+        ? [
+            RegExp(
+              '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-beta\\.[0-9]+-windows-$arch\\.zip\$',
+            ),
+            RegExp(
+              '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-beta\\.zip\$',
+            ),
+          ]
+        : [
+            RegExp('^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch\\.zip\$'),
+          ],
+  };
   for (final asset in assets.whereType<Map<String, dynamic>>()) {
     final name = (asset['name'] as String? ?? '').toLowerCase();
-    final pattern = beta
-        ? '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-beta-setup\\.exe\$'
-        : '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-windows-$arch-setup\\.exe\$';
-    final versionedBeta =
-        beta &&
-        RegExp(
-          '^bfclash-[0-9]+\\.[0-9]+\\.[0-9]+-beta\\.[0-9]+-windows-$arch-setup\\.exe\$',
-        ).hasMatch(name);
-    if (!RegExp(pattern).hasMatch(name) && !versionedBeta) continue;
+    if (!patterns.any((pattern) => pattern.hasMatch(name))) continue;
     final url = asset['browser_download_url'] as String? ?? '';
     final uri = Uri.tryParse(url);
     final digest = asset['digest'] as String? ?? '';
@@ -123,6 +188,7 @@ WindowsUpdateAsset? selectWindowsUpdateAsset(
       url: url,
       size: size,
       sha256Digest: digest.substring(7).toLowerCase(),
+      name: asset['name'] as String? ?? '',
     );
   }
   return null;
@@ -134,6 +200,7 @@ Future<File> downloadWindowsUpdate(
   void Function(UpdateDownloadProgress progress)? onUpdateProgress,
   Directory? temporaryDirectory,
   CancelToken? cancelToken,
+  String fileName = 'BfClash-update-setup.exe',
 }) async {
   final identity = sha256.convert(
     utf8.encode('${asset.url}:${asset.sha256Digest}'),
@@ -145,7 +212,7 @@ Future<File> downloadWindowsUpdate(
     dio,
     url: asset.url,
     directory: directory,
-    fileName: 'BfClash-update-setup.exe',
+    fileName: fileName,
     expectedSize: asset.size,
     expectedSha256: asset.sha256Digest,
     cancelToken: cancelToken,

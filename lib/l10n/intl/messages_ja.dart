@@ -83,7 +83,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(label) => "${label}はURLである必要があります";
 
-  static String m30(count) => "${count} 年前";
+  static String m30(detail, log) =>
+      "上書き更新でエラーが発生しました: ${detail}\n\n更新前のファイルへの復元を試みました。ログ: ${log}";
+
+  static String m31(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1095,6 +1098,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPNの再起動後に有効になります"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
+    "windowsPortableUpdateFailedBody": m30,
+    "windowsPortableUpdateFailedTitle": MessageLookupByLibrary.simpleMessage(
+      "更新を完了できませんでした",
+    ),
+    "windowsPortableUpdateHint": MessageLookupByLibrary.simpleMessage(
+      "スマート アプリ コントロールが有効なため、インストーラーを実行せず、インストール済みファイルを上書きする方式で更新します。ダウンロード後に自動で再起動します。プロファイルや購読、設定は変更されません。",
+    ),
     "windowsUnsignedUpdateBlocked": MessageLookupByLibrary.simpleMessage(
       "この更新パッケージは未署名です。アプリ制御が有効、または状態を確認できません。インストーラーの起動と BfClash の終了前に更新を停止しました。信頼された署名付きビルドが必要です。Windows の保護を有効のままにしてください。",
     ),
@@ -1113,7 +1123,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "windowsUpdateUnavailable": MessageLookupByLibrary.simpleMessage(
       "この Windows の構成と更新チャネルに対応する検証可能なインストーラーがありません。",
     ),
-    "yearsAgo": m30,
+    "yearsAgo": m31,
     "zhCN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };
 }

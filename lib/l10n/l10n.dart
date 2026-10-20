@@ -5634,6 +5634,36 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Smart App Control is on, so this update replaces the installed files directly instead of running the installer, which avoids the blocked-installer error. BfClash restarts itself after the download; your profiles, subscriptions and settings are untouched.`
+  String get windowsPortableUpdateHint {
+    return Intl.message(
+      'Smart App Control is on, so this update replaces the installed files directly instead of running the installer, which avoids the blocked-installer error. BfClash restarts itself after the download; your profiles, subscriptions and settings are untouched.',
+      name: 'windowsPortableUpdateHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update could not be completed`
+  String get windowsPortableUpdateFailedTitle {
+    return Intl.message(
+      'Update could not be completed',
+      name: 'windowsPortableUpdateFailedTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The in-place update failed: {detail}\n\nAn attempt was made to restore the previous files. Log: {log}`
+  String windowsPortableUpdateFailedBody(Object detail, Object log) {
+    return Intl.message(
+      'The in-place update failed: $detail\n\nAn attempt was made to restore the previous files. Log: $log',
+      name: 'windowsPortableUpdateFailedBody',
+      desc: '',
+      args: [detail, log],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -673,5 +673,8 @@
   "aboutCoreProject": "高性能路由代理内核",
   "aboutOpenSourceLicense": "开源许可证",
   "windowsUnsignedUpdateTitle": "更新包未签名",
-  "windowsUnsignedUpdateConfirm": "此更新包没有代码签名。Windows 可能弹出「未知发布者」确认；若开启了智能应用控制，安装可能被拦截。仍要继续下载并安装吗？"
+  "windowsUnsignedUpdateConfirm": "此更新包没有代码签名。Windows 可能弹出「未知发布者」确认；若开启了智能应用控制，安装可能被拦截。仍要继续下载并安装吗？",
+  "windowsPortableUpdateHint": "检测到 Windows 智能应用控制已开启，本次更新改用免安装覆盖方式：下载完成后自动重启并替换程序文件，不会触发安装器拦截；你的配置、订阅与节点数据不受影响。",
+  "windowsPortableUpdateFailedTitle": "更新未能完成",
+  "windowsPortableUpdateFailedBody": "覆盖更新时出错：{detail}\n\n已尝试恢复到更新前的文件。日志：{log}"
 }

@@ -673,5 +673,8 @@
   "aboutCoreProject": "高性能ルーティングプロキシコア",
   "aboutOpenSourceLicense": "オープンソースライセンス",
   "windowsUnsignedUpdateTitle": "未署名の更新パッケージ",
-  "windowsUnsignedUpdateConfirm": "この更新パッケージはコード署名されていません。Windows が「不明な発行元」の確認を表示したり、スマート アプリ制御が有効な場合はインストールがブロックされる可能性があります。ダウンロードしてインストールを続行しますか？"
+  "windowsUnsignedUpdateConfirm": "この更新パッケージはコード署名されていません。Windows が「不明な発行元」の確認を表示したり、スマート アプリ制御が有効な場合はインストールがブロックされる可能性があります。ダウンロードしてインストールを続行しますか？",
+  "windowsPortableUpdateHint": "スマート アプリ コントロールが有効なため、インストーラーを実行せず、インストール済みファイルを上書きする方式で更新します。ダウンロード後に自動で再起動します。プロファイルや購読、設定は変更されません。",
+  "windowsPortableUpdateFailedTitle": "更新を完了できませんでした",
+  "windowsPortableUpdateFailedBody": "上書き更新でエラーが発生しました: {detail}\n\n更新前のファイルへの復元を試みました。ログ: {log}"
 }
