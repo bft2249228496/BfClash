@@ -160,7 +160,7 @@ void main() {
       container.read(runTimeProvider.notifier).value = 65000;
       await tester.pump();
       expect(find.text('Proxy running'), findsWidgets);
-      expect(find.text('Time: 00:01:05'), findsOneWidget);
+      expect(find.text('00:01:05'), findsOneWidget);
       expect(find.textContaining('1970'), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     });

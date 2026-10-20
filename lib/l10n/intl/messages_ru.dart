@@ -135,6 +135,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionStart": MessageLookupByLibrary.simpleMessage("Старт/Стоп"),
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionView": MessageLookupByLibrary.simpleMessage("Показать/Скрыть"),
+    "activeConnections": MessageLookupByLibrary.simpleMessage(
+      "Активные соединения",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Добавить"),
     "addProfile": MessageLookupByLibrary.simpleMessage("Добавить профиль"),
     "addProxies": MessageLookupByLibrary.simpleMessage("Добавить прокси"),
@@ -335,6 +338,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("Подключено"),
     "connecting": MessageLookupByLibrary.simpleMessage("Подключение..."),
     "connection": MessageLookupByLibrary.simpleMessage("Соединение"),
+    "connectionConsole": MessageLookupByLibrary.simpleMessage(
+      "Консоль подключения",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Не удалось обновить соединения. Список может быть устаревшим.",
     ),
@@ -382,6 +388,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Вырезать"),
     "dark": MessageLookupByLibrary.simpleMessage("Тёмная"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Панель"),
+    "dashboardSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Состояние ядра, скорость и режим соединения",
+    ),
     "dataChangedSave": MessageLookupByLibrary.simpleMessage(
       "Обнаружены изменения данных. Сохранить их?",
     ),
@@ -709,6 +718,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "maxLengthTip": m19,
     "maximize": MessageLookupByLibrary.simpleMessage("Развернуть"),
     "memoryInfo": MessageLookupByLibrary.simpleMessage("Память"),
+    "memoryUsage": MessageLookupByLibrary.simpleMessage("Использование памяти"),
     "messageTest": MessageLookupByLibrary.simpleMessage("Тест сообщения"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage("Это сообщение."),
     "min": MessageLookupByLibrary.simpleMessage("Минимальный"),
@@ -836,6 +846,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Введите другой порт",
     ),
+    "portLabel": MessageLookupByLibrary.simpleMessage("Порт"),
     "portTip": m24,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Предпочитать HTTP/3 для DoH",
@@ -918,6 +929,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickFill": MessageLookupByLibrary.simpleMessage("Быстрое заполнение"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Радуга"),
+    "realtimeRate": MessageLookupByLibrary.simpleMessage(
+      "Скорость в реальном времени",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Порт Redir"),
     "redo": MessageLookupByLibrary.simpleMessage("Повторить"),
     "refresh": MessageLookupByLibrary.simpleMessage("Обновить"),
@@ -1118,6 +1132,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Цель правила"),
     "rules": MessageLookupByLibrary.simpleMessage("Правила"),
     "rulesCount": m26,
+    "runtimeLabel": MessageLookupByLibrary.simpleMessage("Время работы"),
     "save": MessageLookupByLibrary.simpleMessage("Сохранить"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("Сохранить изменения?"),
     "script": MessageLookupByLibrary.simpleMessage("Скрипт"),
@@ -1189,6 +1204,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "start": MessageLookupByLibrary.simpleMessage("Старт"),
     "startVpn": MessageLookupByLibrary.simpleMessage("Запуск VPN..."),
+    "stateOff": MessageLookupByLibrary.simpleMessage("Выкл."),
+    "stateOn": MessageLookupByLibrary.simpleMessage("Вкл."),
     "status": MessageLookupByLibrary.simpleMessage("Статус"),
     "statusDesc": MessageLookupByLibrary.simpleMessage(
       "При отключении используется системный DNS",

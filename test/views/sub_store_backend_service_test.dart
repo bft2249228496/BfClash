@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:bfclash/l10n/l10n.dart';
 import 'package:bfclash/plugins/sub_store.dart';
-import 'package:bfclash/views/sub_store_backend_service.dart';
+import 'package:bfclash/features/sub_store_backend_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 

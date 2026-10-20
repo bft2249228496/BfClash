@@ -9,6 +9,7 @@ import 'package:bfclash/views/navigation.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
+import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
 import 'package:bfclash/views/desktop_dashboard.dart';
 import 'package:bfclash/views/desktop_tools.dart';
 import 'package:bfclash/views/profiles/profiles.dart';
@@ -133,6 +134,7 @@ void main() {
                   ),
                 ],
                 if (screen == 'desktop') ...[
+                  dashboardCoreStatsProvider.overrideWithValue(false),
                   appSettingProvider.overrideWithBuild(
                     (_, _) => const AppSettingProps(),
                   ),
@@ -302,13 +304,13 @@ void main() {
                 find.byIcon(Icons.power_settings_new_rounded),
                 findsOneWidget,
               );
-              if (height < 1000) {
-                final dashboardScroll = find
-                    .descendant(
-                      of: find.byType(DesktopDashboardView),
-                      matching: find.byType(Scrollable),
-                    )
-                    .first;
+              final dashboardScroll = find
+                  .descendant(
+                    of: find.byType(DesktopDashboardView),
+                    matching: find.byType(Scrollable),
+                  )
+                  .first;
+              if (find.text('192.0.2.42').hitTestable().evaluate().isEmpty) {
                 await tester.scrollUntilVisible(
                   find.text('192.0.2.42'),
                   250,
@@ -320,8 +322,6 @@ void main() {
                     .position
                     .jumpTo(0);
                 await tester.pumpAndSettle();
-              } else {
-                expect(find.text('192.0.2.42'), findsOneWidget);
               }
               expect(tester.takeException(), isNull);
             } else if (screen == 'requests') {

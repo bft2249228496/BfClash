@@ -21,7 +21,6 @@ export 'inherited.dart';
 export 'input.dart';
 export 'keep_scope.dart';
 export 'keyed_animated_list.dart';
-export 'line_chart.dart';
 export 'list.dart';
 export 'loading.dart';
 export 'notification.dart';

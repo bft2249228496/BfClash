@@ -5664,6 +5664,71 @@ class AppLocalizations {
       args: [detail, log],
     );
   }
+
+  /// `Core status, live rates and outbound mode at a glance`
+  String get dashboardSubtitle {
+    return Intl.message(
+      'Core status, live rates and outbound mode at a glance',
+      name: 'dashboardSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connection console`
+  String get connectionConsole {
+    return Intl.message(
+      'Connection console',
+      name: 'connectionConsole',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Live rates`
+  String get realtimeRate {
+    return Intl.message('Live rates', name: 'realtimeRate', desc: '', args: []);
+  }
+
+  /// `Active connections`
+  String get activeConnections {
+    return Intl.message(
+      'Active connections',
+      name: 'activeConnections',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Memory usage`
+  String get memoryUsage {
+    return Intl.message(
+      'Memory usage',
+      name: 'memoryUsage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uptime`
+  String get runtimeLabel {
+    return Intl.message('Uptime', name: 'runtimeLabel', desc: '', args: []);
+  }
+
+  /// `Port`
+  String get portLabel {
+    return Intl.message('Port', name: 'portLabel', desc: '', args: []);
+  }
+
+  /// `On`
+  String get stateOn {
+    return Intl.message('On', name: 'stateOn', desc: '', args: []);
+  }
+
+  /// `Off`
+  String get stateOff {
+    return Intl.message('Off', name: 'stateOff', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -19,8 +19,9 @@ void main() {
         );
         expect(script, contains('SignTool=bfclashTrusted'));
         expect(script, contains('SignedUninstaller=yes'));
-        expect(script, contains('#ifndef BFCLASH_TRUSTED_PAYLOAD'));
-        expect(script, contains("'VerifiedAndReputablePolicyState'"));
+        // The installer must not refuse to run when Smart App Control is on;
+        // on-device testing showed SAC never blocked Inno Setup itself.
+        expect(script, isNot(contains("'VerifiedAndReputablePolicyState'")));
         expect(script, contains('procedure UnregisterHelperService'));
         expect(script, contains('CurUninstallStepChanged'));
         expect(script, contains('[Files]'));

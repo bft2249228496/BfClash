@@ -137,6 +137,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionStart": MessageLookupByLibrary.simpleMessage("Start/Stop"),
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionView": MessageLookupByLibrary.simpleMessage("Show/Hide"),
+    "activeConnections": MessageLookupByLibrary.simpleMessage(
+      "Active connections",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Add"),
     "addProfile": MessageLookupByLibrary.simpleMessage("Add profile"),
     "addProxies": MessageLookupByLibrary.simpleMessage("Add proxies"),
@@ -329,6 +332,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "connected": MessageLookupByLibrary.simpleMessage("Connected"),
     "connecting": MessageLookupByLibrary.simpleMessage("Connecting..."),
     "connection": MessageLookupByLibrary.simpleMessage("Connection"),
+    "connectionConsole": MessageLookupByLibrary.simpleMessage(
+      "Connection console",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Unable to refresh connections. The list may be out of date.",
     ),
@@ -376,6 +382,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Cut"),
     "dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Dashboard"),
+    "dashboardSubtitle": MessageLookupByLibrary.simpleMessage(
+      "Core status, live rates and outbound mode at a glance",
+    ),
     "dataChangedSave": MessageLookupByLibrary.simpleMessage(
       "Data changes detected. Save them?",
     ),
@@ -691,6 +700,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "maxLengthTip": m19,
     "maximize": MessageLookupByLibrary.simpleMessage("Maximize"),
     "memoryInfo": MessageLookupByLibrary.simpleMessage("Memory info"),
+    "memoryUsage": MessageLookupByLibrary.simpleMessage("Memory usage"),
     "messageTest": MessageLookupByLibrary.simpleMessage("Message test"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage(
       "This is a message.",
@@ -810,6 +820,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Please enter a different port",
     ),
+    "portLabel": MessageLookupByLibrary.simpleMessage("Port"),
     "portTip": m24,
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Prefer HTTP/3 for DoH",
@@ -888,6 +899,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickFill": MessageLookupByLibrary.simpleMessage("Quick fill"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Rainbow"),
+    "realtimeRate": MessageLookupByLibrary.simpleMessage("Live rates"),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redir port"),
     "redo": MessageLookupByLibrary.simpleMessage("Redo"),
     "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
@@ -1076,6 +1088,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Rule target"),
     "rules": MessageLookupByLibrary.simpleMessage("Rules"),
     "rulesCount": m26,
+    "runtimeLabel": MessageLookupByLibrary.simpleMessage("Uptime"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
     "saveChanges": MessageLookupByLibrary.simpleMessage("Save the changes?"),
     "script": MessageLookupByLibrary.simpleMessage("Script"),
@@ -1143,6 +1156,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "start": MessageLookupByLibrary.simpleMessage("Start"),
     "startVpn": MessageLookupByLibrary.simpleMessage("Starting VPN..."),
+    "stateOff": MessageLookupByLibrary.simpleMessage("Off"),
+    "stateOn": MessageLookupByLibrary.simpleMessage("On"),
     "status": MessageLookupByLibrary.simpleMessage("Status"),
     "statusDesc": MessageLookupByLibrary.simpleMessage(
       "When disabled, the system DNS is used",

@@ -6,13 +6,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class IntranetIP extends StatelessWidget {
-  const IntranetIP({super.key});
+  const IntranetIP({super.key, this.height});
+
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return SizedBox(
-      height: getWidgetHeight(1),
+      height: height ?? getWidgetHeight(1),
       child: CommonCard(
         radius: AppCorner.lg,
         info: Info(label: appLocalizations.intranetIP, iconData: Icons.devices),

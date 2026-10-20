@@ -30,16 +30,17 @@ class DesktopDashboardView extends ConsumerWidget {
         builder: (context, constraints) {
           final wide = constraints.maxWidth >= 840;
           final tiles = constraints.maxWidth >= 1080;
+          const tileHeight = 124.0;
           const controls = Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              OutboundModeV2(),
+              OutboundModeV2(height: tileHeight),
               SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: SystemProxyButton()),
+                  Expanded(child: SystemProxyButton(height: tileHeight)),
                   SizedBox(width: 12),
-                  Expanded(child: TUNButton()),
+                  Expanded(child: TUNButton(height: tileHeight)),
                 ],
               ),
             ],
@@ -52,7 +53,7 @@ class DesktopDashboardView extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
                 children: [
-                  const _DesktopTopStatusBar(),
+                  const _DesktopHeader(),
                   const SizedBox(height: 24),
                   if (wide)
                     Row(
@@ -67,7 +68,7 @@ class DesktopDashboardView extends ConsumerWidget {
                         ),
                         const SizedBox(width: 16),
                         const Expanded(
-                          child: NetworkSpeed(height: 340, showRates: true),
+                          child: NetworkSpeed(height: 380, showRates: true),
                         ),
                       ],
                     )
@@ -77,23 +78,25 @@ class DesktopDashboardView extends ConsumerWidget {
                       connected: connected,
                     ),
                     const SizedBox(height: 16),
-                    const NetworkSpeed(height: 260, showRates: true),
+                    const NetworkSpeed(height: 320, showRates: true),
                   ],
-                  const SizedBox(height: 12),
-                  const _DesktopTrafficStatsRow(),
                   if (tiles) ...[
                     const SizedBox(height: 16),
                     const Row(
                       children: [
-                        Expanded(child: OutboundModeV2()),
+                        Expanded(child: OutboundModeV2(height: tileHeight)),
                         SizedBox(width: 12),
-                        Expanded(child: SystemProxyButton()),
+                        Expanded(
+                          child: SystemProxyButton(height: tileHeight),
+                        ),
                         SizedBox(width: 12),
-                        Expanded(child: TUNButton()),
+                        Expanded(child: TUNButton(height: tileHeight)),
                         SizedBox(width: 12),
-                        Expanded(child: NetworkDetection()),
+                        Expanded(
+                          child: NetworkDetection(height: tileHeight),
+                        ),
                         SizedBox(width: 12),
-                        Expanded(child: IntranetIP()),
+                        Expanded(child: IntranetIP(height: tileHeight)),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -136,69 +139,101 @@ class DesktopDashboardView extends ConsumerWidget {
   }
 }
 
-class _DesktopTopStatusBar extends StatelessWidget {
-  const _DesktopTopStatusBar();
-
-  @override
-  Widget build(BuildContext context) {
-    final labels = context.appLocalizations;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final showRates = constraints.maxWidth >= 760;
-        return Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'BfClash',
-                    style: context.textTheme.labelMedium?.copyWith(
-                      color: context.colorScheme.onSurfaceVariant,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    labels.dashboard,
-                    style: context.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _DesktopStatusCapsule(showRates: showRates),
-            const Expanded(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: _CheckUpdateButton(),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _CheckUpdateButton extends ConsumerWidget {
-  const _CheckUpdateButton();
+/// Page header: title with subtitle on the left, status capsule and the
+/// refresh / update actions on the right, mirroring the prototype.
+class _DesktopHeader extends ConsumerWidget {
+  const _DesktopHeader();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final labels = context.appLocalizations;
-    return IconButton.outlined(
-      tooltip: labels.checkUpdate,
-      icon: const Icon(Icons.system_update_alt_rounded, size: 20),
-      onPressed: () async {
-        await globalState.safeRun(() async {
-          final data = await request.checkForUpdate();
-          if (!context.mounted) return;
-          await ref
-              .read(commonActionProvider.notifier)
-              .checkUpdateResultHandle(data: data, isUser: true);
-        }, title: labels.checkUpdate);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final showRates = constraints.maxWidth >= 760;
+        final title = Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                labels.dashboard,
+                style: context.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                labels.dashboardSubtitle,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        );
+        final refreshButton = OutlinedButton.icon(
+          onPressed: () =>
+              ref.read(networkDetectionProvider.notifier).startCheck(),
+          style: OutlinedButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            side: BorderSide(
+              color: context.colorScheme.outlineVariant,
+            ),
+            foregroundColor: context.colorScheme.onSurface,
+          ),
+          icon: const Icon(Icons.refresh_rounded, size: 18),
+          label: Text(labels.refresh),
+        );
+        final updateButton = FilledButton.icon(
+          onPressed: () async {
+            await globalState.safeRun(() async {
+              final data = await request.checkForUpdate();
+              if (!context.mounted) return;
+              await ref
+                  .read(commonActionProvider.notifier)
+                  .checkUpdateResultHandle(data: data, isUser: true);
+            }, title: labels.checkUpdate);
+          },
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          ),
+          icon: const Icon(Icons.system_update_alt_rounded, size: 18),
+          label: Text(labels.checkUpdate),
+        );
+        if (constraints.maxWidth >= 1000) {
+          return Row(
+            children: [
+              title,
+              const SizedBox(width: 16),
+              _DesktopStatusCapsule(showRates: showRates),
+              const SizedBox(width: 12),
+              refreshButton,
+              const SizedBox(width: 8),
+              updateButton,
+            ],
+          );
+        }
+        return Column(
+          children: [
+            Row(
+              children: [
+                title,
+                const SizedBox(width: 12),
+                const _DesktopStatusCapsule(showRates: false),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                refreshButton,
+                const SizedBox(width: 8),
+                updateButton,
+              ],
+            ),
+          ],
+        );
       },
     );
   }
@@ -213,8 +248,6 @@ class _DesktopStatusCapsule extends ConsumerWidget {
 
   static const _online = Color(0xFF34D399);
   static const _warning = Color(0xFFFBBF24);
-  static const _downTint = Color(0xFF38BDF8);
-  static const _upTint = Color(0xFFC084FC);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -281,14 +314,14 @@ class _DesktopStatusCapsule extends ConsumerWidget {
             Container(width: 1, height: 16, color: colors.outlineVariant),
             const SizedBox(width: 12),
             _RateText(
-              icon: Icons.arrow_downward_rounded,
-              tint: _downTint,
+              icon: Icons.south_rounded,
+              tint: kDashboardDownTint,
               value: traffic?.down,
             ),
             const SizedBox(width: 12),
             _RateText(
-              icon: Icons.arrow_upward_rounded,
-              tint: _upTint,
+              icon: Icons.north_rounded,
+              tint: kDashboardUpTint,
               value: traffic?.up,
             ),
           ],
@@ -326,6 +359,8 @@ class _RateText extends StatelessWidget {
   }
 }
 
+/// The left "connection console" card: big power toggle, current node and
+/// runtime / mode / port summary, following the prototype layout.
 class _DesktopConnectionCard extends ConsumerWidget {
   const _DesktopConnectionCard({
     required this.running,
@@ -342,8 +377,12 @@ class _DesktopConnectionCard extends ConsumerWidget {
     final active = connected && running;
     final runtime = ref.watch(runTimeProvider);
     final connecting = ref.watch(coreStatusProvider) == CoreStatus.connecting;
+    final mode = ref.watch(patchClashConfigProvider.select((s) => s.mode));
+    final port = ref.watch(
+      patchClashConfigProvider.select((s) => s.mixedPort),
+    );
     return SizedBox(
-      height: 340,
+      height: 380,
       child: DecoratedBox(
         decoration: ShapeDecoration(
           gradient: desktopAccentGradient(context),
@@ -361,10 +400,11 @@ class _DesktopConnectionCard extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          labels.dashboard,
-                          style: context.textTheme.labelMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
+                        child: InfoHeader(
+                          padding: EdgeInsets.zero,
+                          info: Info(
+                            label: labels.connectionConsole,
+                            iconData: Icons.lan_rounded,
                           ),
                         ),
                       ),
@@ -377,9 +417,16 @@ class _DesktopConnectionCard extends ConsumerWidget {
                       decoration: ShapeDecoration(
                         gradient: desktopAccentGradient(context),
                         shape: const CircleBorder(),
+                        shadows: [
+                          BoxShadow(
+                            color: colors.primary.withValues(alpha: 0.35),
+                            blurRadius: 28,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(3),
                         child: IconButton.filled(
                           tooltip: running ? labels.stop : labels.start,
                           onPressed: connecting
@@ -388,48 +435,112 @@ class _DesktopConnectionCard extends ConsumerWidget {
                                     .read(commonActionProvider.notifier)
                                     .toggleRunning(),
                           style: IconButton.styleFrom(
-                            fixedSize: const Size.square(96),
+                            fixedSize: const Size.square(112),
                             backgroundColor: colors.surfaceContainerLow,
                             foregroundColor: colors.primary,
                             shape: const CircleBorder(),
                           ),
                           icon: const Icon(
                             Icons.power_settings_new_rounded,
-                            size: 42,
+                            size: 46,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   Text(
-                    active ? labels.proxyRunning : labels.proxyStopped,
+                    connecting
+                        ? labels.connecting
+                        : active
+                        ? labels.connected
+                        : labels.proxyStopped,
                     textAlign: TextAlign.center,
                     style: context.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    runtime == null
-                        ? labels.start
-                        : '${labels.time}: ${getTimeText(runtime)}',
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
+                  if (active)
+                    const _DesktopCurrentNodeRow()
+                  else
+                    Text(
+                      labels.start,
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  if (active) ...[
-                    const SizedBox(height: 12),
-                    const _DesktopCurrentNodeRow(),
-                  ],
                   const Spacer(),
+                  Divider(
+                    height: 1,
+                    color: colors.outlineVariant.withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ConsoleStat(
+                          label: labels.runtimeLabel,
+                          value: runtime == null
+                              ? '—'
+                              : getTimeText(runtime),
+                        ),
+                      ),
+                      Expanded(
+                        child: _ConsoleStat(
+                          label: labels.outboundMode,
+                          value: mode.label,
+                        ),
+                      ),
+                      Expanded(
+                        child: _ConsoleStat(
+                          label: labels.portLabel,
+                          value: ':$port',
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ConsoleStat extends StatelessWidget {
+  const _ConsoleStat({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.labelSmall?.copyWith(
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -492,86 +603,6 @@ class _DesktopCurrentNodeRow extends ConsumerWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _DesktopTrafficStatsRow extends ConsumerWidget {
-  const _DesktopTrafficStatsRow();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final labels = context.appLocalizations;
-    final colors = context.colorScheme;
-    final totalTraffic = ref.watch(totalTrafficProvider);
-    return CommonCard(
-      radius: AppCorner.lg,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: _DesktopTrafficStatItem(
-                icon: Icons.arrow_downward_rounded,
-                iconColor: colors.secondary,
-                label: labels.download,
-                value: totalTraffic.down,
-              ),
-            ),
-            Expanded(
-              child: _DesktopTrafficStatItem(
-                icon: Icons.arrow_upward_rounded,
-                iconColor: colors.primary,
-                label: labels.upload,
-                value: totalTraffic.up,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DesktopTrafficStatItem extends StatelessWidget {
-  const _DesktopTrafficStatItem({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final num value;
-
-  @override
-  Widget build(BuildContext context) {
-    final traffic = value.traffic;
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: iconColor),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: context.textTheme.bodySmall?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          traffic.value,
-          style: context.textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          traffic.unit,
-          style: context.textTheme.bodySmall?.toLighter,
-        ),
-      ],
     );
   }
 }

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/plugins/sub_store.dart';
-import 'package:bfclash/views/sub_store_backend_service.dart';
+import 'package:bfclash/features/sub_store_backend_service.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';

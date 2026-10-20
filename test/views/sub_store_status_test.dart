@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:bfclash/plugins/sub_store.dart';
 import 'package:bfclash/views/sub_store.dart';
-import 'package:bfclash/views/sub_store_backend_service.dart';
+import 'package:bfclash/features/sub_store_backend_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';

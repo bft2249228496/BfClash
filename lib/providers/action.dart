@@ -19,7 +19,7 @@ import 'package:bfclash/plugins/service.dart';
 import 'package:bfclash/providers/actions/system_exit.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
-import 'package:bfclash/views/sub_store_backend_service.dart';
+import 'package:bfclash/features/sub_store_backend_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' show basename;
