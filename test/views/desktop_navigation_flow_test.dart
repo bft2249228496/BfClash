@@ -258,21 +258,15 @@ void main() {
     );
 
     testWidgets(
-      'DesktopToolsView wide layout unconditionally renders master-detail and switches content',
+      'tools overview preserves settings and opens configuration routes',
       (tester) async {
         tester.view.physicalSize = const Size(1200, 800);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
-
-        final container = ProviderContainer(
-          overrides: [
-            networkDetectionProvider.overrideWith(FixedNetworkDetection.new),
-          ],
-        );
+        final container = ProviderContainer();
         addTearDown(container.dispose);
         globalState.container = container;
-
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
@@ -285,49 +279,24 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-
         final loc = await AppLocalizations.load(const Locale('en'));
-
-        expect(find.byType(DesktopToolsView), findsOneWidget);
-        expect(find.byType(VerticalDivider), findsOneWidget);
-        expect(find.text(loc.language), findsOneWidget);
-        expect(find.text(loc.resources), findsWidgets);
-
-        // Default selected widget is BackupAndRestore
-        expect(find.byType(BackupAndRestore), findsOneWidget);
-
-        // Unconditional assertion: Config menu item must exist
-        final configMenuItem = find.text(loc.basicConfig);
-        expect(configMenuItem, findsOneWidget);
-
-        // Tap to switch detail view
-        await tester.tap(configMenuItem);
-        await tester.pumpAndSettle();
-
-        // ConfigView must now be rendered in the detail area
-        expect(find.byType(ConfigView), findsOneWidget);
         expect(find.byType(BackupAndRestore), findsNothing);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: const TestApp(
-              locale: Locale('zh', 'CN'),
-              includeNavigatorKey: false,
-              setTheme: true,
-              child: DesktopToolsView(),
-            ),
-          ),
+        expect(find.text(loc.checkUpdate), findsWidgets);
+        expect(find.text(loc.backupAndRestore), findsWidgets);
+        expect(find.text(loc.subStoreTitle), findsWidgets);
+        final config = find.text(loc.basicConfig);
+        await tester.scrollUntilVisible(
+          config,
+          250,
+          scrollable: find.byType(Scrollable).first,
         );
+        await tester.tap(config);
         await tester.pumpAndSettle();
-        final translated = await AppLocalizations.load(
-          const Locale('zh', 'CN'),
-        );
         expect(find.byType(ConfigView), findsOneWidget);
-        final selectedLabel = tester.widget<Text>(
-          find.text(translated.basicConfig).first,
-        );
-        expect(selectedLabel.style?.fontWeight, FontWeight.bold);
+        Navigator.of(tester.element(find.byType(ConfigView))).pop();
+        await tester.pumpAndSettle();
+        expect(find.byType(DesktopToolsView), findsOneWidget);
+        expect(tester.takeException(), isNull);
       },
     );
   });

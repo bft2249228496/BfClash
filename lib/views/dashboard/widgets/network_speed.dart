@@ -23,10 +23,12 @@ const Color kDashboardUpTint = Color(0xFFC084FC);
 final dashboardCoreStatsProvider = Provider<bool>((_) => true);
 
 class NetworkSpeed extends ConsumerWidget {
-  const NetworkSpeed({super.key, this.height, this.showRates = false});
+  const NetworkSpeed({super.key, this.height, this.showRates = true});
 
   final double? height;
   final bool showRates;
+
+  bool get _showTotals => height != null && showRates;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,22 +57,24 @@ class NetworkSpeed extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    _LegendDot(
-                      color: kDashboardDownTint,
-                      label: appLocalizations.download,
-                    ),
-                    const SizedBox(width: 12),
-                    _LegendDot(
-                      color: kDashboardUpTint,
-                      label: appLocalizations.upload,
-                    ),
+                    if (_showTotals || !showRates) ...[
+                      const SizedBox(width: 8),
+                      _LegendDot(
+                        color: kDashboardDownTint,
+                        label: appLocalizations.download,
+                      ),
+                      const SizedBox(width: 12),
+                      _LegendDot(
+                        color: kDashboardUpTint,
+                        label: appLocalizations.upload,
+                      ),
+                    ],
                   ],
                 ),
               ),
               if (showRates)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                   child: Row(
                     children: [
                       Expanded(
@@ -102,7 +106,7 @@ class NetworkSpeed extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (showRates) ...[
+              if (_showTotals) ...[
                 const SizedBox(height: 4),
                 Divider(
                   height: 1,
@@ -225,7 +229,7 @@ class _SpeedReadout extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
@@ -542,8 +546,12 @@ class _DualLineChartPainter extends CustomPainter {
       final y = size.height * fraction;
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }
-    _paintSeries(canvas, size, up, upColor);
-    _paintSeries(canvas, size, down, downColor);
+    final peak = [
+      ...up,
+      ...down,
+    ].fold<double>(1, (peak, value) => value > peak ? value : peak);
+    _paintSeries(canvas, size, up, upColor, peak);
+    _paintSeries(canvas, size, down, downColor, peak);
   }
 
   void _paintSeries(
@@ -551,12 +559,9 @@ class _DualLineChartPainter extends CustomPainter {
     Size size,
     List<double> values,
     Color color,
+    double maxValue,
   ) {
     if (values.isEmpty) return;
-    var maxValue = 1.0;
-    for (final value in values) {
-      if (value > maxValue) maxValue = value;
-    }
     Offset pointAt(int index) {
       final x = values.length == 1
           ? size.width

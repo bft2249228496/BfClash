@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
@@ -134,143 +135,88 @@ class OutboundModeV2 extends StatelessWidget {
     ref.read(setupActionProvider.notifier).changeMode(mode);
   }
 
-  Color _getTextColor(BuildContext context, Mode mode) {
-    return switch (mode) {
-      Mode.rule => context.colorScheme.onSecondaryContainer,
-      Mode.global => context.colorScheme.onPrimaryContainer,
-      Mode.direct => context.colorScheme.onTertiaryContainer,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    final height = this.height ?? getWidgetHeight(1);
+    final cardHeight = height ?? getWidgetHeight(1);
     return SizedBox(
-      height: height,
+      height: cardHeight,
       child: CommonCard(
         radius: AppCorner.lg,
-        info: height >= 110
+        info: cardHeight >= 110
             ? Info(
                 label: context.appLocalizations.outboundMode,
                 iconData: Icons.call_split_sharp,
               )
             : null,
-        child: Consumer(
-          builder: (_, ref, _) {
-            final mode = ref.watch(
-              patchClashConfigProvider.select((state) => state.mode),
-            );
-            final thumbColor = switch (mode) {
-              Mode.rule => context.colorScheme.secondaryContainer,
-              Mode.global => globalState.theme.darken3PrimaryContainer,
-              Mode.direct => context.colorScheme.tertiaryContainer,
-            };
-            if (height < 110) {
-              return LayoutBuilder(
-                builder: (_, constraints) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          constraints: const BoxConstraints.expand(),
-                          child: CommonTabBar<Mode>(
-                            children: {
-                              for (final item in Mode.values)
-                                item: _ModeTab(
-                                  label: item.label,
-                                  height: height - 8.ap - 24,
-                                  color: item == mode
-                                      ? _getTextColor(context, item)
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Align(
+            alignment: Alignment.center,
+            child: Consumer(
+              builder: (context, ref, _) {
+                final mode = ref.watch(
+                  patchClashConfigProvider.select((state) => state.mode),
+                );
+                return DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: context.colorScheme.surfaceContainerLowest,
+                    borderRadius: AppRadius.sm,
+                    border: Border.all(
+                      color: context.colorScheme.outlineVariant,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Row(
+                      children: [
+                        for (final item in Mode.values)
+                          Expanded(
+                            child: Semantics(
+                              selected: item == mode,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: item == mode
+                                      ? desktopAccentGradient(context)
                                       : null,
+                                  borderRadius: AppRadius.sm,
                                 ),
-                            },
-                            padding: const EdgeInsets.symmetric(horizontal: 0),
-                            groupValue: mode,
-                            onValueChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              _handleChangeMode(value, ref);
-                            },
-                            thumbColor: thumbColor,
+                                child: TextButton(
+                                  key: ValueKey('outbound-${item.name}'),
+                                  style: TextButton.styleFrom(
+                                    minimumSize: const Size(0, 36),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 8,
+                                    ),
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    foregroundColor: item == mode
+                                        ? const Color(0xFF10101A)
+                                        : context.colorScheme.onSurfaceVariant,
+                                    shape: AppShape.sm,
+                                  ),
+                                  onPressed: () => _handleChangeMode(item, ref),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      item.label,
+                                      maxLines: 1,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      Container(
-                        color: thumbColor.opacity50,
-                        height: 8.ap,
-                        width: constraints.maxWidth,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-            return Container(
-              padding: baseInfoEdgeInsets.copyWith(top: 0, bottom: 10),
-              child: LayoutBuilder(
-                builder: (_, constraints) {
-                  return CommonTabBar<Mode>(
-                    children: {
-                      for (final item in Mode.values)
-                        item: _ModeTab(
-                          label: item.label,
-                          height: constraints.maxHeight,
-                          color: item == mode
-                              ? _getTextColor(context, item)
-                              : null,
-                        ),
-                    },
-                    padding: const EdgeInsets.symmetric(horizontal: 0),
-                    groupValue: mode,
-                    onValueChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      _handleChangeMode(value, ref);
-                    },
-                    thumbColor: thumbColor,
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _ModeTab extends StatelessWidget {
-  const _ModeTab({
-    required this.label,
-    required this.height,
-    required this.color,
-  });
-
-  final String label;
-  final double height;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(),
-      height: height,
-      padding: const EdgeInsets.all(4),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          label,
-          maxLines: 1,
-          style: Theme.of(
-            context,
-          ).textTheme.titleSmall?.adjustSize(1).copyWith(color: color),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ),
       ),
     );

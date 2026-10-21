@@ -188,4 +188,29 @@ void main() {
 
     expect(container.read(patchClashConfigProvider).mode, Mode.global);
   });
+  testWidgets('compact mode selector remains bounded and changes every mode', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const TestApp(
+          child: Scaffold(
+            body: Center(
+              child: SizedBox(width: 240, child: OutboundModeV2(height: 124)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    for (final mode in [Mode.global, Mode.direct, Mode.rule]) {
+      final button = find.byKey(ValueKey('outbound-${mode.name}'));
+      expect(tester.getSize(button).height, lessThanOrEqualTo(48));
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(container.read(patchClashConfigProvider).mode, mode);
+    }
+    expect(tester.takeException(), isNull);
+  });
 }

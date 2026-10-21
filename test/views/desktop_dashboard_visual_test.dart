@@ -72,11 +72,13 @@ void main() {
     for (final scenario in [
       (width: 900.0, locale: const Locale('en'), scale: 1.0),
       (width: 1400.0, locale: const Locale('en'), scale: 1.0),
+      (width: 1600.0, locale: const Locale('zh', 'CN'), scale: 1.0),
+      (width: 1400.0, locale: const Locale('zh', 'CN'), scale: 1.5),
       (width: 840.0, locale: const Locale('zh', 'CN'), scale: 1.3),
     ]) {
       final width = scenario.width;
       final chinese = scenario.locale.languageCode == 'zh';
-      final height = chinese ? 592.0 : 1000.0;
+      final height = chinese && width < 1100 ? 592.0 : 1000.0;
       final remoteLabel = chinese
           ? '个人订阅 · 香港日本美国多地区线路与流媒体策略配置'
           : 'Personal subscription';
@@ -226,6 +228,18 @@ void main() {
                 _ => PageLabel.tools,
               },
             );
+            if (screen == 'desktop') {
+              for (var i = 0; i < 30; i++) {
+                container
+                    .read(trafficsProvider.notifier)
+                    .addTraffic(
+                      Traffic(
+                        down: (i % 7 + 1) * 512 * 1024,
+                        up: (i % 5 + 1) * 128 * 1024,
+                      ),
+                    );
+              }
+            }
             const key = ValueKey('desktop-preview');
             await tester.pumpWidget(
               UncontrolledProviderScope(
@@ -314,6 +328,11 @@ void main() {
                   250,
                   scrollable: dashboardScroll,
                 );
+                await Scrollable.ensureVisible(
+                  tester.element(find.text('192.0.2.42')),
+                  alignment: 0.5,
+                );
+                await tester.pumpAndSettle();
                 expect(find.text('192.0.2.42').hitTestable(), findsOneWidget);
                 tester
                     .state<ScrollableState>(dashboardScroll)
@@ -355,9 +374,9 @@ void main() {
             }
             if (width >= 1100) {
               expect(find.byType(NavigationRail), findsNothing);
-              expect(find.text('Monitor'), findsOneWidget);
-              expect(find.text('Network'), findsOneWidget);
-              expect(find.text('Diagnostics'), findsOneWidget);
+              expect(find.text(chinese ? '监控' : 'Monitor'), findsOneWidget);
+              expect(find.text(chinese ? '代理网络' : 'Network'), findsOneWidget);
+              expect(find.text(chinese ? '诊断' : 'Diagnostics'), findsOneWidget);
             } else {
               final rail = tester.widget<NavigationRail>(
                 find.byType(NavigationRail),

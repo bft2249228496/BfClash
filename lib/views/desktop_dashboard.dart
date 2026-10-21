@@ -34,7 +34,7 @@ class DesktopDashboardView extends ConsumerWidget {
           // 统一网格：所有列间距一致，左列（连接控制台 / 流量统计）同宽，
           // 保证最大化时三行的竖向接缝对齐。
           const gutter = 16.0;
-          const sideWidth = 320.0;
+          final sideWidth = (constraints.maxWidth * 0.30).clamp(300.0, 420.0);
           const controls = Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -53,7 +53,7 @@ class DesktopDashboardView extends ConsumerWidget {
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1320),
+              constraints: const BoxConstraints(maxWidth: 1680),
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
                 children: [
@@ -86,28 +86,31 @@ class DesktopDashboardView extends ConsumerWidget {
                   ],
                   if (tiles) ...[
                     const SizedBox(height: gutter),
-                    const Row(
+                    const _DesktopControlStrip(
                       children: [
                         Expanded(child: OutboundModeV2(height: tileHeight)),
-                        SizedBox(width: gutter),
+                        VerticalDivider(width: 1, indent: 16, endIndent: 16),
                         Expanded(child: SystemProxyButton(height: tileHeight)),
-                        SizedBox(width: gutter),
+                        VerticalDivider(width: 1, indent: 16, endIndent: 16),
                         Expanded(child: TUNButton(height: tileHeight)),
-                        SizedBox(width: gutter),
+                        VerticalDivider(width: 1, indent: 16, endIndent: 16),
                         Expanded(child: NetworkDetection(height: tileHeight)),
-                        SizedBox(width: gutter),
+                        VerticalDivider(width: 1, indent: 16, endIndent: 16),
                         Expanded(child: IntranetIP(height: tileHeight)),
                       ],
                     ),
                     const SizedBox(height: gutter),
                     // 流量统计与工具等高：stretch 使两卡底边始终对齐。
-                    const IntrinsicHeight(
+                    IntrinsicHeight(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          SizedBox(width: sideWidth, child: TrafficUsage()),
-                          SizedBox(width: gutter),
-                          Expanded(child: quickAccess),
+                          SizedBox(
+                            width: sideWidth,
+                            child: const TrafficUsage(),
+                          ),
+                          const SizedBox(width: gutter),
+                          const Expanded(child: quickAccess),
                         ],
                       ),
                     ),
@@ -618,11 +621,11 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 12,
+              runSpacing: 12,
               children: [
-                ActionChip(
-                  avatar: const Icon(Icons.system_update, size: 16),
+                _QuickTool(
+                  avatar: const Icon(Icons.system_update, size: 24),
                   label: Text(appLocalizations.checkUpdate),
                   onPressed: () async {
                     await globalState.safeRun(() async {
@@ -634,8 +637,8 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                     }, title: appLocalizations.checkUpdate);
                   },
                 ),
-                ActionChip(
-                  avatar: const Icon(Icons.cloud_sync, size: 16),
+                _QuickTool(
+                  avatar: const Icon(Icons.cloud_sync, size: 24),
                   label: Text(appLocalizations.backupAndRestore),
                   onPressed: () {
                     Navigator.of(context).push(
@@ -645,8 +648,8 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                     );
                   },
                 ),
-                ActionChip(
-                  avatar: const Icon(Icons.hub, size: 16),
+                _QuickTool(
+                  avatar: const Icon(Icons.hub, size: 24),
                   label: Text(appLocalizations.subStoreTitle),
                   onPressed: () {
                     Navigator.of(context).push(
@@ -656,8 +659,8 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                     );
                   },
                 ),
-                ActionChip(
-                  avatar: const Icon(Icons.view_timeline, size: 16),
+                _QuickTool(
+                  avatar: const Icon(Icons.view_timeline, size: 24),
                   label: Text(appLocalizations.requests),
                   onPressed: () {
                     ref
@@ -665,8 +668,8 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                         .toPage(PageLabel.requests);
                   },
                 ),
-                ActionChip(
-                  avatar: const Icon(Icons.ballot, size: 16),
+                _QuickTool(
+                  avatar: const Icon(Icons.ballot, size: 24),
                   label: Text(appLocalizations.connections),
                   onPressed: () {
                     ref
@@ -675,6 +678,77 @@ class _DesktopQuickAccessPanel extends ConsumerWidget {
                   },
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DesktopControlStrip extends StatelessWidget {
+  const _DesktopControlStrip({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      height: 124,
+      child: Material(
+        color: theme.colorScheme.surfaceContainerLow,
+        shape: AppShape.lg.copyWith(
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Theme(
+          data: theme.copyWith(
+            colorScheme: theme.colorScheme.copyWith(
+              surfaceContainerHighest: theme.colorScheme.surfaceContainerLow,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: children,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickTool extends StatelessWidget {
+  const _QuickTool({
+    required this.avatar,
+    required this.label,
+    required this.onPressed,
+  });
+  final Widget avatar;
+  final Widget label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      onPressed: onPressed,
+      label: SizedBox(
+        width: 76,
+        height: 40 + MediaQuery.textScalerOf(context).scale(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconTheme.merge(
+              data: IconThemeData(size: 24, color: context.colorScheme.primary),
+              child: avatar,
+            ),
+            const SizedBox(height: 10),
+            DefaultTextStyle.merge(
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              child: label,
             ),
           ],
         ),

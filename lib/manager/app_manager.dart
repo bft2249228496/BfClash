@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/common/permission.dart';
 import 'package:bfclash/common/system_dns.dart';
 import 'package:bfclash/enum/enum.dart';
@@ -346,15 +347,26 @@ class _SidebarTile extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Material(
-        color: selected
-            ? colors.primary.withValues(alpha: 0.14)
-            : Colors.transparent,
+        color: Colors.transparent,
         borderRadius: AppRadius.sm,
         child: InkWell(
           onTap: onTap,
           borderRadius: AppRadius.sm,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: selected
+                  ? LinearGradient(
+                      colors: desktopAccentGradient(context).colors
+                          .map((color) => color.withValues(alpha: 0.16))
+                          .toList(),
+                    )
+                  : null,
+              borderRadius: AppRadius.sm,
+              border: selected
+                  ? Border(left: BorderSide(color: colors.primary, width: 3))
+                  : null,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             child: Row(
               children: [
                 IconTheme.merge(
@@ -473,6 +485,16 @@ class AppSidebarContainer extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (system.isMacOS) const SizedBox(height: 22),
+                    if (system.isMacOS && extended)
+                      IconButton(
+                        tooltip: context.appLocalizations.toggleLabel,
+                        onPressed: () => ref
+                            .read(appSettingProvider.notifier)
+                            .update(
+                              (state) => state.copyWith(showLabel: false),
+                            ),
+                        icon: const Icon(Icons.keyboard_double_arrow_left),
+                      ),
                     const SizedBox(height: 10),
                     if (!system.isMacOS) ...[
                       if (extended)
@@ -484,10 +506,26 @@ class AppSidebarContainer extends ConsumerWidget {
                               children: [
                                 const ClipRect(child: AppIcon()),
                                 const SizedBox(width: 12),
-                                Text(
-                                  'BfClash',
-                                  style: context.textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                Expanded(
+                                  child: Text(
+                                    'BfClash',
+                                    style: context.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: context.appLocalizations.toggleLabel,
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () => ref
+                                      .read(appSettingProvider.notifier)
+                                      .update(
+                                        (state) =>
+                                            state.copyWith(showLabel: false),
+                                      ),
+                                  icon: const Icon(
+                                    Icons.keyboard_double_arrow_left,
+                                    size: 18,
+                                  ),
                                 ),
                               ],
                             ),
@@ -537,21 +575,22 @@ class AppSidebarContainer extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    IconButton(
-                      tooltip: context.appLocalizations.toggleLabel,
-                      onPressed: () {
-                        ref
-                            .read(appSettingProvider.notifier)
-                            .update(
-                              (state) =>
-                                  state.copyWith(showLabel: !state.showLabel),
-                            );
-                      },
-                      icon: Icon(
-                        Icons.menu,
-                        color: context.colorScheme.onSurfaceVariant,
+                    if (!extended)
+                      IconButton(
+                        tooltip: context.appLocalizations.toggleLabel,
+                        onPressed: () {
+                          ref
+                              .read(appSettingProvider.notifier)
+                              .update(
+                                (state) =>
+                                    state.copyWith(showLabel: !state.showLabel),
+                              );
+                        },
+                        icon: Icon(
+                          Icons.menu,
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 16),
                   ],
                 ),

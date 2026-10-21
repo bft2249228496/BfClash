@@ -1,4 +1,6 @@
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
 import 'package:bfclash/common/desktop_style.dart';
 import 'package:bfclash/views/about.dart';
@@ -16,217 +18,298 @@ import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-class DesktopToolsView extends ConsumerStatefulWidget {
+class DesktopToolsView extends ConsumerWidget {
   const DesktopToolsView({super.key});
 
-  @override
-  ConsumerState<DesktopToolsView> createState() => _DesktopToolsViewState();
-}
-
-class _DesktopToolsViewState extends ConsumerState<DesktopToolsView> {
-  Widget _selectedWidget = const BackupAndRestore();
-
-  void _selectView(Widget view) {
-    setState(() {
-      _selectedWidget = view;
-    });
+  void _open(BuildContext context, Widget target) {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => target));
   }
 
   @override
-  Widget build(BuildContext context) {
-    final appLocalizations = context.appLocalizations;
-
+  Widget build(BuildContext context, WidgetRef ref) {
+    final labels = context.appLocalizations;
     return CommonScaffold(
-      title: appLocalizations.tools,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 950;
-
-          final listMenu = ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      title: labels.tools,
+      body: ListView(
+        padding: const EdgeInsets.all(28),
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cards = [
+                _ToolCard(
+                  title: labels.checkUpdate,
+                  subtitle: _versionLabel(),
+                  icon: Icons.system_update_alt_rounded,
+                  prominent: true,
+                  onTap: () => globalState.safeRun(() async {
+                    final data = await request.checkForUpdate();
+                    if (!context.mounted) return;
+                    await ref
+                        .read(commonActionProvider.notifier)
+                        .checkUpdateResultHandle(data: data, isUser: true);
+                  }, title: labels.checkUpdate),
+                ),
+                _ToolCard(
+                  title: labels.backupAndRestore,
+                  subtitle: labels.backupAndRestoreDesc,
+                  icon: Icons.cloud_sync_outlined,
+                  onTap: () => _open(context, const BackupAndRestore()),
+                ),
+              ];
+              if (constraints.maxWidth < 720) {
+                return Column(
+                  children: [cards[0], const SizedBox(height: 16), cards[1]],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: cards[0]),
+                  const SizedBox(width: 20),
+                  Expanded(child: cards[1]),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          _ToolCard(
+            title: labels.subStoreTitle,
+            subtitle: labels.subStoreLocalModeDesc,
+            icon: Icons.hub_outlined,
+            onTap: () => _open(context, const SubStoreView()),
+          ),
+          const SizedBox(height: 20),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
             children: [
-              ListHeader(title: appLocalizations.settings),
-              const LocaleSettingItem(),
-              _buildMenuItem(
-                title: appLocalizations.resources,
-                subtitle: appLocalizations.resources,
-                icon: Icons.storage,
-                target: const ResourcesView(),
-                isWide: isWide,
+              ActionChip(
+                avatar: const Icon(Icons.view_timeline, size: 18),
+                label: Text(labels.requests),
+                onPressed: () => ref
+                    .read(currentPageLabelProvider.notifier)
+                    .toPage(PageLabel.requests),
               ),
-              _buildMenuItem(
-                title: appLocalizations.backupAndRestore,
-                subtitle: appLocalizations.backupAndRestoreDesc,
-                icon: Icons.cloud_sync,
-                target: const BackupAndRestore(),
-                isWide: isWide,
-              ),
-              _buildMenuItem(
-                title: appLocalizations.subStoreTitle,
-                subtitle: appLocalizations.subStoreLocalModeDesc,
-                icon: Icons.hub,
-                iconColor: const Color(0xFF818CF8),
-                target: const SubStoreView(),
-                isWide: isWide,
-              ),
-              _buildMenuItem(
-                title: appLocalizations.basicConfig,
-                subtitle: appLocalizations.basicConfigDesc,
-                icon: Icons.edit_note,
-                target: const ConfigView(),
-                isWide: isWide,
-              ),
-              _buildMenuItem(
-                title: appLocalizations.advancedConfig,
-                subtitle: appLocalizations.advancedConfigDesc,
-                icon: Icons.build_circle_outlined,
-                target: const AdvancedConfigView(),
-                isWide: isWide,
-              ),
-              _buildMenuItem(
-                title: appLocalizations.application,
-                subtitle: appLocalizations.applicationDesc,
-                icon: Icons.settings,
-                target: const ApplicationSettingView(),
-                isWide: isWide,
-              ),
-              _buildMenuItem(
-                title: appLocalizations.theme,
-                subtitle: appLocalizations.themeDesc,
-                icon: Icons.palette_outlined,
-                target: const ThemeView(),
-                isWide: isWide,
-              ),
-              if (system.isDesktop)
-                _buildMenuItem(
-                  title: appLocalizations.hotkeyManagement,
-                  subtitle: appLocalizations.hotkeyManagementDesc,
-                  icon: Icons.keyboard,
-                  target: const HotKeyView(),
-                  isWide: isWide,
-                ),
-              if (system.isWindows)
-                ListItem(
-                  leading: const Icon(Icons.lock_open),
-                  title: Text(appLocalizations.loopback),
-                  subtitle: Text(appLocalizations.loopbackDesc),
-                  trailing: const Icon(Icons.arrow_outward, size: 18),
-                  onTap: () => globalState.safeRun<void>(launchLoopbackTool),
-                ),
-              ListHeader(title: appLocalizations.other),
-              _buildMenuItem(
-                title: appLocalizations.about,
-                subtitle: '${appLocalizations.about} BfClash',
-                icon: Icons.info_outline,
-                target: const AboutView(),
-                isWide: isWide,
-              ),
-              _buildMenuItem(
-                title: appLocalizations.developerMode,
-                subtitle: appLocalizations.developerModeDesc,
-                icon: Icons.developer_mode,
-                target: const DeveloperView(),
-                isWide: isWide,
+              ActionChip(
+                avatar: const Icon(Icons.ballot_outlined, size: 18),
+                label: Text(labels.connections),
+                onPressed: () => ref
+                    .read(currentPageLabelProvider.notifier)
+                    .toPage(PageLabel.connections),
               ),
             ],
-          );
-
-          if (isWide) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 304, child: listMenu),
-                VerticalDivider(
-                  width: 1,
-                  color: context.colorScheme.outlineVariant.withValues(
-                    alpha: 0.3,
-                  ),
-                ),
-                Expanded(child: FocusTraversalGroup(child: _selectedWidget)),
-              ],
-            );
-          }
-
-          return listMenu;
-        },
+          ),
+          const SizedBox(height: 24),
+          ListHeader(title: labels.settings),
+          const LocaleSettingItem(),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final entries =
+                  <
+                    ({
+                      String title,
+                      String subtitle,
+                      IconData icon,
+                      Widget target,
+                    })
+                  >[
+                    (
+                      title: labels.resources,
+                      subtitle: labels.resources,
+                      icon: Icons.storage_outlined,
+                      target: const ResourcesView(),
+                    ),
+                    (
+                      title: labels.basicConfig,
+                      subtitle: labels.basicConfigDesc,
+                      icon: Icons.edit_note,
+                      target: const ConfigView(),
+                    ),
+                    (
+                      title: labels.advancedConfig,
+                      subtitle: labels.advancedConfigDesc,
+                      icon: Icons.build_circle_outlined,
+                      target: const AdvancedConfigView(),
+                    ),
+                    (
+                      title: labels.application,
+                      subtitle: labels.applicationDesc,
+                      icon: Icons.settings_outlined,
+                      target: const ApplicationSettingView(),
+                    ),
+                    (
+                      title: labels.theme,
+                      subtitle: labels.themeDesc,
+                      icon: Icons.palette_outlined,
+                      target: const ThemeView(),
+                    ),
+                    if (system.isDesktop)
+                      (
+                        title: labels.hotkeyManagement,
+                        subtitle: labels.hotkeyManagementDesc,
+                        icon: Icons.keyboard_outlined,
+                        target: const HotKeyView(),
+                      ),
+                    (
+                      title: labels.about,
+                      subtitle: '${labels.about} BfClash',
+                      icon: Icons.info_outline,
+                      target: const AboutView(),
+                    ),
+                    (
+                      title: labels.developerMode,
+                      subtitle: labels.developerModeDesc,
+                      icon: Icons.developer_mode,
+                      target: const DeveloperView(),
+                    ),
+                  ];
+              final width = constraints.maxWidth >= 1000
+                  ? (constraints.maxWidth - 16) / 2
+                  : constraints.maxWidth;
+              return Wrap(
+                spacing: 16,
+                runSpacing: 12,
+                children: [
+                  for (final entry in entries)
+                    SizedBox(
+                      width: width,
+                      child: _ToolCard(
+                        title: entry.title,
+                        subtitle: entry.subtitle,
+                        icon: entry.icon,
+                        compact: true,
+                        onTap: () => _open(context, entry.target),
+                      ),
+                    ),
+                  if (system.isWindows)
+                    SizedBox(
+                      width: width,
+                      child: _ToolCard(
+                        title: labels.loopback,
+                        subtitle: labels.loopbackDesc,
+                        icon: Icons.lock_open,
+                        compact: true,
+                        onTap: () =>
+                            globalState.safeRun<void>(launchLoopbackTool),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildMenuItem({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    Color? iconColor,
-    required Widget target,
-    required bool isWide,
-  }) {
-    final isSelected =
-        isWide && _selectedWidget.runtimeType == target.runtimeType;
+String _versionLabel() {
+  try {
+    return 'v${globalState.packageInfo.version}';
+  } on Error {
+    return 'BfClash';
+  }
+}
 
-    return Tooltip(
-      message: isWide ? subtitle : '',
-      child: Container(
-        decoration: ShapeDecoration(
-          gradient: isSelected
-              ? LinearGradient(
+class _ToolCard extends StatelessWidget {
+  const _ToolCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+    this.prominent = false,
+    this.compact = false,
+  });
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool prominent;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonCard(
+      radius: AppCorner.lg,
+      onPressed: onTap,
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 18 : 24),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(compact ? 10 : 14),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
                   colors: desktopAccentGradient(context).colors
-                      .map((color) => color.withValues(alpha: 0.12))
+                      .map((color) => color.withValues(alpha: 0.14))
                       .toList(),
-                )
-              : null,
-          shape: AppShape.md,
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 2),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: AppRadius.md,
-          clipBehavior: Clip.antiAlias,
-          child: ListItem(
-            leading: Container(
-              padding: const EdgeInsets.all(7),
-              decoration: ShapeDecoration(
-                color: context.colorScheme.primary.withValues(
-                  alpha: isSelected ? 0.14 : 0.06,
                 ),
-                shape: AppShape.sm,
+                borderRadius: AppRadius.md,
               ),
               child: Icon(
                 icon,
-                size: 18,
-                color: iconColor ?? context.colorScheme.primary,
+                size: compact ? 22 : 30,
+                color: context.colorScheme.primary,
               ),
             ),
-            title: Text(
-              title,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected
-                    ? context.colorScheme.onSecondaryContainer
-                    : null,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style:
+                        (compact
+                                ? context.textTheme.titleSmall
+                                : context.textTheme.titleLarge)
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    subtitle,
+                    maxLines: compact ? 2 : 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (!compact) ...[
+                    const SizedBox(height: 20),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: prominent
+                            ? desktopAccentGradient(context)
+                            : null,
+                        borderRadius: AppRadius.sm,
+                        border: prominent
+                            ? null
+                            : Border.all(
+                                color: context.colorScheme.outlineVariant,
+                              ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        child: Text(
+                          title,
+                          style: context.textTheme.labelLarge?.copyWith(
+                            color: prominent
+                                ? const Color(0xFF10101A)
+                                : context.colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            subtitle: isWide
-                ? null
-                : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-            trailing: isWide
-                ? (isSelected
-                      ? Icon(
-                          Icons.chevron_right,
-                          color: context.colorScheme.primary,
-                        )
-                      : null)
-                : const Icon(Icons.chevron_right),
-            onTap: () {
-              if (isWide) {
-                _selectView(target);
-              } else {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => target));
-              }
-            },
-          ),
+            if (compact) const Icon(Icons.chevron_right, size: 20),
+          ],
         ),
       ),
     );
