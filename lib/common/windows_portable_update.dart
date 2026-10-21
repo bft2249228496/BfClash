@@ -302,13 +302,19 @@ function Show-Fail([string]$message) {
     [void][System.Windows.MessageBox]::Show($failBody.Replace('{detail}', $message).Replace('{log}', $log), $failTitle, 'OK', 'Error')
   } catch {}
 }
+function Hash-File([string]$path) {
+  $stream = [IO.File]::OpenRead($path)
+  $algorithm = [Security.Cryptography.SHA256]::Create()
+  try { return [BitConverter]::ToString($algorithm.ComputeHash($stream)) }
+  finally { $stream.Dispose(); $algorithm.Dispose() }
+}
 function Preserve-UnchangedNativeFiles {
   foreach ($file in @(Get-ChildItem -LiteralPath $stage -Recurse -File | Where-Object { $_.Extension -in '.dll','.exe' })) {
     $relative = $file.FullName.Substring($stage.Length + 1)
     $original = Join-Path $dir $relative
     if (-not (Test-Path -LiteralPath $original -PathType Leaf)) { continue }
     if ((Get-Item -LiteralPath $original).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
-    if ((Get-FileHash -LiteralPath $original).Hash -cne (Get-FileHash -LiteralPath $file.FullName).Hash) { continue }
+    if ((Hash-File $original) -cne (Hash-File $file.FullName)) { continue }
     Remove-Item -LiteralPath $file.FullName -Force
     New-Item -ItemType HardLink -Path $file.FullName -Value $original | Out-Null
     L ('preserved unchanged native file identity: ' + $relative)
