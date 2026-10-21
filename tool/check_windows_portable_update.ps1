@@ -59,6 +59,7 @@ if ($case -eq 'protocol2-health-failure') {
   }
 }
 function Get-App { if ($case -in 'preflight-failure','corrupt-zip','missing-exe','traversal','duplicate','cancelled') { @([PSCustomObject]@{Id=1234}) } else { @() } }
+function Test-Payload {}
 if ($case -eq 'preflight-failure') { function Test-Payload { throw 'injected payload load rejection' } }
 function Stop-Installed { Add-Content $events 'stop' }
 function Start-Helper {

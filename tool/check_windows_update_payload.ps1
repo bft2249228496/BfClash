@@ -27,6 +27,11 @@ try {
   Copy-Item (Join-Path $env:WINDIR 'System32\version.dll') (Join-Path $folder 'version.dll')
   [IO.File]::WriteAllBytes((Join-Path $folder 'app.so'), [byte[]](0x7f,0x45,0x4c,0x46))
   Check $folder $false
+  Copy-Item (Join-Path $env:WINDIR 'System32\whoami.exe') (Join-Path $folder 'whoami.exe')
+  Check $folder $false
+  [IO.File]::WriteAllText((Join-Path $folder 'broken.exe'), 'not an executable image')
+  Check $folder $true
+  Remove-Item (Join-Path $folder 'broken.exe')
   [IO.File]::WriteAllText((Join-Path $folder 'broken.dll'), 'not an executable image')
   Check $folder $true
 } finally { Remove-Item -LiteralPath $folder -Recurse -Force }
