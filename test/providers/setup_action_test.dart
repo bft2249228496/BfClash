@@ -82,6 +82,7 @@ class TestSetupAction extends SetupAction {
   bool blockCoreCalls = false;
   Error? coreRunningError;
   bool coreRunningResult = true;
+  bool applyProfileResult = true;
   int authorizeCalls = 0;
   AuthorizeCode authorizeResult = AuthorizeCode.none;
 
@@ -117,7 +118,7 @@ class TestSetupAction extends SetupAction {
   }) async {
     applyProfileCalls++;
     await preloadInvoke?.call();
-    return true;
+    return applyProfileResult;
   }
 }
 
@@ -341,6 +342,22 @@ void main() {
   });
 
   group('initStatus', () {
+    test('reports failed profile setup to the update health gate', () async {
+      container.read(appSettingProvider.notifier).value = const AppSettingProps(
+        autoRun: false,
+      );
+      action.applyProfileResult = false;
+      expect(await action.initStatus(), isFalse);
+    });
+
+    test('reports failed autoRun to the update health gate', () async {
+      container.read(appSettingProvider.notifier).value = const AppSettingProps(
+        autoRun: true,
+      );
+      action.applyProfileResult = false;
+      expect(await action.initStatus(), isFalse);
+    });
+
     test('is a no-op once the status has already been initialized', () async {
       globalState.needInitStatus = false;
 

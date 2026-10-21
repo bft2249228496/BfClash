@@ -107,10 +107,10 @@ class SetupAction extends _$SetupAction {
     _startTime = await service?.getRunTime();
   }
 
-  Future<void> initStatus() async {
+  Future<bool> initStatus() async {
     if (!globalState.needInitStatus) {
       commonPrint.log('init status cancel');
-      return;
+      return true;
     }
     commonPrint.log('init status');
     if (system.isAndroid) {
@@ -118,9 +118,10 @@ class SetupAction extends _$SetupAction {
     }
     final shouldRun = _isRunning || ref.read(appSettingProvider).autoRun;
     if (shouldRun) {
-      await setRunning(true, initialize: true);
+      return setRunning(true, initialize: true);
     } else {
-      await globalState.safeRun(() => applyProfile(force: true));
+      return await globalState.safeRun(() => applyProfile(force: true)) ??
+          false;
     }
   }
 

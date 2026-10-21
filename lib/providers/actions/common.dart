@@ -491,6 +491,7 @@ class CommonAction extends _$CommonAction {
           serviceName: appHelperService,
           targetVersion: windowsPortableAsset.packagedVersion,
           temporaryDirectory: file.parent.path,
+          dataDirectory: await appPath.homeDirPath,
           launcher: (file, arguments) =>
               windows?.runas(file, arguments) ?? false,
           exitApplication: ref.read(systemActionProvider.notifier).handleExit,

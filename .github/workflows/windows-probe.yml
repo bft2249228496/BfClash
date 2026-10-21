@@ -65,6 +65,11 @@ jobs:
       - name: Verify installer cancellation and confirmed cleanup
         run: ./tool/check_windows_uninstall.ps1
 
+      - name: Verify transactional update rollback and health gates
+        run: |
+          ./tool/check_windows_portable_update.ps1
+          ./tool/check_windows_update_health.ps1
+
       - name: Flutter doctor
         run: flutter doctor -v
 
@@ -72,7 +77,7 @@ jobs:
         run: flutter pub get
 
       - name: Run Update Channel and Architecture Tests
-        run: flutter test test/common/android_update_identity_test.dart test/common/windows_update_policy_test.dart test/setup_test.dart test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_migration_test.dart test/common/windows_update_strategy_test.dart test/common/windows_portable_update_test.dart test/common/windows_update_download_test.dart test/common/resumable_download_test.dart test/common/resumable_download_process_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart test/common/loopback_test.dart
+        run: flutter test test/common/android_update_identity_test.dart test/common/windows_update_policy_test.dart test/setup_test.dart test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_migration_test.dart test/common/windows_update_strategy_test.dart test/common/windows_portable_update_test.dart test/common/windows_update_health_test.dart test/common/windows_update_download_test.dart test/common/resumable_download_test.dart test/common/resumable_download_process_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart test/common/loopback_test.dart
 
       - name: Run Desktop Navigation Flow Widget Tests
         run: flutter test test/views/desktop_navigation_flow_test.dart test/views/desktop_dashboard_visual_test.dart test/common/desktop_style_test.dart test/widgets/desktop_settings_list_test.dart test/widgets/profile_focus_test.dart test/widgets/edit_profile_focus_test.dart test/widgets/proxies_tab_test.dart test/views/proxies_group_offsets_test.dart test/pages/home_test.dart test/common/window_position_test.dart test/common/window_test.dart

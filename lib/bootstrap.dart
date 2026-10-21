@@ -10,6 +10,7 @@ import 'package:bfclash/common/migration.dart';
 import 'package:bfclash/common/permission.dart';
 import 'package:bfclash/common/tray.dart';
 import 'package:bfclash/common/window.dart';
+import 'package:bfclash/common/windows_update_health.dart';
 import 'package:bfclash/database/database.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/l10n/l10n.dart';
@@ -164,11 +165,21 @@ class Bootstrap {
     await _showCrashRecoveryTip();
     await _showCrashlyticsTip();
     await _container.read(coreActionProvider.notifier).startCore();
-    if (!_bootDecision.isDegraded) {
-      await _container.read(setupActionProvider.notifier).initStatus();
-    }
+    final setupReady =
+        !_bootDecision.isDegraded &&
+        await _container.read(setupActionProvider.notifier).initStatus();
     _container.read(initProvider.notifier).value = true;
     await bootGuard.markRunning();
+    if (Platform.isWindows &&
+        setupReady &&
+        _container.read(coreStatusProvider) == CoreStatus.connected) {
+      await reportWindowsUpdateHealth(
+        executablePath: Platform.resolvedExecutable,
+        localAppData: Platform.environment['LOCALAPPDATA'] ?? '',
+        version: globalState.packageInfo.version,
+        processId: pid,
+      );
+    }
     permissions.check(_container.read);
   }
 

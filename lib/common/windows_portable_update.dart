@@ -4,22 +4,12 @@ import 'dart:io';
 import 'app_localizations.dart';
 import 'exception.dart';
 
-/// `powershell.exe` always lives in the system directory, so the path is stable
-/// across x64/arm64 Windows installs.
 const windowsPowerShellPath =
     r'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe';
 
-/// A fully prepared elevated command that swaps the installed files in place.
-///
-/// The script is passed to PowerShell through `-EncodedCommand`, which keeps it
-/// out of the filesystem: no `.ps1` lands in `%TEMP%`, so Windows never attaches
-/// a mark-of-the-web and application control cannot block the helper the way it
-/// blocks the Inno Setup staging copy (error 4551).
 class WindowsPortableUpdatePlan {
-  /// Decoded PowerShell source, kept for logging and tests.
   final String script;
 
-  /// Command line arguments passed to [windowsPowerShellPath].
   final List<String> arguments;
 
   const WindowsPortableUpdatePlan({
@@ -41,6 +31,8 @@ WindowsPortableUpdatePlan buildWindowsPortableUpdatePlan({
   required String failureBodyTemplate,
   String powerShellPath = windowsPowerShellPath,
   String temporaryDirectory = '',
+  String dataDirectory = '',
+  String healthDirectory = '',
 }) {
   String encode(String value) => base64Encode(utf8.encode(value));
 
@@ -53,9 +45,18 @@ WindowsPortableUpdatePlan buildWindowsPortableUpdatePlan({
       .replaceFirst('__VERSION__', "'${encode(targetVersion)}'")
       .replaceFirst('__TITLE__', "'${encode(failureTitle)}'")
       .replaceFirst('__FAILBODY__', "'${encode(failureBodyTemplate)}'")
-      .replaceFirst('__TEMP__', "'${encode(temporaryDirectory)}'");
+      .replaceFirst('__DATA__', "'${encode(dataDirectory)}'")
+      .replaceFirst('__HEALTH__', "'${encode(healthDirectory)}'");
 
-  final encoded = base64Encode(_utf16LeBytes(script));
+  final compressed = base64Encode(gzip.encode(utf8.encode(script)));
+  final bootstrap =
+      r'$bytes=[Convert]::FromBase64String('
+      "'$compressed');"
+      r'$stream=[IO.MemoryStream]::new(,$bytes);'
+      r'$gzip=[IO.Compression.GZipStream]::new($stream,[IO.Compression.CompressionMode]::Decompress);'
+      r'$reader=[IO.StreamReader]::new($gzip,[Text.Encoding]::UTF8);'
+      r'try { & ([ScriptBlock]::Create($reader.ReadToEnd())) } finally { $reader.Dispose(); $stream.Dispose() }';
+  final encoded = base64Encode(_utf16LeBytes(bootstrap));
   return WindowsPortableUpdatePlan(
     script: script,
     arguments: [
@@ -82,13 +83,6 @@ List<int> _utf16LeBytes(String value) {
   return bytes;
 }
 
-/// Replaces the installed files without running the Inno Setup installer.
-///
-/// Used when Smart App Control (or an unreadable policy state) would otherwise
-/// block the unsigned installer's extracted staging copy. The elevated helper
-/// waits for this process to exit, stops the helper service, kills leftovers,
-/// backs up the previous files, unpacks the verified zip over them, restarts the
-/// service and relaunches the app as the signed-in user.
 Future<void> launchWindowsPortableUpdate({
   required String zipPath,
   required String installDirectory,
@@ -102,6 +96,7 @@ Future<void> launchWindowsPortableUpdate({
   String failureBodyTemplate = '',
   String powerShellPath = windowsPowerShellPath,
   String temporaryDirectory = '',
+  String dataDirectory = '',
 }) async {
   final plan = buildWindowsPortableUpdatePlan(
     parentProcessId: parentProcessId ?? pid,
@@ -123,6 +118,9 @@ Future<void> launchWindowsPortableUpdate({
         : failureBodyTemplate,
     powerShellPath: powerShellPath,
     temporaryDirectory: temporaryDirectory,
+    dataDirectory: dataDirectory,
+    healthDirectory:
+        '${Platform.environment['LOCALAPPDATA'] ?? ''}\\BfClashUpdateHealth',
   );
   if (!launcher(powerShellPath, plan.commandLine)) {
     throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
@@ -130,149 +128,235 @@ Future<void> launchWindowsPortableUpdate({
   await exitApplication();
 }
 
-/// ASCII-only helper body; every path, message and version is injected as a
-/// base64 blob so the encoded command survives non-ASCII install directories.
 const _scriptTemplate = r'''
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 function Dec([string]$v) { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($v)) }
 $parentPid = __PARENT_PID__
 $zip = Dec(__ZIP__)
-$dir = Dec(__DIR__)
-$exe = Dec(__EXE__)
+$dir = [IO.Path]::GetFullPath((Dec(__DIR__))).TrimEnd('\')
+$exe = [IO.Path]::GetFullPath((Dec(__EXE__)))
 $service = Dec(__SERVICE__)
 $version = Dec(__VERSION__)
 $failTitle = Dec(__TITLE__)
 $failBody = Dec(__FAILBODY__)
-$tempRoot = Dec(__TEMP__)
+$dataDir = Dec(__DATA__)
 $log = Join-Path $env:TEMP 'bfclash-portable-update.log'
-$backedUp = $false
-$backup = Join-Path $env:LOCALAPPDATA 'BfClashUpdateBackup\previous'
+$nonce = [Guid]::NewGuid().ToString('N')
+$transaction = Join-Path ([IO.Path]::GetDirectoryName($dir)) ('.' + [IO.Path]::GetFileName($dir) + '.update-' + $nonce)
+$backup = Join-Path $transaction 'previous'
+$stage = Join-Path $transaction 'staged'
+$dataBackup = Join-Path $transaction 'userdata'
+$healthRoot = Dec(__HEALTH__)
+if (-not $healthRoot) { $healthRoot = Join-Path $env:LOCALAPPDATA 'BfClashUpdateHealth' }
+$health = Join-Path $healthRoot ($nonce + '.json')
+$pending = Join-Path $dir '.bfclash-update-pending.json'
+$launchAttempted = $false
+$stopped = $false
+$serviceWasRunning = $false
+$mutex = $null
+$locked = $false
 function L([string]$m) {
   try { Add-Content -LiteralPath $log -Value ('[{0}] {1}' -f (Get-Date -Format 'HH:mm:ss'), $m) -Encoding UTF8 } catch {}
 }
+function Get-InstalledProcesses {
+  @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
+    $path = $null
+    try { $path = $_.Path } catch {}
+    $path -and $path.StartsWith($dir + '\', [StringComparison]::OrdinalIgnoreCase)
+  })
+}
+function Get-App {
+  @(Get-InstalledProcesses | Where-Object { $_.Path -ieq $exe })
+}
+function Stop-Installed {
+  if ($service) {
+    $svc = Get-Service -Name $service -ErrorAction SilentlyContinue
+    if ($svc -and $svc.Status -ne 'Stopped') {
+      Stop-Service -Name $service -Force -ErrorAction Stop
+      $svc.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(20))
+    }
+  }
+  for ($i = 0; $i -lt 30; $i++) {
+    $alive = @(Get-InstalledProcesses)
+    if ($alive.Count -eq 0) { return }
+    foreach ($item in $alive) { $item.Kill() }
+    Start-Sleep -Milliseconds 300
+  }
+  throw 'installed processes did not exit; files have not been replaced'
+}
+function Start-Helper {
+  if ($serviceWasRunning) {
+    Start-Service -Name $service -ErrorAction Stop
+    (Get-Service -Name $service).WaitForStatus('Running', [TimeSpan]::FromSeconds(20))
+  }
+}
 function Start-App {
-  try {
-    Start-Process -FilePath (Join-Path $env:WINDIR 'explorer.exe') -ArgumentList ('"' + $exe + '"') | Out-Null
-    Start-Sleep -Milliseconds 1500
-    $running = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
-      $path = $null
-      try { $path = $_.Path } catch {}
-      $path -and $path.Equals($exe, [StringComparison]::OrdinalIgnoreCase)
-    })
-    if ($running.Count -eq 0) { Start-Process -FilePath $exe -WorkingDirectory $dir | Out-Null }
-    L 'app relaunched'
-  } catch { L ('relaunch failed: ' + $_) }
+  Start-Process -FilePath (Join-Path $env:WINDIR 'explorer.exe') -ArgumentList ('"' + $exe + '"') | Out-Null
+  for ($i = 0; $i -lt 40; $i++) {
+    Start-Sleep -Milliseconds 200
+    if (@(Get-App).Count -gt 0) { L 'app process started'; return }
+  }
+  throw 'app did not start'
+}
+function Wait-AppReady {
+  $deadline = (Get-Date).AddSeconds(60)
+  while ((Get-Date) -lt $deadline) {
+    if (Test-Path -LiteralPath $health) {
+      $ready = $null
+      try { $ready = Get-Content -LiteralPath $health -Raw | ConvertFrom-Json } catch {}
+      if ($ready -and $ready.nonce -ceq $nonce -and $ready.version -ceq $version) {
+        $app = @(Get-App | Where-Object { $_.Id -eq $ready.processId })
+        if ($app.Count -eq 1) {
+          for ($i = 0; $i -lt 16; $i++) {
+            Start-Sleep -Milliseconds 500
+            if (@(Get-App | Where-Object { $_.Id -eq $ready.processId }).Count -ne 1) { throw 'updated app exited after initialization' }
+          }
+          L 'app initialization and core connection confirmed'
+          return
+        }
+      }
+    }
+    if (@(Get-App).Count -eq 0) { throw 'updated app exited before initialization' }
+    Start-Sleep -Milliseconds 300
+  }
+  throw 'updated app did not confirm initialization and core connection'
+}
+function Wait-RestoredApp {
+  Add-Type -TypeDefinition @'
+using System;using System.Text;using System.Runtime.InteropServices;
+public class BfUpdateWindow {
+ public delegate bool Callback(IntPtr h,IntPtr l);
+ [DllImport("user32.dll")] static extern bool EnumWindows(Callback c,IntPtr l);
+ [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
+ [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr h,StringBuilder b,int n);
+ [DllImport("user32.dll")] static extern bool IsHungAppWindow(IntPtr h);
+ public static bool Ready(uint id) {bool found=false;EnumWindows((h,l)=>{uint p;GetWindowThreadProcessId(h,out p);var b=new StringBuilder(256);GetClassName(h,b,256);if(p==id&&b.ToString().StartsWith("FLUTTER_RUNNER")&&!IsHungAppWindow(h)){found=true;return false;}return true;},IntPtr.Zero);return found;}
+}
+'@
+  for ($i = 0; $i -lt 60; $i++) {
+    $app = @(Get-App)
+    foreach ($item in $app) {
+      if ([BfUpdateWindow]::Ready($item.Id)) {
+        Start-Sleep -Seconds 3
+        if (@(Get-App | Where-Object { $_.Id -eq $item.Id }).Count -eq 1) { L 'previous app window restored'; return }
+      }
+    }
+    Start-Sleep -Milliseconds 300
+  }
+  throw 'previous app window could not be confirmed'
+}
+function Copy-Tree([string]$source, [string]$destination, [bool]$mirror = $false) {
+  $mode = '/E'
+  if ($mirror) { $mode = '/MIR' }
+  robocopy $source $destination $mode /XJ /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
+  if ($LASTEXITCODE -ge 8) { throw ('file copy failed with code ' + $LASTEXITCODE) }
 }
 function Show-Fail([string]$message) {
   L ('FAILED: ' + $message)
   try {
-    $text = $failBody.Replace('{detail}', $message).Replace('{log}', $log)
-    $text64 = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($text))
-    $title64 = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($failTitle))
-    $dialog = "Add-Type -AssemblyName PresentationFramework; [void][System.Windows.MessageBox]::Show([Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('$text64')), [Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('$title64')), 'OK', 'Error')"
-    $encodedDialog = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($dialog))
-    Start-Process -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList @('-NoProfile', '-STA', '-WindowStyle', 'Hidden', '-EncodedCommand', $encodedDialog) | Out-Null
+    Add-Type -AssemblyName PresentationFramework
+    [void][System.Windows.MessageBox]::Show($failBody.Replace('{detail}', $message).Replace('{log}', $log), $failTitle, 'OK', 'Error')
   } catch {}
 }
+function Update-DisplayVersion {
+  if (-not $version) { return }
+  foreach ($root in @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall', 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall')) {
+    Get-ChildItem -Path $root -ErrorAction SilentlyContinue | ForEach-Object {
+      $item = Get-ItemProperty -Path $_.PSPath -ErrorAction SilentlyContinue
+      if ($item.InstallLocation -and $item.InstallLocation.TrimEnd('\') -ieq $dir) {
+        Set-ItemProperty -Path $_.PSPath -Name DisplayVersion -Value $version -ErrorAction Stop
+      }
+    }
+  }
+}
 try {
-  L ('portable update start pid=' + $parentPid + ' dir=' + $dir)
-  try {
-    $proc = Get-Process -Id $parentPid -ErrorAction Stop
-    [void]$proc.WaitForExit(120000)
-  } catch { L 'parent process already exited' }
-  Start-Sleep -Milliseconds 800
-  if ($service) {
-    $svc = Get-Service -Name $service -ErrorAction SilentlyContinue
-    if ($svc -and $svc.Status -ne 'Stopped') {
-      L ('stop service ' + $service)
-      try { Stop-Service -Name $service -Force -ErrorAction Stop } catch { L ('stop service failed: ' + $_) }
-    }
-  }
-  for ($i = 0; $i -lt 25; $i++) {
-    $alive = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
-      $path = $null
-      try { $path = $_.Path } catch {}
-      $path -and $path.StartsWith($dir, [StringComparison]::OrdinalIgnoreCase)
-    })
-    if ($alive.Count -eq 0) { break }
-    foreach ($item in $alive) {
-      L ('kill ' + $item.ProcessName + ' ' + $item.Id)
-      try { $item.Kill() } catch { L ('kill failed: ' + $_) }
-    }
-    Start-Sleep -Milliseconds 400
-  }
-  try {
-    if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Recurse -Force -ErrorAction SilentlyContinue }
-    robocopy $dir $backup /E /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null
-    if ($LASTEXITCODE -lt 8) { $backedUp = $true; L ('backup ok: ' + $backup) } else { L ('backup exit ' + $LASTEXITCODE) }
-  } catch { L ('backup failed: ' + $_) }
+  if (-not $exe.StartsWith($dir + '\', [StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetDirectoryName($dir) -eq $null) { throw 'invalid install path' }
+  $keyBytes = [Text.Encoding]::UTF8.GetBytes($dir.ToLowerInvariant())
+  $key = ([BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash($keyBytes))).Replace('-', '')
+  $mutex = [Threading.Mutex]::new($false, ('Global\BfClashUpdate-' + $key))
+  try { $locked = $mutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $locked = $true }
+  if (-not $locked) { throw 'another update is already running' }
+  L ('transaction start: ' + $transaction)
+  New-Item -ItemType Directory -Path $stage -Force | Out-Null
   Add-Type -AssemblyName System.IO.Compression.FileSystem
   $archive = [IO.Compression.ZipFile]::OpenRead($zip)
   try {
-    $entries = @($archive.Entries | Where-Object {
-      -not [string]::IsNullOrEmpty($_.Name) -and -not $_.FullName.StartsWith('__MACOSX/')
-    })
-    $prefix = ''
+    $entries = @($archive.Entries | Where-Object { -not [string]::IsNullOrEmpty($_.Name) -and -not $_.FullName.StartsWith('__MACOSX/') })
     if ($entries.Count -eq 0) { throw 'update archive is empty' }
-    $first = $entries[0].FullName
-    $slash = $first.IndexOf('/')
-    if ($slash -gt 0) {
-      $candidate = $first.Substring(0, $slash + 1)
-      $shared = $true
-      foreach ($entry in $entries) {
-        if (-not $entry.FullName.StartsWith($candidate, [StringComparison]::OrdinalIgnoreCase)) { $shared = $false; break }
-      }
-      if ($shared -and -not (Test-Path -LiteralPath (Join-Path $dir $candidate.TrimEnd('/')))) { $prefix = $candidate }
-    }
-    L ('zip entries ' + $entries.Count + ' prefix "' + $prefix + '"')
-    $count = 0
     foreach ($entry in $entries) {
-      $relative = $entry.FullName
-      if ($prefix) { $relative = $relative.Substring($prefix.Length) }
-      if ([string]::IsNullOrEmpty($relative)) { continue }
-      $target = Join-Path $dir $relative
-      $targetDir = [IO.Path]::GetDirectoryName($target)
-      if ($targetDir -and -not (Test-Path -LiteralPath $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
-      if (Test-Path -LiteralPath $target) { Set-ItemProperty -LiteralPath $target -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue }
-      [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $true)
-      $count++
+      if ([IO.Path]::IsPathRooted($entry.FullName) -or $entry.FullName.Contains(':') -or @($entry.FullName.Split('/\') | Where-Object { $_ -eq '..' }).Count -gt 0) { throw 'invalid archive path' }
     }
-    L ('extracted ' + $count + ' files')
+    $prefix = ''
+    $slash = $entries[0].FullName.IndexOf('/')
+    if ($slash -gt 0) {
+      $candidate = $entries[0].FullName.Substring(0, $slash + 1)
+      $shared = @($entries | Where-Object { -not $_.FullName.StartsWith($candidate, [StringComparison]::OrdinalIgnoreCase) }).Count -eq 0
+      if ($shared -and @($entries | Where-Object { $_.FullName -ieq ($candidate + [IO.Path]::GetFileName($exe)) }).Count -eq 1) { $prefix = $candidate }
+    }
+    $seen = @{}
+    $stagedExe = Join-Path $stage $exe.Substring($dir.Length + 1)
+    foreach ($entry in $entries) {
+      $relative = $entry.FullName.Substring($prefix.Length)
+      $target = [IO.Path]::GetFullPath((Join-Path $stage $relative))
+      if (-not $target.StartsWith($stage + '\', [StringComparison]::OrdinalIgnoreCase) -or $seen.ContainsKey($target)) { throw 'invalid or duplicate archive path' }
+      $seen[$target] = $true
+      New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($target)) -Force | Out-Null
+      [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $false)
+    }
+    if (-not $seen.ContainsKey($stagedExe)) { throw 'executable missing from update archive' }
+    if ($seen.ContainsKey((Join-Path $stage '.bfclash-update-pending.json'))) { throw 'reserved update file in archive' }
   } finally { $archive.Dispose() }
-  if ($service) {
-    try { Start-Service -Name $service -ErrorAction Stop; L ('service started ' + $service) } catch { L ('start service failed: ' + $_) }
+  $proc = Get-Process -Id $parentPid -ErrorAction SilentlyContinue
+  if ($proc -and -not $proc.WaitForExit(120000)) { throw 'app did not exit; update cancelled' }
+  $svc = $null
+  if ($service) { $svc = Get-Service -Name $service -ErrorAction SilentlyContinue }
+  $serviceWasRunning = $svc -and $svc.Status -eq 'Running'
+  $stopped = $true
+  Stop-Installed
+  foreach ($uninstaller in @(Get-ChildItem -LiteralPath $dir -Filter 'unins*' -File)) {
+    if (-not (Test-Path -LiteralPath (Join-Path $stage $uninstaller.Name))) { New-Item -ItemType HardLink -Path (Join-Path $stage $uninstaller.Name) -Value $uninstaller.FullName | Out-Null }
   }
-  if ($version) {
-    $trimmed = $dir.TrimEnd('\')
-    foreach ($root in @(
-      'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
-      'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
-      'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall')) {
-      Get-ChildItem -Path $root -ErrorAction SilentlyContinue | ForEach-Object {
-        $item = Get-ItemProperty -Path $_.PSPath -ErrorAction SilentlyContinue
-        if ($item.InstallLocation -and $item.InstallLocation.TrimEnd('\') -ieq $trimmed) {
-          Set-ItemProperty -Path $_.PSPath -Name DisplayVersion -Value $version -ErrorAction SilentlyContinue
-          L ('display version updated: ' + $_.PSChildName)
-        }
-      }
-    }
+  if ($dataDir) {
+    $dataDir = [IO.Path]::GetFullPath($dataDir).TrimEnd('\')
+    if (-not (Test-Path -LiteralPath $dataDir -PathType Container) -or $dataDir.Length -le 3 -or $dataDir -ieq $dir -or $dataDir.StartsWith($dir + '\', [StringComparison]::OrdinalIgnoreCase) -or $dir.StartsWith($dataDir + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'invalid user data directory' }
+    Copy-Tree $dataDir $dataBackup
   }
-  if (-not (Test-Path -LiteralPath $exe)) { throw 'executable missing after update' }
+  @{nonce=$nonce; version=$version; createdUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $stage '.bfclash-update-pending.json') -Encoding UTF8
+  Move-Item -LiteralPath $dir -Destination $backup
+  Move-Item -LiteralPath $stage -Destination $dir
+  Start-Helper
+  $launchAttempted = $true
   Start-App
-  if ($tempRoot) { try { Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue } catch {} }
-  L 'portable update done'
+  Wait-AppReady
+  Remove-Item -LiteralPath $pending -Force
+  Remove-Item -LiteralPath $health -Force -ErrorAction SilentlyContinue
+  try { Update-DisplayVersion } catch { L ('display version update failed: ' + $_) }
+  L ('portable update committed; original files retained: ' + $backup)
   exit 0
 } catch {
   $message = $_.Exception.Message
-  L ('error: ' + $message)
-  if ($backedUp) {
-    L 'restoring backup'
-    try { robocopy $backup $dir /E /NFL /NDL /NJH /NJS /NP /R:1 /W:1 | Out-Null } catch { L ('restore failed: ' + $_) }
-    if (Test-Path -LiteralPath $exe) { Start-App }
+  L ('update error: ' + $message)
+  if ($locked -and $stopped) {
+    try {
+      Stop-Installed
+      if (Test-Path -LiteralPath $backup) {
+        if (Test-Path -LiteralPath $dir) { Move-Item -LiteralPath $dir -Destination (Join-Path $transaction 'failed') }
+        Move-Item -LiteralPath $backup -Destination $dir
+        if ($launchAttempted -and (Test-Path -LiteralPath $dataBackup)) { Copy-Tree $dataBackup $dataDir $true }
+      }
+      Start-Helper
+      Start-App
+      Wait-RestoredApp
+      L 'rollback confirmed'
+    } catch { $message += '; recovery failed: ' + $_.Exception.Message; L $message }
+  } elseif ($locked -and @(Get-App).Count -eq 0 -and (Test-Path -LiteralPath $exe)) {
+    try { Start-App; Wait-RestoredApp } catch { L ('restart unchanged app failed: ' + $_) }
   }
-  if ($service) { try { Start-Service -Name $service -ErrorAction SilentlyContinue } catch {} }
   Show-Fail $message
   exit 1
+} finally {
+  if ($locked -and $mutex) { $mutex.ReleaseMutex() }
+  if ($mutex) { $mutex.Dispose() }
 }
 ''';

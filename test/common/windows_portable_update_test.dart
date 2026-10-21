@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/common/windows_portable_update.dart';
@@ -15,7 +16,11 @@ void main() {
     for (var index = 0; index < bytes.length; index += 2) {
       units.add(bytes[index] | (bytes[index + 1] << 8));
     }
-    return String.fromCharCodes(units);
+    final bootstrap = String.fromCharCodes(units);
+    final compressed = RegExp(
+      "FromBase64String\\('([^']+)'\\)",
+    ).firstMatch(bootstrap)!.group(1)!;
+    return utf8.decode(gzip.decode(base64Decode(compressed)));
   }
 
   WindowsPortableUpdatePlan plan() => buildWindowsPortableUpdatePlan(
@@ -36,7 +41,7 @@ void main() {
 
     expect(script.codeUnits.every((unit) => unit < 128), isTrue);
     expect(script, contains(r'$parentPid = 4242'));
-    expect(script, contains(r'stop service '));
+    expect(script, contains(r'Stop-Installed'));
     expect(script, contains(r'Stop-Service -Name $service'));
     expect(script, contains(r'Start-Service -Name $service'));
     expect(
@@ -44,7 +49,12 @@ void main() {
       contains('[IO.Compression.ZipFileExtensions]::ExtractToFile'),
     );
     expect(script, contains('robocopy'));
-    expect(script, contains('BfClashUpdateBackup'));
+    expect(
+      script,
+      contains(r'Move-Item -LiteralPath $dir -Destination $backup'),
+    );
+    expect(script, contains('Wait-AppReady'));
+    expect(script, contains('Wait-RestoredApp'));
     expect(script, contains(r'$env:WINDIR'));
     expect(script, contains(r"'bfclash-portable-update.log'"));
     expect(script, isNot(contains('__ZIP__')));
@@ -70,6 +80,34 @@ void main() {
     // Windows caps a command line at 32767 characters.
     expect(updatePlan.commandLine.length, lessThan(30000));
   });
+
+  test('compressed command runs in Windows PowerShell', () async {
+    final updatePlan = plan();
+    final bytes = base64Decode(updatePlan.arguments.last);
+    final units = <int>[];
+    for (var index = 0; index < bytes.length; index += 2) {
+      units.add(bytes[index] | (bytes[index + 1] << 8));
+    }
+    final bootstrap = String.fromCharCodes(units);
+    final payload = RegExp(
+      "FromBase64String\\('([^']+)'\\)",
+    ).firstMatch(bootstrap)!.group(1)!;
+    final command = bootstrap.replaceFirst(
+      payload,
+      base64Encode(
+        gzip.encode(utf8.encode("[Console]::Write('healthy'); exit 7")),
+      ),
+    );
+    final encoded = base64Encode([
+      for (final unit in command.codeUnits) ...[unit & 0xff, unit >> 8],
+    ]);
+    final result = await Process.run(windowsPowerShellPath, [
+      ...updatePlan.arguments.take(updatePlan.arguments.length - 1),
+      encoded,
+    ]);
+    expect(result.exitCode, 7, reason: '${result.stderr}');
+    expect(result.stdout, 'healthy');
+  }, skip: !Platform.isWindows);
 
   test('launching the helper exits the app only after elevation', () async {
     String? command;
