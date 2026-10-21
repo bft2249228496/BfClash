@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:bfclash/common/release_tag.dart';
 import 'package:bfclash/common/update.dart';
 import 'package:bfclash/common/resumable_download.dart';
 
@@ -26,7 +27,16 @@ Map<String, dynamic>? selectWindowsBetaRelease(
   if (currentRun == null || currentRun <= 0) {
     throw const WindowsUpdateIdentityException();
   }
-  final currentBase = currentVersion.split('+').first.split('-').first;
+  final current = VersionInfo.parse(currentVersion);
+  final currentBase = '${current.major}.${current.minor}.${current.patch}';
+  // 构建号的尺子必须两边一致：
+  // - 1.x 起（新规范）tag 的 `-beta.<n>` 与安装包的 `<n>` 都是
+  //   `1000 + run_number * 10 + attempt`，可直接比 build 号；
+  // - 0.x 时代（历史 `-windows-ci.<github_run_id>`）tag 里放的是 run id 本身，
+  //   只能和烤进包里的 run id 比。
+  // 混用会让 1881 永远小于 39 亿这类 run id，表现为“已是最新”。
+  final currentBuild = current.major == 0 ? currentRun : current.preReleaseNum;
+  if (currentBuild == null) throw const WindowsUpdateIdentityException();
   final arch = switch (architecture.toLowerCase()) {
     'amd64' || 'x64' || 'x86_64' => 'amd64',
     'arm64' || 'aarch64' => 'arm64',
@@ -48,7 +58,7 @@ Map<String, dynamic>? selectWindowsBetaRelease(
     final run = int.tryParse(match.group(2)!);
     if (run == null) continue;
     final comparison = compareVersions(base, currentBase);
-    if (comparison < 0 || (comparison == 0 && run <= currentRun)) continue;
+    if (comparison < 0 || (comparison == 0 && run <= currentBuild)) continue;
     final assets = release['assets'];
     if (assets is! List) continue;
     final hasInstaller = assets.whereType<Map<String, dynamic>>().any((asset) {

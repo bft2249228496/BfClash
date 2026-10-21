@@ -34,7 +34,7 @@ void main() {
     List<dynamic> releases, {
     String run = '100',
     String arch = 'AMD64',
-    String version = '1.0.1+100',
+    String version = '1.0.1-beta.100',
   }) => selectWindowsBetaRelease(
     releases,
     currentVersion: version,
@@ -107,6 +107,53 @@ void main() {
     expect(
       select([release('v1.0.2-beta.102'), next], arch: 'ARM64'),
       same(next),
+    );
+  });
+
+  test('1.x beta 安装包能发现更新的 beta 构建', () {
+    // 真实安装态：版本号 1.0.0-beta.1871，烤进包里的是 GitHub run id。
+    // 构建号 1881 必须能和 1871 比较，而不是和 39 亿的 run id 比较。
+    final next = release('v1.0.0-beta.1881');
+    expect(
+      select(
+        [release('v1.0.0-beta.1871'), next],
+        version: '1.0.0-beta.1871',
+        run: '39455481933',
+      ),
+      same(next),
+    );
+  });
+
+  test('1.x beta 不会把自身当作更新', () {
+    expect(
+      select(
+        [release('v1.0.0-beta.1871')],
+        version: '1.0.0-beta.1871',
+        run: '39455481933',
+      ),
+      isNull,
+    );
+  });
+
+  test('0.x 历史安装仍按 run id 比较', () {
+    // 0.x 时代 tag 里是 github run id，不能拿 build 号去比；
+    // 比当前 run id 小的历史构建不算更新。
+    expect(
+      select(
+        [release('v0.2.27-windows-ci.39360628444')],
+        version: '0.2.27-beta.1861',
+        run: '39391134050',
+      ),
+      isNull,
+    );
+    final newer = release('v0.2.27-windows-ci.39400000000');
+    expect(
+      select(
+        [release('v0.2.27-windows-ci.39391134050'), newer],
+        version: '0.2.27-beta.1861',
+        run: '39391134050',
+      ),
+      same(newer),
     );
   });
 }
