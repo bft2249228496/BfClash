@@ -130,3 +130,10 @@ Windows 产物的主线号段由 `0.2.x` 迁移到 `1.x`：这是为了让两条
 1. **必须先发 Android 0.3.0，再发任何 Windows 1.x 正式版。** 否则 `/releases/latest` 会返回 Windows 包，老 Android 用户因找不到 `.apk` 资产而被判定「已是最新」，从此收不到更新。
 2. Android 0.3.0 之后的新客户端已改用 `GET /releases?per_page=100` 本地过滤，不再受该接口影响。
 3. Windows 只发 `beta`（`prerelease=true`）时不会污染 `latest`，可在 Android 0.3.0 之前先行发布。
+
+### 1.0.0 beta 更新迁移
+
+1871、1881 的 Windows 更新器把 tag 构建号与 GitHub run id 比较，无法发现同为 1.0.0 的更新。
+修复代码从 1891 起生效，但恢复旧安装必须发布基础版本更高的 1.0.1-beta，不能仅发布新的 1.0.0-beta 并要求用户手动覆盖。
+`test/common/windows_update_migration_test.dart` 使用 1871 原始选择器验证过渡版可见性、两种资产选择，以及过渡版到后续同基础版本构建的更新。
+Windows 发版验收必须同时检查已发布旧客户端和新客户端，不得仅凭新源码测试通过宣称旧安装可升级。
