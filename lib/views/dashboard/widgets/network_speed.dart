@@ -63,9 +63,8 @@ class NetworkSpeed extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     appLocalizations.realtimeRate,
-                                    style: context.textTheme.labelMedium
+                                    style: context.textTheme.titleSmall
                                         ?.copyWith(
-                                          fontSize: 12,
                                           color: context
                                               .colorScheme
                                               .onSurfaceVariant,
