@@ -172,6 +172,7 @@ Future<void> _waitForPreparation(File prepared) async {
 const _scriptTemplate = r'''
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
+$env:PSModulePath = Join-Path $PSHOME 'Modules'
 function Dec([string]$v) { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($v)) }
 $parentPid = __PARENT_PID__
 $zip = Dec(__ZIP__)
