@@ -69,6 +69,7 @@ jobs:
         run: |
           ./tool/check_windows_portable_update.ps1
           ./tool/check_windows_update_health.ps1
+          ./tool/check_windows_update_payload.ps1
 
       - name: Flutter doctor
         run: flutter doctor -v

@@ -125,10 +125,72 @@ void main() {
         return true;
       },
       exitApplication: () async => exited = true,
+      waitForPreparation: (_) async {},
     );
     expect(command, windowsPowerShellPath);
     expect(arguments, contains('-EncodedCommand'));
     expect(exited, isTrue);
+  });
+
+  for (final status in ['ready', 'failed']) {
+    test('preparation $status is read before exiting the app', () async {
+      File? prepared;
+      var exited = false;
+      final operation = launchWindowsPortableUpdate(
+        zipPath: 'update.zip',
+        installDirectory: 'install',
+        executablePath: 'install/BfClash-Beta.exe',
+        serviceName: 'BfClashHelperServiceBeta',
+        targetVersion: '1.0.1-beta.1911',
+        launcher: (_, arguments) {
+          final script = decodedScript(
+            WindowsPortableUpdatePlan(
+              script: '',
+              arguments: arguments.split(' '),
+            ),
+          );
+          final encoded = RegExp(
+            r"\$prepared = Dec\('([^']+)'\)",
+          ).firstMatch(script)!.group(1)!;
+          prepared = File(utf8.decode(base64Decode(encoded)));
+          prepared!.writeAsStringSync(
+            '\ufeff${jsonEncode({'status': status, 'detail': 'blocked', 'log': 'fixture.log'})}',
+          );
+          return true;
+        },
+        exitApplication: () async => exited = true,
+      );
+      try {
+        if (status == 'failed') {
+          await expectLater(operation, throwsA(isA<MessageException>()));
+          expect(exited, isFalse);
+        } else {
+          await operation;
+          expect(exited, isTrue);
+        }
+      } finally {
+        await prepared?.parent.delete(recursive: true);
+      }
+    });
+  }
+
+  test('failed preparation keeps the old app running', () async {
+    var exited = false;
+    await expectLater(
+      launchWindowsPortableUpdate(
+        zipPath: 'update.zip',
+        installDirectory: 'install',
+        executablePath: 'install/BfClash-Beta.exe',
+        serviceName: 'BfClashHelperServiceBeta',
+        targetVersion: '1.0.1-beta.1911',
+        launcher: (_, _) => true,
+        waitForPreparation: (_) async =>
+            throw const MessageException('blocked'),
+        exitApplication: () async => exited = true,
+      ),
+      throwsA(isA<MessageException>()),
+    );
+    expect(exited, isFalse);
   });
 
   test('a rejected elevation keeps the app running', () async {

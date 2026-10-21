@@ -33,6 +33,7 @@ WindowsPortableUpdatePlan buildWindowsPortableUpdatePlan({
   String temporaryDirectory = '',
   String dataDirectory = '',
   String healthDirectory = '',
+  String preparationFile = '',
 }) {
   String encode(String value) => base64Encode(utf8.encode(value));
 
@@ -46,7 +47,8 @@ WindowsPortableUpdatePlan buildWindowsPortableUpdatePlan({
       .replaceFirst('__TITLE__', "'${encode(failureTitle)}'")
       .replaceFirst('__FAILBODY__', "'${encode(failureBodyTemplate)}'")
       .replaceFirst('__DATA__', "'${encode(dataDirectory)}'")
-      .replaceFirst('__HEALTH__', "'${encode(healthDirectory)}'");
+      .replaceFirst('__HEALTH__', "'${encode(healthDirectory)}'")
+      .replaceFirst('__PREPARED__', "'${encode(preparationFile)}'");
 
   final compressed = base64Encode(gzip.encode(utf8.encode(script)));
   final bootstrap =
@@ -97,7 +99,14 @@ Future<void> launchWindowsPortableUpdate({
   String powerShellPath = windowsPowerShellPath,
   String temporaryDirectory = '',
   String dataDirectory = '',
+  Future<void> Function(File)? waitForPreparation,
 }) async {
+  final preparation = await Directory.systemTemp.createTemp(
+    'bfclash-update-ready-',
+  );
+  final prepared = File(
+    '${preparation.path}${Platform.pathSeparator}ready.json',
+  );
   final plan = buildWindowsPortableUpdatePlan(
     parentProcessId: parentProcessId ?? pid,
     zipPath: zipPath,
@@ -119,13 +128,44 @@ Future<void> launchWindowsPortableUpdate({
     powerShellPath: powerShellPath,
     temporaryDirectory: temporaryDirectory,
     dataDirectory: dataDirectory,
+    preparationFile: prepared.path,
     healthDirectory:
         '${Platform.environment['LOCALAPPDATA'] ?? ''}\\BfClashUpdateHealth',
   );
-  if (!launcher(powerShellPath, plan.commandLine)) {
-    throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
+  try {
+    if (!launcher(powerShellPath, plan.commandLine)) {
+      throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
+    }
+    await (waitForPreparation ?? _waitForPreparation)(prepared);
+  } catch (_) {
+    await prepared.writeAsString(jsonEncode({'status': 'cancelled'}));
+    rethrow;
   }
   await exitApplication();
+}
+
+Future<void> _waitForPreparation(File prepared) async {
+  final deadline = DateTime.now().add(const Duration(minutes: 3));
+  while (DateTime.now().isBefore(deadline)) {
+    if (await prepared.exists()) {
+      try {
+        final result = jsonDecode(await prepared.readAsString());
+        if (result is Map && result['status'] == 'ready') return;
+        if (result is Map && result['status'] == 'failed') {
+          throw MessageException(
+            currentAppLocalizations.windowsPortableUpdateFailedBody(
+              '${result['detail']}',
+              '${result['log']}',
+            ),
+          );
+        }
+      } on FormatException {
+        // The elevated helper may still be writing its preparation result.
+      }
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+  }
+  throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
 }
 
 const _scriptTemplate = r'''
@@ -147,6 +187,7 @@ $transaction = Join-Path ([IO.Path]::GetDirectoryName($dir)) ('.' + [IO.Path]::G
 $backup = Join-Path $transaction 'previous'
 $stage = Join-Path $transaction 'staged'
 $dataBackup = Join-Path $transaction 'userdata'
+$prepared = Dec(__PREPARED__)
 $healthRoot = Dec(__HEALTH__)
 if (-not $healthRoot) { $healthRoot = Join-Path $env:LOCALAPPDATA 'BfClashUpdateHealth' }
 $health = Join-Path $healthRoot ($nonce + '.json')
@@ -259,6 +300,41 @@ function Show-Fail([string]$message) {
     [void][System.Windows.MessageBox]::Show($failBody.Replace('{detail}', $message).Replace('{log}', $log), $failTitle, 'OK', 'Error')
   } catch {}
 }
+function Preparation-Result([string]$status, [string]$detail) {
+  if (-not $prepared) { return }
+  $cancelled = $false
+  if (Test-Path -LiteralPath $prepared) {
+    try { $cancelled = (Get-Content -LiteralPath $prepared -Raw | ConvertFrom-Json).status -eq 'cancelled' } catch {}
+  }
+  if ($cancelled) {
+    if ($status -eq 'ready') { throw 'update preparation cancelled' }
+    return
+  }
+  try {
+    @{status=$status; detail=$detail; log=$log} | ConvertTo-Json | Set-Content -LiteralPath ($prepared + '.tmp') -Encoding UTF8
+    Move-Item -LiteralPath ($prepared + '.tmp') -Destination $prepared -Force
+  }
+  catch { if ($status -eq 'ready') { throw }; L ('preparation result failed: ' + $_) }
+}
+function Test-Payload {
+  $root64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($stage))
+  $body = '$ErrorActionPreference="Stop";$ProgressPreference="SilentlyContinue"; Add-Type -TypeDefinition ''using System;using System.Runtime.InteropServices;public class BfPayload { [DllImport("kernel32",CharSet=CharSet.Unicode,SetLastError=true)]public static extern IntPtr LoadLibraryEx(string p,IntPtr f,uint flags);[DllImport("kernel32")]public static extern bool FreeLibrary(IntPtr h);[DllImport("kernel32",CharSet=CharSet.Unicode)]public static extern IntPtr AddDllDirectory(string p);[DllImport("kernel32")]public static extern bool SetDefaultDllDirectories(uint f);}''; $root=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("__ROOT__")); [BfPayload]::SetDefaultDllDirectories(0x1000)|Out-Null; [BfPayload]::AddDllDirectory($root)|Out-Null; foreach($file in @(Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object {$_.Extension -in ".dll",".so"})) { $h=[BfPayload]::LoadLibraryEx($file.FullName,[IntPtr]::Zero,0x1100); if($h -eq [IntPtr]::Zero){$code=[Runtime.InteropServices.Marshal]::GetLastWin32Error();if($file.Name -eq "dartjni.dll" -and $code -eq 126){continue};[Console]::Error.WriteLine($file.Name+": "+$code);exit 2}; [BfPayload]::FreeLibrary($h)|Out-Null }; exit 0'
+  $body = $body.Replace('__ROOT__', $root64)
+  $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($body))
+  $check = [Diagnostics.Process]::new()
+  $check.StartInfo.FileName = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+  $check.StartInfo.Arguments = '-NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand ' + $encoded
+  $check.StartInfo.UseShellExecute = $false
+  $check.StartInfo.RedirectStandardError = $true
+  try {
+    $check.Start() | Out-Null
+    if (-not $check.WaitForExit(90000)) { $check.Kill(); $check.WaitForExit(); throw 'payload load check timed out; current app was not stopped' }
+    $detail = $check.StandardError.ReadToEnd()
+    if ($check.ExitCode -ne 0) { throw ('Windows could not load the update; current app was not stopped: ' + $detail) }
+  } finally { $check.Dispose() }
+  L 'payload load check passed before app shutdown'
+}
+
 function Update-DisplayVersion {
   if (-not $version) { return }
   foreach ($root in @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall', 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall')) {
@@ -307,8 +383,11 @@ try {
     if (-not $seen.ContainsKey($stagedExe)) { throw 'executable missing from update archive' }
     if ($seen.ContainsKey((Join-Path $stage '.bfclash-update-pending.json'))) { throw 'reserved update file in archive' }
   } finally { $archive.Dispose() }
+  Test-Payload
+  Preparation-Result 'ready' ''
   $proc = Get-Process -Id $parentPid -ErrorAction SilentlyContinue
   if ($proc -and -not $proc.WaitForExit(120000)) { throw 'app did not exit; update cancelled' }
+  if ($prepared -and (Test-Path -LiteralPath $prepared) -and (Get-Content -LiteralPath $prepared -Raw | ConvertFrom-Json).status -eq 'cancelled') { throw 'update preparation cancelled' }
   $svc = $null
   if ($service) { $svc = Get-Service -Name $service -ErrorAction SilentlyContinue }
   $serviceWasRunning = $svc -and $svc.Status -eq 'Running'
@@ -337,6 +416,7 @@ try {
 } catch {
   $message = $_.Exception.Message
   L ('update error: ' + $message)
+  Preparation-Result 'failed' $message
   if ($locked -and $stopped) {
     try {
       Stop-Installed
@@ -353,7 +433,7 @@ try {
   } elseif ($locked -and @(Get-App).Count -eq 0 -and (Test-Path -LiteralPath $exe)) {
     try { Start-App; Wait-RestoredApp } catch { L ('restart unchanged app failed: ' + $_) }
   }
-  Show-Fail $message
+  if ($stopped -or -not $prepared) { Show-Fail $message }
   exit 1
 } finally {
   if ($locked -and $mutex) { $mutex.ReleaseMutex() }
