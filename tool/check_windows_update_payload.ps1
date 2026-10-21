@@ -25,6 +25,7 @@ $folder = Join-Path ([IO.Path]::GetTempPath()) ('bfclash-payload-fixtures-' + [g
 New-Item -ItemType Directory -Path $folder | Out-Null
 try {
   Copy-Item (Join-Path $env:WINDIR 'System32\version.dll') (Join-Path $folder 'version.dll')
+  [IO.File]::WriteAllBytes((Join-Path $folder 'app.so'), [byte[]](0x7f,0x45,0x4c,0x46))
   Check $folder $false
   [IO.File]::WriteAllText((Join-Path $folder 'broken.dll'), 'not an executable image')
   Check $folder $true

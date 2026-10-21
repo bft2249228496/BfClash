@@ -300,6 +300,18 @@ function Show-Fail([string]$message) {
     [void][System.Windows.MessageBox]::Show($failBody.Replace('{detail}', $message).Replace('{log}', $log), $failTitle, 'OK', 'Error')
   } catch {}
 }
+function Preserve-UnchangedNativeFiles {
+  foreach ($file in @(Get-ChildItem -LiteralPath $stage -Recurse -File | Where-Object { $_.Extension -in '.dll','.exe' })) {
+    $relative = $file.FullName.Substring($stage.Length + 1)
+    $original = Join-Path $dir $relative
+    if (-not (Test-Path -LiteralPath $original -PathType Leaf)) { continue }
+    if ((Get-Item -LiteralPath $original).Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
+    if ((Get-FileHash -LiteralPath $original).Hash -cne (Get-FileHash -LiteralPath $file.FullName).Hash) { continue }
+    Remove-Item -LiteralPath $file.FullName -Force
+    New-Item -ItemType HardLink -Path $file.FullName -Value $original | Out-Null
+    L ('preserved unchanged native file identity: ' + $relative)
+  }
+}
 function Preparation-Result([string]$status, [string]$detail) {
   if (-not $prepared) { return }
   $cancelled = $false
@@ -318,7 +330,7 @@ function Preparation-Result([string]$status, [string]$detail) {
 }
 function Test-Payload {
   $root64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($stage))
-  $body = '$ErrorActionPreference="Stop";$ProgressPreference="SilentlyContinue"; Add-Type -TypeDefinition ''using System;using System.Runtime.InteropServices;public class BfPayload { [DllImport("kernel32",CharSet=CharSet.Unicode,SetLastError=true)]public static extern IntPtr LoadLibraryEx(string p,IntPtr f,uint flags);[DllImport("kernel32")]public static extern bool FreeLibrary(IntPtr h);[DllImport("kernel32",CharSet=CharSet.Unicode)]public static extern IntPtr AddDllDirectory(string p);[DllImport("kernel32")]public static extern bool SetDefaultDllDirectories(uint f);}''; $root=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("__ROOT__")); [BfPayload]::SetDefaultDllDirectories(0x1000)|Out-Null; [BfPayload]::AddDllDirectory($root)|Out-Null; foreach($file in @(Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object {$_.Extension -in ".dll",".so"})) { $h=[BfPayload]::LoadLibraryEx($file.FullName,[IntPtr]::Zero,0x1100); if($h -eq [IntPtr]::Zero){$code=[Runtime.InteropServices.Marshal]::GetLastWin32Error();if($file.Name -eq "dartjni.dll" -and $code -eq 126){continue};[Console]::Error.WriteLine($file.Name+": "+$code);exit 2}; [BfPayload]::FreeLibrary($h)|Out-Null }; exit 0'
+  $body = '$ErrorActionPreference="Stop";$ProgressPreference="SilentlyContinue"; Add-Type -TypeDefinition ''using System;using System.Runtime.InteropServices;public class BfPayload { [DllImport("kernel32",CharSet=CharSet.Unicode,SetLastError=true)]public static extern IntPtr LoadLibraryEx(string p,IntPtr f,uint flags);[DllImport("kernel32")]public static extern bool FreeLibrary(IntPtr h);[DllImport("kernel32",CharSet=CharSet.Unicode)]public static extern IntPtr AddDllDirectory(string p);[DllImport("kernel32")]public static extern bool SetDefaultDllDirectories(uint f);}''; $root=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("__ROOT__")); [BfPayload]::SetDefaultDllDirectories(0x1000)|Out-Null; [BfPayload]::AddDllDirectory($root)|Out-Null; foreach($file in @(Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object {$_.Extension -eq ".dll"})) { $h=[BfPayload]::LoadLibraryEx($file.FullName,[IntPtr]::Zero,0x1100); if($h -eq [IntPtr]::Zero){$code=[Runtime.InteropServices.Marshal]::GetLastWin32Error();if($file.Name -eq "dartjni.dll" -and $code -eq 126){continue};[Console]::Error.WriteLine($file.Name+": "+$code);exit 2}; [BfPayload]::FreeLibrary($h)|Out-Null }; exit 0'
   $body = $body.Replace('__ROOT__', $root64)
   $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($body))
   $check = [Diagnostics.Process]::new()
@@ -383,6 +395,7 @@ try {
     if (-not $seen.ContainsKey($stagedExe)) { throw 'executable missing from update archive' }
     if ($seen.ContainsKey((Join-Path $stage '.bfclash-update-pending.json'))) { throw 'reserved update file in archive' }
   } finally { $archive.Dispose() }
+  Preserve-UnchangedNativeFiles
   Test-Payload
   Preparation-Result 'ready' ''
   $proc = Get-Process -Id $parentPid -ErrorAction SilentlyContinue

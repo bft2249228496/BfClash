@@ -104,6 +104,9 @@ jobs:
       - name: Verify stable packaged version
         run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash.exe
 
+      - name: Verify stable native payload can load
+        run: ./tool/check_windows_update_payload.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
       - name: Run Windows Native Proxy Tests
         run: |
           cmake -S windows -B build/windows/x64 -Dinclude_proxy_tests=ON
@@ -133,6 +136,9 @@ jobs:
 
       - name: Verify beta packaged version
         run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash-Beta.exe -Beta
+
+      - name: Verify beta native payload can load
+        run: ./tool/check_windows_update_payload.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
 
       - name: Test packaged beta Windows Sub-Store
         run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)

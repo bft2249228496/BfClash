@@ -22,6 +22,9 @@ try {
     [IO.File]::WriteAllText((Join-Path $install 'old-only.dll'), 'old file')
     [IO.File]::WriteAllText((Join-Path $install 'unins000.dat'), 'uninstaller')
     [IO.File]::WriteAllText((Join-Path $data 'config.json'), 'original config')
+    $native = Join-Path $install 'native.dll'
+    Copy-Item (Join-Path $env:WINDIR 'System32\version.dll') $native
+    $nativeId = FileId $native
     $originalId = FileId $exe
     $archivePath = Join-Path $folder 'update.zip'
     $archive = [IO.Compression.ZipFile]::Open($archivePath, 'Create')
@@ -30,6 +33,7 @@ try {
       $entry = $archive.CreateEntry($name)
       $writer = [IO.StreamWriter]::new($entry.Open())
       $writer.Write('new app'); $writer.Dispose()
+      [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $native, 'bundle/native.dll') | Out-Null
       if ($case -eq 'duplicate') {
         $entry = $archive.CreateEntry('bundle/fixture.exe')
         $writer = [IO.StreamWriter]::new($entry.Open())
@@ -101,6 +105,7 @@ New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($health)) -Force
     $events = ''
     if (Test-Path (Join-Path $folder 'events.txt')) { $events = Get-Content (Join-Path $folder 'events.txt') -Raw }
     $stderr = Get-Content (Join-Path $folder 'stderr') -Raw
+    Assert ((FileId (Join-Path $install 'native.dll')) -eq $nativeId) "Unchanged native file identity lost: $case"
     if ($case -eq 'success') {
       Assert ($child.ExitCode -eq 0) "Success fixture failed: $stderr $events"
       Assert ([IO.File]::ReadAllText($exe) -eq 'new app') 'New app not installed'
