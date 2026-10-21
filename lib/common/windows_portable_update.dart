@@ -54,7 +54,7 @@ WindowsPortableUpdatePlan buildWindowsPortableUpdatePlan({
   final bootstrap =
       r'$bytes=[Convert]::FromBase64String('
       "'$compressed');"
-      r'$stream=[IO.MemoryStream]::new(,$bytes);'
+      r'$stream=[IO.MemoryStream]::new($bytes);'
       r'$gzip=[IO.Compression.GZipStream]::new($stream,[IO.Compression.CompressionMode]::Decompress);'
       r'$reader=[IO.StreamReader]::new($gzip,[Text.Encoding]::UTF8);'
       r'try { & ([ScriptBlock]::Create($reader.ReadToEnd())) } finally { $reader.Dispose(); $stream.Dispose() }';
