@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       installer_only:
-        description: Run only isolated installer safety fixtures
+        description: Run only isolated installer and update safety fixtures
         type: boolean
         default: false
   push:
@@ -169,6 +169,11 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+      - name: Verify transactional update safety
+        run: |
+          ./tool/check_windows_portable_update.ps1
+          ./tool/check_windows_update_health.ps1
+          ./tool/check_windows_update_payload.ps1
       - name: Install Inno Setup
         run: choco install innosetup -y
       - name: Verify blocked update and uninstall safety

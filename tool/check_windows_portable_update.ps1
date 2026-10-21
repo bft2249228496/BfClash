@@ -22,7 +22,7 @@ try {
     [IO.File]::WriteAllText((Join-Path $install 'old-only.dll'), 'old file')
     [IO.File]::WriteAllText((Join-Path $install 'unins000.dat'), 'uninstaller')
     [IO.File]::WriteAllText((Join-Path $data 'config.json'), 'original config')
-    $native = Join-Path $install 'native.dll'
+    $native = Join-Path $install 'version.dll'
     Copy-Item (Join-Path $env:WINDIR 'System32\version.dll') $native
     $nativeId = FileId $native
     $originalId = FileId $exe
@@ -33,7 +33,7 @@ try {
       $entry = $archive.CreateEntry($name)
       $writer = [IO.StreamWriter]::new($entry.Open())
       $writer.Write('new app'); $writer.Dispose()
-      [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $native, 'bundle/native.dll') | Out-Null
+      [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $native, 'bundle/version.dll') | Out-Null
       if ($case -eq 'duplicate') {
         $entry = $archive.CreateEntry('bundle/fixture.exe')
         $writer = [IO.StreamWriter]::new($entry.Open())
@@ -105,13 +105,15 @@ New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($health)) -Force
     $events = ''
     if (Test-Path (Join-Path $folder 'events.txt')) { $events = Get-Content (Join-Path $folder 'events.txt') -Raw }
     $stderr = Get-Content (Join-Path $folder 'stderr') -Raw
-    Assert ((FileId (Join-Path $install 'native.dll')) -eq $nativeId) "Unchanged native file identity lost: $case"
+    if (Test-Path (Join-Path $folder 'preparation.json')) { $stderr += Get-Content (Join-Path $folder 'preparation.json') -Raw }
+    Assert ((FileId (Join-Path $install 'version.dll')) -eq $nativeId) "Unchanged native file identity lost: $case"
     if ($case -eq 'success') {
       Assert ($child.ExitCode -eq 0) "Success fixture failed: $stderr $events"
       Assert ([IO.File]::ReadAllText($exe) -eq 'new app') 'New app not installed'
       $backup = @(Get-ChildItem $folder -Directory -Force -Filter '.installed.update-*')[0].FullName + '\previous\Fixture.exe'
       Assert ((FileId $backup) -eq $originalId) 'Original file identity lost in backup'
       Assert ($events -match 'health\s+version') 'Version committed before initialization'
+      Assert ((Get-Acl -LiteralPath ([IO.Path]::GetDirectoryName([IO.Path]::GetDirectoryName($backup)) + '\userdata')).AreAccessRulesProtected) 'User data backup inherited public install permissions'
       Assert ([IO.File]::ReadAllText((Join-Path $data 'config.json')) -eq 'migrated config') 'Successful app data rolled back'
       Assert (Test-Path (Join-Path $install 'unins000.dat')) 'Uninstaller lost'
       Assert (-not (Test-Path (Join-Path $install 'old-only.dll'))) 'Obsolete native DLL carried into new app'
@@ -130,6 +132,23 @@ New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($health)) -Force
         Assert ($events -match 'start:old app') "Old app not restarted: $case $stderr $events"
       }
       Assert ($events -notmatch 'recovery failed') "Recovery failed: $case $stderr $events"
+    }
+    if ($case -eq 'success') {
+      for ($round = 0; $round -lt 2; $round++) {
+        $replay = [Diagnostics.Process]::new()
+        $replay.StartInfo.FileName = Join-Path $env:WINDIR 'System32/WindowsPowerShell/v1.0/powershell.exe'
+        $replay.StartInfo.Arguments = '-NoProfile -NonInteractive -File "' + $file + '"'
+        $replay.StartInfo.UseShellExecute = $false
+        $replay.StartInfo.RedirectStandardError = $true
+        $replay.Start() | Out-Null
+        if (-not $replay.WaitForExit(30000)) { $replay.Kill(); throw 'Retention replay timed out' }
+        Assert ($replay.ExitCode -eq 0) ('Retention replay failed: ' + $replay.StandardError.ReadToEnd())
+        $replay.Dispose()
+      }
+      $retained = @(Get-ChildItem -LiteralPath $folder -Directory -Force -Filter '.installed.update-*')
+      Assert ($retained.Count -eq 2) 'Committed backup retention is not bounded'
+      Assert ((FileId (Join-Path $install 'version.dll')) -eq $nativeId) 'Retention lost live native file identity'
+      Write-Output 'PASS retention/private-data-acl'
     }
     Write-Output "PASS $case"
   }

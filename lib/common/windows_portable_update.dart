@@ -46,6 +46,7 @@ WindowsPortableUpdatePlan buildWindowsPortableUpdatePlan({
       .replaceFirst('__VERSION__', "'${encode(targetVersion)}'")
       .replaceFirst('__TITLE__', "'${encode(failureTitle)}'")
       .replaceFirst('__FAILBODY__', "'${encode(failureBodyTemplate)}'")
+      .replaceFirst('__TEMP__', "'${encode(temporaryDirectory)}'")
       .replaceFirst('__DATA__', "'${encode(dataDirectory)}'")
       .replaceFirst('__HEALTH__', "'${encode(healthDirectory)}'")
       .replaceFirst('__PREPARED__', "'${encode(preparationFile)}'");
@@ -181,6 +182,7 @@ $version = Dec(__VERSION__)
 $failTitle = Dec(__TITLE__)
 $failBody = Dec(__FAILBODY__)
 $dataDir = Dec(__DATA__)
+$downloadDir = Dec(__TEMP__)
 $log = Join-Path $env:TEMP 'bfclash-portable-update.log'
 $nonce = [Guid]::NewGuid().ToString('N')
 $transaction = Join-Path ([IO.Path]::GetDirectoryName($dir)) ('.' + [IO.Path]::GetFileName($dir) + '.update-' + $nonce)
@@ -347,6 +349,27 @@ function Test-Payload {
   L 'payload load check passed before app shutdown'
 }
 
+function Retain-Backups {
+  try {
+    @{install=$dir; nonce=$nonce; committedUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $transaction 'committed.json') -Encoding UTF8
+    $committed = @()
+    $parent = [IO.Path]::GetDirectoryName($dir)
+    $prefix = '.' + [IO.Path]::GetFileName($dir) + '.update-'
+    foreach ($folder in @(Get-ChildItem -LiteralPath $parent -Directory -Force)) {
+      if (-not $folder.Name.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase) -or ($folder.Attributes -band [IO.FileAttributes]::ReparsePoint)) { continue }
+      $marker = Join-Path $folder.FullName 'committed.json'
+      if (-not (Test-Path -LiteralPath $marker)) { continue }
+      try {
+        $record = Get-Content -LiteralPath $marker -Raw | ConvertFrom-Json
+        if ($record.install -ine $dir -or $record.nonce -notmatch '^[a-f0-9]{32}$' -or $folder.Name -ine ($prefix + $record.nonce)) { continue }
+        $committed += [PSCustomObject]@{Path=$folder.FullName;Time=[DateTime]::Parse($record.committedUtc)}
+      } catch {}
+    }
+    foreach ($entry in @($committed | Sort-Object Time -Descending | Select-Object -Skip 2)) {
+      if ($entry.Path -ine $transaction) { Remove-Item -LiteralPath $entry.Path -Recurse -Force; L ('removed older committed backup: ' + $entry.Path) }
+    }
+  } catch { L ('backup retention deferred: ' + $_) }
+}
 function Update-DisplayVersion {
   if (-not $version) { return }
   foreach ($root in @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall', 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall')) {
@@ -412,6 +435,10 @@ try {
   if ($dataDir) {
     $dataDir = [IO.Path]::GetFullPath($dataDir).TrimEnd('\')
     if (-not (Test-Path -LiteralPath $dataDir -PathType Container) -or $dataDir.Length -le 3 -or $dataDir -ieq $dir -or $dataDir.StartsWith($dir + '\', [StringComparison]::OrdinalIgnoreCase) -or $dir.StartsWith($dataDir + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'invalid user data directory' }
+    New-Item -ItemType Directory -Path $dataBackup -Force | Out-Null
+    $dataAcl = Get-Acl -LiteralPath $dataDir
+    $dataAcl.SetAccessRuleProtection($true, $true)
+    Set-Acl -LiteralPath $dataBackup -AclObject $dataAcl
     Copy-Tree $dataDir $dataBackup
   }
   @{nonce=$nonce; version=$version; createdUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $stage '.bfclash-update-pending.json') -Encoding UTF8
@@ -424,6 +451,10 @@ try {
   Remove-Item -LiteralPath $pending -Force
   Remove-Item -LiteralPath $health -Force -ErrorAction SilentlyContinue
   try { Update-DisplayVersion } catch { L ('display version update failed: ' + $_) }
+  Retain-Backups
+  if ($downloadDir -and [IO.Path]::GetFileName($downloadDir) -match '^bfclash-update-[a-f0-9]{64}$' -and [IO.Path]::GetDirectoryName($zip) -ieq $downloadDir -and -not $dir.StartsWith($downloadDir + '\', [StringComparison]::OrdinalIgnoreCase) -and -not $dataDir.StartsWith($downloadDir + '\', [StringComparison]::OrdinalIgnoreCase)) {
+    try { Remove-Item -LiteralPath $downloadDir -Recurse -Force } catch { L ('download cleanup deferred: ' + $_) }
+  }
   L ('portable update committed; original files retained: ' + $backup)
   exit 0
 } catch {
@@ -442,9 +473,13 @@ try {
       Start-App
       Wait-RestoredApp
       L 'rollback confirmed'
+      try { Remove-Item -LiteralPath $transaction -Recurse -Force } catch { L ('rollback cleanup deferred: ' + $_) }
     } catch { $message += '; recovery failed: ' + $_.Exception.Message; L $message }
   } elseif ($locked -and @(Get-App).Count -eq 0 -and (Test-Path -LiteralPath $exe)) {
     try { Start-App; Wait-RestoredApp } catch { L ('restart unchanged app failed: ' + $_) }
+  }
+  if ($locked -and -not $stopped) {
+    try { Remove-Item -LiteralPath $transaction -Recurse -Force -ErrorAction SilentlyContinue } catch {}
   }
   if ($stopped -or -not $prepared) { Show-Fail $message }
   exit 1
