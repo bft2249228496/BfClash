@@ -174,6 +174,33 @@ void main() {
     });
   }
 
+  test(
+    'samples the latest running intent after preparation and before exit',
+    () async {
+      var running = false;
+      File? prepared;
+      await launchWindowsPortableUpdate(
+        zipPath: 'update.zip',
+        installDirectory: 'install',
+        executablePath: 'install/BfClash-Beta.exe',
+        serviceName: 'BfClashHelperServiceBeta',
+        targetVersion: '1.0.1-beta.1911',
+        launcher: (_, _) => true,
+        waitForPreparation: (file) async {
+          prepared = file;
+          running = true;
+        },
+        runningIntent: () => running,
+        exitApplication: () async {
+          final confirmation = jsonDecode(await prepared!.readAsString());
+          expect(confirmation['resumeRunning'], isTrue);
+          expect(confirmation['protocol'], 2);
+        },
+      );
+      await prepared?.parent.delete(recursive: true);
+    },
+  );
+
   test('failed preparation keeps the old app running', () async {
     var exited = false;
     await expectLater(

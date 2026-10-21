@@ -11,12 +11,47 @@ Future<bool> reportWindowsUpdateHealth({
   DateTime? now,
 }) async {
   try {
+    if (localAppData.isEmpty) return false;
+    final request = await _readUpdateRequest(
+      executablePath: executablePath,
+      version: version,
+      now: now,
+    );
+    if (request == null) return false;
+    final nonce = request['nonce'] as String;
+    final result = File(
+      path.join(localAppData, 'BfClashUpdateHealth', '$nonce.json'),
+    );
+    await result.parent.create(recursive: true);
+    final temporary = File('${result.path}.tmp');
+    await temporary.writeAsString(
+      jsonEncode({
+        'nonce': nonce,
+        'version': version,
+        'processId': processId,
+        'protocol': 2,
+      }),
+      flush: true,
+    );
+    await temporary.rename(result.path);
+    return true;
+  } on Exception {
+    return false;
+  }
+}
+
+Future<Map<String, dynamic>?> _readUpdateRequest({
+  required String executablePath,
+  required String version,
+  DateTime? now,
+}) async {
+  try {
     final pending = File(
       path.join(path.dirname(executablePath), '.bfclash-update-pending.json'),
     );
-    if (!await pending.exists()) return false;
+    if (!await pending.exists()) return null;
     final request = jsonDecode(await pending.readAsString());
-    if (request is! Map<String, dynamic>) return false;
+    if (request is! Map<String, dynamic>) return null;
     final nonce = request['nonce'];
     final timestamp = request['createdUtc'];
     final created = timestamp is String ? DateTime.tryParse(timestamp) : null;
@@ -28,22 +63,25 @@ Future<bool> reportWindowsUpdateHealth({
         request['version'] != version ||
         age == null ||
         age.isNegative ||
-        age > const Duration(minutes: 5) ||
-        localAppData.isEmpty) {
-      return false;
+        age > const Duration(minutes: 5)) {
+      return null;
     }
-    final result = File(
-      path.join(localAppData, 'BfClashUpdateHealth', '$nonce.json'),
-    );
-    await result.parent.create(recursive: true);
-    final temporary = File('${result.path}.tmp');
-    await temporary.writeAsString(
-      jsonEncode({'nonce': nonce, 'version': version, 'processId': processId}),
-      flush: true,
-    );
-    await temporary.rename(result.path);
-    return true;
+    return request;
   } on Exception {
-    return false;
+    return null;
   }
+}
+
+Future<bool?> readWindowsUpdateRunningIntent({
+  required String executablePath,
+  required String version,
+  DateTime? now,
+}) async {
+  final request = await _readUpdateRequest(
+    executablePath: executablePath,
+    version: version,
+    now: now,
+  );
+  final running = request?['resumeRunning'];
+  return running is bool ? running : null;
 }

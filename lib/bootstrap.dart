@@ -165,9 +165,17 @@ class Bootstrap {
     await _showCrashRecoveryTip();
     await _showCrashlyticsTip();
     await _container.read(coreActionProvider.notifier).startCore();
+    final updateRunning = Platform.isWindows
+        ? await readWindowsUpdateRunningIntent(
+            executablePath: Platform.resolvedExecutable,
+            version: globalState.packageInfo.version,
+          )
+        : null;
     final setupReady =
         !_bootDecision.isDegraded &&
-        await _container.read(setupActionProvider.notifier).initStatus();
+        await _container
+            .read(setupActionProvider.notifier)
+            .initStatus(runningOverride: updateRunning);
     _container.read(initProvider.notifier).value = true;
     await bootGuard.markRunning();
     if (Platform.isWindows &&

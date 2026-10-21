@@ -101,6 +101,7 @@ Future<void> launchWindowsPortableUpdate({
   String temporaryDirectory = '',
   String dataDirectory = '',
   Future<void> Function(File)? waitForPreparation,
+  bool Function()? runningIntent,
 }) async {
   final preparation = await Directory.systemTemp.createTemp(
     'bfclash-update-ready-',
@@ -138,6 +139,13 @@ Future<void> launchWindowsPortableUpdate({
       throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
     }
     await (waitForPreparation ?? _waitForPreparation)(prepared);
+    await prepared.writeAsString(
+      jsonEncode({
+        'status': 'confirmed',
+        'protocol': 2,
+        if (runningIntent != null) 'resumeRunning': runningIntent(),
+      }),
+    );
   } catch (_) {
     await prepared.writeAsString(jsonEncode({'status': 'cancelled'}));
     rethrow;
@@ -198,6 +206,8 @@ $pending = Join-Path $dir '.bfclash-update-pending.json'
 $launchAttempted = $false
 $stopped = $false
 $serviceWasRunning = $false
+$resumeRunning = $null
+$clientProtocol = 0
 $mutex = $null
 $locked = $false
 function L([string]$m) {
@@ -249,7 +259,7 @@ function Wait-AppReady {
     if (Test-Path -LiteralPath $health) {
       $ready = $null
       try { $ready = Get-Content -LiteralPath $health -Raw | ConvertFrom-Json } catch {}
-      if ($ready -and $ready.nonce -ceq $nonce -and $ready.version -ceq $version) {
+      if ($ready -and $ready.protocol -eq 2 -and $ready.nonce -ceq $nonce -and $ready.version -ceq $version) {
         $app = @(Get-App | Where-Object { $_.Id -eq $ready.processId })
         if ($app.Count -eq 1) {
           for ($i = 0; $i -lt 16; $i++) {
@@ -431,6 +441,11 @@ try {
   $proc = Get-Process -Id $parentPid -ErrorAction SilentlyContinue
   if ($proc -and -not $proc.WaitForExit(120000)) { throw 'app did not exit; update cancelled' }
   if ($prepared -and (Test-Path -LiteralPath $prepared) -and (Get-Content -LiteralPath $prepared -Raw | ConvertFrom-Json).status -eq 'cancelled') { throw 'update preparation cancelled' }
+  if ($prepared -and (Test-Path -LiteralPath $prepared)) {
+    $intent = Get-Content -LiteralPath $prepared -Raw | ConvertFrom-Json
+    if ($intent.protocol -eq 2) { $clientProtocol = 2 }
+    if ($intent.resumeRunning -is [bool]) { $resumeRunning = $intent.resumeRunning }
+  }
   $svc = $null
   if ($service) { $svc = Get-Service -Name $service -ErrorAction SilentlyContinue }
   $serviceWasRunning = $svc -and $svc.Status -eq 'Running'
@@ -448,7 +463,7 @@ try {
     Set-Acl -LiteralPath $dataBackup -AclObject $dataAcl
     Copy-Tree $dataDir $dataBackup
   }
-  @{nonce=$nonce; version=$version; createdUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $stage '.bfclash-update-pending.json') -Encoding UTF8
+  @{nonce=$nonce; version=$version; resumeRunning=$resumeRunning; createdUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $stage '.bfclash-update-pending.json') -Encoding UTF8
   Move-Item -LiteralPath $dir -Destination $backup
   Move-Item -LiteralPath $stage -Destination $dir
   Start-Helper
@@ -477,8 +492,19 @@ try {
         if ($launchAttempted -and (Test-Path -LiteralPath $dataBackup)) { Copy-Tree $dataBackup $dataDir $true }
       }
       Start-Helper
-      Start-App
-      Wait-RestoredApp
+      $previousVersion = [Diagnostics.FileVersionInfo]::GetVersionInfo($exe).ProductVersion
+      if ($clientProtocol -eq 2 -and $previousVersion) {
+        $version = $previousVersion.Split('+')[0]
+        Remove-Item -LiteralPath $health -Force -ErrorAction SilentlyContinue
+        @{nonce=$nonce; version=$version; resumeRunning=$resumeRunning; createdUtc=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $pending -Encoding UTF8
+        Start-App
+        Wait-AppReady
+        Remove-Item -LiteralPath $pending -Force
+        Remove-Item -LiteralPath $health -Force -ErrorAction SilentlyContinue
+      } else {
+        Start-App
+        Wait-RestoredApp
+      }
       L 'rollback confirmed'
       try { Remove-Item -LiteralPath $transaction -Recurse -Force } catch { L ('rollback cleanup deferred: ' + $_) }
     } catch { $message += '; recovery failed: ' + $_.Exception.Message; L $message }

@@ -107,7 +107,7 @@ class SetupAction extends _$SetupAction {
     _startTime = await service?.getRunTime();
   }
 
-  Future<bool> initStatus() async {
+  Future<bool> initStatus({bool? runningOverride}) async {
     if (!globalState.needInitStatus) {
       commonPrint.log('init status cancel');
       return true;
@@ -116,7 +116,8 @@ class SetupAction extends _$SetupAction {
     if (system.isAndroid) {
       await _updateStartTime();
     }
-    final shouldRun = _isRunning || ref.read(appSettingProvider).autoRun;
+    final shouldRun =
+        runningOverride ?? (_isRunning || ref.read(appSettingProvider).autoRun);
     if (shouldRun) {
       return setRunning(true, initialize: true);
     } else {

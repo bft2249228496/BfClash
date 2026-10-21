@@ -342,6 +342,26 @@ void main() {
   });
 
   group('initStatus', () {
+    test(
+      'update resumes a manually running proxy without changing autoRun',
+      () async {
+        container.read(appSettingProvider.notifier).value =
+            const AppSettingProps(autoRun: false);
+        expect(await action.initStatus(runningOverride: true), isTrue);
+        expect(action.coreRunningCalls, [true]);
+        expect(container.read(appSettingProvider).autoRun, isFalse);
+      },
+    );
+
+    test('update keeps a stopped proxy stopped despite autoRun', () async {
+      container.read(appSettingProvider.notifier).value = const AppSettingProps(
+        autoRun: true,
+      );
+      expect(await action.initStatus(runningOverride: false), isTrue);
+      expect(action.coreRunningCalls, isEmpty);
+      expect(container.read(appSettingProvider).autoRun, isTrue);
+    });
+
     test('reports failed profile setup to the update health gate', () async {
       container.read(appSettingProvider.notifier).value = const AppSettingProps(
         autoRun: false,

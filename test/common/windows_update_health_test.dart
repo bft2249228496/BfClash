@@ -26,17 +26,45 @@ void main() {
     String token = nonce,
     String target = version,
     Duration age = const Duration(seconds: 10),
+    bool? running,
   }) async {
     await File(
       path.join(root.path, '.bfclash-update-pending.json'),
     ).writeAsString(
       jsonEncode({
         'nonce': token,
+        'resumeRunning': ?running,
         'version': target,
         'createdUtc': now.subtract(age).toIso8601String(),
       }),
     );
   }
+
+  test(
+    'restores either running intent only for the matching transaction',
+    () async {
+      for (final running in [true, false]) {
+        await pending(running: running);
+        expect(
+          await readWindowsUpdateRunningIntent(
+            executablePath: path.join(root.path, 'BfClash-Beta.exe'),
+            version: version,
+            now: now,
+          ),
+          running,
+        );
+      }
+      await pending(running: true, target: 'old');
+      expect(
+        await readWindowsUpdateRunningIntent(
+          executablePath: path.join(root.path, 'BfClash-Beta.exe'),
+          version: version,
+          now: now,
+        ),
+        isNull,
+      );
+    },
+  );
 
   test('normal launch leaves no update state', () async {
     expect(await report(), isFalse);
@@ -53,6 +81,7 @@ void main() {
       'nonce': nonce,
       'version': version,
       'processId': 1234,
+      'protocol': 2,
     });
     expect(await File('${ack.path}.tmp').exists(), isFalse);
   });

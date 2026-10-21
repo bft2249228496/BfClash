@@ -20,11 +20,12 @@ function Get-App {
   @([PSCustomObject]@{Id=1234})
 }
 try {
-  foreach ($case in @('ready', 'wrong-nonce', 'wrong-version', 'wrong-pid', 'dead', 'dies-after-ready', 'no-ack', 'malformed')) {
+  foreach ($case in @('ready', 'wrong-nonce', 'wrong-version', 'wrong-pid', 'wrong-protocol', 'dead', 'dies-after-ready', 'no-ack', 'malformed')) {
     $script:tick = 0; $script:reads = 0
-    $ack = @{nonce=$nonce; version=$version; processId=1234}
+    $ack = @{nonce=$nonce; version=$version; processId=1234; protocol=2}
     if ($case -eq 'wrong-nonce') { $ack.nonce = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }
     if ($case -eq 'wrong-version') { $ack.version = '1.0.0-beta.1871' }
+    if ($case -eq 'wrong-protocol') { $ack.protocol = 1 }
     if ($case -eq 'wrong-pid') { $ack.processId = 9999 }
     $ack | ConvertTo-Json | Set-Content -LiteralPath $health -Encoding UTF8
     if ($case -eq 'no-ack') { Remove-Item -LiteralPath $health }

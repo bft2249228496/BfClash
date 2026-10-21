@@ -10,7 +10,7 @@ New-Item -ItemType Directory -Path $testRoot | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 function Assert([bool]$value, [string]$message) { if (-not $value) { throw $message } }
 function FileId([string]$file) { ((& fsutil file queryfileid $file) -join '').Trim() }
-$fixtures = @('success', 'launch-failure', 'health-failure', 'service-failure', 'swap-failure', 'backup-failure', 'corrupt-zip', 'missing-exe', 'traversal', 'duplicate', 'preflight-failure', 'cancelled')
+$fixtures = @('success', 'launch-failure', 'health-failure', 'service-failure', 'swap-failure', 'backup-failure', 'corrupt-zip', 'missing-exe', 'traversal', 'duplicate', 'preflight-failure', 'cancelled', 'protocol2-health-failure')
 try {
   foreach ($case in $fixtures) {
     $folder = Join-Path $testRoot $case
@@ -51,6 +51,13 @@ $events = Join-Path ([IO.Path]::GetDirectoryName($dir)) 'events.txt'
 $health = Join-Path ([IO.Path]::GetDirectoryName($dir)) 'health.json'
 $startCalls = 0
 $helperCalls = 0
+$writePreparation = ${function:Preparation-Result}
+if ($case -eq 'protocol2-health-failure') {
+  function Preparation-Result([string]$status,[string]$detail) {
+    & $script:writePreparation $status $detail
+    if ($status -eq 'ready') { @{status='confirmed';protocol=2;resumeRunning=$true} | ConvertTo-Json | Set-Content -LiteralPath $prepared -Encoding UTF8 }
+  }
+}
 function Get-App { if ($case -in 'preflight-failure','corrupt-zip','missing-exe','traversal','duplicate','cancelled') { @([PSCustomObject]@{Id=1234}) } else { @() } }
 if ($case -eq 'preflight-failure') { function Test-Payload { throw 'injected payload load rejection' } }
 function Stop-Installed { Add-Content $events 'stop' }
@@ -70,7 +77,12 @@ function Start-App {
 }
 function Wait-AppReady {
   Add-Content $events 'health'
-  if ($case -eq 'health-failure') { throw 'injected failed initialization' }
+  if ($case -eq 'health-failure' -or ($case -eq 'protocol2-health-failure' -and [IO.File]::ReadAllText($exe) -eq 'new app')) { throw 'injected failed initialization' }
+  if ($case -eq 'protocol2-health-failure' -and [IO.File]::ReadAllText($exe) -eq 'old app') {
+    $restored = Get-Content -LiteralPath $pending -Raw | ConvertFrom-Json
+    if ($restored.version -ne '1.0.1-beta.1901' -or $restored.resumeRunning -ne $true) { throw 'rollback lost running intent or version binding' }
+    Add-Content $events 'restored'
+  }
 }
 function Wait-RestoredApp {
   if ([IO.File]::ReadAllText($exe) -ne 'old app') { throw 'rollback launched the wrong app' }
@@ -86,6 +98,9 @@ New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($health)) -Force
     $script = $script.Replace($marker, $overrides + "`n" + $marker)
     if ($case -eq 'swap-failure') { $script = $script.Replace('  Move-Item -LiteralPath $stage -Destination $dir', "  throw 'injected stage rename failure'`n  Move-Item -LiteralPath `$stage -Destination `$dir") }
     if ($case -eq 'cancelled') { @{status='cancelled'} | ConvertTo-Json | Set-Content (Join-Path $folder 'preparation.json') }
+    if ($case -eq 'protocol2-health-failure') {
+      $script = $script.Replace('$previousVersion = [Diagnostics.FileVersionInfo]::GetVersionInfo($exe).ProductVersion', '$previousVersion = "1.0.1-beta.1901+1901"')
+    }
     $file = Join-Path $folder 'run.ps1'
     [IO.File]::WriteAllText($file, $script, [Text.UTF8Encoding]::new($true))
     $lock = $null
