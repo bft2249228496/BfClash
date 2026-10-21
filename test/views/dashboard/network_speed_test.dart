@@ -78,6 +78,16 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('0 B/s', findRichText: true), findsNWidgets(2));
         const sample = Traffic(down: 3 * 1024 * 1024, up: 512 * 1024);
+        for (var i = 0; i < 29; i++) {
+          container
+              .read(trafficsProvider.notifier)
+              .addTraffic(
+                Traffic(
+                  down: (i % 7 + 1) * 256 * 1024,
+                  up: (i % 5 + 1) * 64 * 1024,
+                ),
+              );
+        }
         container.read(trafficsProvider.notifier).addTraffic(sample);
         container.read(totalTrafficProvider.notifier).value = const Traffic(
           down: 999999999,
@@ -118,6 +128,12 @@ void main() {
         container.read(trafficsProvider.notifier).clear();
         await tester.pump();
         expect(find.text('0 B/s', findRichText: true), findsNWidgets(2));
+        expect(
+          tester
+              .getSize(find.byKey(const ValueKey('network-speed-chart')))
+              .height,
+          greaterThan(tester.getSize(find.byType(NetworkSpeed)).height * 0.5),
+        );
         expect(tester.takeException(), isNull);
       });
     }

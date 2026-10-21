@@ -45,17 +45,41 @@ class NetworkSpeed extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+                padding: height == null
+                    ? const EdgeInsets.fromLTRB(16, 12, 16, 0)
+                    : baseInfoEdgeInsets.copyWith(bottom: 0),
                 child: Row(
                   children: [
                     Expanded(
-                      child: InfoHeader(
-                        padding: EdgeInsets.zero,
-                        info: Info(
-                          label: appLocalizations.realtimeRate,
-                          iconData: Icons.speed_sharp,
-                        ),
-                      ),
+                      child: height == null
+                          ? Row(
+                              children: [
+                                Icon(
+                                  Icons.speed_sharp,
+                                  size: 16,
+                                  color: context.colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    appLocalizations.realtimeRate,
+                                    style: context.textTheme.titleSmall
+                                        ?.copyWith(
+                                          color: context
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : InfoHeader(
+                              padding: EdgeInsets.zero,
+                              info: Info(
+                                label: appLocalizations.realtimeRate,
+                                iconData: Icons.speed_sharp,
+                              ),
+                            ),
                     ),
                     if (_showTotals || !showRates) ...[
                       const SizedBox(width: 8),
@@ -74,11 +98,17 @@ class NetworkSpeed extends ConsumerWidget {
               ),
               if (showRates)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    height == null ? 8 : 10,
+                    16,
+                    0,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
                         child: _SpeedReadout(
+                          compact: height == null,
                           label: appLocalizations.download,
                           icon: Icons.south_rounded,
                           value: last.down,
@@ -88,6 +118,7 @@ class NetworkSpeed extends ConsumerWidget {
                       const SizedBox(width: 20),
                       Expanded(
                         child: _SpeedReadout(
+                          compact: height == null,
                           label: appLocalizations.upload,
                           icon: Icons.north_rounded,
                           value: last.up,
@@ -101,6 +132,7 @@ class NetworkSpeed extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                   child: _DualLineChart(
+                    key: const ValueKey('network-speed-chart'),
                     down: traffics.map((e) => e.down.toDouble()).toList(),
                     up: traffics.map((e) => e.up.toDouble()).toList(),
                   ),
@@ -200,16 +232,62 @@ class _SpeedReadout extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.color,
+    this.compact = false,
   });
 
   final String label;
   final IconData icon;
   final num value;
   final Color color;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final rate = value.traffic;
+    if (compact) {
+      return Row(
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: context.textTheme.labelSmall?.copyWith(
+              fontSize: 11,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: rate.value,
+                      style: context.textTheme.titleMedium?.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' ${rate.unit}/s',
+                      style: context.textTheme.labelSmall?.copyWith(
+                        fontSize: 10,
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -501,7 +579,7 @@ class _PlainStat extends StatelessWidget {
 /// Dual-series smoothed line chart (download in cyan, upload in purple)
 /// drawn on a shared scale, matching the prototype's two-line look.
 class _DualLineChart extends StatelessWidget {
-  const _DualLineChart({required this.down, required this.up});
+  const _DualLineChart({super.key, required this.down, required this.up});
 
   final List<double> down;
   final List<double> up;
