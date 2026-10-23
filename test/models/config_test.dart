@@ -242,6 +242,8 @@ void main() {
     test('defaults match Clash patch defaults', () {
       const config = PatchClashConfig();
 
+      expect(config.ipv6, true);
+      expect(config.dns.ipv6, false);
       expect(config.mixedPort, defaultMixedPort);
       expect(config.allowLan, false);
       expect(config.mode, Mode.rule);
@@ -249,6 +251,19 @@ void main() {
       expect(config.geodataLoader, GeodataLoader.memconservative);
       expect(config.interfaceNameMode, InterfaceNameMode.clear);
       expect(config.interfaceName, '');
+    });
+
+    test('missing IPv6 uses the default but saved choices survive loading', () {
+      expect(PatchClashConfig.fromJson({}).ipv6, true);
+      for (final enabled in [false, true]) {
+        final restored = PatchClashConfig.fromJson({'ipv6': enabled});
+        expect(restored.ipv6, enabled);
+        expect(
+          roundTrip(() => restored.toJson(), PatchClashConfig.fromJson).ipv6,
+          enabled,
+        );
+      }
+      expect(const VpnProps().ipv6, false);
     });
 
     test('custom values survive round-trip', () {
