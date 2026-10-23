@@ -178,6 +178,21 @@ JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home ./gradl
 Always-on VPN entry, system VPN revoke, actual permission UI, and rapid device start/stop still require Android device or
 emulator validation; Kotlin compilation cannot prove those system callbacks.
 
+## Oracle Release Verification Workspace
+
+On `oracle-sj`, `/tmp` is tmpfs. Downloaded APKs, Windows archives, GitHub artifacts,
+and extracted bundles must use a disk workspace, never a hardcoded `/tmp` path:
+
+```bash
+/root/scripts/bfclash-verify-workspace.sh <verification-command> [arguments...]
+```
+
+The wrapper creates a private directory under `/var/tmp/bfclash-verification`, sets
+`TMPDIR` and `BFCLASH_VERIFY_DIR`, and removes the workspace on success or failure.
+Use absolute script paths and make output paths follow those variables. Save only
+concise verification summaries outside the workspace before returning. Do not
+change the machine-wide `/tmp` mount or unrelated service environments.
+
 ## Changelog And Release
 
 The changelog is derived from Conventional Commits by `tool/changelog.dart` and written to two committed files:
