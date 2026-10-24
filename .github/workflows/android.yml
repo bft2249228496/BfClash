@@ -1,5 +1,12 @@
 name: Android CI and Release
 on:
+  workflow_dispatch:
+    inputs:
+      candidate_version:
+        description: Beta package version for artifact-only validation
+        required: true
+        type: string
+        default: '1.0.4-beta.1+75'
   push:
     branches: [main, 'integration/**']
     # Android 产品线固定 0.x 号段；Windows 的 1.x tag 不应触发 Android 构建。
@@ -30,6 +37,16 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: ndk
         with: {ndk-version: '${{ env.NDK_VERSION }}', add-to-path: true, link-to-sdk: true}
+      - name: Set isolated candidate package version
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\+[0-9]+$ ]]
+          export CANDIDATE_VERSION
+          yq -i '.version = strenv(CANDIDATE_VERSION)' pubspec.yaml
       - run: flutter pub get
       - name: Verify release tag
         if: startsWith(github.ref, 'refs/tags/')
