@@ -60,13 +60,14 @@ jobs:
         run: |
           cd core
           echo "Verifying Go core build with updated submodule..."
-          if go build -tags=with_gvisor -buildmode=c-shared -o /dev/null . 2> /tmp/build_err.log; then
+          if (go mod tidy && go build -tags=with_gvisor -buildmode=c-shared -o /dev/null .) 2> /tmp/build_err.log; then
             echo "build_passed=true" >> $GITHUB_OUTPUT
             echo "Core build passed successfully with new kernel."
           else
             echo "build_passed=false" >> $GITHUB_OUTPUT
+            cat /tmp/build_err.log
             echo "build_error<<BUILD_EOF" >> $GITHUB_OUTPUT
-            head -n 30 /tmp/build_err.log | tee -a "$GITHUB_OUTPUT"
+            tail -n 30 /tmp/build_err.log >> "$GITHUB_OUTPUT"
             echo "BUILD_EOF" >> $GITHUB_OUTPUT
             echo "Core build verification failed; inspect the error above before changing the kernel."
             exit 1
