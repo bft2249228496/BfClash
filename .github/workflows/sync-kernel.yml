@@ -55,12 +55,12 @@ jobs:
           fi
 
       - name: Verify Core Build & Adaptation Compatibility
-        if: steps.check_update.outputs.has_update == 'true'
+        if: steps.check_update.outputs.has_update == 'true' || github.event_name == 'workflow_dispatch'
         id: verify_build
         run: |
           cd core
           echo "Verifying Go core build with updated submodule..."
-          if (go mod tidy && go build -tags=with_gvisor -buildmode=c-shared -o /dev/null .) 2> /tmp/build_err.log; then
+          if (go mod tidy && CGO_ENABLED=0 go test . && CGO_ENABLED=0 go vet . && go build -tags=with_gvisor -buildmode=c-shared -o /dev/null .) 2> /tmp/build_err.log; then
             echo "build_passed=true" >> $GITHUB_OUTPUT
             echo "Core build passed successfully with new kernel."
           else

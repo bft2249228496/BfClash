@@ -561,6 +561,22 @@ func shouldPublishDelay(delay uint16) bool {
 	return delay != 0 || !isSuspended.Load()
 }
 
+func newURLTestHook(publish func(Message)) adapter.UrlTestCheck {
+	return func(url string, name string, delay uint16, _ bool) {
+		if !shouldPublishDelay(delay) {
+			return
+		}
+		publish(Message{
+			Type: DelayMessage,
+			Data: &Delay{
+				Url:   url,
+				Name:  name,
+				Value: delayValue(delay),
+			},
+		})
+	}
+}
+
 func handleStartLog() {
 	logMu.Lock()
 	if logCancel != nil {
@@ -681,19 +697,7 @@ func handleSetupConfig(params *SetupParams) string {
 }
 
 func init() {
-	adapter.UrlTestHook = func(url string, name string, delay uint16) {
-		if !shouldPublishDelay(delay) {
-			return
-		}
-		sendMessage(Message{
-			Type: DelayMessage,
-			Data: &Delay{
-				Url:   url,
-				Name:  name,
-				Value: delayValue(delay),
-			},
-		})
-	}
+	adapter.UrlTestHook = newURLTestHook(sendMessage)
 	statistic.DefaultRequestNotify = func(c statistic.Tracker) {
 		sendMessage(Message{
 			Type: RequestMessage,

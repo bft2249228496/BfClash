@@ -172,6 +172,47 @@ func TestShouldPublishDelayDropsFailuresMeasuredInDoze(t *testing.T) {
 	}
 }
 
+func TestURLTestHookPreservesHostDelayEvents(t *testing.T) {
+	wasSuspended := isSuspended.Load()
+	t.Cleanup(func() { isSuspended.Store(wasSuspended) })
+	tests := []struct {
+		name      string
+		delay     uint16
+		timedOut  bool
+		suspended bool
+		published bool
+		value     int32
+	}{
+		{name: "success", delay: 120, published: true, value: 120},
+		{name: "connection failure", published: true, value: -1},
+		{name: "timeout", timedOut: true, published: true, value: -1},
+		{name: "failure during doze", suspended: true},
+		{name: "timeout during doze", timedOut: true, suspended: true},
+		{name: "success during doze", delay: 120, suspended: true, published: true, value: 120},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			isSuspended.Store(test.suspended)
+			var events []Message
+			hook := newURLTestHook(func(message Message) { events = append(events, message) })
+			hook("https://example.test", "fixture-node", test.delay, test.timedOut)
+			if !test.published {
+				if len(events) != 0 {
+					t.Fatalf("unexpected delay events while suspended: %v", events)
+				}
+				return
+			}
+			if len(events) != 1 || events[0].Type != DelayMessage {
+				t.Fatalf("delay events = %v, want one DelayMessage", events)
+			}
+			delay, ok := events[0].Data.(*Delay)
+			if !ok || delay.Url != "https://example.test" || delay.Name != "fixture-node" || delay.Value != test.value {
+				t.Fatalf("delay payload = %+v, want original URL/name and value %d", events[0].Data, test.value)
+			}
+		})
+	}
+}
+
 func typeMap(types map[string]constant.AdapterType) func(string) (constant.AdapterType, bool) {
 	return func(name string) (constant.AdapterType, bool) {
 		adapterType, ok := types[name]
