@@ -66,9 +66,9 @@ jobs:
           else
             echo "build_passed=false" >> $GITHUB_OUTPUT
             echo "build_error<<BUILD_EOF" >> $GITHUB_OUTPUT
-            cat /tmp/build_err.log | head -n 30 >> $GITHUB_OUTPUT
+            head -n 30 /tmp/build_err.log | tee -a "$GITHUB_OUTPUT"
             echo "BUILD_EOF" >> $GITHUB_OUTPUT
-            echo "Core build FAILED: upstream interface changed, needs AI auto-adaptation."
+            echo "Core build verification failed; inspect the error above before changing the kernel."
             exit 1
           fi
 
