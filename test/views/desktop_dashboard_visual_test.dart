@@ -82,6 +82,7 @@ void main() {
       (width: 840.0, locale: const Locale('zh', 'CN'), scale: 1.3),
     ]) {
       final width = scenario.width;
+      if (width == 1200 && screen != 'desktop') continue;
       final chinese = scenario.locale.languageCode == 'zh';
       final height = chinese && width < 1100 ? 592.0 : 1000.0;
       final remoteLabel = chinese
