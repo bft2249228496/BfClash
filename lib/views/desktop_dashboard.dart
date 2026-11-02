@@ -49,7 +49,10 @@ class DesktopDashboardView extends ConsumerWidget {
               ),
             ],
           );
-          const quickAccess = _DesktopQuickAccessPanel();
+          const quickAccess = KeyedSubtree(
+            key: ValueKey('desktop-quick-access'),
+            child: _DesktopQuickAccessPanel(),
+          );
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
@@ -122,18 +125,36 @@ class DesktopDashboardView extends ConsumerWidget {
                       const Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(child: NetworkDetection()),
+                          Expanded(child: NetworkDetection(height: tileHeight)),
                           SizedBox(width: gutter),
-                          Expanded(child: TrafficUsage()),
+                          Expanded(child: IntranetIP(height: tileHeight)),
                         ],
                       )
                     else ...[
                       const NetworkDetection(),
                       const SizedBox(height: gutter),
-                      const TrafficUsage(),
+                      const IntranetIP(),
                     ],
                     const SizedBox(height: gutter),
-                    quickAccess,
+                    if (wide)
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(
+                              width: sideWidth,
+                              child: const TrafficUsage(),
+                            ),
+                            const SizedBox(width: gutter),
+                            const Expanded(child: quickAccess),
+                          ],
+                        ),
+                      )
+                    else ...[
+                      const TrafficUsage(),
+                      const SizedBox(height: gutter),
+                      quickAccess,
+                    ],
                   ],
                 ],
               ),

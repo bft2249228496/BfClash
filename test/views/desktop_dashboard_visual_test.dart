@@ -10,6 +10,10 @@ import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/state.dart';
 import 'package:bfclash/views/dashboard/widgets/network_speed.dart';
+import 'package:bfclash/views/dashboard/widgets/network_detection.dart'
+    as dashboard;
+import 'package:bfclash/views/dashboard/widgets/intranet_ip.dart';
+import 'package:bfclash/views/dashboard/widgets/traffic_usage.dart';
 import 'package:bfclash/views/desktop_dashboard.dart';
 import 'package:bfclash/views/desktop_tools.dart';
 import 'package:bfclash/views/profiles/profiles.dart';
@@ -71,6 +75,7 @@ void main() {
   ]) {
     for (final scenario in [
       (width: 900.0, locale: const Locale('en'), scale: 1.0),
+      (width: 1200.0, locale: const Locale('zh', 'CN'), scale: 1.0),
       (width: 1400.0, locale: const Locale('en'), scale: 1.0),
       (width: 1600.0, locale: const Locale('zh', 'CN'), scale: 1.0),
       (width: 1400.0, locale: const Locale('zh', 'CN'), scale: 1.5),
@@ -339,6 +344,27 @@ void main() {
                     .position
                     .jumpTo(0);
                 await tester.pumpAndSettle();
+              }
+              if (width == 1200) {
+                final network = tester.getRect(
+                  find.byType(dashboard.NetworkDetection),
+                );
+                final intranet = tester.getRect(find.byType(IntranetIP));
+                expect(network.top, closeTo(intranet.top, 0.01));
+                expect(network.bottom, closeTo(intranet.bottom, 0.01));
+                final trafficFinder = find.byType(TrafficUsage);
+                await tester.scrollUntilVisible(
+                  trafficFinder,
+                  250,
+                  scrollable: dashboardScroll,
+                );
+                await tester.pumpAndSettle();
+                final traffic = tester.getRect(trafficFinder);
+                final tools = tester.getRect(
+                  find.byKey(const ValueKey('desktop-quick-access')),
+                );
+                expect(traffic.top, closeTo(tools.top, 0.01));
+                expect(traffic.bottom, closeTo(tools.bottom, 0.01));
               }
               expect(tester.takeException(), isNull);
             } else if (screen == 'requests') {
