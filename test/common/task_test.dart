@@ -10,6 +10,68 @@ import 'package:yaml/yaml.dart';
 int _double(int value) => value * 2;
 
 void main() {
+  test(
+    'Tailscale profile injection is opt-in and preserves source proxies',
+    () async {
+      final source = <String, dynamic>{
+        'proxies': [
+          {'name': 'existing', 'type': 'direct'},
+        ],
+      };
+      final state = MakeRealProfileState(
+        profilesPath: '/profiles',
+        profileId: 7,
+        rawConfig: source,
+        realPatchConfig: const PatchClashConfig(),
+        overrideDns: false,
+        appendSystemDns: false,
+        proxyGroups: const [],
+        rules: const [],
+        addedRules: const [],
+        defaultUA: 'BfClash-Test',
+      );
+      final disabled =
+          loadYaml((await makeRealProfileTask(state)).yaml) as YamlMap;
+      expect((disabled['proxies'] as YamlList).length, 1);
+      final enabled =
+          loadYaml(
+                (await makeRealProfileTask(
+                  state.copyWith(tailscaleEnabled: true),
+                )).yaml,
+              )
+              as YamlMap;
+      final proxies = enabled['proxies'] as YamlList;
+      expect(proxies.length, 2);
+      expect(proxies.last['name'], bfclashTailscaleOutboundName);
+      expect(proxies.last['type'], 'tailscale');
+      expect((source['proxies'] as List).length, 1);
+    },
+  );
+
+  test(
+    'Tailscale profile injection rejects an existing reserved name',
+    () async {
+      final state = const MakeRealProfileState(
+        profilesPath: '/profiles',
+        profileId: 7,
+        rawConfig: {
+          'proxies': [
+            {'name': bfclashTailscaleOutboundName, 'type': 'direct'},
+          ],
+        },
+        realPatchConfig: const PatchClashConfig(),
+        overrideDns: false,
+        appendSystemDns: false,
+        proxyGroups: const [],
+        rules: const [],
+        addedRules: const [],
+        defaultUA: 'BfClash-Test',
+        tailscaleEnabled: true,
+      );
+      await expectLater(makeRealProfileTask(state), throwsStateError);
+    },
+  );
+
   test('encoding helpers round-trip structured data', () async {
     final encoded = await encodeJSONTask({
       'name': 'BfClash',

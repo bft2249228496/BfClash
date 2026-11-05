@@ -388,6 +388,9 @@ class SetupAction extends _$SetupAction {
         appendSystemDns: appendSystemDns,
         addedRules: addedRules,
         defaultUA: defaultUA,
+        tailscaleEnabled: ref.read(
+          appSettingProvider.select((state) => state.tailscaleEnabled),
+        ),
         authentication: networkSetting.authentication.credentials,
         matchTarget: setupState.matchTarget,
       ),

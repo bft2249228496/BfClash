@@ -114,6 +114,7 @@ const keyboardModifierListEquality = SetEquality<KeyboardModifier>();
 
 const proxiesListStoreKey = PageStorageKey<String>('proxies_list');
 const toolsStoreKey = PageStorageKey<String>('tools');
+const bfclashTailscaleOutboundName = 'BfClash-Tailscale';
 const profilesStoreKey = PageStorageKey<String>('profiles');
 
 const defaultPrimaryColor = bfclashGeminiColor;

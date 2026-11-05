@@ -111,6 +111,25 @@ Future<({String yaml, String md5})> _makeRealProfileTask(
   MakeRealProfileState data,
 ) async {
   final rawConfig = Map.from(data.rawConfig);
+  if (data.tailscaleEnabled) {
+    final configuredProxies = rawConfig['proxies'];
+    if (configuredProxies != null && configuredProxies is! List) {
+      throw StateError('Profile proxies must be a list');
+    }
+    final proxies = List<dynamic>.from(configuredProxies as List? ?? const []);
+    if (proxies.whereType<Map>().any(
+      (proxy) => proxy['name'] == bfclashTailscaleOutboundName,
+    )) {
+      throw StateError('Tailscale outbound name conflicts with the profile');
+    }
+    proxies.add({
+      'name': bfclashTailscaleOutboundName,
+      'type': 'tailscale',
+      'state-dir': 'bfclash-tailscale',
+      'udp': true,
+    });
+    rawConfig['proxies'] = proxies;
+  }
   final realPatchConfig = data.realPatchConfig;
   final profilesPath = data.profilesPath;
   final profileId = data.profileId;
