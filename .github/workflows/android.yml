@@ -7,6 +7,22 @@ on:
         required: true
         type: string
         default: '1.0.4-beta.1+75'
+      publish_only:
+        description: Publish already verified candidate artifacts
+        type: boolean
+        default: false
+      source_sha:
+        description: Candidate source commit
+        type: string
+        default: ''
+      android_run:
+        description: Android candidate run ID
+        type: string
+        default: ''
+      windows_run:
+        description: Windows candidate run ID
+        type: string
+        default: ''
   push:
     branches: [main, 'integration/**']
     # Android 产品线固定 0.x 号段；Windows 的 1.x tag 不应触发 Android 构建。
@@ -24,6 +40,7 @@ env:
   NDK_VERSION: r28c
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || !inputs.publish_only
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -164,3 +181,67 @@ jobs:
           prerelease: ${{ steps.identity.outputs.prerelease }}
           make_latest: ${{ steps.identity.outputs.prerelease == 'false' }}
           generate_release_notes: true
+
+  publish_candidate:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_only
+    permissions: {actions: read, contents: write}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify candidate source and build results
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          ANDROID_RUN: ${{ inputs.android_run }}
+          WINDOWS_RUN: ${{ inputs.windows_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ && "$ANDROID_RUN" =~ ^[0-9]+$ && "$WINDOWS_RUN" =~ ^[0-9]+$ ]]
+          for entry in "$ANDROID_RUN:android.yml" "$WINDOWS_RUN:windows-probe.yml"; do
+            id=${entry%%:*}; workflow=${entry#*:}
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id" | jq -e --arg sha "$SOURCE_SHA" --arg wf "$workflow" '.head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/" + $wf))'
+          done
+      - name: Download and inspect packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANDROID_RUN: ${{ inputs.android_run }}
+          WINDOWS_RUN: ${{ inputs.windows_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p candidate/android candidate/windows public
+          gh run download "$ANDROID_RUN" -n bfclash-android -D candidate/android
+          gh run download "$WINDOWS_RUN" -n bfclash-windows-probe -D candidate/windows
+          (cd candidate/android && sha256sum -c SHA256SUMS.txt)
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            f="candidate/android/BfClash-1.0.4-beta.1-android-$abi.apk"
+            test -s "$f"
+            cp "$f" public/
+          done
+          for ext in setup.exe zip; do
+            f="candidate/windows/dist/beta/BfClash-1.0.4-beta.1-windows-amd64-$ext"
+            if [[ "$ext" == zip ]]; then f="candidate/windows/dist/beta/BfClash-1.0.4-beta.1-windows-amd64.zip"; fi
+            test -s "$f"
+            cp "$f" public/
+          done
+          (cd public && sha256sum * > SHA256SUMS.txt)
+      - name: Publish beta and legacy Android update bridge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/beta-notes.md <<'NOTES'
+          Tailscale integration preview for Windows and Android. The public version is unified as 1.0.4-beta.1.
+
+          Available for testing: opt-in Tailscale login, device status, and routing of Tailscale addresses and ts.net names. Real-device connectivity and in-app updates still need user validation. Subnet routes, exit nodes, and inbound services are not implemented yet. Keep an existing working installation available.
+          NOTES
+          cat > /tmp/bridge-notes.md <<'NOTES'
+          Android beta update bridge for older 0.x beta clients. These APK files are identical to the Android packages in 1.0.4-beta.1; their installed version is 1.0.4-beta.1. The bridge tag exists only so older clients can discover the update.
+          NOTES
+          gh release create v1.0.4-beta.1 --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Beta 1.0.4-beta.1 — Tailscale 预览' --notes-file /tmp/beta-notes.md public/*
+          gh release create v0.3.4-beta.1 --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Android Beta 更新兼容入口' --notes-file /tmp/bridge-notes.md public/*.apk
+          gh release edit v1.0.4-beta.1 --draft=false --latest=false
+          gh release edit v0.3.4-beta.1 --draft=false --latest=false
