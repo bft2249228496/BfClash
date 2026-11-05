@@ -689,7 +689,7 @@
   "tailnetTitle": "Tailscale",
   "tailnetDesc": "プライベートネットワークに接続してデバイスを表示",
   "tailnetEnable": "Tailscale を有効にする",
-  "tailnetEnableDesc": "現在の設定を再読み込みします。無効にしてもログインは保持されます",
+  "tailnetEnableDesc": "Tailscale のアドレスとドメインをこのネットワークにルーティングし、プロファイルを再読み込みします。無効にしてもログインは保持されます。",
   "tailnetDisabled": "Tailscale を有効にして接続してください。",
   "tailnetNeedProfile": "先にプロファイルを選択し、コアを起動してください。",
   "tailnetApplyFailed": "Tailscale 設定を適用できません。現在のプロファイルを確認してください。",

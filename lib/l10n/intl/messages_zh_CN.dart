@@ -915,7 +915,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tailnetEnable": MessageLookupByLibrary.simpleMessage("启用 Tailscale"),
     "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
-      "会重新加载当前配置；关闭后保留登录状态",
+      "Tailscale 地址和域名将走此网络，会重新加载配置；关闭后保留登录状态。",
     ),
     "tailnetLogin": MessageLookupByLibrary.simpleMessage("登录"),
     "tailnetLogout": MessageLookupByLibrary.simpleMessage("退出登录"),

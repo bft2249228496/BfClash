@@ -127,6 +127,7 @@ Future<({String yaml, String md5})> _makeRealProfileTask(
       'type': 'tailscale',
       'state-dir': 'bfclash-tailscale',
       'udp': true,
+      'bfclash-auto-route': true,
     });
     rawConfig['proxies'] = proxies;
   }
@@ -264,6 +265,22 @@ Future<({String yaml, String md5})> _makeRealProfileTask(
     if (!nameserver.contains(systemDns)) {
       rawConfig['dns']['nameserver'] = [...nameserver, systemDns];
     }
+  }
+  if (data.tailscaleEnabled) {
+    final dns = Map<String, dynamic>.from(rawConfig['dns'] as Map);
+    final existingPolicy = dns['nameserver-policy'];
+    if (existingPolicy != null && existingPolicy is! Map) {
+      throw StateError('DNS nameserver policy must be a map');
+    }
+    final policy = Map<String, dynamic>.from(
+      existingPolicy as Map? ?? const {},
+    );
+    policy.putIfAbsent(
+      '+.ts.net',
+      () => ['ts://$bfclashTailscaleOutboundName'],
+    );
+    dns['nameserver-policy'] = policy;
+    rawConfig['dns'] = dns;
   }
   List<String> rules = [];
   if (data.rules.isEmpty) {

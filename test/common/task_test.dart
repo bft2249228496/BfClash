@@ -17,6 +17,12 @@ void main() {
         'proxies': [
           {'name': 'existing', 'type': 'direct'},
         ],
+        'dns': {
+          'enable': true,
+          'nameserver-policy': {
+            '+.example.test': ['1.1.1.1'],
+          },
+        },
       };
       final state = MakeRealProfileState(
         profilesPath: '/profiles',
@@ -44,7 +50,14 @@ void main() {
       expect(proxies.length, 2);
       expect(proxies.last['name'], bfclashTailscaleOutboundName);
       expect(proxies.last['type'], 'tailscale');
+      expect(proxies.last['bfclash-auto-route'], true);
+      final dns = enabled['dns'] as YamlMap;
+      expect(dns['nameserver-policy']['+.ts.net'], [
+        'ts://$bfclashTailscaleOutboundName',
+      ]);
+      expect(dns['nameserver-policy']['+.example.test'], ['1.1.1.1']);
       expect((source['proxies'] as List).length, 1);
+      expect((source['dns']['nameserver-policy'] as Map).length, 1);
     },
   );
 

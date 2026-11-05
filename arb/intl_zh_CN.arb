@@ -689,7 +689,7 @@
   "tailnetTitle": "Tailscale",
   "tailnetDesc": "连接私有网络并查看设备",
   "tailnetEnable": "启用 Tailscale",
-  "tailnetEnableDesc": "会重新加载当前配置；关闭后保留登录状态",
+  "tailnetEnableDesc": "Tailscale 地址和域名将走此网络，会重新加载配置；关闭后保留登录状态。",
   "tailnetDisabled": "启用 Tailscale 后即可连接。",
   "tailnetNeedProfile": "请先选择配置并启动内核。",
   "tailnetApplyFailed": "无法应用 Tailscale 设置，请检查当前配置。",

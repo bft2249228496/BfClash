@@ -689,7 +689,7 @@
   "tailnetTitle": "Tailscale",
   "tailnetDesc": "Подключение к частной сети и список устройств",
   "tailnetEnable": "Включить Tailscale",
-  "tailnetEnableDesc": "Активный профиль будет перезагружен; вход сохраняется при отключении",
+  "tailnetEnableDesc": "Адреса и домены Tailscale будут направляться через эту сеть; профиль будет перезагружен. Вход сохраняется при отключении.",
   "tailnetDisabled": "Включите Tailscale для подключения.",
   "tailnetNeedProfile": "Сначала выберите профиль и запустите ядро.",
   "tailnetApplyFailed": "Не удалось применить настройки Tailscale. Проверьте текущий профиль.",

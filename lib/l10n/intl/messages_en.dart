@@ -1273,7 +1273,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tailnetEnable": MessageLookupByLibrary.simpleMessage("Enable Tailscale"),
     "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
-      "Reloads the active profile; login is retained when disabled",
+      "Routes Tailscale addresses and domains through this network; reloads the profile. Sign-in is retained when disabled.",
     ),
     "tailnetLogin": MessageLookupByLibrary.simpleMessage("Sign in"),
     "tailnetLogout": MessageLookupByLibrary.simpleMessage("Sign out"),

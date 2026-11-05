@@ -689,7 +689,7 @@
   "tailnetTitle": "Tailscale",
   "tailnetDesc": "Connect to your private network and view devices",
   "tailnetEnable": "Enable Tailscale",
-  "tailnetEnableDesc": "Reloads the active profile; login is retained when disabled",
+  "tailnetEnableDesc": "Routes Tailscale addresses and domains through this network; reloads the profile. Sign-in is retained when disabled.",
   "tailnetDisabled": "Enable Tailscale to connect.",
   "tailnetNeedProfile": "Select a profile and start the core first.",
   "tailnetApplyFailed": "Could not apply the Tailscale setting. Check the active profile.",

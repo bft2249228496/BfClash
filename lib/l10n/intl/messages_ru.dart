@@ -1321,7 +1321,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tailnetEnable": MessageLookupByLibrary.simpleMessage("Включить Tailscale"),
     "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
-      "Активный профиль будет перезагружен; вход сохраняется при отключении",
+      "Адреса и домены Tailscale будут направляться через эту сеть; профиль будет перезагружен. Вход сохраняется при отключении.",
     ),
     "tailnetLogin": MessageLookupByLibrary.simpleMessage("Войти"),
     "tailnetLogout": MessageLookupByLibrary.simpleMessage("Выйти"),

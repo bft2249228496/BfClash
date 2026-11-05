@@ -1061,7 +1061,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tailnetEnable": MessageLookupByLibrary.simpleMessage("Tailscale を有効にする"),
     "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
-      "現在の設定を再読み込みします。無効にしてもログインは保持されます",
+      "Tailscale のアドレスとドメインをこのネットワークにルーティングし、プロファイルを再読み込みします。無効にしてもログインは保持されます。",
     ),
     "tailnetLogin": MessageLookupByLibrary.simpleMessage("ログイン"),
     "tailnetLogout": MessageLookupByLibrary.simpleMessage("ログアウト"),

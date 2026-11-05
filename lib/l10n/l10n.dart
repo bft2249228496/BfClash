@@ -5755,10 +5755,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Reloads the active profile; login is retained when disabled`
+  /// `Routes Tailscale addresses and domains through this network; reloads the profile. Sign-in is retained when disabled.`
   String get tailnetEnableDesc {
     return Intl.message(
-      'Reloads the active profile; login is retained when disabled',
+      'Routes Tailscale addresses and domains through this network; reloads the profile. Sign-in is retained when disabled.',
       name: 'tailnetEnableDesc',
       desc: '',
       args: [],
