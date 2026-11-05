@@ -415,3 +415,7 @@ func NewAutoCloseProxyAdapter(adapter ProxyAdapter) ProxyAdapter {
 	runtime.SetFinalizer(proxy, (*autoCloseProxyAdapter).Close)
 	return proxy
 }
+
+func (p *autoCloseProxyAdapter) Underlying() ProxyAdapter {
+	return p.ProxyAdapter
+}

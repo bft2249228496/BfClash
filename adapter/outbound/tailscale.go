@@ -22,6 +22,7 @@ import (
 	"github.com/metacubex/mihomo/log"
 
 	ts "github.com/metacubex/tailscale"
+	"github.com/metacubex/tailscale/client/local"
 	"github.com/metacubex/tailscale/envknob"
 	"github.com/metacubex/tailscale/hostinfo"
 	"github.com/metacubex/tailscale/ipn"
@@ -208,6 +209,16 @@ func (t *Tailscale) ensureStarted(ctx context.Context) error {
 		return err
 	}
 	return t.waitBackendInitialized(ctx)
+}
+
+func (t *Tailscale) LocalClient(ctx context.Context) (*local.Client, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if err := t.ensureStarted(ctx); err != nil {
+		return nil, err
+	}
+	return t.server.LocalClient()
 }
 
 func (t *Tailscale) watchBackendState() {
