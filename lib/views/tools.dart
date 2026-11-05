@@ -9,6 +9,7 @@ import 'package:bfclash/views/backup_and_restore.dart';
 import 'package:bfclash/views/config/config.dart';
 import 'package:bfclash/views/hotkey.dart';
 import 'package:bfclash/views/sub_store.dart';
+import 'package:bfclash/views/tailscale.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:bfclash/widgets/locale_setting_item.dart';
 import 'package:material_ui/material_ui.dart';
@@ -67,6 +68,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       title: context.appLocalizations.settings,
       items: [
         const _SubStoreItem(),
+        const _TailscaleItem(),
         const LocaleSettingItem(),
         const _ThemeItem(),
         const _BackupItem(),
@@ -127,6 +129,20 @@ class _SubStoreItem extends StatelessWidget {
       title: Text(context.appLocalizations.subStoreTitle),
       subtitle: Text(context.appLocalizations.subStoreLocalModeDesc),
       widget: const SubStoreView(),
+    );
+  }
+}
+
+class _TailscaleItem extends StatelessWidget {
+  const _TailscaleItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.open(
+      leading: const Icon(Icons.hub_outlined),
+      title: Text(context.appLocalizations.tailnetTitle),
+      subtitle: Text(context.appLocalizations.tailnetDesc),
+      widget: const TailscaleView(),
     );
   }
 }

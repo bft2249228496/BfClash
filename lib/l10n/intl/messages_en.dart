@@ -595,9 +595,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -1257,6 +1258,54 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage(
       "Only effective in mobile view",
     ),
+    "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
+      "Could not apply the Tailscale setting. Check the active profile.",
+    ),
+    "tailnetAuthPending": MessageLookupByLibrary.simpleMessage(
+      "Waiting for sign-in link",
+    ),
+    "tailnetDesc": MessageLookupByLibrary.simpleMessage(
+      "Connect to your private network and view devices",
+    ),
+    "tailnetDevices": MessageLookupByLibrary.simpleMessage("Devices"),
+    "tailnetDisabled": MessageLookupByLibrary.simpleMessage(
+      "Enable Tailscale to connect.",
+    ),
+    "tailnetEnable": MessageLookupByLibrary.simpleMessage("Enable Tailscale"),
+    "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Reloads the active profile; login is retained when disabled",
+    ),
+    "tailnetLogin": MessageLookupByLibrary.simpleMessage("Sign in"),
+    "tailnetLogout": MessageLookupByLibrary.simpleMessage("Sign out"),
+    "tailnetLogoutConfirm": MessageLookupByLibrary.simpleMessage(
+      "Sign out of this Tailscale device?",
+    ),
+    "tailnetNeedProfile": MessageLookupByLibrary.simpleMessage(
+      "Select a profile and start the core first.",
+    ),
+    "tailnetNoDevices": MessageLookupByLibrary.simpleMessage(
+      "No devices available",
+    ),
+    "tailnetOffline": MessageLookupByLibrary.simpleMessage("Offline"),
+    "tailnetOnline": MessageLookupByLibrary.simpleMessage("Online"),
+    "tailnetOpenLogin": MessageLookupByLibrary.simpleMessage(
+      "Open sign-in page",
+    ),
+    "tailnetRefresh": MessageLookupByLibrary.simpleMessage("Refresh status"),
+    "tailnetRequestFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to contact Tailscale. Check the core and try again.",
+    ),
+    "tailnetRestoreFailed": MessageLookupByLibrary.simpleMessage(
+      "Could not restore the previous profile. Check your connection and reapply the profile.",
+    ),
+    "tailnetStatus": MessageLookupByLibrary.simpleMessage("Connection status"),
+    "tailnetStatusNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "Sign-in required",
+    ),
+    "tailnetStatusOther": MessageLookupByLibrary.simpleMessage("Not connected"),
+    "tailnetStatusRunning": MessageLookupByLibrary.simpleMessage("Connected"),
+    "tailnetStatusStarting": MessageLookupByLibrary.simpleMessage("Connecting"),
+    "tailnetTitle": MessageLookupByLibrary.simpleMessage("Tailscale"),
     "tapToAuthorize": MessageLookupByLibrary.simpleMessage("Tap to authorize"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP concurrent"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage(

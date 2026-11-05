@@ -607,9 +607,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -1305,6 +1306,62 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage(
       "Действует только в мобильном виде",
     ),
+    "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось применить настройки Tailscale. Проверьте текущий профиль.",
+    ),
+    "tailnetAuthPending": MessageLookupByLibrary.simpleMessage(
+      "Ожидание ссылки для входа",
+    ),
+    "tailnetDesc": MessageLookupByLibrary.simpleMessage(
+      "Подключение к частной сети и список устройств",
+    ),
+    "tailnetDevices": MessageLookupByLibrary.simpleMessage("Устройства"),
+    "tailnetDisabled": MessageLookupByLibrary.simpleMessage(
+      "Включите Tailscale для подключения.",
+    ),
+    "tailnetEnable": MessageLookupByLibrary.simpleMessage("Включить Tailscale"),
+    "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Активный профиль будет перезагружен; вход сохраняется при отключении",
+    ),
+    "tailnetLogin": MessageLookupByLibrary.simpleMessage("Войти"),
+    "tailnetLogout": MessageLookupByLibrary.simpleMessage("Выйти"),
+    "tailnetLogoutConfirm": MessageLookupByLibrary.simpleMessage(
+      "Выйти из Tailscale на этом устройстве?",
+    ),
+    "tailnetNeedProfile": MessageLookupByLibrary.simpleMessage(
+      "Сначала выберите профиль и запустите ядро.",
+    ),
+    "tailnetNoDevices": MessageLookupByLibrary.simpleMessage(
+      "Нет доступных устройств",
+    ),
+    "tailnetOffline": MessageLookupByLibrary.simpleMessage("Не в сети"),
+    "tailnetOnline": MessageLookupByLibrary.simpleMessage("В сети"),
+    "tailnetOpenLogin": MessageLookupByLibrary.simpleMessage(
+      "Открыть страницу входа",
+    ),
+    "tailnetRefresh": MessageLookupByLibrary.simpleMessage(
+      "Обновить состояние",
+    ),
+    "tailnetRequestFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось связаться с Tailscale. Проверьте ядро и повторите попытку.",
+    ),
+    "tailnetRestoreFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось восстановить прежний профиль. Проверьте подключение и примените профиль заново.",
+    ),
+    "tailnetStatus": MessageLookupByLibrary.simpleMessage(
+      "Состояние подключения",
+    ),
+    "tailnetStatusNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "Требуется вход",
+    ),
+    "tailnetStatusOther": MessageLookupByLibrary.simpleMessage(
+      "Нет подключения",
+    ),
+    "tailnetStatusRunning": MessageLookupByLibrary.simpleMessage("Подключено"),
+    "tailnetStatusStarting": MessageLookupByLibrary.simpleMessage(
+      "Подключение",
+    ),
+    "tailnetTitle": MessageLookupByLibrary.simpleMessage("Tailscale"),
     "tapToAuthorize": MessageLookupByLibrary.simpleMessage(
       "Нажмите, чтобы разрешить",
     ),

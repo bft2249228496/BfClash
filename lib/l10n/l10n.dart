@@ -5729,6 +5729,216 @@ class AppLocalizations {
   String get stateOff {
     return Intl.message('Off', name: 'stateOff', desc: '', args: []);
   }
+
+  /// `Tailscale`
+  String get tailnetTitle {
+    return Intl.message('Tailscale', name: 'tailnetTitle', desc: '', args: []);
+  }
+
+  /// `Connect to your private network and view devices`
+  String get tailnetDesc {
+    return Intl.message(
+      'Connect to your private network and view devices',
+      name: 'tailnetDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable Tailscale`
+  String get tailnetEnable {
+    return Intl.message(
+      'Enable Tailscale',
+      name: 'tailnetEnable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reloads the active profile; login is retained when disabled`
+  String get tailnetEnableDesc {
+    return Intl.message(
+      'Reloads the active profile; login is retained when disabled',
+      name: 'tailnetEnableDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable Tailscale to connect.`
+  String get tailnetDisabled {
+    return Intl.message(
+      'Enable Tailscale to connect.',
+      name: 'tailnetDisabled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select a profile and start the core first.`
+  String get tailnetNeedProfile {
+    return Intl.message(
+      'Select a profile and start the core first.',
+      name: 'tailnetNeedProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not apply the Tailscale setting. Check the active profile.`
+  String get tailnetApplyFailed {
+    return Intl.message(
+      'Could not apply the Tailscale setting. Check the active profile.',
+      name: 'tailnetApplyFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connection status`
+  String get tailnetStatus {
+    return Intl.message(
+      'Connection status',
+      name: 'tailnetStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in`
+  String get tailnetLogin {
+    return Intl.message('Sign in', name: 'tailnetLogin', desc: '', args: []);
+  }
+
+  /// `Open sign-in page`
+  String get tailnetOpenLogin {
+    return Intl.message(
+      'Open sign-in page',
+      name: 'tailnetOpenLogin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refresh status`
+  String get tailnetRefresh {
+    return Intl.message(
+      'Refresh status',
+      name: 'tailnetRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Devices`
+  String get tailnetDevices {
+    return Intl.message('Devices', name: 'tailnetDevices', desc: '', args: []);
+  }
+
+  /// `No devices available`
+  String get tailnetNoDevices {
+    return Intl.message(
+      'No devices available',
+      name: 'tailnetNoDevices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Online`
+  String get tailnetOnline {
+    return Intl.message('Online', name: 'tailnetOnline', desc: '', args: []);
+  }
+
+  /// `Offline`
+  String get tailnetOffline {
+    return Intl.message('Offline', name: 'tailnetOffline', desc: '', args: []);
+  }
+
+  /// `Unable to contact Tailscale. Check the core and try again.`
+  String get tailnetRequestFailed {
+    return Intl.message(
+      'Unable to contact Tailscale. Check the core and try again.',
+      name: 'tailnetRequestFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for sign-in link`
+  String get tailnetAuthPending {
+    return Intl.message(
+      'Waiting for sign-in link',
+      name: 'tailnetAuthPending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out`
+  String get tailnetLogout {
+    return Intl.message('Sign out', name: 'tailnetLogout', desc: '', args: []);
+  }
+
+  /// `Sign out of this Tailscale device?`
+  String get tailnetLogoutConfirm {
+    return Intl.message(
+      'Sign out of this Tailscale device?',
+      name: 'tailnetLogoutConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connected`
+  String get tailnetStatusRunning {
+    return Intl.message(
+      'Connected',
+      name: 'tailnetStatusRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign-in required`
+  String get tailnetStatusNeedsLogin {
+    return Intl.message(
+      'Sign-in required',
+      name: 'tailnetStatusNeedsLogin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connecting`
+  String get tailnetStatusStarting {
+    return Intl.message(
+      'Connecting',
+      name: 'tailnetStatusStarting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not connected`
+  String get tailnetStatusOther {
+    return Intl.message(
+      'Not connected',
+      name: 'tailnetStatusOther',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not restore the previous profile. Check your connection and reapply the profile.`
+  String get tailnetRestoreFailed {
+    return Intl.message(
+      'Could not restore the previous profile. Check your connection and reapply the profile.',
+      name: 'tailnetRestoreFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

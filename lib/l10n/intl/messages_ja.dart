@@ -1048,6 +1048,46 @@ class MessageLookup extends MessageLookupByLibrary {
     "tab": MessageLookupByLibrary.simpleMessage("タブ"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("タブアニメーション"),
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage("モバイル表示でのみ有効です"),
+    "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
+      "Tailscale 設定を適用できません。現在のプロファイルを確認してください。",
+    ),
+    "tailnetAuthPending": MessageLookupByLibrary.simpleMessage("ログインリンクを待機中"),
+    "tailnetDesc": MessageLookupByLibrary.simpleMessage(
+      "プライベートネットワークに接続してデバイスを表示",
+    ),
+    "tailnetDevices": MessageLookupByLibrary.simpleMessage("デバイス"),
+    "tailnetDisabled": MessageLookupByLibrary.simpleMessage(
+      "Tailscale を有効にして接続してください。",
+    ),
+    "tailnetEnable": MessageLookupByLibrary.simpleMessage("Tailscale を有効にする"),
+    "tailnetEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "現在の設定を再読み込みします。無効にしてもログインは保持されます",
+    ),
+    "tailnetLogin": MessageLookupByLibrary.simpleMessage("ログイン"),
+    "tailnetLogout": MessageLookupByLibrary.simpleMessage("ログアウト"),
+    "tailnetLogoutConfirm": MessageLookupByLibrary.simpleMessage(
+      "このデバイスの Tailscale からログアウトしますか？",
+    ),
+    "tailnetNeedProfile": MessageLookupByLibrary.simpleMessage(
+      "先にプロファイルを選択し、コアを起動してください。",
+    ),
+    "tailnetNoDevices": MessageLookupByLibrary.simpleMessage("利用可能なデバイスはありません"),
+    "tailnetOffline": MessageLookupByLibrary.simpleMessage("オフライン"),
+    "tailnetOnline": MessageLookupByLibrary.simpleMessage("オンライン"),
+    "tailnetOpenLogin": MessageLookupByLibrary.simpleMessage("ログインページを開く"),
+    "tailnetRefresh": MessageLookupByLibrary.simpleMessage("状態を更新"),
+    "tailnetRequestFailed": MessageLookupByLibrary.simpleMessage(
+      "Tailscale に接続できません。コアを確認して再試行してください。",
+    ),
+    "tailnetRestoreFailed": MessageLookupByLibrary.simpleMessage(
+      "以前のプロファイルを復元できません。接続を確認し、プロファイルを再適用してください。",
+    ),
+    "tailnetStatus": MessageLookupByLibrary.simpleMessage("接続状態"),
+    "tailnetStatusNeedsLogin": MessageLookupByLibrary.simpleMessage("ログインが必要"),
+    "tailnetStatusOther": MessageLookupByLibrary.simpleMessage("未接続"),
+    "tailnetStatusRunning": MessageLookupByLibrary.simpleMessage("接続済み"),
+    "tailnetStatusStarting": MessageLookupByLibrary.simpleMessage("接続中"),
+    "tailnetTitle": MessageLookupByLibrary.simpleMessage("Tailscale"),
     "tapToAuthorize": MessageLookupByLibrary.simpleMessage("タップして許可"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP同時接続"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage(

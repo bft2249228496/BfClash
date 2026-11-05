@@ -13,6 +13,7 @@ import 'package:bfclash/views/config/advanced.dart';
 import 'package:bfclash/views/developer.dart';
 import 'package:bfclash/views/hotkey.dart';
 import 'package:bfclash/views/sub_store.dart';
+import 'package:bfclash/views/tailscale.dart';
 import 'package:bfclash/views/theme.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,6 +78,13 @@ class DesktopToolsView extends ConsumerWidget {
             subtitle: labels.subStoreLocalModeDesc,
             icon: Icons.hub_outlined,
             onTap: () => _open(context, const SubStoreView()),
+          ),
+          const SizedBox(height: 20),
+          _ToolCard(
+            title: labels.tailnetTitle,
+            subtitle: labels.tailnetDesc,
+            icon: Icons.hub_outlined,
+            onTap: () => _open(context, const TailscaleView()),
           ),
           const SizedBox(height: 20),
           Wrap(
