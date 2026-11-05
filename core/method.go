@@ -208,6 +208,21 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			response.success(tailscaleStatusView(status))
 		})
 	}),
+	startTailscaleLoginMethod: withArguments(func(name *string, response MethodResponse) {
+		safeGo(response, func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			client, err := tailscaleClient(ctx, *name)
+			if err == nil {
+				err = client.StartLoginInteractive(ctx)
+			}
+			if err != nil {
+				response.failure("tailscale_login_failed", "Unable to start Tailscale login", nil)
+				return
+			}
+			response.success(true)
+		})
+	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {
 			response.success(handleChangeProxy(params))

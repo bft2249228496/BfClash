@@ -78,6 +78,15 @@ mixin CoreInterface {
 }
 
 abstract class CoreHandlerInterface with CoreInterface {
+  Future<bool> startTailscaleLogin(String outboundName) async {
+    return await _invokeMethod<bool>(
+          method: CoreMethod.startTailscaleLogin,
+          arguments: outboundName,
+          timeout: const Duration(seconds: 35),
+        ) ??
+        false;
+  }
+
   Future<Map<String, dynamic>> getTailscaleStatus(String outboundName) async {
     final result = await _invokeMethod<Map<String, dynamic>>(
       method: CoreMethod.getTailscaleStatus,

@@ -91,6 +91,7 @@ const (
 	updateConfigMethod             CoreMethod = "updateConfig"
 	getProxiesMethod               CoreMethod = "getProxies"
 	getTailscaleStatusMethod       CoreMethod = "getTailscaleStatus"
+	startTailscaleLoginMethod      CoreMethod = "startTailscaleLogin"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"
