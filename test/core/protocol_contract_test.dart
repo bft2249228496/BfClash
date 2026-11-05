@@ -77,6 +77,11 @@ class _RecordingCoreHandler extends CoreHandlerInterface {
         'mode': 'rule',
         'rule': ['MATCH,DIRECT'],
       },
+      CoreMethod.getTailscaleStatus => {
+        'state': 'Running',
+        'ips': ['100.64.0.1'],
+        'peers': <Object>[],
+      },
       CoreMethod.getMemory => 2048,
       _ => '',
     };
@@ -220,6 +225,8 @@ void main() {
       'rule': ['MATCH,DIRECT'],
     });
     expect(await handler.getMemory(), 2048);
+    expect((await handler.getTailscaleStatus('tailnet'))['state'], 'Running');
+    expect(handler.calls[CoreMethod.getTailscaleStatus], 'tailnet');
   });
 
   test('getConfig preserves structured core errors', () async {

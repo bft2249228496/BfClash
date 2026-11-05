@@ -90,6 +90,7 @@ const (
 	validateConfigMethod           CoreMethod = "validateConfig"
 	updateConfigMethod             CoreMethod = "updateConfig"
 	getProxiesMethod               CoreMethod = "getProxies"
+	getTailscaleStatusMethod       CoreMethod = "getTailscaleStatus"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"

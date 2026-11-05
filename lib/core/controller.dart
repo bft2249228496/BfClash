@@ -122,6 +122,9 @@ class CoreController {
     return result;
   }
 
+  Future<Map<String, dynamic>> getTailscaleStatus(String outboundName) =>
+      _interface.getTailscaleStatus(outboundName);
+
   Future<List<Group>> getProxiesGroups({
     required ProxiesSortType sortType,
     required DelayMap delayMap,

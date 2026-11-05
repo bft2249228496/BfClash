@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"runtime"
 	"sync/atomic"
+	"time"
 	"unsafe"
 )
 
@@ -188,6 +190,23 @@ var methodHandlers = map[CoreMethod]methodHandler{
 	}),
 	getProxiesMethod: withoutArguments(func(response MethodResponse) {
 		response.success(handleGetProxies())
+	}),
+	getTailscaleStatusMethod: withArguments(func(name *string, response MethodResponse) {
+		safeGo(response, func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			client, err := tailscaleClient(ctx, *name)
+			if err != nil {
+				response.failure("tailscale_unavailable", "Tailscale is unavailable", nil)
+				return
+			}
+			status, err := client.Status(ctx)
+			if err != nil {
+				response.failure("tailscale_status_failed", "Unable to read Tailscale status", nil)
+				return
+			}
+			response.success(tailscaleStatusView(status))
+		})
 	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {

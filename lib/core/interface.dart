@@ -78,6 +78,21 @@ mixin CoreInterface {
 }
 
 abstract class CoreHandlerInterface with CoreInterface {
+  Future<Map<String, dynamic>> getTailscaleStatus(String outboundName) async {
+    final result = await _invokeMethod<Map<String, dynamic>>(
+      method: CoreMethod.getTailscaleStatus,
+      arguments: outboundName,
+      timeout: const Duration(seconds: 35),
+    );
+    if (result == null) {
+      throw const CoreMethodException(
+        code: 'empty_result',
+        message: 'Core returned an empty Tailscale status',
+      );
+    }
+    return result;
+  }
+
   Future<T?> _invokeMethod<T>({
     required CoreMethod method,
     Object? arguments,
