@@ -131,6 +131,9 @@ class CoreController {
   Future<bool> startTailscaleLogin(String outboundName) =>
       _interface.startTailscaleLogin(outboundName);
 
+  Future<bool> logoutTailscale(String outboundName) =>
+      _interface.logoutTailscale(outboundName);
+
   Future<List<Group>> getProxiesGroups({
     required ProxiesSortType sortType,
     required DelayMap delayMap,

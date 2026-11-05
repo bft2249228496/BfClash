@@ -228,6 +228,21 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			response.success(true)
 		})
 	}),
+	logoutTailscaleMethod: withArguments(func(name *string, response MethodResponse) {
+		safeGo(response, func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			client, err := tailscaleClient(ctx, *name)
+			if err == nil {
+				err = client.Logout(ctx)
+			}
+			if err != nil {
+				response.failure("tailscale_logout_failed", "Unable to log out of Tailscale", nil)
+				return
+			}
+			response.success(true)
+		})
+	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {
 			response.success(handleChangeProxy(params))

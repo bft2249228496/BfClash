@@ -93,6 +93,7 @@ const (
 	getTailscaleStatusMethod       CoreMethod = "getTailscaleStatus"
 	getTailscaleOutboundsMethod    CoreMethod = "getTailscaleOutbounds"
 	startTailscaleLoginMethod      CoreMethod = "startTailscaleLogin"
+	logoutTailscaleMethod          CoreMethod = "logoutTailscale"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"
