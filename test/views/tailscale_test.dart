@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bfclash/core/core.dart';
 import 'package:bfclash/core/interface.dart';
 import 'package:bfclash/enum/enum.dart';
@@ -74,7 +76,53 @@ class _FailingSetup extends SetupAction {
   }
 }
 
+class _DelayedFailingSetup extends SetupAction {
+  final pending = Completer<bool>();
+  int calls = 0;
+
+  @override
+  Future<bool> applyProfile({
+    bool silence = false,
+    bool force = false,
+    Future<void> Function()? preloadInvoke,
+  }) {
+    calls++;
+    return calls == 1 ? pending.future : Future.value(true);
+  }
+}
+
 void main() {
+  testWidgets('failed enable restores settings after leaving the page', (
+    tester,
+  ) async {
+    final setup = _DelayedFailingSetup();
+    final container = ProviderContainer(
+      overrides: [
+        appSettingProvider.overrideWithBuild((_, _) => const AppSettingProps()),
+        coreStatusProvider.overrideWithBuild((_, _) => CoreStatus.connected),
+        coreHandlerProvider.overrideWithValue(
+          CoreController.scoped(_TailnetCore()),
+        ),
+        setupActionProvider.overrideWith(() => setup),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const TestApp(locale: Locale('en'), child: TailscaleView()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Switch));
+    await tester.pump();
+    expect(container.read(appSettingProvider).tailscaleEnabled, isTrue);
+    await tester.pumpWidget(const SizedBox());
+    setup.pending.complete(false);
+    await tester.pumpAndSettle();
+    expect(container.read(appSettingProvider).tailscaleEnabled, isFalse);
+    expect(setup.calls, 2);
+  });
   testWidgets('disabled Tailscale does not start a node', (tester) async {
     final fake = _TailnetCore();
     final container = ProviderContainer(

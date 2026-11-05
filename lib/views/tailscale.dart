@@ -33,25 +33,23 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
   Future<void> _setEnabled(bool enabled) async {
     if (_busy) return;
     final previous = ref.read(appSettingProvider).tailscaleEnabled;
+    final settings = ref.read(appSettingProvider.notifier);
+    final setup = ref.read(setupActionProvider.notifier);
+    final core = ref.read(coreHandlerProvider);
+    final connected = ref.read(coreStatusProvider) == CoreStatus.connected;
     setState(() {
       _busy = true;
       _error = null;
       _status = null;
     });
-    ref
-        .read(appSettingProvider.notifier)
-        .update((state) => state.copyWith(tailscaleEnabled: enabled));
+    settings.update((state) => state.copyWith(tailscaleEnabled: enabled));
     var appliedSuccessfully = true;
     try {
-      if (ref.read(coreStatusProvider) == CoreStatus.connected) {
-        final applied = await ref
-            .read(setupActionProvider.notifier)
-            .applyProfile(force: true);
+      if (connected) {
+        final applied = await setup.applyProfile(force: true);
         if (!applied) throw StateError('profile application failed');
         if (enabled) {
-          final names = await ref
-              .read(coreHandlerProvider)
-              .getTailscaleOutbounds();
+          final names = await core.getTailscaleOutbounds();
           if (!names.contains(bfclashTailscaleOutboundName)) {
             throw StateError('Tailscale outbound unavailable');
           }
@@ -59,16 +57,11 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       }
     } catch (_) {
       appliedSuccessfully = false;
-      if (!mounted) return;
-      ref
-          .read(appSettingProvider.notifier)
-          .update((state) => state.copyWith(tailscaleEnabled: previous));
+      settings.update((state) => state.copyWith(tailscaleEnabled: previous));
       var restoreFailed = false;
       try {
-        if (ref.read(coreStatusProvider) == CoreStatus.connected) {
-          restoreFailed = !await ref
-              .read(setupActionProvider.notifier)
-              .applyProfile(force: true);
+        if (connected) {
+          restoreFailed = !await setup.applyProfile(force: true);
         }
       } catch (_) {
         restoreFailed = true;
