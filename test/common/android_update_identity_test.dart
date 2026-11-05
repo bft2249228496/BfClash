@@ -164,6 +164,28 @@ void main() {
     expect(compareVersions('0.3.4-beta.1', '1.0.4-beta.1'), lessThan(0));
   });
 
+  test('unified release selects an APK matching its own version', () {
+    final unified = {
+      'tag_name': 'v1.0.4-beta.1',
+      'assets': [
+        {
+          'name': 'BfClash-1.0.3-beta.1-android-arm64-v8a.apk',
+          'browser_download_url': 'https://example.test/old.apk',
+        },
+        {
+          'name': 'BfClash-1.0.4-beta.1-android-arm64-v8a.apk',
+          'browser_download_url': 'https://example.test/current.apk',
+        },
+      ],
+    };
+    expect(
+      selectAndroidReleaseAssetEntry(unified, [
+        'arm64-v8a',
+      ])?['browser_download_url'],
+      'https://example.test/current.apk',
+    );
+  });
+
   test('rc 能升级到同号正式版', () {
     expect(
       visible('v0.3.1', '0.3.1-rc.1', 'com.bfclash.client'),

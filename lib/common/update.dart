@@ -165,15 +165,32 @@ String? selectAndroidUpdateAsset(
   return entry?['browser_download_url'] as String?;
 }
 
+@visibleForTesting
+Map<String, dynamic>? selectAndroidReleaseAssetEntry(
+  Map<String, dynamic> release,
+  List<String> supportedAbis,
+) {
+  final assets = release['assets'];
+  if (assets is! List) return null;
+  final tag = ReleaseTag.tryParse(release['tag_name'] as String?);
+  if (tag == null) return null;
+  if (tag.major != windowsReleaseMajor) {
+    return selectAndroidUpdateAssetEntry(assets, supportedAbis);
+  }
+  final prefix = 'bfclash-${tag.version.toLowerCase()}-android-';
+  final matching = assets.whereType<Map<String, dynamic>>().where((asset) {
+    final name = (asset['name'] as String? ?? '').toLowerCase();
+    return name.startsWith(prefix) && name.endsWith('.apk');
+  }).toList();
+  return selectAndroidUpdateAssetEntry(matching, supportedAbis);
+}
+
 Future<AndroidUpdateAsset?> androidUpdateAssetInfo(
   Map<String, dynamic> release,
 ) async {
   if (!Platform.isAndroid) return null;
   final info = await DeviceInfoPlugin().androidInfo;
-  final entry = selectAndroidUpdateAssetEntry(
-    release['assets'] as List<dynamic>?,
-    info.supportedAbis,
-  );
+  final entry = selectAndroidReleaseAssetEntry(release, info.supportedAbis);
   if (entry == null) return null;
   final url = entry['browser_download_url'] as String? ?? '';
   if (url.isEmpty) return null;
