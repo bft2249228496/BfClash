@@ -31,6 +31,29 @@ void main() {
         architecture: 'AMD64',
       );
 
+  test('legacy beta finds the unified version and later unified betas', () {
+    final first = release('1.0.4-beta.1');
+    expect(
+      selectWindowsBetaRelease(
+        [first],
+        currentVersion: '1.0.3-beta.2081',
+        currentRunId: '41376856535',
+        architecture: 'AMD64',
+      ),
+      same(first),
+    );
+    final second = release('1.0.4-beta.2');
+    expect(
+      selectWindowsBetaRelease(
+        [first, second],
+        currentVersion: '1.0.4-beta.1+2081',
+        currentRunId: '41376856535',
+        architecture: 'AMD64',
+      ),
+      same(second),
+    );
+  });
+
   test('shipped 1871 cannot discover the same-base 1891 repair', () {
     expect(installedSelect([release('1.0.0-beta.1891')]), isNull);
   });

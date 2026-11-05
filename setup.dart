@@ -182,7 +182,10 @@ String createWindowsBuildVersion(
   final build = 1000 + runNumber * 10 + runAttempt;
   if (build > 65535) throw ArgumentError('Windows build number exceeds 65535');
   final base = match.group(1)!;
-  return beta ? '$base-beta.$build+$build' : '$base+$build';
+  final explicitBeta = RegExp(
+    r'^\d+\.\d+\.\d+-beta\.(\d+)(?:\+\d+)?$',
+  ).firstMatch(sourceVersion)?.group(1);
+  return beta ? '$base-beta.${explicitBeta ?? build}+$build' : '$base+$build';
 }
 
 ArgParser createSetupArgParser() {

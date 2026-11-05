@@ -48,6 +48,22 @@ void main() {
     });
     test('Windows builds and retries get distinct app and file versions', () {
       expect(
+        setup.createWindowsBuildVersion(
+          '1.0.4-beta.1+75',
+          runNumber: 108,
+          beta: true,
+        ),
+        '1.0.4-beta.1+2081',
+      );
+      expect(
+        setup.createWindowsBuildVersion(
+          '1.0.4-beta.2+76',
+          runNumber: 109,
+          beta: true,
+        ),
+        '1.0.4-beta.2+2091',
+      );
+      expect(
         setup.createWindowsBuildVersion('0.2.27+55', runNumber: 27, beta: true),
         '0.2.27-beta.1271+1271',
       );
