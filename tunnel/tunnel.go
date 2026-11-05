@@ -399,6 +399,19 @@ func resolveMetadata(metadata *C.Metadata) (proxy C.Proxy, rule C.Rule, err erro
 		helper.FindProcess = nil
 	}
 
+	if metadata.Type != C.INNER && bfclashTailnetDestination(metadata) {
+		configMux.RLock()
+		tailnet := proxies["BfClash-Tailscale"]
+		if tailnet != nil {
+			router, ok := tailnet.Adapter().(interface{ BfClashAutoRoute() bool })
+			if ok && router.BfClashAutoRoute() {
+				configMux.RUnlock()
+				return tailnet, nil, nil
+			}
+		}
+		configMux.RUnlock()
+	}
+
 	switch mode {
 	case Direct:
 		proxy = proxies["DIRECT"]

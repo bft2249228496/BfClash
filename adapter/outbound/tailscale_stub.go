@@ -10,13 +10,14 @@ type Tailscale struct {
 
 type TailscaleOption struct {
 	BasicOption
-	Name       string `proxy:"name"`
-	Hostname   string `proxy:"hostname,omitempty"`
-	AuthKey    string `proxy:"auth-key,omitempty"`
-	ControlURL string `proxy:"control-url,omitempty"`
-	StateDir   string `proxy:"state-dir,omitempty"`
-	Ephemeral  bool   `proxy:"ephemeral,omitempty"`
-	UDP        bool   `proxy:"udp,omitempty"`
+	Name             string `proxy:"name"`
+	Hostname         string `proxy:"hostname,omitempty"`
+	AuthKey          string `proxy:"auth-key,omitempty"`
+	ControlURL       string `proxy:"control-url,omitempty"`
+	StateDir         string `proxy:"state-dir,omitempty"`
+	Ephemeral        bool   `proxy:"ephemeral,omitempty"`
+	UDP              bool   `proxy:"udp,omitempty"`
+	BfClashAutoRoute bool   `proxy:"bfclash-auto-route,omitempty"`
 
 	AcceptRoutes           *bool  `proxy:"accept-routes,omitempty"`
 	ExitNode               string `proxy:"exit-node,omitempty"`

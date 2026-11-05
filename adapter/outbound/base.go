@@ -419,3 +419,8 @@ func NewAutoCloseProxyAdapter(adapter ProxyAdapter) ProxyAdapter {
 func (p *autoCloseProxyAdapter) Underlying() ProxyAdapter {
 	return p.ProxyAdapter
 }
+
+func (p *autoCloseProxyAdapter) BfClashAutoRoute() bool {
+	router, ok := p.ProxyAdapter.(interface{ BfClashAutoRoute() bool })
+	return ok && router.BfClashAutoRoute()
+}

@@ -37,6 +37,7 @@ jobs:
       - name: Verify Tailscale integration
         run: |
           CGO_ENABLED=0 go test -tags=with_gvisor ./adapter/outbound -run 'Test(TailscaleLocalClientHonorsCanceledContext|AutoCloseAdapterExposesSameUnderlyingInstance)$' -count=1
+          CGO_ENABLED=0 go test -tags=with_gvisor ./tunnel -run '^TestBfClashTailnet' -count=1
       - name: Publish verified kernel merge
         if: steps.merge.outputs.updated == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.dry_run)
         run: git push origin HEAD:refs/heads/bfclash-tailscale
