@@ -82,11 +82,30 @@ void main() {
     }
   });
 
-  test('Windows 主线（1.x）对 Android 永不可见', () {
+  test('1.x 只有匹配版本的 Android 资产可见', () {
+    expect(
+      isAndroidReleaseCompatible(
+        release('v1.0.0', apk: false),
+        'com.bfclash.client',
+      ),
+      isFalse,
+    );
     expect(
       isAndroidReleaseCompatible(release('v1.0.0'), 'com.bfclash.client'),
       isFalse,
     );
+    final unified = {
+      'tag_name': 'v1.0.4-beta.1',
+      'assets': [
+        {'name': 'BfClash-1.0.4-beta.1-android-arm64-v8a.apk'},
+        {'name': 'BfClash-1.0.4-beta.1-windows-amd64-setup.exe'},
+      ],
+    };
+    expect(
+      isAndroidReleaseCompatible(unified, 'com.lansway.client.beta'),
+      isTrue,
+    );
+    expect(isAndroidReleaseCompatible(unified, 'com.bfclash.client'), isFalse);
   });
 
   test('没有 apk 资产的 release 不可见', () {

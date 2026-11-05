@@ -81,13 +81,23 @@ bool isAndroidReleaseCompatible(
 ) {
   final tag = ReleaseTag.tryParse(release['tag_name'] as String?);
   if (tag == null) return false;
-  // Android 只吃 0.x 主线，Windows 的 1.x tag 永远不可见。
-  if (tag.major != androidReleaseMajor) return false;
+  if (tag.major != androidReleaseMajor && tag.major != windowsReleaseMajor) {
+    return false;
+  }
   final accepted = tag.channel == ReleaseChannel.beta
       ? const {androidBetaPackage, alternateAndroidBetaPackage}
       : const {androidStablePackage};
   if (!accepted.contains(packageName)) return false;
-  return _hasAssetWithExtension(release, '.apk');
+  if (tag.major == androidReleaseMajor) {
+    return _hasAssetWithExtension(release, '.apk');
+  }
+  final assets = release['assets'];
+  if (assets is! List) return false;
+  final prefix = 'bfclash-${tag.version.toLowerCase()}-android-';
+  return assets.whereType<Map<String, dynamic>>().any((asset) {
+    final name = (asset['name'] as String? ?? '').toLowerCase();
+    return name.startsWith(prefix) && name.endsWith('.apk');
+  });
 }
 
 bool isWindowsReleaseCompatible(Map<String, dynamic> release) {
