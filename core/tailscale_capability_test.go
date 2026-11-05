@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/metacubex/mihomo/adapter"
+	"github.com/metacubex/mihomo/config"
 	C "github.com/metacubex/mihomo/constant"
 )
 
@@ -30,6 +31,42 @@ func TestTailscaleOutboundAvailableWithoutStartingNode(t *testing.T) {
 	got := tailscaleOutboundNames(map[string]C.Proxy{"tailnet": proxy, "missing": nil})
 	if len(got) != 1 || got[0] != "tailnet" {
 		t.Fatalf("Tailscale outbound names = %v, want [tailnet]", got)
+	}
+}
+
+func TestTailscaleGeneratedProfileParses(t *testing.T) {
+	cfg, err := config.Parse([]byte(`
+dns:
+  enable: true
+  nameserver: [1.1.1.1]
+  nameserver-policy:
+    '+.ts.net': ['ts://BfClash-Tailscale']
+proxies:
+  - name: BfClash-Tailscale
+    type: tailscale
+    state-dir: bfclash-tailscale-test
+    udp: true
+    bfclash-auto-route: true
+rules: ['MATCH,DIRECT']
+`))
+	if err != nil {
+		t.Fatalf("parse generated profile: %v", err)
+	}
+	proxy := cfg.Proxies["BfClash-Tailscale"]
+	if proxy == nil {
+		t.Fatal("Tailscale outbound missing")
+	}
+	t.Cleanup(func() { _ = proxy.Close() })
+	autoRoute, ok := proxy.Adapter().(interface{ BfClashAutoRoute() bool })
+	if !ok || !autoRoute.BfClashAutoRoute() {
+		t.Fatal("Tailscale automatic routing not enabled")
+	}
+	if len(cfg.DNS.NameServerPolicy) != 1 || len(cfg.DNS.NameServerPolicy[0].NameServers) != 1 {
+		t.Fatalf("unexpected DNS policy: %+v", cfg.DNS.NameServerPolicy)
+	}
+	ns := cfg.DNS.NameServerPolicy[0].NameServers[0]
+	if ns.Net != "tailscale" || ns.Addr != "BfClash-Tailscale" {
+		t.Fatalf("unexpected Tailscale DNS server: %+v", ns)
 	}
 }
 
