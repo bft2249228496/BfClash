@@ -1,0 +1,50 @@
+name: Sync FlClash upstream
+
+on:
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Verify the merge without pushing it
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bfclash-kernel-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bfclash-tailscale
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+          cache-dependency-path: go.sum
+      - name: Merge upstream into integration branch
+        id: merge
+        run: |
+          set -euo pipefail
+          git fetch https://github.com/chen08209/Clash.Meta.git FlClash
+          if git merge-base --is-ancestor FETCH_HEAD HEAD; then
+            echo 'updated=false' >> "$GITHUB_OUTPUT"
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            git merge --no-edit --no-ff FETCH_HEAD
+            echo 'updated=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Verify Tailscale integration
+        run: |
+          CGO_ENABLED=0 go test -tags=with_gvisor ./adapter/outbound -run 'Test(TailscaleLocalClientHonorsCanceledContext|AutoCloseAdapterExposesSameUnderlyingInstance)$' -count=1
+      - name: Publish verified kernel merge
+        if: steps.merge.outputs.updated == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.dry_run)
+        run: git push origin HEAD:refs/heads/bfclash-tailscale
