@@ -140,6 +140,30 @@ void main() {
         compareVersions(parsed.version, installedVersion) > 0;
   }
 
+  test('legacy beta release can point to the unified Android package', () {
+    final bridge = {
+      'tag_name': 'v0.3.4-beta.1',
+      'prerelease': true,
+      'assets': [
+        {
+          'name': 'BfClash-1.0.4-beta.1-android-arm64-v8a.apk',
+          'browser_download_url': 'https://example.test/bfclash-arm64.apk',
+        },
+        {
+          'name': 'BfClash-1.0.4-beta.1-android-armeabi-v7a.apk',
+          'browser_download_url': 'https://example.test/bfclash-armv7.apk',
+        },
+      ],
+    };
+    expect(isAndroidReleaseCompatible(bridge, androidBetaPackage), isTrue);
+    expect(compareVersions('0.3.4-beta.1', '0.3.3-beta.1'), greaterThan(0));
+    expect(
+      selectAndroidUpdateAsset(bridge['assets'] as List, ['arm64-v8a']),
+      'https://example.test/bfclash-arm64.apk',
+    );
+    expect(compareVersions('0.3.4-beta.1', '1.0.4-beta.1'), lessThan(0));
+  });
+
   test('rc 能升级到同号正式版', () {
     expect(
       visible('v0.3.1', '0.3.1-rc.1', 'com.bfclash.client'),
