@@ -8,6 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/metacubex/mihomo/tunnel"
 )
 
 type MethodCall struct {
@@ -190,6 +192,9 @@ var methodHandlers = map[CoreMethod]methodHandler{
 	}),
 	getProxiesMethod: withoutArguments(func(response MethodResponse) {
 		response.success(handleGetProxies())
+	}),
+	getTailscaleOutboundsMethod: withoutArguments(func(response MethodResponse) {
+		response.success(tailscaleOutboundNames(tunnel.AllProxies()))
 	}),
 	getTailscaleStatusMethod: withArguments(func(name *string, response MethodResponse) {
 		safeGo(response, func() {

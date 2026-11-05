@@ -6,11 +6,23 @@ import (
 	"sort"
 
 	"github.com/metacubex/mihomo/adapter/outbound"
+	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/tailscale/client/local"
 	"github.com/metacubex/tailscale/ipn/ipnstate"
 )
 
 var errTailscaleOutboundUnavailable = errors.New("Tailscale outbound is unavailable")
+
+func tailscaleOutboundNames(proxies map[string]C.Proxy) []string {
+	names := []string{}
+	for name, proxy := range proxies {
+		if proxy != nil && proxy.Type() == C.Tailscale {
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	return names
+}
 
 type tailscalePeer struct {
 	ID       string   `json:"id"`

@@ -125,6 +125,9 @@ class CoreController {
   Future<Map<String, dynamic>> getTailscaleStatus(String outboundName) =>
       _interface.getTailscaleStatus(outboundName);
 
+  Future<List<String>> getTailscaleOutbounds() =>
+      _interface.getTailscaleOutbounds();
+
   Future<bool> startTailscaleLogin(String outboundName) =>
       _interface.startTailscaleLogin(outboundName);
 

@@ -78,6 +78,19 @@ mixin CoreInterface {
 }
 
 abstract class CoreHandlerInterface with CoreInterface {
+  Future<List<String>> getTailscaleOutbounds() async {
+    final result = await _invokeMethod<List<dynamic>>(
+      method: CoreMethod.getTailscaleOutbounds,
+    );
+    if (result == null) {
+      throw const CoreMethodException(
+        code: 'empty_result',
+        message: 'Core returned no Tailscale outbound list',
+      );
+    }
+    return result.cast<String>();
+  }
+
   Future<bool> startTailscaleLogin(String outboundName) async {
     return await _invokeMethod<bool>(
           method: CoreMethod.startTailscaleLogin,

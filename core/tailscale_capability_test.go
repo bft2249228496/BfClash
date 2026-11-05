@@ -27,6 +27,10 @@ func TestTailscaleOutboundAvailableWithoutStartingNode(t *testing.T) {
 	if proxy.Type() != C.Tailscale || !proxy.SupportUDP() {
 		t.Fatalf("unexpected outbound: type=%s UDP=%v", proxy.Type(), proxy.SupportUDP())
 	}
+	got := tailscaleOutboundNames(map[string]C.Proxy{"tailnet": proxy, "missing": nil})
+	if len(got) != 1 || got[0] != "tailnet" {
+		t.Fatalf("Tailscale outbound names = %v, want [tailnet]", got)
+	}
 }
 
 func TestTailscaleOutboundRejectsUnsafeStateDirectory(t *testing.T) {

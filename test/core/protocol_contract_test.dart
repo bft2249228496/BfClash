@@ -83,6 +83,7 @@ class _RecordingCoreHandler extends CoreHandlerInterface {
         'peers': <Object>[],
       },
       CoreMethod.startTailscaleLogin => true,
+      CoreMethod.getTailscaleOutbounds => ['tailnet'],
       CoreMethod.getMemory => 2048,
       _ => '',
     };
@@ -228,6 +229,7 @@ void main() {
     expect(await handler.getMemory(), 2048);
     expect((await handler.getTailscaleStatus('tailnet'))['state'], 'Running');
     expect(handler.calls[CoreMethod.getTailscaleStatus], 'tailnet');
+    expect(await handler.getTailscaleOutbounds(), ['tailnet']);
     expect(await handler.startTailscaleLogin('tailnet'), isTrue);
     expect(handler.calls[CoreMethod.startTailscaleLogin], 'tailnet');
   });

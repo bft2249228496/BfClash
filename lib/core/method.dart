@@ -13,6 +13,7 @@ enum CoreMethod {
   getConfig,
   getProxies,
   getTailscaleStatus,
+  getTailscaleOutbounds,
   startTailscaleLogin,
   changeProxy,
   getTraffic,
