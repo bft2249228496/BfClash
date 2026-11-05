@@ -7,6 +7,10 @@ on:
         description: Run only isolated installer and update safety fixtures
         type: boolean
         default: false
+      candidate_version:
+        description: Optional unified beta version and build (for example 1.0.4-beta.1+75)
+        type: string
+        default: ''
   push:
     branches:
       - feat/windows-desktop-v0227
@@ -130,6 +134,18 @@ jobs:
           flutter pub get
       - name: Select isolated beta installer identity
         run: Copy-Item windows/packaging/exe/make_config.beta.yaml windows/packaging/exe/make_config.yaml -Force
+
+      - name: Set isolated beta candidate version
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_version != ''
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        shell: pwsh
+        run: |
+          if ($env:CANDIDATE_VERSION -notmatch '^\d+\.\d+\.\d+-beta\.\d+\+\d+$') { throw 'Invalid beta candidate version' }
+          $content = Get-Content pubspec.yaml -Raw
+          $updated = [regex]::Replace($content, '(?m)^version:\s*\S+\s*$', "version: $env:CANDIDATE_VERSION", 1)
+          if ($updated -eq $content) { throw 'Could not set candidate version' }
+          [System.IO.File]::WriteAllText((Resolve-Path pubspec.yaml), $updated)
 
       - name: Run Windows Beta Build Probe via setup.dart
         run: dart setup.dart windows --env pre --targets exe,zip -v
