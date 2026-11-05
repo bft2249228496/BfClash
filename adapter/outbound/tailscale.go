@@ -171,12 +171,9 @@ func NewTailscale(option TailscaleOption) (*Tailscale, error) {
 			log.Debugln("[Tailscale](%s) LookupHook: finish lookup %s, ips: %v, err: %v", option.Name, host, ips, err)
 			return ips, err
 		},
-		UserLogf: func(format string, args ...any) {
-			log.Infoln("[Tailscale](%s) %s", option.Name, fmt.Sprintf(format, args...))
-		},
-		Logf: func(format string, args ...any) {
-			log.Debugln("[Tailscale](%s) %s", option.Name, fmt.Sprintf(format, args...))
-		},
+		// tsnet logs may contain login URLs; status is exposed separately.
+		UserLogf: func(string, ...any) {},
+		Logf:     func(string, ...any) {},
 	}
 	dnsTransport := tailscaleDNSTransport{tailscale: outbound}
 	outbound.dnsResolver = dns.NewResolverFromClient(dnsTransport)
