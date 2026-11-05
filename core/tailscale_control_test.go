@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/netip"
 	"strings"
 	"testing"
@@ -9,6 +11,13 @@ import (
 	"github.com/metacubex/tailscale/ipn/ipnstate"
 	"github.com/metacubex/tailscale/types/key"
 )
+
+func TestTailscaleClientRejectsMissingOutbound(t *testing.T) {
+	client, err := tailscaleClient(context.Background(), "bfclash-missing-tailnet")
+	if client != nil || !errors.Is(err, errTailscaleOutboundUnavailable) {
+		t.Fatalf("client = %v, error = %v; want unavailable", client, err)
+	}
+}
 
 func TestTailscaleStatusViewSelectsAndSortsPeerFields(t *testing.T) {
 	status := &ipnstate.Status{
