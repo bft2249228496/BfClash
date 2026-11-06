@@ -48,6 +48,8 @@ type Tailscale struct {
 	backendInitErr  error
 
 	serverStarted bool
+	adbMu         sync.Mutex
+	adbForwards   map[uint16]context.CancelFunc
 
 	unregisterDNSResolver func()
 }
@@ -221,6 +223,64 @@ func (t *Tailscale) LocalClient(ctx context.Context) (*local.Client, error) {
 
 func (t *Tailscale) BfClashAutoRoute() bool {
 	return t.option.BfClashAutoRoute
+}
+
+// StartADBForward opens a temporary listener for one tailnet peer and forwards
+// only to the same port on loopback. Android ADB pairing is still mandatory.
+func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port uint16) error {
+	if runtime.GOOS != "android" {
+		return errors.New("ADB forwarding is Android only")
+	}
+	if !peer.Is4() || !netip.MustParsePrefix("100.64.0.0/10").Contains(peer) || port == 0 {
+		return errors.New("invalid ADB forwarding target")
+	}
+	if err := t.ensureStarted(ctx); err != nil {
+		return err
+	}
+	t.adbMu.Lock()
+	defer t.adbMu.Unlock()
+	if t.ctx.Err() != nil {
+		return errors.New("Tailscale is closed")
+	}
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+	if t.adbForwards == nil {
+		t.adbForwards = make(map[uint16]context.CancelFunc)
+	}
+	if _, exists := t.adbForwards[port]; exists {
+		return errors.New("ADB port already forwarded")
+	}
+	if len(t.adbForwards) >= 2 {
+		return errors.New("too many ADB ports")
+	}
+	listener, err := t.server.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return err
+	}
+	forward, err := newADBForward(listener, peer, port)
+	if err != nil {
+		_ = listener.Close()
+		return err
+	}
+	forwardCtx, cancel := context.WithTimeout(t.ctx, 15*time.Minute)
+	t.adbForwards[port] = cancel
+	go func() {
+		forward.serve(forwardCtx)
+		cancel()
+		t.adbMu.Lock()
+		delete(t.adbForwards, port)
+		t.adbMu.Unlock()
+	}()
+	return nil
+}
+
+func (t *Tailscale) StopADBForwards() {
+	t.adbMu.Lock()
+	defer t.adbMu.Unlock()
+	for _, cancel := range t.adbForwards {
+		cancel()
+	}
 }
 
 func (t *Tailscale) watchBackendState() {
@@ -479,6 +539,7 @@ func (t *Tailscale) IsL3Protocol(metadata *C.Metadata) bool {
 
 func (t *Tailscale) Close() error {
 	t.cancel()
+	t.StopADBForwards()
 	if t.unregisterDNSResolver != nil {
 		t.unregisterDNSResolver()
 	}
