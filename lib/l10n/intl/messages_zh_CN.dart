@@ -905,17 +905,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimation": MessageLookupByLibrary.simpleMessage("选项卡动画"),
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage("仅在移动视图中有效"),
     "tailnetAdb": MessageLookupByLibrary.simpleMessage("临时 ADB 调试"),
+    "tailnetAdbCloseUnknown": MessageLookupByLibrary.simpleMessage(
+      "关闭状态无法确认，请重试关闭",
+    ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
       "仅允许选中的设备连接，最多开放 15 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
     ),
+    "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("未开启"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
       "请输入 1 到 65535 之间的端口。",
     ),
     "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("启用临时调试"),
+    "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
+      "离开此页面会关闭临时调试",
+    ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage("无线调试端口"),
+    "tailnetAdbPorts": MessageLookupByLibrary.simpleMessage("已开放端口"),
+    "tailnetAdbReady": MessageLookupByLibrary.simpleMessage("已开启 · 已开放转发端口"),
     "tailnetAdbStop": MessageLookupByLibrary.simpleMessage("关闭 ADB 转发"),
     "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
       "已开启自动发现。请打开系统无线调试配对页面。",
+    ),
+    "tailnetAdbWaiting": MessageLookupByLibrary.simpleMessage(
+      "已开启 · 正在等待无线调试服务",
     ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "无法应用 Tailscale 设置，请检查当前配置。",

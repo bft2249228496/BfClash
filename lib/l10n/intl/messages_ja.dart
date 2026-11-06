@@ -1049,17 +1049,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimation": MessageLookupByLibrary.simpleMessage("タブアニメーション"),
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage("モバイル表示でのみ有効です"),
     "tailnetAdb": MessageLookupByLibrary.simpleMessage("一時 ADB デバッグ"),
+    "tailnetAdbCloseUnknown": MessageLookupByLibrary.simpleMessage(
+      "停止を確認できません。もう一度停止してください",
+    ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
       "選択したデバイスのみ最大15分間接続できます。開始後、Androidのワイヤレスデバッグのペア設定画面を開いてください。ポートは自動検出されます。",
     ),
+    "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("オフ"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
       "1〜65535 のポートを入力してください。",
     ),
     "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("一時デバッグを開始"),
+    "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
+      "このページを離れると一時デバッグは停止します",
+    ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage("ワイヤレスデバッグポート"),
+    "tailnetAdbPorts": MessageLookupByLibrary.simpleMessage("開放中のポート"),
+    "tailnetAdbReady": MessageLookupByLibrary.simpleMessage("オン · 転送ポートを開放中"),
     "tailnetAdbStop": MessageLookupByLibrary.simpleMessage("ADB 転送を停止"),
     "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
       "自動検出を開始しました。Androidのペア設定画面を開いてください。",
+    ),
+    "tailnetAdbWaiting": MessageLookupByLibrary.simpleMessage(
+      "オン · ワイヤレスデバッグを待機中",
     ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "Tailscale 設定を適用できません。現在のプロファイルを確認してください。",

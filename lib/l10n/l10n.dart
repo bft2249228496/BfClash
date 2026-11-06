@@ -6009,6 +6009,61 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Off`
+  String get tailnetAdbInactive {
+    return Intl.message('Off', name: 'tailnetAdbInactive', desc: '', args: []);
+  }
+
+  /// `On · Waiting for wireless debugging`
+  String get tailnetAdbWaiting {
+    return Intl.message(
+      'On · Waiting for wireless debugging',
+      name: 'tailnetAdbWaiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On · Forwarding ports are open`
+  String get tailnetAdbReady {
+    return Intl.message(
+      'On · Forwarding ports are open',
+      name: 'tailnetAdbReady',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open ports`
+  String get tailnetAdbPorts {
+    return Intl.message(
+      'Open ports',
+      name: 'tailnetAdbPorts',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Leaving this page stops temporary debugging`
+  String get tailnetAdbPageLifetime {
+    return Intl.message(
+      'Leaving this page stops temporary debugging',
+      name: 'tailnetAdbPageLifetime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to confirm closure; try stopping again`
+  String get tailnetAdbCloseUnknown {
+    return Intl.message(
+      'Unable to confirm closure; try stopping again',
+      name: 'tailnetAdbCloseUnknown',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

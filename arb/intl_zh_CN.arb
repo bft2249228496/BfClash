@@ -716,5 +716,11 @@
   "tailnetAdbOpen": "启用临时调试",
   "tailnetAdbStop": "关闭 ADB 转发",
   "tailnetAdbSuccess": "已开启自动发现。请打开系统无线调试配对页面。",
-  "tailnetAdbInvalid": "请输入 1 到 65535 之间的端口。"
+  "tailnetAdbInvalid": "请输入 1 到 65535 之间的端口。",
+  "tailnetAdbInactive": "未开启",
+  "tailnetAdbWaiting": "已开启 · 正在等待无线调试服务",
+  "tailnetAdbReady": "已开启 · 已开放转发端口",
+  "tailnetAdbPorts": "已开放端口",
+  "tailnetAdbPageLifetime": "离开此页面会关闭临时调试",
+  "tailnetAdbCloseUnknown": "关闭状态无法确认，请重试关闭"
 }

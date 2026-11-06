@@ -716,5 +716,11 @@
   "tailnetAdbOpen": "Включить временную отладку",
   "tailnetAdbStop": "Остановить перенаправление ADB",
   "tailnetAdbSuccess": "Автообнаружение включено. Откройте сопряжение беспроводной отладки Android.",
-  "tailnetAdbInvalid": "Введите порт от 1 до 65535."
+  "tailnetAdbInvalid": "Введите порт от 1 до 65535.",
+  "tailnetAdbInactive": "Выключено",
+  "tailnetAdbWaiting": "Включено · Ожидание беспроводной отладки",
+  "tailnetAdbReady": "Включено · Порты перенаправления открыты",
+  "tailnetAdbPorts": "Открытые порты",
+  "tailnetAdbPageLifetime": "При выходе со страницы временная отладка отключится",
+  "tailnetAdbCloseUnknown": "Не удалось подтвердить отключение; повторите попытку"
 }

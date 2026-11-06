@@ -7,6 +7,7 @@ import 'package:bfclash/models/models.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/views/tailscale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -15,6 +16,7 @@ import '../helpers/test_app.dart';
 class _TailnetCore extends CoreHandlerInterface {
   bool failStatus = false;
   int calls = 0;
+  bool failAdbStop = false;
 
   @override
   Future<CoreLifecycleResult> start() async => const CoreLifecycleResult(
@@ -37,6 +39,11 @@ class _TailnetCore extends CoreHandlerInterface {
     Object? arguments,
     Duration? timeout,
   }) async {
+    if (method == CoreMethod.startTailscaleADB ||
+        method == CoreMethod.stopTailscaleADBPort) {
+      return true as T;
+    }
+    if (method == CoreMethod.stopTailscaleADB) return (!failAdbStop) as T;
     if (method == CoreMethod.getTailscaleStatus) {
       calls++;
       if (failStatus) {
@@ -92,6 +99,92 @@ class _DelayedFailingSetup extends SetupAction {
 }
 
 void main() {
+  testWidgets('ADB status follows discovery, forwarding and stop', (
+    tester,
+  ) async {
+    const channel = MethodChannel('com.bfclash.client/adb-discovery');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (call) async => true);
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    final core = _TailnetCore();
+    final container = ProviderContainer(
+      overrides: [
+        appSettingProvider.overrideWithBuild(
+          (_, _) => const AppSettingProps(tailscaleEnabled: true),
+        ),
+        coreStatusProvider.overrideWithBuild((_, _) => CoreStatus.connected),
+        coreHandlerProvider.overrideWithValue(CoreController.scoped(core)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const TestApp(
+          locale: Locale('en'),
+          child: TailscaleView(androidForTesting: true),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Off'), findsOneWidget);
+    final start = find.widgetWithText(TextButton, 'Temporary ADB debugging');
+    await tester.ensureVisible(start);
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Start temporary debugging'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('On · Waiting for wireless debugging'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('nas ·'), findsOneWidget);
+    await messenger.handlePlatformMessage(
+      channel.name,
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('found', 45678),
+      ),
+      (_) {},
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Open ports: 45678'), findsOneWidget);
+    await messenger.handlePlatformMessage(
+      channel.name,
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('lost', 45678),
+      ),
+      (_) {},
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('On · Waiting for wireless debugging'),
+      findsOneWidget,
+    );
+    final stop = find.text('Stop ADB forwarding');
+    core.failAdbStop = true;
+    await tester.ensureVisible(stop);
+    await tester.tap(stop);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Unable to confirm closure; try stopping again'),
+      findsOneWidget,
+    );
+    expect(find.text('Off'), findsNothing);
+    core.failAdbStop = false;
+    await tester.tap(stop);
+    await tester.pumpAndSettle();
+    expect(find.text('Off'), findsOneWidget);
+    await tester.ensureVisible(start);
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Start temporary debugging'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(minutes: 15));
+    await tester.pumpAndSettle();
+    expect(find.text('Off'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets('failed enable restores settings after leaving the page', (
     tester,
   ) async {

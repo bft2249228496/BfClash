@@ -716,5 +716,11 @@
   "tailnetAdbOpen": "一時デバッグを開始",
   "tailnetAdbStop": "ADB 転送を停止",
   "tailnetAdbSuccess": "自動検出を開始しました。Androidのペア設定画面を開いてください。",
-  "tailnetAdbInvalid": "1〜65535 のポートを入力してください。"
+  "tailnetAdbInvalid": "1〜65535 のポートを入力してください。",
+  "tailnetAdbInactive": "オフ",
+  "tailnetAdbWaiting": "オン · ワイヤレスデバッグを待機中",
+  "tailnetAdbReady": "オン · 転送ポートを開放中",
+  "tailnetAdbPorts": "開放中のポート",
+  "tailnetAdbPageLifetime": "このページを離れると一時デバッグは停止します",
+  "tailnetAdbCloseUnknown": "停止を確認できません。もう一度停止してください"
 }

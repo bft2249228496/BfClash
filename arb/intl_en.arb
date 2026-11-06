@@ -716,5 +716,11 @@
   "tailnetAdbOpen": "Start temporary debugging",
   "tailnetAdbStop": "Stop ADB forwarding",
   "tailnetAdbSuccess": "Automatic discovery is active. Open Android wireless debugging pairing.",
-  "tailnetAdbInvalid": "Enter a port between 1 and 65535."
+  "tailnetAdbInvalid": "Enter a port between 1 and 65535.",
+  "tailnetAdbInactive": "Off",
+  "tailnetAdbWaiting": "On · Waiting for wireless debugging",
+  "tailnetAdbReady": "On · Forwarding ports are open",
+  "tailnetAdbPorts": "Open ports",
+  "tailnetAdbPageLifetime": "Leaving this page stops temporary debugging",
+  "tailnetAdbCloseUnknown": "Unable to confirm closure; try stopping again"
 }

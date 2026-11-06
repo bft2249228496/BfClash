@@ -11,7 +11,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TailscaleView extends ConsumerStatefulWidget {
-  const TailscaleView({super.key});
+  const TailscaleView({super.key, this.androidForTesting});
+
+  @visibleForTesting
+  final bool? androidForTesting;
 
   @override
   ConsumerState<TailscaleView> createState() => _TailscaleViewState();
@@ -25,8 +28,15 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
   final _adbDiscovery = const MethodChannel('$packageName/adb-discovery');
   Future<void> _adbQueue = Future.value();
   String? _adbPeer;
+  String? _adbPeerName;
+  final Set<int> _adbPorts = {};
+  DateTime? _adbExpiresAt;
+  bool _adbCloseUnconfirmed = false;
+  bool get _isAndroid => widget.androidForTesting ?? system.isAndroid;
   int _adbGeneration = 0;
   Timer? _adbTimer;
+  Timer? _adbExpiryTimer;
+  Future<void>? _adbClosing;
   late final CoreController _adbCore;
 
   @override
@@ -43,8 +53,9 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
   @override
   void dispose() {
     _adbTimer?.cancel();
+    _adbExpiryTimer?.cancel();
     _adbGeneration++;
-    if (_adbPeer != null) {
+    if (_adbPeer != null || _adbCloseUnconfirmed) {
       unawaited(
         _adbQueue
             .then((_) async {
@@ -284,11 +295,17 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       final core = ref.read(coreHandlerProvider);
       final generation = ++_adbGeneration;
       _adbPeer = peer;
+      _adbPeerName = hostname;
       _adbDiscovery.setMethodCallHandler((call) async {
         if (generation != _adbGeneration) return;
         if (call.method == 'expired' || call.method == 'error') {
           await _endADB();
-          if (mounted) setState(() => _error = labels.tailnetRequestFailed);
+          if (mounted) {
+            setState(() {
+              _notice = null;
+              if (call.method == 'error') _error = labels.tailnetRequestFailed;
+            });
+          }
           return;
         }
         final port = call.arguments;
@@ -304,11 +321,19 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
                 )) {
                   throw StateError('ADB forward failed');
                 }
+                if (mounted && generation == _adbGeneration) {
+                  setState(() => _adbPorts.add(port));
+                }
               } else if (call.method == 'lost') {
-                await core.stopTailscaleADBPort(
+                if (!await core.stopTailscaleADBPort(
                   bfclashTailscaleOutboundName,
                   port,
-                );
+                )) {
+                  throw StateError('ADB forward stop failed');
+                }
+                if (mounted && generation == _adbGeneration) {
+                  setState(() => _adbPorts.remove(port));
+                }
               }
             })
             .catchError((_) {
@@ -327,10 +352,23 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
         await _endADB();
         return;
       }
-      _adbTimer = Timer(
-        const Duration(minutes: 15),
-        () => unawaited(_endADB()),
-      );
+      _adbExpiresAt = DateTime.now().add(const Duration(minutes: 15));
+      _adbExpiryTimer = Timer(const Duration(minutes: 15), () {
+        unawaited(
+          _endADB()
+              .then((_) {
+                if (mounted) setState(() => _notice = null);
+              })
+              .catchError((_) {
+                if (mounted) {
+                  setState(() => _error = labels.tailnetRequestFailed);
+                }
+              }),
+        );
+      });
+      _adbTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() {});
+      });
       if (mounted) setState(() => _notice = labels.tailnetAdbSuccess);
     } catch (_) {
       await _endADB();
@@ -340,21 +378,38 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     }
   }
 
-  Future<void> _endADB() async {
+  Future<void> _endADB() {
+    return _adbClosing ??= _closeADB().whenComplete(() => _adbClosing = null);
+  }
+
+  Future<void> _closeADB() async {
     _adbTimer?.cancel();
     _adbTimer = null;
+    _adbExpiryTimer?.cancel();
+    _adbExpiryTimer = null;
     _adbGeneration++;
-    if (_adbPeer == null) return;
+    if (_adbPeer == null && !_adbCloseUnconfirmed) return;
     _adbPeer = null;
+    _adbPeerName = null;
+    _adbExpiresAt = null;
+    _adbPorts.clear();
+    _adbCloseUnconfirmed = true;
     try {
-      await _adbDiscovery.invokeMethod<bool>('stop');
-    } finally {
-      await _adbQueue;
       try {
-        await _adbCore.stopTailscaleADB(bfclashTailscaleOutboundName);
+        await _adbDiscovery.invokeMethod<bool>('stop');
       } finally {
-        _adbDiscovery.setMethodCallHandler(null);
+        await _adbQueue;
+        try {
+          if (!await _adbCore.stopTailscaleADB(bfclashTailscaleOutboundName)) {
+            throw StateError('ADB forwarding stop failed');
+          }
+          _adbCloseUnconfirmed = false;
+        } finally {
+          _adbDiscovery.setMethodCallHandler(null);
+        }
       }
+    } finally {
+      if (mounted) setState(() {});
     }
   }
 
@@ -440,13 +495,24 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
                     onPressed: _busy ? null : _logout,
                     child: Text(labels.tailnetLogout),
                   ),
-                if (system.isAndroid && state == 'Running')
+                if (_isAndroid && (_adbPeer != null || _adbCloseUnconfirmed))
                   OutlinedButton(
                     onPressed: _busy ? null : _stopADB,
                     child: Text(labels.tailnetAdbStop),
                   ),
               ],
             ),
+            if (_isAndroid)
+              ListTile(
+                title: Text(labels.tailnetAdb),
+                subtitle: Text(
+                  _adbCloseUnconfirmed
+                      ? labels.tailnetAdbCloseUnknown
+                      : _adbPeer == null
+                      ? labels.tailnetAdbInactive
+                      : '${_adbPorts.isEmpty ? labels.tailnetAdbWaiting : labels.tailnetAdbReady}\n${_adbPeerName ?? ''} · ${_adbExpiresAt == null ? '15:00' : _adbCountdown()}${_adbPorts.isEmpty ? '' : '\n${labels.tailnetAdbPorts}: ${(_adbPorts.toList()..sort()).join(', ')}'}\n${labels.tailnetAdbPageLifetime}',
+                ),
+              ),
             const SizedBox(height: 16),
             ListHeader(title: labels.tailnetDevices),
             if (peers.isEmpty) ListTile(title: Text(labels.tailnetNoDevices)),
@@ -464,7 +530,7 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
                       : labels.tailnetOffline,
                 ),
               ),
-              if (system.isAndroid &&
+              if (_isAndroid &&
                   state == 'Running' &&
                   peer['online'] == true &&
                   (peer['ips'] as List<dynamic>? ?? const [])
@@ -489,5 +555,13 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
         ],
       ),
     );
+  }
+
+  String _adbCountdown() {
+    final seconds = _adbExpiresAt!
+        .difference(DateTime.now())
+        .inSeconds
+        .clamp(0, 900);
+    return '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
   }
 }

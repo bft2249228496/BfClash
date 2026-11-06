@@ -1306,23 +1306,37 @@ class MessageLookup extends MessageLookupByLibrary {
       "Действует только в мобильном виде",
     ),
     "tailnetAdb": MessageLookupByLibrary.simpleMessage("Временная отладка ADB"),
+    "tailnetAdbCloseUnknown": MessageLookupByLibrary.simpleMessage(
+      "Не удалось подтвердить отключение; повторите попытку",
+    ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
       "Подключение только для выбранного устройства, до 15 минут. После включения откройте сопряжение беспроводной отладки Android. Порты определяются автоматически.",
     ),
+    "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("Выключено"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
       "Введите порт от 1 до 65535.",
     ),
     "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage(
       "Включить временную отладку",
     ),
+    "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
+      "При выходе со страницы временная отладка отключится",
+    ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage(
       "Порт беспроводной отладки",
+    ),
+    "tailnetAdbPorts": MessageLookupByLibrary.simpleMessage("Открытые порты"),
+    "tailnetAdbReady": MessageLookupByLibrary.simpleMessage(
+      "Включено · Порты перенаправления открыты",
     ),
     "tailnetAdbStop": MessageLookupByLibrary.simpleMessage(
       "Остановить перенаправление ADB",
     ),
     "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
       "Автообнаружение включено. Откройте сопряжение беспроводной отладки Android.",
+    ),
+    "tailnetAdbWaiting": MessageLookupByLibrary.simpleMessage(
+      "Включено · Ожидание беспроводной отладки",
     ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось применить настройки Tailscale. Проверьте текущий профиль.",
