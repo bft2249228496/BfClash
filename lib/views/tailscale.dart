@@ -393,6 +393,7 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     _adbPeerName = null;
     _adbExpiresAt = null;
     _adbPorts.clear();
+    _notice = null;
     _adbCloseUnconfirmed = true;
     try {
       try {
