@@ -103,3 +103,32 @@ func TestADBForwardRejectsInvalidConfiguration(t *testing.T) {
 		}
 	}
 }
+
+func TestStopADBForwardClosesOnlySelectedPort(t *testing.T) {
+	first, err := net.Listen("tcp4", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := net.Listen("tcp4", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f1, _ := newADBForward(first, netip.MustParseAddr("100.64.0.7"), 1234)
+	f2, _ := newADBForward(second, netip.MustParseAddr("100.64.0.7"), 1235)
+	ctx1, cancel1 := context.WithCancel(context.Background())
+	ctx2, cancel2 := context.WithCancel(context.Background())
+	defer cancel1()
+	defer cancel2()
+	owner := &Tailscale{adbForwards: map[uint16]adbForwardState{1234: {cancel: cancel1, forward: f1}, 1235: {cancel: cancel2, forward: f2}}}
+	owner.StopADBForward(1234)
+	if ctx1.Err() == nil || ctx2.Err() != nil {
+		t.Fatal("incorrect cancellation")
+	}
+	if _, err := net.DialTimeout("tcp4", first.Addr().String(), time.Second); err == nil {
+		t.Fatal("listener still active")
+	}
+	owner.StopADBForwards()
+	if ctx2.Err() == nil {
+		t.Fatal("remaining listener was not canceled")
+	}
+}

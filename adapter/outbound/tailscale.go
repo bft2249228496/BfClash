@@ -274,7 +274,9 @@ func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port u
 		forward.serve(forwardCtx)
 		cancel()
 		t.adbMu.Lock()
-		delete(t.adbForwards, port)
+		if current, ok := t.adbForwards[port]; ok && current.forward == forward {
+			delete(t.adbForwards, port)
+		}
 		t.adbMu.Unlock()
 	}()
 	return nil
@@ -283,9 +285,20 @@ func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port u
 func (t *Tailscale) StopADBForwards() {
 	t.adbMu.Lock()
 	defer t.adbMu.Unlock()
-	for _, forward := range t.adbForwards {
+	for port, forward := range t.adbForwards {
 		forward.cancel()
 		forward.forward.close()
+		delete(t.adbForwards, port)
+	}
+}
+
+func (t *Tailscale) StopADBForward(port uint16) {
+	t.adbMu.Lock()
+	defer t.adbMu.Unlock()
+	if forward, ok := t.adbForwards[port]; ok {
+		forward.cancel()
+		forward.forward.close()
+		delete(t.adbForwards, port)
 	}
 }
 
