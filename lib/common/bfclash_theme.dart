@@ -7,6 +7,9 @@ const bfclashDraculaColor = 0xFFC084FC;
 const bfclashSakuraColor = 0xFFFB7185;
 const bfclashSunsetColor = 0xFFFB923C;
 const bfclashOceanColor = 0xFF38BDF8;
+const bfclashObsidianColor = 0xFF818CF8;
+const bfclashEmberColor = 0xFFF59E0B;
+const bfclashNeonColor = 0xFF06B6D4;
 
 class BfClashThemePreset {
   const BfClashThemePreset({
@@ -147,6 +150,48 @@ const bfclashThemePresets = <BfClashThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFE0F2FE),
   ),
+  BfClashThemePreset(
+    id: 'obsidian',
+    name: 'Obsidian',
+    subtitle: '极光黑曜',
+    selectionValue: bfclashObsidianColor,
+    primaryDark: Color(0xFF818CF8),
+    backgroundDark: Color(0xFF08080D),
+    cardDark: Color(0xFF12121B),
+    borderDark: Color(0xFF282B3C),
+    primaryLight: Color(0xFF4F46E5),
+    backgroundLight: Color(0xFFF5F3FF),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFE0E7FF),
+  ),
+  BfClashThemePreset(
+    id: 'ember',
+    name: 'Ember',
+    subtitle: '琥珀余烬',
+    selectionValue: bfclashEmberColor,
+    primaryDark: Color(0xFFF59E0B),
+    backgroundDark: Color(0xFF120A05),
+    cardDark: Color(0xFF1C1108),
+    borderDark: Color(0xFF3A2612),
+    primaryLight: Color(0xFFB45309),
+    backgroundLight: Color(0xFFFFFBED),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFFEF3C7),
+  ),
+  BfClashThemePreset(
+    id: 'neon',
+    name: 'Neon',
+    subtitle: '霓虹赛博',
+    selectionValue: bfclashNeonColor,
+    primaryDark: Color(0xFF06B6D4),
+    backgroundDark: Color(0xFF070B0F),
+    cardDark: Color(0xFF0D1420),
+    borderDark: Color(0xFF1A2840),
+    primaryLight: Color(0xFF0891B2),
+    backgroundLight: Color(0xFFECFEFF),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFCFFAFE),
+  ),
 ];
 
 BfClashThemePreset? bfclashThemePresetFor(Color color) {
@@ -173,7 +218,7 @@ ColorScheme buildBfClashColorScheme({
   final card = preset.card(brightness);
   final border = preset.border(brightness);
   final isParty =
-      (preset.id == 'party' || preset.id == 'gemini') &&
+      (preset.id == 'party' || preset.id == 'gemini' || preset.id == 'obsidian') &&
       brightness == Brightness.dark;
   return ColorScheme.fromSeed(
     seedColor: preset.primary(brightness),

@@ -138,6 +138,9 @@ const defaultPrimaryColors = [
   bfclashSakuraColor,
   bfclashSunsetColor,
   bfclashOceanColor,
+  bfclashObsidianColor,
+  bfclashEmberColor,
+  bfclashNeonColor,
 ];
 
 const scriptTemplate = '''
