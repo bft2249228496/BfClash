@@ -49,7 +49,7 @@ type Tailscale struct {
 
 	serverStarted bool
 	adbMu         sync.Mutex
-	adbForwards   map[uint16]context.CancelFunc
+	adbForwards   map[uint16]adbForwardState
 
 	unregisterDNSResolver func()
 }
@@ -68,6 +68,11 @@ type TailscaleOption struct {
 	AcceptRoutes           *bool  `proxy:"accept-routes,omitempty"`
 	ExitNode               string `proxy:"exit-node,omitempty"`
 	ExitNodeAllowLANAccess *bool  `proxy:"exit-node-allow-lan-access,omitempty"`
+}
+
+type adbForwardState struct {
+	cancel  context.CancelFunc
+	forward *adbForward
 }
 
 func init() {
@@ -246,7 +251,7 @@ func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port u
 		return ctx.Err()
 	}
 	if t.adbForwards == nil {
-		t.adbForwards = make(map[uint16]context.CancelFunc)
+		t.adbForwards = make(map[uint16]adbForwardState)
 	}
 	if _, exists := t.adbForwards[port]; exists {
 		return errors.New("ADB port already forwarded")
@@ -264,7 +269,7 @@ func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port u
 		return err
 	}
 	forwardCtx, cancel := context.WithTimeout(t.ctx, 15*time.Minute)
-	t.adbForwards[port] = cancel
+	t.adbForwards[port] = adbForwardState{cancel: cancel, forward: forward}
 	go func() {
 		forward.serve(forwardCtx)
 		cancel()
@@ -278,8 +283,9 @@ func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port u
 func (t *Tailscale) StopADBForwards() {
 	t.adbMu.Lock()
 	defer t.adbMu.Unlock()
-	for _, cancel := range t.adbForwards {
-		cancel()
+	for _, forward := range t.adbForwards {
+		forward.cancel()
+		forward.forward.close()
 	}
 }
 
