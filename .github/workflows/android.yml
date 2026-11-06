@@ -11,6 +11,10 @@ on:
         description: Publish already verified candidate artifacts
         type: boolean
         default: false
+      publish_android_only:
+        description: Publish an already verified Android beta
+        type: boolean
+        default: false
       source_sha:
         description: Candidate source commit
         type: string
@@ -40,7 +44,7 @@ env:
   NDK_VERSION: r28c
 jobs:
   build:
-    if: github.event_name != 'workflow_dispatch' || !inputs.publish_only
+    if: github.event_name != 'workflow_dispatch' || (!inputs.publish_only && !inputs.publish_android_only)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -249,3 +253,32 @@ jobs:
           gh release create v0.3.4-beta.1 --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Android Beta 更新兼容入口' --notes-file /tmp/bridge-notes.md public/*.apk
           gh release edit v1.0.4-beta.1 --draft=false --latest=false
           gh release edit v0.3.4-beta.1 --draft=false --latest=false
+
+  publish_android_candidate:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_android_only && !inputs.publish_only
+    runs-on: ubuntu-latest
+    permissions: {actions: read, contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify and publish Android beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          ANDROID_RUN: ${{ inputs.android_run }}
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ && "$ANDROID_RUN" =~ ^[0-9]+$ ]]
+          [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\+[0-9]+$ ]]
+          version=${CANDIDATE_VERSION%+*}
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ANDROID_RUN" | jq -e --arg sha "$SOURCE_SHA" '.head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/android.yml"))'
+          mkdir -p candidate
+          gh run download "$ANDROID_RUN" -n bfclash-android -D candidate
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          for abi in arm64-v8a armeabi-v7a x86_64; do test -s "candidate/BfClash-$version-android-$abi.apk"; done
+          cat > /tmp/beta-notes.md <<'NOTES'
+          Android beta: temporary Tailscale ADB forwarding for a selected device, limited to 15 minutes. Android wireless debugging and pairing must be enabled and approved on the phone. Device-to-device ADB pairing and actual connectivity still require real-device verification. Exit nodes, subnet routes, and general inbound services remain incomplete.
+          NOTES
+          gh release create "v$version" --target "$SOURCE_SHA" --draft --prerelease --title "BfClash Android Beta $version — Tailscale ADB 预览" --notes-file /tmp/beta-notes.md candidate/*
+          gh release edit "v$version" --draft=false --latest=false
