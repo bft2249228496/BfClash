@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlClash Theme Gallery · 主题预览</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  font-family:"Plus Jakarta Sans","PingFang SC","Microsoft YaHei",sans-serif;
+  background:#050507;color:#EDEAF5;
+  font-size:14px;-webkit-font-smoothing:antialiased;
+  padding:56px 48px 80px;
+}
+.page-header{max-width:1480px;margin:0 auto 48px}
+.page-header h1{
+  font-size:38px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#38BDF8,#818CF8 50%,#C084FC);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.page-header .sub{font-size:14px;color:#6B6879;margin-top:10px;letter-spacing:.3px}
+.page-header .meta{
+  margin-top:16px;font-family:"JetBrains Mono",monospace;
+  font-size:11.5px;color:#6B6879;display:flex;gap:18px;flex-wrap:wrap;
+}
+.page-header .meta span b{color:#A6A2B8;font-weight:600}
+
+.gallery{
+  max-width:1480px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:28px;
+}
+@media(max-width:1100px){.gallery{grid-template-columns:1fr}}
+
+.theme-card{
+  background:#0B0B12;border:1px solid rgba(255,255,255,.07);
+  border-radius:24px;overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,.03);
+}
+
+/* ---------- Dark Preview ---------- */
+.preview-dark{
+  padding:22px 24px 20px;position:relative;overflow:hidden;
+}
+.preview-dark::before,.preview-dark::after{
+  content:"";position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;
+}
+.preview-dark::before{width:260px;height:260px;right:-80px;top:-80px;opacity:.35}
+.preview-dark::after{width:220px;height:220px;left:-60px;bottom:-60px;opacity:.22}
+
+.card-label{
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:#6B6879;margin-bottom:14px;display:flex;align-items:center;gap:6px;
+}
+.card-label .dot{width:6px;height:6px;border-radius:50%}
+
+/* Mock window inside preview */
+.mock-window{
+  position:relative;z-index:1;
+  background:var(--bg,#12121B);
+  border:1px solid var(--hairline,rgba(255,255,255,.08));
+  border-radius:16px;overflow:hidden;
+}
+.mock-titlebar{
+  height:36px;display:flex;align-items:center;gap:8px;padding:0 12px;
+  background:rgba(0,0,0,.25);border-bottom:1px solid var(--hairline,rgba(255,255,255,.06));
+}
+.mock-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.mock-dot.r{background:#FF5F57}
+.mock-dot.y{background:#FEBC2E}
+.mock-dot.g{background:#28C840}
+.mock-brand{
+  font-size:10px;font-family:"JetBrains Mono",monospace;
+  color:#6B6879;margin-left:8px;letter-spacing:.3px;
+}
+.mock-body{
+  padding:18px;display:flex;flex-direction:column;gap:14px;
+}
+
+/* Connection pill */
+.mock-hero{
+  background:var(--card,#181826);
+  border:1px solid var(--hairline,rgba(255,255,255,.07));
+  border-radius:14px;padding:16px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.mock-status{
+  display:flex;align-items:center;gap:7px;font-size:10.5px;
+  font-family:"JetBrains Mono",monospace;
+}
+.mock-status .p{
+  width:7px;height:7px;border-radius:50%;
+  background:#34D399;position:relative;
+}
+.mock-status .p::after{
+  content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:1.5px solid #34D399;opacity:.5;
+  animation:pulse 2s ease-out infinite;
+}
+@keyframes pulse{0%{transform:scale(.5);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+.mock-status .s{color:#34D399;font-weight:600}
+.mock-status .m{margin-left:auto;color:#6B6879;font-size:9px;padding:2px 7px;border-radius:5px;border:1px solid var(--hairline,rgba(255,255,255,.1))}
+
+.mock-power-row{
+  display:flex;align-items:center;gap:14px;
+}
+.mock-power{
+  width:60px;height:60px;border-radius:50%;position:relative;
+  display:grid;place-items:center;flex:none;
+}
+.mock-power .ring{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--primary,#818CF8),var(--primary-2,#38BDF8),var(--primary-3,#C084FC),var(--primary,#818CF8));
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 2px));
+  animation:spin 6s linear infinite;
+  filter:drop-shadow(0 0 6px var(--glow,rgba(129,140,248,.5)));
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mock-power .core{
+  width:46px;height:46px;border-radius:50%;
+  background:radial-gradient(circle at 50% 30%,#282840,#151520 75%);
+  border:1px solid rgba(255,255,255,.08);
+  display:grid;place-items:center;
+}
+.mock-power .core svg{width:18px;height:18px;color:#fff}
+.mock-node-info{flex:1;min-width:0}
+.mock-node-country{font-size:18px;margin-bottom:1px}
+.mock-node-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mock-node-latency{
+  display:inline-flex;align-items:center;gap:4px;margin-top:4px;
+  font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:600;
+  color:#34D399;background:rgba(52,211,153,.1);
+  border:1px solid rgba(52,211,153,.25);padding:2px 7px;border-radius:5px;
+}
+
+/* Speed mini bars */
+.mock-speed{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.mock-speed .cell{
+  background:var(--card,#181826);
+  border:1px solid var(--hairline,rgba(255,255,255,.07));
+  border-radius:10px;padding:10px 12px;
+}
+.mock-speed .label{font-size:9px;color:#6B6879;font-family:"JetBrains Mono",monospace;letter-spacing:.3px}
+.mock-speed.d .label{color:var(--primary-2,#38BDF8)}
+.mock-speed.u .label{color:var(--primary-3,#C084FC)}
+.mock-speed .value{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:700;margin-top:3px}
+.mock-speed .value small{font-size:9px;color:#6B6879;font-weight:400;margin-left:3px}
+
+/* Mini node row list */
+.mock-nodes{
+  background:var(--bg,#0F0F18);
+  border:1px solid var(--hairline,rgba(255,255,255,.07));
+  border-radius:10px;padding:4px;
+}
+.mock-node-row{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;
+  font-size:11px;
+}
+.mock-node-row.sel{
+  background:linear-gradient(90deg,rgba(129,140,248,.12),rgba(192,132,252,.06));
+}
+.mock-node-row .f{font-size:13px}
+.mock-node-row .n{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.mock-node-row .d{
+  font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:600;
+  padding:2px 7px;border-radius:5px;
+}
+.mock-node-row.sel .d{color:var(--primary,#818CF8);background:rgba(129,140,248,.12)}
+.mock-node-row:not(.sel) .d{color:#6B6879;background:rgba(255,255,255,.04)}
+
+/* ---------- Light Preview ---------- */
+.preview-light{
+  padding:22px 24px;position:relative;
+  background:var(--bg-light,#F8FAFC);
+  border-top:1px solid rgba(0,0,0,.05);
+  color:#1F2937;
+}
+.preview-light .card-label{color:#94A3B8}
+.preview-light .mock-window{
+  background:#fff;border-color:rgba(0,0,0,.08);
+  box-shadow:0 4px 24px rgba(0,0,0,.05);
+}
+.preview-light .mock-titlebar{
+  background:#F8FAFC;border-bottom-color:rgba(0,0,0,.06);
+}
+.preview-light .mock-brand{color:#94A3B8}
+.preview-light .mock-hero,.preview-light .mock-speed .cell{
+  background:var(--card-light,#fff);
+  border-color:rgba(0,0,0,.06);
+}
+.preview-light .mock-nodes{
+  background:#FAFBFC;border-color:rgba(0,0,0,.06);
+}
+.preview-light .mock-node-row:not(.sel) .d{color:#94A3B8;background:#F1F5F9}
+.preview-light .mock-node-row.sel{
+  background:linear-gradient(90deg,rgba(79,70,229,.08),rgba(79,70,229,.03));
+}
+
+/* ---------- Palette strip ---------- */
+.palette{
+  display:flex;height:46px;margin-top:14px;border-radius:12px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.07);
+}
+.palette .sw{flex:1;position:relative}
+.palette .sw span{
+  position:absolute;bottom:4px;left:6px;
+  font-family:"JetBrains Mono",monospace;font-size:8px;
+  opacity:.7;color:#000;mix-blend-mode:difference;
+}
+.palette-dark{
+  background:#0B0B12;padding:14px 16px 16px;border-top:1px solid rgba(255,255,255,.04);
+}
+
+.theme-name-row{
+  display:flex;align-items:baseline;gap:10px;margin-bottom:6px;
+}
+.theme-name-row .name{font-size:22px;font-weight:700;letter-spacing:-.3px}
+.theme-name-row .sub{font-size:12.5px;color:#6B6879}
+.theme-id{
+  font-family:"JetBrains Mono",monospace;font-size:10.5px;
+  color:#6B6879;margin-bottom:14px;
+}
+
+/* ========== Theme definitions ========== */
+
+/* 1. Party */
+.t-party{
+  --bg:#0B0C10;--card:#151620;--hairline:rgba(255,255,255,.08);
+  --primary:#818CF8;--primary-2:#38BDF8;--primary-3:#C084FC;
+  --glow:rgba(129,140,248,.55);
+}
+.t-party .preview-dark::before{background:rgba(129,140,248,.18)}
+.t-party .preview-dark::after{background:rgba(56,189,248,.1)}
+.t-party{
+  --bg-light:#F8FAFC;--card-light:#FFFFFF;
+}
+
+/* 2. Gemini */
+.t-gemini{
+  --bg:#0B0F19;--card:#111827;--hairline:rgba(255,255,255,.08);
+  --primary:#818CF8;--primary-2:#38BDF8;--primary-3:#C084FC;
+  --glow:rgba(129,140,248,.55);
+}
+.t-gemini .preview-dark::before{background:rgba(129,140,248,.18)}
+.t-gemini .preview-dark::after{background:rgba(56,189,248,.1)}
+.t-gemini{--bg-light:#F8FAFC;--card-light:#FFFFFF}
+
+/* 3. Slate */
+.t-slate{
+  --bg:#0F172A;--card:#1E293B;--hairline:rgba(255,255,255,.08);
+  --primary:#CBD5E1;--primary-2:#94A3B8;--primary-3:#64748B;
+  --glow:rgba(148,163,184,.4);
+}
+.t-slate .preview-dark::before{background:rgba(148,163,184,.12)}
+.t-slate .preview-dark::after{background:rgba(100,116,139,.08)}
+.t-slate{--bg-light:#F8FAFC;--card-light:#FFFFFF}
+
+/* 4. Dracula */
+.t-dracula{
+  --bg:#140D24;--card:#22173B;--hairline:rgba(192,132,252,.15);
+  --primary:#C084FC;--primary-2:#F472B6;--primary-3:#A78BFA;
+  --glow:rgba(192,132,252,.5);
+}
+.t-dracula .preview-dark::before{background:rgba(192,132,252,.2)}
+.t-dracula .preview-dark::after{background:rgba(244,114,182,.12)}
+.t-dracula{--bg-light:#FAF5FF;--card-light:#FFFFFF}
+
+/* 5. Sakura */
+.t-sakura{
+  --bg:#1F0C16;--card:#2F1322;--hairline:rgba(251,113,133,.15);
+  --primary:#FB7185;--primary-2:#FDA4AF;--primary-3:#FB7185;
+  --glow:rgba(251,113,133,.45);
+}
+.t-sakura .preview-dark::before{background:rgba(251,113,133,.2)}
+.t-sakura .preview-dark::after{background:rgba(253,164,175,.1)}
+.t-sakura{--bg-light:#FFF1F2;--card-light:#FFFFFF}
+
+/* 6. Sunset */
+.t-sunset{
+  --bg:#1C1209;--card:#2D1A0B;--hairline:rgba(251,146,60,.15);
+  --primary:#FB923C;--primary-2:#FDBA74;--primary-3:#F87171;
+  --glow:rgba(251,146,60,.45);
+}
+.t-sunset .preview-dark::before{background:rgba(251,146,60,.2)}
+.t-sunset .preview-dark::after{background:rgba(248,113,113,.12)}
+.t-sunset{--bg-light:#FFF7ED;--card-light:#FFFFFF}
+
+/* 7. Ocean */
+.t-ocean{
+  --bg:#061626;--card:#0C243C;--hairline:rgba(56,189,248,.15);
+  --primary:#38BDF8;--primary-2:#7DD3FC;--primary-3:#22D3EE;
+  --glow:rgba(56,189,248,.5);
+}
+.t-ocean .preview-dark::before{background:rgba(56,189,248,.22)}
+.t-ocean .preview-dark::after{background:rgba(34,211,238,.12)}
+.t-ocean{--bg-light:#F0F9FF;--card-light:#FFFFFF}
+
+/* 8. Obsidian — NEW */
+.t-obsidian{
+  --bg:#08080D;--card:#12121B;--hairline:rgba(255,255,255,.07);
+  --primary:#818CF8;--primary-2:#38BDF8;--primary-3:#C084FC;
+  --glow:rgba(129,140,248,.5);
+}
+.t-obsidian .preview-dark::before{background:rgba(129,140,248,.16)}
+.t-obsidian .preview-dark::after{background:rgba(56,189,248,.09)}
+.t-obsidian{--bg-light:#F5F3FF;--card-light:#FFFFFF}
+.t-obsidian .preview-dark::before{width:280px;height:280px;right:-90px;top:-90px}
+
+/* 9. Ember — NEW */
+.t-ember{
+  --bg:#120A05;--card:#1C1108;--hairline:rgba(245,158,11,.14);
+  --primary:#F59E0B;--primary-2:#FBBF24;--primary-3:#EA580C;
+  --glow:rgba(245,158,11,.45);
+}
+.t-ember .preview-dark::before{background:rgba(245,158,11,.2)}
+.t-ember .preview-dark::after{background:rgba(234,88,12,.12)}
+.t-ember{--bg-light:#FFFBED;--card-light:#FFFFFF}
+
+/* 10. Neon — NEW */
+.t-neon{
+  --bg:#070B0F;--card:#0D1420;--hairline:rgba(6,182,212,.14);
+  --primary:#06B6D4;--primary-2:#22D3EE;--primary-3:#14B8A6;
+  --glow:rgba(6,182,212,.5);
+}
+.t-neon .preview-dark::before{background:rgba(6,182,212,.22)}
+.t-neon .preview-dark::after{background:rgba(20,184,166,.12)}
+.t-neon{--bg-light:#ECFEFF;--card-light:#FFFFFF}
+
+/* Highlight NEW badges */
+.new-badge{
+  display:inline-block;margin-left:6px;padding:1.5px 7px;border-radius:5px;
+  font-size:9px;font-weight:700;letter-spacing:.8px;
+  background:linear-gradient(135deg,#38BDF8,#818CF8,#C084FC);
+  color:#0B0B12;text-transform:uppercase;vertical-align:middle;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>FlClash Theme Gallery</h1>
+  <div class="sub">FlClash 主题预设一览 · 10 套预设 · 深色 / 浅色双模式</div>
+  <div class="meta">
+    <span>Flutter <b>Material You</b></span>
+    <span>预设定义 <b>bfclash_theme.dart</b></span>
+    <span>新增 <b>Obsidian / Ember / Neon</b></span>
+  </div>
+</div>
+
+<div class="gallery">
+
+<!-- 1. Party -->
+<div class="theme-card t-party">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Party</span><span class="sub">黑曜派对</span>
+    </div>
+    <div class="theme-id">preset id · party · selection 0xFF6366F1</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#818CF8"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#818CF8"><span>primary</span></div>
+      <div class="sw" style="background:#0B0C10"><span>bg</span></div>
+      <div class="sw" style="background:#151620"><span>card</span></div>
+      <div class="sw" style="background:#282B3C"><span>border</span></div>
+      <div class="sw" style="background:#4F46E5"><span>primary-light</span></div>
+      <div class="sw" style="background:#F8FAFC;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#E2E8F0;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Gemini -->
+<div class="theme-card t-gemini">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Gemini</span><span class="sub">星夜蓝紫</span>
+    </div>
+    <div class="theme-id">preset id · gemini · selection 0xFF818CF8</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#818CF8"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#818CF8"><span>primary</span></div>
+      <div class="sw" style="background:#0B0F19"><span>bg</span></div>
+      <div class="sw" style="background:#111827"><span>card</span></div>
+      <div class="sw" style="background:#1F293D"><span>border</span></div>
+      <div class="sw" style="background:#4F46E5"><span>primary-light</span></div>
+      <div class="sw" style="background:#F8FAFC;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#E2E8F0;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Slate -->
+<div class="theme-card t-slate">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Slate</span><span class="sub">极客石墨</span>
+    </div>
+    <div class="theme-id">preset id · slate · selection 0xFF94A3B8</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#CBD5E1"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#CBD5E1;color:#1F2937"><span>primary</span></div>
+      <div class="sw" style="background:#0F172A"><span>bg</span></div>
+      <div class="sw" style="background:#1E293B"><span>card</span></div>
+      <div class="sw" style="background:#334155"><span>border</span></div>
+      <div class="sw" style="background:#475569"><span>primary-light</span></div>
+      <div class="sw" style="background:#F8FAFC;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#E2E8F0;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Dracula -->
+<div class="theme-card t-dracula">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Dracula</span><span class="sub">霓虹暗紫</span>
+    </div>
+    <div class="theme-id">preset id · dracula · selection 0xFFC084FC</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#C084FC"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#C084FC"><span>primary</span></div>
+      <div class="sw" style="background:#140D24"><span>bg</span></div>
+      <div class="sw" style="background:#22173B"><span>card</span></div>
+      <div class="sw" style="background:#3B2766"><span>border</span></div>
+      <div class="sw" style="background:#9333EA"><span>primary-light</span></div>
+      <div class="sw" style="background:#FAF5FF;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#F3E8FF;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Sakura -->
+<div class="theme-card t-sakura">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Sakura</span><span class="sub">柔和樱霞</span>
+    </div>
+    <div class="theme-id">preset id · sakura · selection 0xFFFB7185</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#FB7185"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#FB7185"><span>primary</span></div>
+      <div class="sw" style="background:#1F0C16"><span>bg</span></div>
+      <div class="sw" style="background:#2F1322"><span>card</span></div>
+      <div class="sw" style="background:#4C1D37"><span>border</span></div>
+      <div class="sw" style="background:#E11D48"><span>primary-light</span></div>
+      <div class="sw" style="background:#FFF1F2;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#FFE4E6;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Sunset -->
+<div class="theme-card t-sunset">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Sunset</span><span class="sub">落日暖橘</span>
+    </div>
+    <div class="theme-id">preset id · sunset · selection 0xFFFB923C</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#FB923C"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#FB923C"><span>primary</span></div>
+      <div class="sw" style="background:#1C1209"><span>bg</span></div>
+      <div class="sw" style="background:#2D1A0B"><span>card</span></div>
+      <div class="sw" style="background:#49280E"><span>border</span></div>
+      <div class="sw" style="background:#EA580C"><span>primary-light</span></div>
+      <div class="sw" style="background:#FFF7ED;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#FFEDD5;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Ocean -->
+<div class="theme-card t-ocean">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Ocean</span><span class="sub">清透海盐</span>
+    </div>
+    <div class="theme-id">preset id · ocean · selection 0xFF38BDF8</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#38BDF8"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#38BDF8"><span>primary</span></div>
+      <div class="sw" style="background:#061626"><span>bg</span></div>
+      <div class="sw" style="background:#0C243C"><span>card</span></div>
+      <div class="sw" style="background:#163B60"><span>border</span></div>
+      <div class="sw" style="background:#0284C7"><span>primary-light</span></div>
+      <div class="sw" style="background:#F0F9FF;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#E0F2FE;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Obsidian — NEW -->
+<div class="theme-card t-obsidian">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Obsidian</span><span class="sub">极光黑曜</span>
+      <span class="new-badge">NEW</span>
+    </div>
+    <div class="theme-id">preset id · obsidian · selection 0xFF818CF8</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#818CF8"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#818CF8"><span>primary</span></div>
+      <div class="sw" style="background:#08080D"><span>bg</span></div>
+      <div class="sw" style="background:#12121B"><span>card</span></div>
+      <div class="sw" style="background:#282B3C"><span>border</span></div>
+      <div class="sw" style="background:#4F46E5"><span>primary-light</span></div>
+      <div class="sw" style="background:#F5F3FF;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#E0E7FF;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Ember — NEW -->
+<div class="theme-card t-ember">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Ember</span><span class="sub">琥珀余烬</span>
+      <span class="new-badge">NEW</span>
+    </div>
+    <div class="theme-id">preset id · ember · selection 0xFFF59E0B</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#F59E0B"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#F59E0B;color:#1F2937"><span>primary</span></div>
+      <div class="sw" style="background:#120A05"><span>bg</span></div>
+      <div class="sw" style="background:#1C1108"><span>card</span></div>
+      <div class="sw" style="background:#3A2612"><span>border</span></div>
+      <div class="sw" style="background:#B45309"><span>primary-light</span></div>
+      <div class="sw" style="background:#FFFBED;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#FEF3C7;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 10. Neon — NEW -->
+<div class="theme-card t-neon">
+  <div class="preview-dark">
+    <div class="theme-name-row">
+      <span class="name">Neon</span><span class="sub">霓虹赛博</span>
+      <span class="new-badge">NEW</span>
+    </div>
+    <div class="theme-id">preset id · neon · selection 0xFF06B6D4</div>
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+        <span class="mock-brand">FlClash · RULE · :7890</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-hero">
+          <div class="mock-status">
+            <span class="p"></span><span class="s">CONNECTED</span>
+            <span class="m">HK · 42ms</span>
+          </div>
+          <div class="mock-power-row">
+            <div class="mock-power"><span class="ring"></span><span class="core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></span></div>
+            <div class="mock-node-info">
+              <div class="mock-node-country">🇭🇰</div>
+              <div class="mock-node-name">HK IPLC 专线 01</div>
+              <span class="mock-node-latency">42 ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="mock-speed">
+          <div class="cell d"><div class="label">DOWN</div><div class="value">12.4<small>MB/s</small></div></div>
+          <div class="cell u"><div class="label">UP</div><div class="value">1.8<small>MB/s</small></div></div>
+        </div>
+        <div class="mock-nodes">
+          <div class="mock-node-row sel"><span class="f">🇭🇰</span><span class="n">HK IPLC 专线 01</span><span class="d">42ms</span></div>
+          <div class="mock-node-row"><span class="f">🇯🇵</span><span class="n">JP 家宽 02</span><span class="d">68ms</span></div>
+          <div class="mock-node-row"><span class="f">🇺🇸</span><span class="n">US 精品 03</span><span class="d">132ms</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="palette-dark">
+    <div class="card-label"><span class="dot" style="background:#06B6D4"></span>深色预设调色板</div>
+    <div class="palette">
+      <div class="sw" style="background:#06B6D4;color:#1F2937"><span>primary</span></div>
+      <div class="sw" style="background:#070B0F"><span>bg</span></div>
+      <div class="sw" style="background:#0D1420"><span>card</span></div>
+      <div class="sw" style="background:#1A2840"><span>border</span></div>
+      <div class="sw" style="background:#0891B2"><span>primary-light</span></div>
+      <div class="sw" style="background:#ECFEFF;color:#1F2937"><span>bg-light</span></div>
+      <div class="sw" style="background:#CFFAFE;color:#1F2937"><span>border-light</span></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
