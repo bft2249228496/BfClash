@@ -1257,6 +1257,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage(
       "Only effective in mobile view",
     ),
+    "tailnetAdb": MessageLookupByLibrary.simpleMessage(
+      "Temporary ADB debugging",
+    ),
+    "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
+      "Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.",
+    ),
+    "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
+      "Enter a port between 1 and 65535.",
+    ),
+    "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage(
+      "Open temporary port",
+    ),
+    "tailnetAdbPort": MessageLookupByLibrary.simpleMessage(
+      "Wireless debugging port",
+    ),
+    "tailnetAdbStop": MessageLookupByLibrary.simpleMessage(
+      "Stop ADB forwarding",
+    ),
+    "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
+      "Temporary forwarding is enabled for up to 15 minutes.",
+    ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "Could not apply the Tailscale setting. Check the active profile.",
     ),

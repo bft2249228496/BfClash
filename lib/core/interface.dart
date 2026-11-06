@@ -78,6 +78,21 @@ mixin CoreInterface {
 }
 
 abstract class CoreHandlerInterface with CoreInterface {
+  Future<bool> startTailscaleADB(String name, String peer, int port) async =>
+      await _invokeMethod<bool>(
+        method: CoreMethod.startTailscaleADB,
+        arguments: {'name': name, 'peer': peer, 'port': port},
+        timeout: const Duration(seconds: 35),
+      ) ??
+      false;
+
+  Future<bool> stopTailscaleADB(String name) async =>
+      await _invokeMethod<bool>(
+        method: CoreMethod.stopTailscaleADB,
+        arguments: name,
+      ) ??
+      false;
+
   Future<bool> logoutTailscale(String outboundName) async {
     return await _invokeMethod<bool>(
           method: CoreMethod.logoutTailscale,

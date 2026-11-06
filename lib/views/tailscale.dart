@@ -18,6 +18,7 @@ class TailscaleView extends ConsumerStatefulWidget {
 class _TailscaleViewState extends ConsumerState<TailscaleView> {
   bool _busy = false;
   String? _error;
+  String? _notice;
   Map<String, dynamic>? _status;
 
   @override
@@ -198,6 +199,85 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     }
   }
 
+  Future<void> _openADB(String peer, String hostname) async {
+    final labels = context.appLocalizations;
+    final input = TextEditingController();
+    final port = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('${labels.tailnetAdb} · $hostname'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(labels.tailnetAdbDescription),
+              TextField(
+                controller: input,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: labels.tailnetAdbPort),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(labels.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              final port = int.tryParse(input.text.trim());
+              if (port == null || port < 1 || port > 65535) return;
+              Navigator.pop(dialogContext, port);
+            },
+            child: Text(labels.tailnetAdbOpen),
+          ),
+        ],
+      ),
+    );
+    input.dispose();
+    if (!mounted || port == null || _busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+      _notice = null;
+    });
+    try {
+      if (!await ref
+          .read(coreHandlerProvider)
+          .startTailscaleADB(bfclashTailscaleOutboundName, peer, port)) {
+        throw StateError('ADB forward failed');
+      }
+      if (mounted) setState(() => _notice = labels.tailnetAdbSuccess);
+    } catch (_) {
+      if (mounted) setState(() => _error = labels.tailnetRequestFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _stopADB() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+      _notice = null;
+    });
+    try {
+      if (!await ref
+          .read(coreHandlerProvider)
+          .stopTailscaleADB(bfclashTailscaleOutboundName)) {
+        throw StateError('ADB forwarding stop failed');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.appLocalizations.tailnetRequestFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final labels = context.appLocalizations;
@@ -231,6 +311,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
           if (_busy) const LinearProgressIndicator(),
           if (_error != null)
             Padding(padding: const EdgeInsets.all(12), child: Text(_error!)),
+          if (_notice != null)
+            Padding(padding: const EdgeInsets.all(12), child: Text(_notice!)),
           if (!enabled) ListTile(title: Text(labels.tailnetDisabled)),
           if (enabled) ...[
             ListTile(
@@ -260,12 +342,17 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
                     onPressed: _busy ? null : _logout,
                     child: Text(labels.tailnetLogout),
                   ),
+                if (system.isAndroid && state == 'Running')
+                  OutlinedButton(
+                    onPressed: _busy ? null : _stopADB,
+                    child: Text(labels.tailnetAdbStop),
+                  ),
               ],
             ),
             const SizedBox(height: 16),
             ListHeader(title: labels.tailnetDevices),
             if (peers.isEmpty) ListTile(title: Text(labels.tailnetNoDevices)),
-            for (final peer in peers)
+            for (final peer in peers) ...[
               ListTile(
                 title: Text(peer['hostname'] as String? ?? ''),
                 subtitle: Text(
@@ -279,6 +366,27 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
                       : labels.tailnetOffline,
                 ),
               ),
+              if (system.isAndroid &&
+                  state == 'Running' &&
+                  peer['online'] == true &&
+                  (peer['ips'] as List<dynamic>? ?? const [])
+                      .whereType<String>()
+                      .any((ip) => ip.contains('.')))
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () => _openADB(
+                            (peer['ips'] as List<dynamic>)
+                                .whereType<String>()
+                                .firstWhere((ip) => ip.contains('.')),
+                            peer['hostname'] as String? ?? '',
+                          ),
+                    child: Text(labels.tailnetAdb),
+                  ),
+                ),
+            ],
           ],
         ],
       ),

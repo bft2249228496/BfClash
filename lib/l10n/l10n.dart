@@ -5939,6 +5939,76 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Temporary ADB debugging`
+  String get tailnetAdb {
+    return Intl.message(
+      'Temporary ADB debugging',
+      name: 'tailnetAdb',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.`
+  String get tailnetAdbDescription {
+    return Intl.message(
+      'Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.',
+      name: 'tailnetAdbDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wireless debugging port`
+  String get tailnetAdbPort {
+    return Intl.message(
+      'Wireless debugging port',
+      name: 'tailnetAdbPort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open temporary port`
+  String get tailnetAdbOpen {
+    return Intl.message(
+      'Open temporary port',
+      name: 'tailnetAdbOpen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop ADB forwarding`
+  String get tailnetAdbStop {
+    return Intl.message(
+      'Stop ADB forwarding',
+      name: 'tailnetAdbStop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Temporary forwarding is enabled for up to 15 minutes.`
+  String get tailnetAdbSuccess {
+    return Intl.message(
+      'Temporary forwarding is enabled for up to 15 minutes.',
+      name: 'tailnetAdbSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a port between 1 and 65535.`
+  String get tailnetAdbInvalid {
+    return Intl.message(
+      'Enter a port between 1 and 65535.',
+      name: 'tailnetAdbInvalid',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

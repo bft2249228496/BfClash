@@ -709,5 +709,12 @@
   "tailnetStatusNeedsLogin": "Sign-in required",
   "tailnetStatusStarting": "Connecting",
   "tailnetStatusOther": "Not connected",
-  "tailnetRestoreFailed": "Could not restore the previous profile. Check your connection and reapply the profile."
+  "tailnetRestoreFailed": "Could not restore the previous profile. Check your connection and reapply the profile.",
+  "tailnetAdb": "Temporary ADB debugging",
+  "tailnetAdbDescription": "Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.",
+  "tailnetAdbPort": "Wireless debugging port",
+  "tailnetAdbOpen": "Open temporary port",
+  "tailnetAdbStop": "Stop ADB forwarding",
+  "tailnetAdbSuccess": "Temporary forwarding is enabled for up to 15 minutes.",
+  "tailnetAdbInvalid": "Enter a port between 1 and 65535."
 }

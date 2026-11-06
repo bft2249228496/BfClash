@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/netip"
 	"runtime"
 	"sync/atomic"
 	"time"
@@ -242,6 +243,33 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			}
 			response.success(true)
 		})
+	}),
+	startTailscaleADBMethod: withArguments(func(params *TailscaleADBParams, response MethodResponse) {
+		safeGo(response, func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			peer, err := netip.ParseAddr(params.Peer)
+			controller, controllerErr := tailscaleADB(params.Name)
+			if err == nil && controllerErr == nil {
+				err = controller.StartADBForward(ctx, peer, params.Port)
+			} else if controllerErr != nil {
+				err = controllerErr
+			}
+			if err != nil {
+				response.failure("tailscale_adb_failed", "Unable to start temporary ADB forwarding", nil)
+				return
+			}
+			response.success(true)
+		})
+	}),
+	stopTailscaleADBMethod: withArguments(func(name *string, response MethodResponse) {
+		controller, err := tailscaleADB(*name)
+		if err != nil {
+			response.failure("tailscale_adb_failed", "Unable to stop ADB forwarding", nil)
+			return
+		}
+		controller.StopADBForwards()
+		response.success(true)
 	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {

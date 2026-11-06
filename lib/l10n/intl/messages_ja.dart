@@ -1048,6 +1048,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "tab": MessageLookupByLibrary.simpleMessage("タブ"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("タブアニメーション"),
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage("モバイル表示でのみ有効です"),
+    "tailnetAdb": MessageLookupByLibrary.simpleMessage("一時 ADB デバッグ"),
+    "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
+      "選択したデバイスのみ接続でき、最大 15 分で終了します。Android のワイヤレスデバッグとペア設定が必要です。最初にペア設定ポート、次に接続ポートを入力します。",
+    ),
+    "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
+      "1〜65535 のポートを入力してください。",
+    ),
+    "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("一時ポートを開く"),
+    "tailnetAdbPort": MessageLookupByLibrary.simpleMessage("ワイヤレスデバッグポート"),
+    "tailnetAdbStop": MessageLookupByLibrary.simpleMessage("ADB 転送を停止"),
+    "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
+      "一時転送を開始しました。最大 15 分で終了します。",
+    ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "Tailscale 設定を適用できません。現在のプロファイルを確認してください。",
     ),

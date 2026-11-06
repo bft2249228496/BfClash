@@ -55,6 +55,12 @@ type ChangeProxyParams struct {
 	ProxyName string `json:"proxy-name"`
 }
 
+type TailscaleADBParams struct {
+	Name string `json:"name"`
+	Peer string `json:"peer"`
+	Port uint16 `json:"port"`
+}
+
 type TestDelayParams struct {
 	ProxyName string `json:"proxy-name"`
 	TestUrl   string `json:"test-url"`
@@ -94,6 +100,8 @@ const (
 	getTailscaleOutboundsMethod    CoreMethod = "getTailscaleOutbounds"
 	startTailscaleLoginMethod      CoreMethod = "startTailscaleLogin"
 	logoutTailscaleMethod          CoreMethod = "logoutTailscale"
+	startTailscaleADBMethod        CoreMethod = "startTailscaleADB"
+	stopTailscaleADBMethod         CoreMethod = "stopTailscaleADB"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"

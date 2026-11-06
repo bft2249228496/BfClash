@@ -16,6 +16,8 @@ enum CoreMethod {
   getTailscaleOutbounds,
   startTailscaleLogin,
   logoutTailscale,
+  startTailscaleADB,
+  stopTailscaleADB,
   changeProxy,
   getTraffic,
   getTotalTraffic,

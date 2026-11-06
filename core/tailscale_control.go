@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"net/netip"
 	"sort"
 
 	"github.com/metacubex/mihomo/adapter/outbound"
@@ -75,6 +76,20 @@ func tailscaleStatusView(status *ipnstate.Status) tailscaleStatus {
 }
 
 func tailscaleClient(ctx context.Context, name string) (*local.Client, error) {
+	controller, err := tailscaleUnderlying(name)
+	if err != nil {
+		return nil, err
+	}
+	client, ok := controller.(interface {
+		LocalClient(context.Context) (*local.Client, error)
+	})
+	if !ok {
+		return nil, errTailscaleOutboundUnavailable
+	}
+	return client.LocalClient(ctx)
+}
+
+func tailscaleUnderlying(name string) (outbound.ProxyAdapter, error) {
 	proxy := lookupProxy(name)
 	if proxy == nil {
 		return nil, errTailscaleOutboundUnavailable
@@ -83,11 +98,22 @@ func tailscaleClient(ctx context.Context, name string) (*local.Client, error) {
 	if !ok {
 		return nil, errTailscaleOutboundUnavailable
 	}
-	controller, ok := wrapped.Underlying().(interface {
-		LocalClient(context.Context) (*local.Client, error)
-	})
+	return wrapped.Underlying(), nil
+}
+
+type tailscaleADBController interface {
+	StartADBForward(context.Context, netip.Addr, uint16) error
+	StopADBForwards()
+}
+
+func tailscaleADB(name string) (tailscaleADBController, error) {
+	underlying, err := tailscaleUnderlying(name)
+	if err != nil {
+		return nil, err
+	}
+	controller, ok := underlying.(tailscaleADBController)
 	if !ok {
 		return nil, errTailscaleOutboundUnavailable
 	}
-	return controller.LocalClient(ctx)
+	return controller, nil
 }

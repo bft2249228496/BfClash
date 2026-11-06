@@ -134,6 +134,12 @@ class CoreController {
   Future<bool> logoutTailscale(String outboundName) =>
       _interface.logoutTailscale(outboundName);
 
+  Future<bool> startTailscaleADB(String name, String peer, int port) =>
+      _interface.startTailscaleADB(name, peer, port);
+
+  Future<bool> stopTailscaleADB(String name) =>
+      _interface.stopTailscaleADB(name);
+
   Future<List<Group>> getProxiesGroups({
     required ProxiesSortType sortType,
     required DelayMap delayMap,

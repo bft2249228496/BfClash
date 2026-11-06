@@ -1305,6 +1305,25 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage(
       "Действует только в мобильном виде",
     ),
+    "tailnetAdb": MessageLookupByLibrary.simpleMessage("Временная отладка ADB"),
+    "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
+      "Доступ только выбранному устройству на срок до 15 минут. Требуется беспроводная отладка и сопряжение Android: сначала укажите порт сопряжения, затем порт подключения.",
+    ),
+    "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
+      "Введите порт от 1 до 65535.",
+    ),
+    "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage(
+      "Открыть временный порт",
+    ),
+    "tailnetAdbPort": MessageLookupByLibrary.simpleMessage(
+      "Порт беспроводной отладки",
+    ),
+    "tailnetAdbStop": MessageLookupByLibrary.simpleMessage(
+      "Остановить перенаправление ADB",
+    ),
+    "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
+      "Временное перенаправление включено максимум на 15 минут.",
+    ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось применить настройки Tailscale. Проверьте текущий профиль.",
     ),
