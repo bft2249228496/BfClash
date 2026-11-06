@@ -11,6 +11,10 @@ on:
         description: Publish already verified candidate artifacts
         type: boolean
         default: false
+      upload_draft_only:
+        description: Upload verified Android artifacts to an existing draft
+        type: boolean
+        default: false
       source_sha:
         description: Candidate source commit
         type: string
@@ -40,7 +44,7 @@ env:
   NDK_VERSION: r28c
 jobs:
   build:
-    if: github.event_name != 'workflow_dispatch' || !inputs.publish_only
+    if: github.event_name != 'workflow_dispatch' || (!inputs.publish_only && !inputs.upload_draft_only)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -250,3 +254,28 @@ jobs:
           gh release edit v1.0.4-beta.1 --draft=false --latest=false
           gh release edit v0.3.4-beta.1 --draft=false --latest=false
 
+  upload_android_draft:
+    if: github.event_name == 'workflow_dispatch' && inputs.upload_draft_only && !inputs.publish_only
+    runs-on: ubuntu-latest
+    permissions: {actions: read, contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify and upload Android artifacts to existing draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          ANDROID_RUN: ${{ inputs.android_run }}
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ && "$ANDROID_RUN" =~ ^[0-9]+$ ]]
+          [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\+[0-9]+$ ]]
+          version=${CANDIDATE_VERSION%+*}
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ANDROID_RUN" | jq -e --arg sha "$SOURCE_SHA" '.head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/android.yml"))'
+          gh release view "v$version" --json isDraft,targetCommitish | jq -e --arg sha "$SOURCE_SHA" '.isDraft and .targetCommitish == $sha'
+          mkdir -p candidate
+          gh run download "$ANDROID_RUN" -n bfclash-android -D candidate
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          for abi in arm64-v8a armeabi-v7a x86_64; do test -s "candidate/BfClash-$version-android-$abi.apk"; done
+          gh release upload "v$version" candidate/*
