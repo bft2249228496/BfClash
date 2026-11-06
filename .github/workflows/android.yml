@@ -76,6 +76,10 @@ jobs:
           trap 'cp /tmp/bfclash-pubspec.yaml pubspec.yaml' EXIT
           yq -i '.hooks.user_defines.setup.build_assets = false | .hooks.user_defines.rust_api.build_assets = false' pubspec.yaml
           flutter test --reporter compact
+      - name: Test Tailscale ADB isolation
+        run: |
+          cd core/Clash.Meta
+          CGO_ENABLED=0 go test -tags=with_gvisor ./adapter/outbound -run '^TestADBForward' -count=1
       - name: Build
         env: {ANDROID_NDK_HOME: '${{ steps.ndk.outputs.ndk-path }}'}
         run: |
