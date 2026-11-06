@@ -78,6 +78,12 @@ mixin CoreInterface {
 }
 
 abstract class CoreHandlerInterface with CoreInterface {
+  Future<bool> stopTailscaleADBPort(String name, int port) async =>
+      await _invokeMethod<bool>(
+        method: CoreMethod.stopTailscaleADBPort,
+        arguments: {'name': name, 'peer': '', 'port': port},
+      ) ??
+      false;
   Future<bool> startTailscaleADB(String name, String peer, int port) async =>
       await _invokeMethod<bool>(
         method: CoreMethod.startTailscaleADB,

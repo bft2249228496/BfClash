@@ -102,6 +102,7 @@ const (
 	logoutTailscaleMethod          CoreMethod = "logoutTailscale"
 	startTailscaleADBMethod        CoreMethod = "startTailscaleADB"
 	stopTailscaleADBMethod         CoreMethod = "stopTailscaleADB"
+	stopTailscaleADBPortMethod     CoreMethod = "stopTailscaleADBPort"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"

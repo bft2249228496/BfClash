@@ -1261,13 +1261,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Temporary ADB debugging",
     ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
-      "Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.",
+      "Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.",
     ),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
       "Enter a port between 1 and 65535.",
     ),
     "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage(
-      "Open temporary port",
+      "Start temporary debugging",
     ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage(
       "Wireless debugging port",
@@ -1276,7 +1276,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Stop ADB forwarding",
     ),
     "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
-      "Temporary forwarding is enabled for up to 15 minutes.",
+      "Automatic discovery is active. Open Android wireless debugging pairing.",
     ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "Could not apply the Tailscale setting. Check the active profile.",

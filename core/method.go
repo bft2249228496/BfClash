@@ -271,6 +271,15 @@ var methodHandlers = map[CoreMethod]methodHandler{
 		controller.StopADBForwards()
 		response.success(true)
 	}),
+	stopTailscaleADBPortMethod: withArguments(func(params *TailscaleADBParams, response MethodResponse) {
+		controller, err := tailscaleADB(params.Name)
+		if err != nil {
+			response.failure("tailscale_adb_failed", "Unable to stop ADB forwarding", nil)
+			return
+		}
+		controller.StopADBForward(params.Port)
+		response.success(true)
+	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {
 			response.success(handleChangeProxy(params))

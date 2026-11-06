@@ -5950,10 +5950,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.`
+  /// `Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.`
   String get tailnetAdbDescription {
     return Intl.message(
-      'Only the selected device may connect. Opens for up to 15 minutes. Wireless debugging and Android pairing are required. Enter the pairing port first, then the connection port.',
+      'Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.',
       name: 'tailnetAdbDescription',
       desc: '',
       args: [],
@@ -5970,10 +5970,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Open temporary port`
+  /// `Start temporary debugging`
   String get tailnetAdbOpen {
     return Intl.message(
-      'Open temporary port',
+      'Start temporary debugging',
       name: 'tailnetAdbOpen',
       desc: '',
       args: [],
@@ -5990,10 +5990,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Temporary forwarding is enabled for up to 15 minutes.`
+  /// `Automatic discovery is active. Open Android wireless debugging pairing.`
   String get tailnetAdbSuccess {
     return Intl.message(
-      'Temporary forwarding is enabled for up to 15 minutes.',
+      'Automatic discovery is active. Open Android wireless debugging pairing.',
       name: 'tailnetAdbSuccess',
       desc: '',
       args: [],

@@ -140,6 +140,9 @@ class CoreController {
   Future<bool> stopTailscaleADB(String name) =>
       _interface.stopTailscaleADB(name);
 
+  Future<bool> stopTailscaleADBPort(String name, int port) =>
+      _interface.stopTailscaleADBPort(name, port);
+
   Future<List<Group>> getProxiesGroups({
     required ProxiesSortType sortType,
     required DelayMap delayMap,

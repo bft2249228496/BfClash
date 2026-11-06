@@ -711,10 +711,10 @@
   "tailnetStatusOther": "未连接",
   "tailnetRestoreFailed": "无法恢复之前的配置，请检查连接并重新应用配置。",
   "tailnetAdb": "临时 ADB 调试",
-  "tailnetAdbDescription": "仅允许选中的设备连接，最多开放 15 分钟。请先在手机开启无线调试并完成 Android 配对：先填配对端口，配对后再填连接端口。",
+  "tailnetAdbDescription": "仅允许选中的设备连接，最多开放 15 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
   "tailnetAdbPort": "无线调试端口",
-  "tailnetAdbOpen": "临时开放端口",
+  "tailnetAdbOpen": "启用临时调试",
   "tailnetAdbStop": "关闭 ADB 转发",
-  "tailnetAdbSuccess": "已开启临时转发，最多 15 分钟后自动关闭。",
+  "tailnetAdbSuccess": "已开启自动发现。请打开系统无线调试配对页面。",
   "tailnetAdbInvalid": "请输入 1 到 65535 之间的端口。"
 }

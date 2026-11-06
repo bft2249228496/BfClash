@@ -906,16 +906,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "tabAnimationDesc": MessageLookupByLibrary.simpleMessage("仅在移动视图中有效"),
     "tailnetAdb": MessageLookupByLibrary.simpleMessage("临时 ADB 调试"),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
-      "仅允许选中的设备连接，最多开放 15 分钟。请先在手机开启无线调试并完成 Android 配对：先填配对端口，配对后再填连接端口。",
+      "仅允许选中的设备连接，最多开放 15 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
     ),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
       "请输入 1 到 65535 之间的端口。",
     ),
-    "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("临时开放端口"),
+    "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("启用临时调试"),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage("无线调试端口"),
     "tailnetAdbStop": MessageLookupByLibrary.simpleMessage("关闭 ADB 转发"),
     "tailnetAdbSuccess": MessageLookupByLibrary.simpleMessage(
-      "已开启临时转发，最多 15 分钟后自动关闭。",
+      "已开启自动发现。请打开系统无线调试配对页面。",
     ),
     "tailnetApplyFailed": MessageLookupByLibrary.simpleMessage(
       "无法应用 Tailscale 设置，请检查当前配置。",

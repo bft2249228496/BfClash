@@ -711,10 +711,10 @@
   "tailnetStatusOther": "未接続",
   "tailnetRestoreFailed": "以前のプロファイルを復元できません。接続を確認し、プロファイルを再適用してください。",
   "tailnetAdb": "一時 ADB デバッグ",
-  "tailnetAdbDescription": "選択したデバイスのみ接続でき、最大 15 分で終了します。Android のワイヤレスデバッグとペア設定が必要です。最初にペア設定ポート、次に接続ポートを入力します。",
+  "tailnetAdbDescription": "選択したデバイスのみ最大15分間接続できます。開始後、Androidのワイヤレスデバッグのペア設定画面を開いてください。ポートは自動検出されます。",
   "tailnetAdbPort": "ワイヤレスデバッグポート",
-  "tailnetAdbOpen": "一時ポートを開く",
+  "tailnetAdbOpen": "一時デバッグを開始",
   "tailnetAdbStop": "ADB 転送を停止",
-  "tailnetAdbSuccess": "一時転送を開始しました。最大 15 分で終了します。",
+  "tailnetAdbSuccess": "自動検出を開始しました。Androidのペア設定画面を開いてください。",
   "tailnetAdbInvalid": "1〜65535 のポートを入力してください。"
 }

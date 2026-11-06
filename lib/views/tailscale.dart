@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/core/core.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,10 +22,17 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
   String? _error;
   String? _notice;
   Map<String, dynamic>? _status;
+  final _adbDiscovery = const MethodChannel('$packageName/adb-discovery');
+  Future<void> _adbQueue = Future.value();
+  String? _adbPeer;
+  int _adbGeneration = 0;
+  Timer? _adbTimer;
+  late final CoreController _adbCore;
 
   @override
   void initState() {
     super.initState();
+    _adbCore = ref.read(coreHandlerProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && ref.read(appSettingProvider).tailscaleEnabled) {
         unawaited(_refresh());
@@ -31,8 +40,42 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     });
   }
 
+  @override
+  void dispose() {
+    _adbTimer?.cancel();
+    _adbGeneration++;
+    if (_adbPeer != null) {
+      unawaited(
+        _adbQueue
+            .then((_) async {
+              try {
+                await _adbDiscovery.invokeMethod<bool>('stop');
+              } finally {
+                await _adbCore.stopTailscaleADB(bfclashTailscaleOutboundName);
+                _adbDiscovery.setMethodCallHandler(null);
+              }
+            })
+            .catchError((_) {}),
+      );
+    }
+    super.dispose();
+  }
+
   Future<void> _setEnabled(bool enabled) async {
     if (_busy) return;
+    if (!enabled && _adbPeer != null) {
+      try {
+        await _endADB();
+      } catch (_) {
+        if (mounted) {
+          setState(
+            () => _error = context.appLocalizations.tailnetRequestFailed,
+          );
+        }
+        return;
+      }
+      if (!mounted) return;
+    }
     final previous = ref.read(appSettingProvider).tailscaleEnabled;
     final settings = ref.read(appSettingProvider.notifier);
     final setup = ref.read(setupActionProvider.notifier);
@@ -116,7 +159,7 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       _error = null;
     });
     try {
-      final core = ref.read(coreHandlerProvider);
+      final core = _adbCore;
       if (!await core.startTailscaleLogin(bfclashTailscaleOutboundName)) {
         throw StateError('login request failed');
       }
@@ -179,6 +222,15 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       ),
     );
     if (!mounted || confirmed != true || _busy) return;
+    if (_adbPeer != null) {
+      try {
+        await _endADB();
+      } catch (_) {
+        if (mounted) setState(() => _error = labels.tailnetRequestFailed);
+        return;
+      }
+      if (!mounted) return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -201,23 +253,12 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
 
   Future<void> _openADB(String peer, String hostname) async {
     final labels = context.appLocalizations;
-    final input = TextEditingController();
-    final port = await showDialog<int>(
+    final approved = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text('${labels.tailnetAdb} · $hostname'),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(labels.tailnetAdbDescription),
-              TextField(
-                controller: input,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: labels.tailnetAdbPort),
-              ),
-            ],
-          ),
+          child: Text(labels.tailnetAdbDescription),
         ),
         actions: [
           TextButton(
@@ -225,34 +266,95 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
             child: Text(labels.cancel),
           ),
           TextButton(
-            onPressed: () {
-              final port = int.tryParse(input.text.trim());
-              if (port == null || port < 1 || port > 65535) return;
-              Navigator.pop(dialogContext, port);
-            },
+            onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(labels.tailnetAdbOpen),
           ),
         ],
       ),
     );
-    input.dispose();
-    if (!mounted || port == null || _busy) return;
+    if (!mounted || approved != true || _busy) return;
     setState(() {
       _busy = true;
       _error = null;
       _notice = null;
     });
     try {
-      if (!await ref
-          .read(coreHandlerProvider)
-          .startTailscaleADB(bfclashTailscaleOutboundName, peer, port)) {
-        throw StateError('ADB forward failed');
+      await _endADB();
+      if (!mounted) return;
+      final core = ref.read(coreHandlerProvider);
+      final generation = ++_adbGeneration;
+      _adbPeer = peer;
+      _adbDiscovery.setMethodCallHandler((call) async {
+        if (generation != _adbGeneration) return;
+        if (call.method == 'expired' || call.method == 'error') {
+          await _endADB();
+          if (mounted) setState(() => _error = labels.tailnetRequestFailed);
+          return;
+        }
+        final port = call.arguments;
+        if (port is! int || port < 1 || port > 65535) return;
+        _adbQueue = _adbQueue
+            .then((_) async {
+              if (generation != _adbGeneration) return;
+              if (call.method == 'found') {
+                if (!await core.startTailscaleADB(
+                  bfclashTailscaleOutboundName,
+                  peer,
+                  port,
+                )) {
+                  throw StateError('ADB forward failed');
+                }
+              } else if (call.method == 'lost') {
+                await core.stopTailscaleADBPort(
+                  bfclashTailscaleOutboundName,
+                  port,
+                );
+              }
+            })
+            .catchError((_) {
+              if (mounted) setState(() => _error = labels.tailnetRequestFailed);
+              if (generation == _adbGeneration) {
+                scheduleMicrotask(
+                  () => unawaited(_endADB().catchError((_) {})),
+                );
+              }
+            });
+      });
+      if (await _adbDiscovery.invokeMethod<bool>('start') != true) {
+        throw StateError('ADB discovery failed');
       }
+      if (!mounted || generation != _adbGeneration) {
+        await _endADB();
+        return;
+      }
+      _adbTimer = Timer(
+        const Duration(minutes: 15),
+        () => unawaited(_endADB()),
+      );
       if (mounted) setState(() => _notice = labels.tailnetAdbSuccess);
     } catch (_) {
+      await _endADB();
       if (mounted) setState(() => _error = labels.tailnetRequestFailed);
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _endADB() async {
+    _adbTimer?.cancel();
+    _adbTimer = null;
+    _adbGeneration++;
+    if (_adbPeer == null) return;
+    _adbPeer = null;
+    try {
+      await _adbDiscovery.invokeMethod<bool>('stop');
+    } finally {
+      await _adbQueue;
+      try {
+        await _adbCore.stopTailscaleADB(bfclashTailscaleOutboundName);
+      } finally {
+        _adbDiscovery.setMethodCallHandler(null);
+      }
     }
   }
 
@@ -264,11 +366,7 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       _notice = null;
     });
     try {
-      if (!await ref
-          .read(coreHandlerProvider)
-          .stopTailscaleADB(bfclashTailscaleOutboundName)) {
-        throw StateError('ADB forwarding stop failed');
-      }
+      await _endADB();
     } catch (_) {
       if (mounted) {
         setState(() => _error = context.appLocalizations.tailnetRequestFailed);

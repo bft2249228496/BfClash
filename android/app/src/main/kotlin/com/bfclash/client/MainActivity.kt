@@ -1,5 +1,6 @@
 package com.bfclash.client
 
+import com.bfclash.client.plugins.AdbDiscoveryPlugin
 import com.bfclash.client.plugins.AppPlugin
 import com.bfclash.client.plugins.ServicePlugin
 import com.bfclash.client.plugins.SubStorePlugin
@@ -11,6 +12,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(AppPlugin())
+        flutterEngine.plugins.add(AdbDiscoveryPlugin())
         flutterEngine.plugins.add(ServicePlugin())
         flutterEngine.plugins.add(SubStorePlugin())
         flutterEngine.plugins.add(TilePlugin())
