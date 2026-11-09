@@ -267,16 +267,15 @@ jobs:
         run: |
           set -euo pipefail
           version=${CANDIDATE_VERSION%+*}
-          cat > /tmp/beta-notes.md <<NOTES
-          Tailscale integration preview for Windows and Android. The public version is unified as $version.
-
-          Available for testing: opt-in Tailscale login, device status, and routing of Tailscale addresses and ts.net names. Real-device connectivity and in-app updates still need user validation. Subnet routes, exit nodes, and inbound services are not implemented yet. Keep an existing working installation available.
-          NOTES
+          printf "%s\n\n%s\n" \
+            "Tailscale integration preview for Windows and Android. The public version is unified as $version." \
+            "Available for testing: opt-in Tailscale login, device status, and routing of Tailscale addresses and ts.net names. Real-device connectivity and in-app updates still need user validation. Subnet routes, exit nodes, and inbound services are not implemented yet. Keep an existing working installation available." \
+            > /tmp/beta-notes.md
           gh release create "v$version" --target "$SOURCE_SHA" --draft --prerelease --title "BfClash Beta $version — Tailscale 预览" --notes-file /tmp/beta-notes.md public/*
           if [[ -n "$BRIDGE_TAG" ]]; then
-            cat > /tmp/bridge-notes.md <<NOTES
-            Android beta update bridge for older 0.x beta clients. These APK files are identical to the Android packages in $version; their installed version is $version. The bridge tag exists only so older clients can discover the update.
-            NOTES
+            printf "%s\n" \
+              "Android beta update bridge for older 0.x beta clients. These APK files are identical to the Android packages in $version; their installed version is $version. The bridge tag exists only so older clients can discover the update." \
+              > /tmp/bridge-notes.md
             gh release create "$BRIDGE_TAG" --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Android Beta 更新兼容入口' --notes-file /tmp/bridge-notes.md public/*.apk
             gh release edit "$BRIDGE_TAG" --draft=false --latest=false
           fi
