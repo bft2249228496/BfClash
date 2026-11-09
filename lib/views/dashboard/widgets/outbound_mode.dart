@@ -102,10 +102,11 @@ class _ModeRadioList extends StatelessWidget {
                     final isDark =
                         Theme.of(context).brightness == Brightness.dark;
                     final isSelected = item == mode;
+                    final accent = BfClashAccent.of(context);
                     final textColor = isDark
                         ? (isSelected
-                              ? const Color(0xFFC7D2FE)
-                              : const Color(0xFFA5B4FC))
+                              ? Color.lerp(accent.softLabel, Colors.white, 0.35)
+                              : accent.softLabel)
                         : null;
                     return Text(
                       item.label,

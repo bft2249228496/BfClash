@@ -224,7 +224,8 @@ class _BfClashPresetItem extends ConsumerWidget {
                                     end: Alignment.bottomRight,
                                     colors: [
                                       preset.primary(brightness),
-                                      preset.card(brightness),
+                                      preset.accent?.last ??
+                                          preset.card(brightness),
                                     ],
                                   ),
                                   border: Border.all(

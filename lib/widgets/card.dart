@@ -45,33 +45,29 @@ class InfoHeader extends StatelessWidget {
               children: [
                 Builder(
                   builder: (context) {
-                    final isDark =
-                        Theme.of(context).brightness == Brightness.dark;
-                    final primary = context.colorScheme.primary;
-                    final isParty = isDark && primary.toARGB32() == 0xFF818CF8;
+                    final accent = BfClashAccent.of(context);
+                    final enabled = accent.enabled;
                     final iconWidget = info.iconData != null
                         ? Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: Icon(
                               info.iconData,
-                              color: isParty
-                                  ? const Color(0xFF818CF8)
+                              color: enabled
+                                  ? Theme.of(context).colorScheme.primary
                                   : Theme.of(
                                       context,
                                     ).colorScheme.onSurfaceVariant,
                             ),
                           )
                         : const SizedBox.shrink();
-                    final labelWidget = isParty
+                    final labelWidget = enabled
                         ? GradientText(
                             info.label,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleSmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF818CF8), Color(0xFFC084FC)],
-                            ),
+                            gradient: LinearGradient(colors: accent.accent!),
                           )
                         : Text(
                             info.label,

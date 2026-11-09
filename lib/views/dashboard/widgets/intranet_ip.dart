@@ -34,17 +34,11 @@ class IntranetIP extends StatelessWidget {
                       child: localIp != null
                           ? Builder(
                               builder: (context) {
-                                final isDark =
-                                    Theme.of(context).brightness ==
-                                    Brightness.dark;
-                                final isParty =
-                                    isDark &&
-                                    context.colorScheme.primary.toARGB32() ==
-                                        0xFF818CF8;
+                                final accent = BfClashAccent.of(context);
                                 final ipString = localIp.isNotEmpty
                                     ? localIp
                                     : appLocalizations.noNetwork;
-                                if (isParty) {
+                                if (accent.enabled) {
                                   return TooltipText(
                                     text: GradientText(
                                       ipString,
@@ -53,11 +47,8 @@ class IntranetIP extends StatelessWidget {
                                             fontWeight: FontWeight.w600,
                                           )
                                           .adjustSize(1),
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFF38BDF8),
-                                          Color(0xFF818CF8),
-                                        ],
+                                      gradient: LinearGradient(
+                                        colors: accent.accent!,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
