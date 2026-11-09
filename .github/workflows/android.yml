@@ -236,6 +236,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ANDROID_RUN: ${{ inputs.android_run }}
           WINDOWS_RUN: ${{ inputs.windows_run }}
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
         shell: bash
         run: |
           set -euo pipefail
@@ -243,14 +244,15 @@ jobs:
           gh run download "$ANDROID_RUN" -n bfclash-android -D candidate/android
           gh run download "$WINDOWS_RUN" -n bfclash-windows-probe -D candidate/windows
           (cd candidate/android && sha256sum -c SHA256SUMS.txt)
+          version=${CANDIDATE_VERSION%+*}
           for abi in arm64-v8a armeabi-v7a x86_64; do
-            f="candidate/android/BfClash-1.0.4-beta.1-android-$abi.apk"
+            f="candidate/android/BfClash-$version-android-$abi.apk"
             test -s "$f"
             cp "$f" public/
           done
           for ext in setup.exe zip; do
-            f="candidate/windows/dist/beta/BfClash-1.0.4-beta.1-windows-amd64-$ext"
-            if [[ "$ext" == zip ]]; then f="candidate/windows/dist/beta/BfClash-1.0.4-beta.1-windows-amd64.zip"; fi
+            f="candidate/windows/dist/beta/BfClash-$version-windows-amd64-$ext"
+            if [[ "$ext" == zip ]]; then f="candidate/windows/dist/beta/BfClash-$version-windows-amd64.zip"; fi
             test -s "$f"
             cp "$f" public/
           done
@@ -259,21 +261,26 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_SHA: ${{ inputs.source_sha }}
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+          BRIDGE_TAG: ${{ inputs.bridge_tag }}
         shell: bash
         run: |
           set -euo pipefail
-          cat > /tmp/beta-notes.md <<'NOTES'
-          Tailscale integration preview for Windows and Android. The public version is unified as 1.0.4-beta.1.
+          version=${CANDIDATE_VERSION%+*}
+          cat > /tmp/beta-notes.md <<NOTES
+          Tailscale integration preview for Windows and Android. The public version is unified as $version.
 
           Available for testing: opt-in Tailscale login, device status, and routing of Tailscale addresses and ts.net names. Real-device connectivity and in-app updates still need user validation. Subnet routes, exit nodes, and inbound services are not implemented yet. Keep an existing working installation available.
           NOTES
-          cat > /tmp/bridge-notes.md <<'NOTES'
-          Android beta update bridge for older 0.x beta clients. These APK files are identical to the Android packages in 1.0.4-beta.1; their installed version is 1.0.4-beta.1. The bridge tag exists only so older clients can discover the update.
-          NOTES
-          gh release create v1.0.4-beta.1 --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Beta 1.0.4-beta.1 — Tailscale 预览' --notes-file /tmp/beta-notes.md public/*
-          gh release create v0.3.4-beta.1 --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Android Beta 更新兼容入口' --notes-file /tmp/bridge-notes.md public/*.apk
-          gh release edit v1.0.4-beta.1 --draft=false --latest=false
-          gh release edit v0.3.4-beta.1 --draft=false --latest=false
+          gh release create "v$version" --target "$SOURCE_SHA" --draft --prerelease --title "BfClash Beta $version — Tailscale 预览" --notes-file /tmp/beta-notes.md public/*
+          if [[ -n "$BRIDGE_TAG" ]]; then
+            cat > /tmp/bridge-notes.md <<NOTES
+            Android beta update bridge for older 0.x beta clients. These APK files are identical to the Android packages in $version; their installed version is $version. The bridge tag exists only so older clients can discover the update.
+            NOTES
+            gh release create "$BRIDGE_TAG" --target "$SOURCE_SHA" --draft --prerelease --title 'BfClash Android Beta 更新兼容入口' --notes-file /tmp/bridge-notes.md public/*.apk
+            gh release edit "$BRIDGE_TAG" --draft=false --latest=false
+          fi
+          gh release edit "v$version" --draft=false --latest=false
 
   upload_android_draft:
     if: github.event_name == 'workflow_dispatch' && inputs.upload_draft_only && !inputs.publish_only
