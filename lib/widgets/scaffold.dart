@@ -237,17 +237,16 @@ class CommonScaffoldState extends State<CommonScaffold> {
         : appLocalizations.selectedCountTitle(
             '${_appBarState.value.editState?.editCount ?? 0}',
           );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primary = context.colorScheme.primary;
-    if (isDark && primary.toARGB32() == 0xFF818CF8 && !_isEdit) {
+    final accent = BfClashAccent.of(context);
+    if (accent.enabled && !_isEdit) {
       return GradientText(
         rawTitle,
         style: context.textTheme.headlineSmall?.copyWith(
           fontWeight: FontWeight.w900,
           letterSpacing: 0.8,
         ),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFE879F9)],
+        gradient: LinearGradient(
+          colors: accent.aurora!,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

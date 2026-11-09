@@ -125,7 +125,7 @@ class _SubStoreItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItem.open(
-      leading: const Icon(Icons.hub, color: Color(0xFF818CF8)),
+      leading: Icon(Icons.hub, color: context.colorScheme.primary),
       title: Text(context.appLocalizations.subStoreTitle),
       subtitle: Text(context.appLocalizations.subStoreLocalModeDesc),
       widget: const SubStoreView(),

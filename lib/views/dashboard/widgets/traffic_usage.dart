@@ -212,20 +212,14 @@ class _TrafficDataItem extends StatelessWidget {
                 flex: 1,
                 child: Builder(
                   builder: (context) {
-                    final isDark =
-                        Theme.of(context).brightness == Brightness.dark;
-                    final isParty =
-                        isDark &&
-                        context.colorScheme.primary.toARGB32() == 0xFF818CF8;
-                    if (isParty) {
+                    final accent = BfClashAccent.of(context);
+                    if (accent.enabled) {
                       return GradientText(
                         value.traffic.value,
                         style: context.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF38BDF8), Color(0xFFC084FC)],
-                        ),
+                        gradient: accent.auroraGradient!,
                         maxLines: 1,
                       );
                     }

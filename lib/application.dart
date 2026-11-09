@@ -154,6 +154,9 @@ class ApplicationState extends ConsumerState<Application> {
           appSettingProvider.select((state) => state.locale),
         );
         final themeProps = ref.watch(themeSettingProvider);
+        final accentSeed = Color(
+          themeProps.primaryColor ?? defaultPrimaryColor,
+        );
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: globalState.navigatorKey,
@@ -187,6 +190,12 @@ class ApplicationState extends ConsumerState<Application> {
               useMaterial3: true,
               pageTransitionsTheme: _pageTransitionsTheme,
               colorScheme: _getAppColorScheme(brightness: Brightness.light),
+              extensions: [
+                buildBfClashAccent(
+                  color: accentSeed,
+                  brightness: Brightness.light,
+                ),
+              ],
             ).withAppShapes,
           ),
           darkTheme: () {
@@ -197,9 +206,15 @@ class ApplicationState extends ConsumerState<Application> {
               useMaterial3: true,
               pageTransitionsTheme: _pageTransitionsTheme,
               colorScheme: colorScheme,
+              extensions: [
+                buildBfClashAccent(
+                  color: accentSeed,
+                  brightness: Brightness.dark,
+                ),
+              ],
             );
             final customTextTheme = buildBfClashTextTheme(
-              color: Color(themeProps.primaryColor ?? defaultPrimaryColor),
+              color: accentSeed,
               brightness: Brightness.dark,
               base: baseTheme.textTheme,
             );
@@ -209,11 +224,11 @@ class ApplicationState extends ConsumerState<Application> {
                     textTheme: customTextTheme,
                     listTileTheme: baseTheme.listTileTheme.copyWith(
                       titleTextStyle: customTextTheme.bodyLarge?.copyWith(
-                        color: const Color(0xFFEDE9FE),
+                        color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
                       subtitleTextStyle: customTextTheme.bodySmall?.copyWith(
-                        color: const Color(0xFFA5B4FC),
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   )

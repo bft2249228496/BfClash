@@ -12,6 +12,9 @@ void main() {
       'sakura',
       'sunset',
       'ocean',
+      'obsidian',
+      'ember',
+      'neon',
     ]);
     expect(
       bfclashThemePresets.map((preset) => preset.selectionValue).toSet(),

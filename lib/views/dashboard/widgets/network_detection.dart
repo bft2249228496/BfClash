@@ -109,25 +109,16 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                   child: ipInfo != null
                       ? Builder(
                           builder: (context) {
-                            final isDark =
-                                Theme.of(context).brightness == Brightness.dark;
-                            final isParty =
-                                isDark &&
-                                context.colorScheme.primary.toARGB32() ==
-                                    0xFF818CF8;
-                            if (isParty) {
+                            final accent = BfClashAccent.of(context);
+                            if (accent.enabled) {
                               return TooltipText(
                                 text: GradientText(
                                   ipInfo.ip,
                                   style: context.textTheme.bodyMedium
                                       ?.copyWith(fontWeight: FontWeight.bold)
                                       .adjustSize(1),
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF38BDF8),
-                                      Color(0xFF818CF8),
-                                      Color(0xFFC084FC),
-                                    ],
+                                  gradient: LinearGradient(
+                                    colors: accent.aurora!,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

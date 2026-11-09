@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BfClash · 移动端主题预览 — Pocket Constellation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BfClash Mobile Theme — Pocket Constellation
+   与桌面端 Obsidian Aurora 同宗同源：相同的极光渐变、深邃底色、
+   玻璃态面板与发光状态指示，但布局为触控优化。
+   ============================================================ */
+:root{
+  --bg-deep:#050507;
+  --bg-app:#0A0A12;
+  --surface:#12121C;
+  --surface-2:#181826;
+  --surface-3:#1E1E30;
+  --hairline:rgba(255,255,255,.07);
+  --hairline-strong:rgba(255,255,255,.12);
+  --text:#EDEAF5;
+  --text-2:#A6A2B8;
+  --text-3:#6B6879;
+  --sky:#38BDF8;
+  --indigo:#818CF8;
+  --purple:#C084FC;
+  --aurora:linear-gradient(135deg,#5EEAD4 0%,#818CF8 50%,#E879F9 100%);
+  --aurora-soft:linear-gradient(135deg,rgba(94,234,212,.16),rgba(129,140,248,.16) 50%,rgba(232,121,249,.16));
+  --aurora-glow:0 0 40px rgba(129,140,248,.4),0 0 80px rgba(56,189,248,.25);
+  --ok:#34D399;
+  --warn:#FBBF24;
+  --bad:#FB7185;
+  --r-xl:28px;
+  --r-lg:20px;
+  --r-md:14px;
+  --r-sm:10px;
+  --font-ui:"Plus Jakarta Sans","PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font-ui);
+  background:var(--bg-deep);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:40px;
+  padding:40px 20px;
+  min-height:100vh;
+  flex-wrap:wrap;
+}
+::selection{background:rgba(129,140,248,.35)}
+
+/* ------- 主题说明卡 ------- */
+.theme-intro{
+  max-width:360px;
+  color:var(--text-2);
+}
+.theme-intro h1{
+  font-size:32px;font-weight:800;letter-spacing:-.5px;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-bottom:8px;
+}
+.theme-intro h2{font-size:14px;font-weight:600;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px}
+.theme-intro p{font-size:13px;line-height:1.7;margin-bottom:20px}
+.color-palette{display:flex;gap:8px;margin-bottom:24px}
+.color-palette .swatch{
+  flex:1;aspect-ratio:1;border-radius:12px;border:1px solid var(--hairline);
+  display:flex;align-items:flex-end;justify-content:center;padding:6px;
+  font-family:var(--font-mono);font-size:8px;color:var(--text-3);
+}
+.feature-list{list-style:none}
+.feature-list li{
+  padding:12px 0;border-bottom:1px solid var(--hairline);
+  display:flex;gap:12px;align-items:flex-start;
+}
+.feature-list li:last-child{border-bottom:none}
+.feature-list .idx{
+  width:22px;height:22px;border-radius:7px;background:var(--surface);
+  display:grid;place-items:center;font-family:var(--font-mono);
+  font-size:11px;color:var(--indigo);font-weight:700;flex:none;
+  border:1px solid var(--hairline);
+}
+.feature-list strong{display:block;color:var(--text);font-size:13px;font-weight:600;margin-bottom:2px}
+.feature-list span{font-size:12px;color:var(--text-3)}
+
+/* ------- Phone frame ------- */
+.phone{
+  width:390px;height:844px;
+  background:#1a1a24;
+  border-radius:54px;
+  padding:12px;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.06),
+    0 60px 120px rgba(0,0,0,.6),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  position:relative;
+}
+.phone::before{
+  content:"";position:absolute;top:36px;left:50%;transform:translateX(-50%);
+  width:120px;height:32px;background:#000;border-radius:20px;z-index:100;
+}
+.screen{
+  width:100%;height:100%;
+  border-radius:44px;
+  background:var(--bg-app);
+  overflow:hidden;position:relative;
+}
+
+/* Ambient glow on screen */
+.ambient{
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+}
+.ambient::before,.ambient::after{
+  content:"";position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;
+}
+.ambient::before{
+  width:340px;height:340px;right:-100px;top:-120px;
+  background:radial-gradient(circle,rgba(129,140,248,.18),transparent 65%);
+}
+.ambient::after{
+  width:280px;height:280px;left:-80px;bottom:-60px;
+  background:radial-gradient(circle,rgba(56,189,248,.10),transparent 65%);
+}
+
+/* ------- Status bar ------- */
+.status-bar{
+  position:relative;z-index:10;
+  height:54px;padding:14px 28px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--font-mono);font-size:14px;font-weight:600;
+  color:var(--text);
+}
+.sb-icons{display:flex;gap:6px;align-items:center}
+.sb-icons svg{width:16px;height:16px}
+.sb-icons .signal{display:flex;align-items:center;gap:2px}
+.sb-icons .signal i{width:3px;background:var(--text);border-radius:2px}
+.sb-icons .signal i:nth-child(1){height:5px}
+.sb-icons .signal i:nth-child(2){height:8px}
+.sb-icons .signal i:nth-child(3){height:11px}
+.sb-icons .signal i:nth-child(4){height:14px;background:var(--text-3)}
+.battery{
+  width:26px;height:12px;border:1px solid var(--text);border-radius:3px;
+  padding:1.5px;position:relative;
+}
+.battery::after{
+  content:"";position:absolute;right:-3px;top:50%;transform:translateY(-50%);
+  width:2px;height:5px;background:var(--text);border-radius:0 1px 1px 0;
+}
+.battery i{display:block;height:100%;width:78%;background:var(--ok);border-radius:1px}
+
+/* ------- Content area ------- */
+.content{
+  position:relative;z-index:1;
+  height:calc(100% - 54px - 83px);
+  overflow-y:auto;
+  padding:8px 20px 16px;
+}
+.content::-webkit-scrollbar{width:0}
+
+/* ------- Bottom nav ------- */
+.bottom-nav{
+  position:absolute;left:12px;right:12px;bottom:12px;
+  height:71px;background:rgba(18,18,28,.85);
+  backdrop-filter:blur(24px);
+  border:1px solid var(--hairline);
+  border-radius:28px;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:8px 6px 22px;
+  z-index:50;
+  box-shadow:0 -4px 30px rgba(0,0,0,.4);
+}
+.bnav-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:6px 18px;border-radius:14px;
+  color:var(--text-3);
+  transition:all .25s;cursor:pointer;background:none;border:none;font-family:inherit;
+}
+.bnav-item svg{width:22px;height:22px}
+.bnav-item span{font-size:10px;font-weight:600;letter-spacing:.5px}
+.bnav-item.active{
+  color:var(--text);
+  background:rgba(129,140,248,.15);
+}
+.bnav-item.active svg{
+  stroke:url(#mobileNavGrad);
+  filter:drop-shadow(0 0 6px rgba(129,140,248,.6));
+}
+
+/* ============================================================
+   SCREEN 1 — HOME / DASHBOARD
+   ============================================================ */
+.greeting{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.greeting .title{font-size:26px;font-weight:700;letter-spacing:-.3px}
+.greeting .sub{font-size:13px;color:var(--text-3);margin-top:2px}
+.avatar{
+  width:40px;height:40px;border-radius:13px;background:var(--aurora);
+  display:grid;place-items:center;font-weight:700;color:#0B0B12;font-size:14px;
+  box-shadow:0 4px 14px rgba(129,140,248,.35);
+}
+
+/* Hero connection card */
+.hero-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008)),var(--surface);
+  border:1px solid var(--hairline);
+  border-radius:var(--r-xl);
+  padding:26px 24px;
+  position:relative;overflow:hidden;
+  margin-bottom:16px;
+}
+.hero-card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 70% 30%,rgba(129,140,248,.18),transparent 60%);
+}
+.connection-status{
+  display:flex;align-items:center;gap:10px;margin-bottom:22px;
+}
+.conn-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--ok);position:relative;
+}
+.conn-dot::after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;
+  border:1.5px solid var(--ok);opacity:.55;
+  animation:pulse 2s ease-out infinite;
+}
+@keyframes pulse{0%{transform:scale(.5);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+.conn-label{font-size:13px;font-weight:600;color:var(--ok);letter-spacing:.5px}
+.conn-mode{
+  margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--text-3);
+  padding:4px 10px;border-radius:7px;border:1px solid var(--hairline-strong);
+}
+
+/* Big power button */
+.power-section{
+  display:flex;align-items:center;justify-content:center;
+  padding:10px 0 24px;
+  position:relative;z-index:1;
+}
+.power-btn{
+  position:relative;width:152px;height:152px;
+  background:none;border:none;cursor:pointer;
+  display:grid;place-items:center;
+}
+.power-btn .ring{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--sky),var(--indigo),var(--purple),var(--sky));
+  animation:spin 6s linear infinite;
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));
+  filter:drop-shadow(0 0 12px rgba(129,140,248,.6));
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.power-btn .core{
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle at 50% 30%,#282840,#151520 75%);
+  border:1px solid rgba(255,255,255,.1);
+  display:grid;place-items:center;
+  box-shadow:inset 0 2px 14px rgba(0,0,0,.55),0 8px 32px rgba(0,0,0,.5);
+}
+.power-btn .core svg{
+  width:40px;height:40px;color:#fff;
+  filter:drop-shadow(0 0 8px rgba(129,140,248,.8));
+}
+
+.current-node{
+  text-align:center;margin-bottom:6px;position:relative;z-index:1;
+}
+.current-node .country{font-size:22px;margin-bottom:2px}
+.current-node .name{font-size:15px;font-weight:600;margin-bottom:6px}
+.current-node .latency{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--font-mono);font-size:11.5px;font-weight:600;
+  color:var(--ok);background:rgba(52,211,153,.1);
+  border:1px solid rgba(52,211,153,.25);
+  padding:4px 10px;border-radius:8px;
+}
+
+/* Speed big numbers */
+.speed-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin-bottom:16px;
+}
+.speed-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.005)),var(--surface);
+  border:1px solid var(--hairline);
+  border-radius:var(--r-lg);
+  padding:16px 18px;
+}
+.speed-card .label{
+  font-size:11px;color:var(--text-3);
+  display:flex;align-items:center;gap:6px;letter-spacing:.3px;
+  margin-bottom:8px;
+}
+.speed-card .label svg{width:12px;height:12px}
+.speed-card.d .label{color:var(--sky)}
+.speed-card.u .label{color:var(--purple)}
+.speed-card .value{
+  font-family:var(--font-mono);
+  font-size:26px;font-weight:700;letter-spacing:-.5px;
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+}
+.speed-card .value small{
+  font-size:11px;font-weight:500;color:var(--text-3);margin-left:4px;letter-spacing:.3px;
+}
+
+/* Chart mini */
+.chart-mini{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.005)),var(--surface);
+  border:1px solid var(--hairline);
+  border-radius:var(--r-lg);
+  padding:16px 18px;
+  margin-bottom:16px;
+}
+.chart-mini .title{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--text-3);margin-bottom:12px;letter-spacing:.3px;
+}
+.chart-mini .legend{display:flex;gap:12px}
+.chart-mini .legend i{
+  display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;
+}
+.chart-mini .legend .ld i{background:var(--sky)}
+.chart-mini .legend .lu i{background:var(--purple)}
+#mobileChart{height:80px;width:100%;display:block}
+
+/* Quick actions */
+.section-title{
+  font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--text-3);margin:8px 0 10px;
+}
+.quick-actions{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  margin-bottom:20px;
+}
+.q-action{
+  background:var(--surface);border:1px solid var(--hairline);
+  border-radius:var(--r-md);
+  padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;
+  cursor:pointer;transition:all .2s;
+}
+.q-action:hover{background:var(--surface-2);border-color:var(--hairline-strong)}
+.q-action svg{width:20px;height:20px;color:var(--indigo)}
+.q-action span{font-size:10.5px;color:var(--text-2);font-weight:500}
+
+/* Mode selector */
+.mode-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005)),var(--surface);
+  border:1px solid var(--hairline);border-radius:var(--r-lg);
+  padding:6px;margin-bottom:16px;
+  display:flex;gap:4px;
+}
+.mode-card button{
+  flex:1;height:40px;border:none;border-radius:12px;
+  font-size:13px;font-weight:600;font-family:inherit;
+  background:transparent;color:var(--text-3);cursor:pointer;transition:all .25s;
+}
+.mode-card button.active{
+  background:var(--aurora);color:#0B0B12;
+  box-shadow:0 3px 14px rgba(129,140,248,.4);
+}
+
+/* Stats row */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:20px;
+}
+.stat-tile{
+  background:var(--surface);border:1px solid var(--hairline);
+  border-radius:var(--r-md);padding:12px 14px;
+}
+.stat-tile .k{font-size:10.5px;color:var(--text-3);letter-spacing:.3px}
+.stat-tile .v{
+  font-family:var(--font-mono);font-size:16px;font-weight:700;margin-top:5px;
+  font-variant-numeric:tabular-nums;
+}
+.stat-tile .v small{font-size:10px;color:var(--text-3);font-weight:400;margin-left:2px}
+
+/* ============================================================
+   SCREEN 2 — PROXIES
+   ============================================================ */
+.page-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:18px;
+  position:relative;z-index:1;
+}
+.page-header .back{
+  width:36px;height:36px;border-radius:11px;background:var(--surface);
+  border:1px solid var(--hairline);display:grid;place-items:center;
+  color:var(--text-2);cursor:pointer;
+}
+.page-header .title-col{flex:1}
+.page-header .p-title{font-size:20px;font-weight:700}
+.page-header .p-sub{font-size:12px;color:var(--text-3);margin-top:2px}
+.page-header .icon-btn{
+  width:36px;height:36px;border-radius:11px;background:var(--surface);
+  border:1px solid var(--hairline);display:grid;place-items:center;
+  color:var(--text-2);cursor:pointer;
+}
+.page-header .icon-btn svg{width:16px;height:16px}
+
+/* Group tabs horizontal scroll */
+.group-tabs{
+  display:flex;gap:8px;padding-bottom:10px;overflow-x:auto;margin-bottom:4px;
+  position:relative;z-index:1;
+}
+.group-tabs::-webkit-scrollbar{height:0}
+.group-tab{
+  flex:none;padding:10px 16px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--hairline);
+  font-size:13px;font-weight:600;color:var(--text-2);
+  display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;
+}
+.group-tab.active{
+  background:var(--aurora);color:#0B0B12;border:none;
+  box-shadow:0 4px 16px rgba(129,140,248,.4);
+}
+.group-tab .count{
+  font-family:var(--font-mono);font-size:10px;color:var(--text-3);
+  padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.08);
+}
+.group-tab.active .count{background:rgba(0,0,0,.2);color:#0B0B12}
+
+/* Node list compact */
+.node-list{position:relative;z-index:1}
+.node-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--hairline);
+  border-radius:var(--r-md);padding:13px 14px;
+  margin-bottom:8px;cursor:pointer;transition:all .18s;
+}
+.node-item.selected{
+  background:linear-gradient(90deg,rgba(56,189,248,.12),rgba(192,132,252,.06));
+  border-color:rgba(129,140,248,.3);
+}
+.flag-ico{
+  width:32px;height:32px;border-radius:9px;background:var(--surface-2);
+  display:grid;place-items:center;font-size:16px;flex:none;
+}
+.node-item.selected .flag-ico{background:rgba(129,140,248,.2)}
+.node-info{flex:1;min-width:0}
+.node-name{
+  font-size:13px;font-weight:600;margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.node-meta{
+  display:flex;gap:8px;align-items:center;
+}
+.tag-mini{
+  font-family:var(--font-mono);font-size:9px;font-weight:600;
+  padding:1.5px 6px;border-radius:4px;letter-spacing:.4px;
+}
+.tag-hybrid{color:#7DD3FC;background:rgba(56,189,248,.12)}
+.tag-trojan{color:#C4B5FD;background:rgba(129,140,248,.15)}
+.tag-vless{color:#F0ABFC;background:rgba(192,132,252,.15)}
+.tag-shadowsocks{color:#FCD34D;background:rgba(251,191,36,.12)}
+.node-delay{
+  font-family:var(--font-mono);font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:7px;flex:none;
+}
+.delay-ok{color:var(--ok);background:rgba(52,211,153,.1)}
+.delay-mid{color:var(--warn);background:rgba(251,191,36,.1)}
+.delay-bad{color:var(--bad);background:rgba(251,113,133,.1)}
+.node-item .sel-check{
+  width:20px;height:20px;border-radius:50%;border:1.5px solid var(--hairline-strong);
+  display:grid;place-items:center;flex:none;transition:all .2s;
+}
+.node-item.selected .sel-check{
+  border-color:var(--indigo);
+  background:var(--aurora);
+  box-shadow:0 0 10px rgba(129,140,248,.5);
+}
+.node-item .sel-check svg{width:12px;height:12px;color:transparent}
+.node-item.selected .sel-check svg{color:#0B0B12}
+
+/* ============================================================
+   SCREEN 3 — LOGS
+   ============================================================ */
+.log-toolbar{
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;
+  position:relative;z-index:1;margin-bottom:4px;
+}
+.log-toolbar::-webkit-scrollbar{height:0}
+.log-chip{
+  flex:none;height:32px;padding:0 14px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--hairline);
+  font-family:var(--font-mono);font-size:11.5px;font-weight:600;
+  color:var(--text-3);cursor:pointer;transition:all .2s;
+}
+.log-chip.active{
+  background:var(--surface-3);color:var(--text);border-color:var(--hairline-strong);
+}
+
+.log-list{
+  position:relative;z-index:1;
+  background:var(--surface);border:1px solid var(--hairline);
+  border-radius:var(--r-lg);
+  padding:4px 0;
+  font-family:var(--font-mono);font-size:11.5px;line-height:1.7;
+}
+.log-entry{
+  padding:8px 14px;display:flex;gap:10px;align-items:flex-start;
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+.log-entry:last-child{border-bottom:none}
+.log-entry .t{color:var(--text-3);flex:none;width:52px;font-size:10.5px;padding-top:1px}
+.log-entry .lv{flex:none;font-weight:700;font-size:10px;width:42px;padding-top:1px}
+.log-entry.lv-info .lv{color:var(--sky)}
+.log-entry.lv-warn .lv{color:var(--warn)}
+.log-entry.lv-error .lv{color:var(--bad)}
+.log-entry.lv-debug .lv{color:var(--text-3)}
+.log-entry .msg{color:var(--text-2);flex:1;word-break:break-all}
+.log-entry .msg b{color:var(--text);font-weight:500}
+
+/* FAB */
+.fab{
+  position:absolute;right:20px;bottom:110px;z-index:60;
+  width:56px;height:56px;border-radius:20px;
+  background:var(--aurora);color:#0B0B12;border:none;
+  display:grid;place-items:center;cursor:pointer;
+  box-shadow:0 8px 30px rgba(129,140,248,.45),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.fab:hover{transform:scale(1.06)}
+.fab:active{transform:scale(.94)}
+.fab svg{width:24px;height:24px}
+
+/* Hide scrollbar for screens behind bottom nav */
+.screen{scrollbar-width:none}
+
+/* Light mode overlay for preview */
+.light-theme-badge{
+  position:absolute;top:12px;right:80px;z-index:200;
+  background:var(--aurora);color:#0B0B12;
+  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 8px;border-radius:5px;
+}
+</style>
+</head>
+<body>
+
+<!-- Reusable SVG gradients -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="mobileNavGrad" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#5EEAD4"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#E879F9"/>
+</linearGradient>
+<linearGradient id="mobileLogoGrad" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#5EEAD4"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#E879F9"/>
+</linearGradient>
+</defs></svg>
+
+<div class="theme-intro">
+  <h1>Pocket<br>Constellation</h1>
+  <h2>Mobile Theme · Obsidian Aurora</h2>
+  <p>移动端主题延续桌面端 Obsidian Aurora 的深邃底色与极光渐变视觉语言，但以更紧凑的布局、更大的触控目标和脉动状态指示灯为核心，为日常代理管理提供轻盈愉悦的体验。</p>
+  <div class="color-palette">
+    <div class="swatch" style="background:#0A0A12">#0A0A12</div>
+    <div class="swatch" style="background:#12121C">#12121C</div>
+    <div class="swatch" style="background:#38BDF8;color:#0B0B12">#38BDF8</div>
+    <div class="swatch" style="background:#5EEAD4;color:#04201C">#5EEAD4</div>
+    <div class="swatch" style="background:#C084FC;color:#0B0B12">#C084FC</div>
+  </div>
+  <ul class="feature-list">
+    <li><span class="idx">01</span><div><strong>极光脉冲状态</strong><span>连接开启时，环形进度条与状态点同步呼吸，实时传递内核状态。</span></div></li>
+    <li><span class="idx">02</span><div><strong>紧凑双速面板</strong><span>下载/上传速率并排显示，monospace 字体与极光配色一眼区分上下行。</span></div></li>
+    <li><span class="idx">03</span><div><strong>玻璃态底部导航</strong><span>半透明毛玻璃悬浮导航栏，active 项有极光渐变图标与柔光效果。</span></div></li>
+    <li><span class="idx">04</span><div><strong>节点列表精简</strong><span>单卡片包含国旗、名称、协议标签与延迟药丸，选中项有柔和极光渐变边框。</span></div></li>
+    <li><span class="idx">05</span><div><strong>FAB 悬浮按钮</strong><span>主操作按钮带极光渐变与 inset 高光，位置避开底部导航栏。</span></div></li>
+  </ul>
+</div>
+
+<!-- Phone 1: Home / Dashboard -->
+<div class="phone">
+  <div class="screen">
+    <div class="ambient"></div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="sb-icons">
+        <div class="signal"><i></i><i></i><i></i><i></i></div>
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3c2.2 0 4.2.8 5.7 2.3l-1.4 1.4A6 6 0 0 0 8 5a6 6 0 0 0-4.3 1.7L2.3 5.3A8 8 0 0 1 8 3Zm0 4a4 4 0 0 1 2.8 1.2L9.4 9.6A2 2 0 0 0 8 9a2 2 0 0 0-1.4.6L5.2 8.2A4 4 0 0 1 8 7Zm0 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
+        <div class="battery"><i></i></div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Greeting -->
+      <div class="greeting">
+        <div>
+          <div class="title">BfClash</div>
+          <div class="sub">Good morning · 已运行 1h 42m</div>
+        </div>
+        <div class="avatar">F</div>
+      </div>
+
+      <!-- Hero card with power button -->
+      <div class="hero-card">
+        <div class="connection-status">
+          <span class="conn-dot"></span>
+          <span class="conn-label">CONNECTED</span>
+          <span class="conn-mode">RULE · :7890</span>
+        </div>
+
+        <div class="power-section">
+          <button class="power-btn">
+            <span class="ring"></span>
+            <span class="core">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v9"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg>
+            </span>
+          </button>
+        </div>
+
+        <div class="current-node">
+          <div class="country">🇭🇰</div>
+          <div class="name">香港 IPLC 专线 01</div>
+          <span class="latency"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z"/></svg> 42 ms</span>
+        </div>
+      </div>
+
+      <!-- Speed cards -->
+      <div class="speed-row">
+        <div class="speed-card d">
+          <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v14m0 0 5-5m-5 5-5-5"/></svg>DOWNLOAD</div>
+          <div class="value">12.4<small>MB/s</small></div>
+        </div>
+        <div class="speed-card u">
+          <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V6m0 0 5 5m-5-5-5 5"/></svg>UPLOAD</div>
+          <div class="value">1.8<small>MB/s</small></div>
+        </div>
+      </div>
+
+      <!-- Chart mini -->
+      <div class="chart-mini">
+        <div class="title">
+          <span>实时速率</span>
+          <span class="legend"><span class="ld"><i></i>D</span><span class="lu"><i></i>U</span></span>
+        </div>
+        <svg id="mobileChart" viewBox="0 0 320 80" preserveAspectRatio="none">
+          <!-- Area fill download -->
+          <defs>
+            <linearGradient id="dFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38BDF8" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="uFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#C084FC" stop-opacity=".3"/>
+              <stop offset="100%" stop-color="#C084FC" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,50 L20,48 L40,45 L60,38 L80,42 L100,32 L120,36 L140,22 L160,28 L180,18 L200,24 L220,14 L240,20 L260,10 L280,16 L300,8 L320,12 L320,80 L0,80 Z" fill="url(#dFill)"/>
+          <path d="M0,65 L20,63 L40,60 L60,58 L80,62 L100,52 L120,56 L140,48 L160,52 L180,44 L200,50 L220,42 L240,46 L260,38 L280,44 L300,36 L320,40 L320,80 L0,80 Z" fill="url(#uFill)"/>
+          <!-- Line download -->
+          <path d="M0,50 L20,48 L40,45 L60,38 L80,42 L100,32 L120,36 L140,22 L160,28 L180,18 L200,24 L220,14 L240,20 L260,10 L280,16 L300,8 L320,12" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Line upload -->
+          <path d="M0,65 L20,63 L40,60 L60,58 L80,62 L100,52 L120,56 L140,48 L160,52 L180,44 L200,50 L220,42 L240,46 L260,38 L280,44 L300,36 L320,40" fill="none" stroke="#C084FC" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="section-title">快捷操作</div>
+      <div class="quick-actions">
+        <button class="q-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
+          <span>刷新</span>
+        </button>
+        <button class="q-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span>分享</span>
+        </button>
+        <button class="q-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span>测速</span>
+        </button>
+        <button class="q-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+          <span>订阅</span>
+        </button>
+      </div>
+
+      <!-- Mode selector -->
+      <div class="section-title">出站模式</div>
+      <div class="mode-card">
+        <button class="active">规则</button>
+        <button>全局</button>
+        <button>直连</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-tile">
+          <div class="k">活动连接</div>
+          <div class="v">128<small></small></div>
+        </div>
+        <div class="stat-tile">
+          <div class="k">今日流量</div>
+          <div class="v">20.3<small>GB</small></div>
+        </div>
+        <div class="stat-tile">
+          <div class="k">内存</div>
+          <div class="v">128<small>MB</small></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <button class="bnav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>
+        <span>首页</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+        <span>代理</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3v6L4.5 17A2 2 0 0 0 6.3 20h11.4a2 2 0 0 0 1.8-3L15 9V3"/><path d="M7.5 3h9M6.5 14h11"/></svg>
+        <span>连接</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 17 4-5 4 3 4-7 4 5"/><path d="M4 20h16"/></svg>
+        <span>日志</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H1a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 2.6 7a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 2.6V2.5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        <span>设置</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- Phone 2: Proxies -->
+<div class="phone">
+  <div class="screen">
+    <div class="ambient"></div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="sb-icons">
+        <div class="signal"><i></i><i></i><i></i><i></i></div>
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3c2.2 0 4.2.8 5.7 2.3l-1.4 1.4A6 6 0 0 0 8 5a6 6 0 0 0-4.3 1.7L2.3 5.3A8 8 0 0 1 8 3Zm0 4a4 4 0 0 1 2.8 1.2L9.4 9.6A2 2 0 0 0 8 9a2 2 0 0 0-1.4.6L5.2 8.2A4 4 0 0 1 8 7Zm0 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
+        <div class="battery"><i></i></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Page header -->
+      <div class="page-header">
+        <button class="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6 9 12l6 6"/></svg></button>
+        <div class="title-col">
+          <div class="p-title">代理选择</div>
+          <div class="p-sub">自动选择 · 12 节点</div>
+        </div>
+        <button class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h3l2.5-6 4 12L15 12h6"/></svg>
+        </button>
+      </div>
+
+      <!-- Group tabs -->
+      <div class="group-tabs">
+        <button class="group-tab active">🇭🇰 香港 <span class="count">12</span></button>
+        <button class="group-tab">🇯🇵 日本 <span class="count">8</span></button>
+        <button class="group-tab">🇺🇸 美国 <span class="count">6</span></button>
+        <button class="group-tab">🇸🇬 新加坡 <span class="count">4</span></button>
+        <button class="group-tab">⚡ 自动选择 <span class="count">128</span></button>
+      </div>
+
+      <!-- Node list -->
+      <div class="node-list">
+        <div class="node-item selected">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK IPLC 专线 01 · 极速</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-hybrid">HYBRID</span>
+              <span class="tag-mini tag-trojan">TROJAN</span>
+            </div>
+          </div>
+          <div class="node-delay delay-ok">42 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+
+        <div class="node-item">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK 家宽 02 · 晚高峰推荐</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-vless">VLESS</span>
+            </div>
+          </div>
+          <div class="node-delay delay-ok">58 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+
+        <div class="node-item">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK 专线 03 · 低延迟</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-trojan">TROJAN</span>
+              <span class="tag-mini tag-shadowsocks">TCP</span>
+            </div>
+          </div>
+          <div class="node-delay delay-mid">96 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+
+        <div class="node-item">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK BGP 多线 04</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-hybrid">HYBRID</span>
+            </div>
+          </div>
+          <div class="node-delay delay-bad">158 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+
+        <div class="node-item">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK 家宽 05</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-vless">VLESS</span>
+            </div>
+          </div>
+          <div class="node-delay delay-ok">51 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+
+        <div class="node-item">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK IPLC 专线 06</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-trojan">TROJAN</span>
+            </div>
+          </div>
+          <div class="node-delay delay-ok">38 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+
+        <div class="node-item">
+          <div class="flag-ico">🇭🇰</div>
+          <div class="node-info">
+            <div class="node-name">HK 精品专线 07</div>
+            <div class="node-meta">
+              <span class="tag-mini tag-hybrid">HYBRID</span>
+              <span class="tag-mini tag-vless">WS</span>
+            </div>
+          </div>
+          <div class="node-delay delay-mid">87 ms</div>
+          <div class="sel-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="fab" title="全部测速">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg>
+    </button>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>
+        <span>首页</span>
+      </button>
+      <button class="bnav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+        <span>代理</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3v6L4.5 17A2 2 0 0 0 6.3 20h11.4a2 2 0 0 0 1.8-3L15 9V3"/><path d="M7.5 3h9M6.5 14h11"/></svg>
+        <span>连接</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 17 4-5 4 3 4-7 4 5"/><path d="M4 20h16"/></svg>
+        <span>日志</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H1a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 2.6 7a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 2.6V2.5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        <span>设置</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- Phone 3: Logs -->
+<div class="phone">
+  <div class="screen">
+    <div class="ambient"></div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="sb-icons">
+        <div class="signal"><i></i><i></i><i></i><i></i></div>
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3c2.2 0 4.2.8 5.7 2.3l-1.4 1.4A6 6 0 0 0 8 5a6 6 0 0 0-4.3 1.7L2.3 5.3A8 8 0 0 1 8 3Zm0 4a4 4 0 0 1 2.8 1.2L9.4 9.6A2 2 0 0 0 8 9a2 2 0 0 0-1.4.6L5.2 8.2A4 4 0 0 1 8 7Zm0 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
+        <div class="battery"><i></i></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Page header -->
+      <div class="page-header">
+        <div class="title-col" style="flex:none">
+          <div class="p-title">实时日志</div>
+          <div class="p-sub">Mihomo 内核 · 自动滚动</div>
+        </div>
+        <div style="flex:1"></div>
+        <button class="icon-btn" title="清空">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        </button>
+        <button class="icon-btn" title="导出">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        </button>
+      </div>
+
+      <!-- Log level chips -->
+      <div class="log-toolbar">
+        <button class="log-chip active">ALL</button>
+        <button class="log-chip">INFO</button>
+        <button class="log-chip">WARN</button>
+        <button class="log-chip">ERROR</button>
+        <button class="log-chip">DEBUG</button>
+      </div>
+
+      <!-- Log entries -->
+      <div class="log-list">
+        <div class="log-entry lv-info">
+          <span class="t">09:41:02</span>
+          <span class="lv">INFO</span>
+          <span class="msg">[Mihomo] <b>启动完成</b>，核心配置已加载，监听 :7890</span>
+        </div>
+        <div class="log-entry lv-info">
+          <span class="t">09:41:02</span>
+          <span class="lv">INFO</span>
+          <span class="msg">[HK-01] 代理节点测试延迟 <b>42 ms</b></span>
+        </div>
+        <div class="log-entry lv-warn">
+          <span class="t">09:41:01</span>
+          <span class="lv">WARN</span>
+          <span class="msg">[DIRECT] DNS 超时，尝试 <b>1.1.1.1</b> 备用服务器</span>
+        </div>
+        <div class="log-entry lv-info">
+          <span class="t">09:40:58</span>
+          <span class="lv">INFO</span>
+          <span class="msg">[Rule] google.com 命中 <b>Proxy</b> 规则</span>
+        </div>
+        <div class="log-entry lv-info">
+          <span class="t">09:40:56</span>
+          <span class="lv">INFO</span>
+          <span class="msg">[Connection] 新建 TCP 连接 → <b>142.250.72.4</b>:443</span>
+        </div>
+        <div class="log-entry lv-debug">
+          <span class="t">09:40:55</span>
+          <span class="lv">DEBUG</span>
+          <span class="msg">[HK-01] 握手 TLSv1.3 · cipher TLS_AES_256_GCM_SHA384</span>
+        </div>
+        <div class="log-entry lv-error">
+          <span class="t">09:40:53</span>
+          <span class="lv">ERROR</span>
+          <span class="msg">[JP-03] 连接被重置，切换到备用节点</span>
+        </div>
+        <div class="log-entry lv-info">
+          <span class="t">09:40:50</span>
+          <span class="lv">INFO</span>
+          <span class="msg">[Config] 订阅 Premium 已更新，节点数 <b>128</b></span>
+        </div>
+        <div class="log-entry lv-info">
+          <span class="t">09:40:48</span>
+          <span class="lv">INFO</span>
+          <span class="msg">[HK-01] 代理节点测试延迟 <b>38 ms</b></span>
+        </div>
+        <div class="log-entry lv-warn">
+          <span class="t">09:40:45</span>
+          <span class="lv">WARN</span>
+          <span class="msg">[System] TUN 模式不可用，回退到系统代理</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>
+        <span>首页</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+        <span>代理</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3v6L4.5 17A2 2 0 0 0 6.3 20h11.4a2 2 0 0 0 1.8-3L15 9V3"/><path d="M7.5 3h9M6.5 14h11"/></svg>
+        <span>连接</span>
+      </button>
+      <button class="bnav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 17 4-5 4 3 4-7 4 5"/><path d="M4 20h16"/></svg>
+        <span>日志</span>
+      </button>
+      <button class="bnav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H1a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 2.6 7a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 2.6V2.5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        <span>设置</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+</body>
+</html>

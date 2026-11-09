@@ -7,6 +7,100 @@ const bfclashDraculaColor = 0xFFC084FC;
 const bfclashSakuraColor = 0xFFFB7185;
 const bfclashSunsetColor = 0xFFFB923C;
 const bfclashOceanColor = 0xFF38BDF8;
+const bfclashObsidianColor = 0xFF5EEAD4;
+const bfclashEmberColor = 0xFFF59E0B;
+const bfclashNeonColor = 0xFF06B6D4;
+
+/// 深色模式下带主色倾向的层级容器色。
+///
+/// 不配置时回退到 [background] / [card] / [border] 的插值，
+/// 也就是纯中性层级，不额外染色。
+class BfClashThemeTint {
+  const BfClashThemeTint({
+    required this.container,
+    required this.containerHigh,
+    required this.containerHighest,
+    required this.outlineVariant,
+    required this.secondaryContainer,
+  });
+
+  final Color container;
+  final Color containerHigh;
+  final Color containerHighest;
+  final Color outlineVariant;
+  final Color secondaryContainer;
+}
+
+/// 靛蓝极光层级，供 Party / Gemini / Obsidian 深色模式使用。
+const bfclashIndigoTint = BfClashThemeTint(
+  container: Color(0xFF191B28),
+  containerHigh: Color(0xFF202334),
+  containerHighest: Color(0xFF2D3148),
+  outlineVariant: Color(0xFF383C56),
+  secondaryContainer: Color(0xFF272147),
+);
+
+/// 主题装饰 token。
+///
+/// 过去各 widget 用 `primary == 0xFF818CF8` 判断是否启用渐变装饰，
+/// 主题撞色时装饰会串味，自定义取色也可能误触发。
+/// 现在改由预设显式声明，widget 只读取 token。
+class BfClashAccent extends ThemeExtension<BfClashAccent> {
+  const BfClashAccent({
+    required this.aurora,
+    required this.accent,
+    required this.softLabel,
+  });
+
+  const BfClashAccent.fallback()
+    : aurora = null,
+      accent = null,
+      softLabel = const Color(0xFFA5B4FC);
+
+  /// 标题、主数值使用的三色极光渐变；null 表示该主题不启用渐变文字。
+  final List<Color>? aurora;
+
+  /// 局部高亮使用的双色渐变；null 表示不启用。
+  final List<Color>? accent;
+
+  /// 单位、副标题等说明性文字的柔和色。
+  final Color softLabel;
+
+  bool get enabled => aurora != null;
+
+  LinearGradient? get auroraGradient =>
+      aurora == null ? null : LinearGradient(colors: aurora!);
+
+  LinearGradient? get accentGradient =>
+      accent == null ? null : LinearGradient(colors: accent!);
+
+  static BfClashAccent of(BuildContext context) =>
+      Theme.of(context).extension<BfClashAccent>() ??
+      const BfClashAccent.fallback();
+
+  @override
+  BfClashAccent copyWith({
+    List<Color>? aurora,
+    List<Color>? accent,
+    Color? softLabel,
+  }) {
+    return BfClashAccent(
+      aurora: aurora ?? this.aurora,
+      accent: accent ?? this.accent,
+      softLabel: softLabel ?? this.softLabel,
+    );
+  }
+
+  @override
+  BfClashAccent lerp(covariant BfClashAccent? other, double t) {
+    if (other == null) return this;
+    return BfClashAccent(
+      aurora: t < 0.5 ? aurora : other.aurora,
+      accent: t < 0.5 ? accent : other.accent,
+      softLabel: Color.lerp(softLabel, other.softLabel, t) ?? softLabel,
+    );
+  }
+}
 
 class BfClashThemePreset {
   const BfClashThemePreset({
@@ -22,6 +116,12 @@ class BfClashThemePreset {
     required this.backgroundLight,
     required this.cardLight,
     required this.borderLight,
+    this.darkTint,
+    this.aurora,
+    this.accent,
+    this.textPrimaryDark = const Color(0xFFEDE9FE),
+    this.textSecondaryDark = const Color(0xFFA5B4FC),
+    this.textTertiaryDark = const Color(0xFF8E96B8),
   });
 
   final String id;
@@ -36,6 +136,24 @@ class BfClashThemePreset {
   final Color backgroundLight;
   final Color cardLight;
   final Color borderLight;
+
+  /// 深色模式层级容器色；null 表示使用中性插值层级。
+  final BfClashThemeTint? darkTint;
+
+  /// 标题三色极光渐变；null 表示该主题不启用渐变装饰。
+  final List<Color>? aurora;
+
+  /// 局部高亮双色渐变；null 表示不启用。
+  final List<Color>? accent;
+
+  /// 深色模式主文字色，默认沿用原有的冰月白。
+  final Color textPrimaryDark;
+
+  /// 深色模式次级文字色，默认沿用原有的雾感紫蓝灰。
+  final Color textSecondaryDark;
+
+  /// 深色模式第三级文字色，用于最小号的说明、单位与标签。
+  final Color textTertiaryDark;
 
   Color get selectionColor => Color(selectionValue);
   Color primary(Brightness brightness) =>
@@ -54,6 +172,9 @@ const bfclashThemePresets = <BfClashThemePreset>[
     name: 'Party',
     subtitle: '黑曜派对',
     selectionValue: bfclashPartyColor,
+    darkTint: bfclashIndigoTint,
+    aurora: [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFE879F9)],
+    accent: [Color(0xFF818CF8), Color(0xFFC084FC)],
     primaryDark: Color(0xFF818CF8),
     backgroundDark: Color(0xFF0B0C10),
     cardDark: Color(0xFF151620),
@@ -68,6 +189,9 @@ const bfclashThemePresets = <BfClashThemePreset>[
     name: 'Gemini',
     subtitle: '星夜蓝紫',
     selectionValue: bfclashGeminiColor,
+    darkTint: bfclashIndigoTint,
+    aurora: [Color(0xFF38BDF8), Color(0xFF818CF8), Color(0xFFE879F9)],
+    accent: [Color(0xFF818CF8), Color(0xFFC084FC)],
     primaryDark: Color(0xFF818CF8),
     backgroundDark: Color(0xFF0B0F19),
     cardDark: Color(0xFF111827),
@@ -147,6 +271,84 @@ const bfclashThemePresets = <BfClashThemePreset>[
     cardLight: Color(0xFFFFFFFF),
     borderLight: Color(0xFFE0F2FE),
   ),
+  BfClashThemePreset(
+    id: 'obsidian',
+    name: 'Obsidian',
+    subtitle: '极光黑曜',
+    selectionValue: bfclashObsidianColor,
+    darkTint: BfClashThemeTint(
+      container: Color(0xFF0F1C1F),
+      containerHigh: Color(0xFF14262A),
+      containerHighest: Color(0xFF1B3339),
+      outlineVariant: Color(0xFF24434A),
+      secondaryContainer: Color(0xFF12302F),
+    ),
+    aurora: [Color(0xFF5EEAD4), Color(0xFF818CF8), Color(0xFFE879F9)],
+    accent: [Color(0xFF5EEAD4), Color(0xFFA78BFA)],
+    textPrimaryDark: Color(0xFFE6FBF7),
+    textSecondaryDark: Color(0xFF8FD9CF),
+    textTertiaryDark: Color(0xFF6BA8A1),
+    primaryDark: Color(0xFF5EEAD4),
+    backgroundDark: Color(0xFF08080D),
+    cardDark: Color(0xFF12121B),
+    borderDark: Color(0xFF282B3C),
+    primaryLight: Color(0xFF0D9488),
+    backgroundLight: Color(0xFFF0FDFA),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFCCFBF1),
+  ),
+  BfClashThemePreset(
+    id: 'ember',
+    name: 'Ember',
+    subtitle: '琥珀余烬',
+    selectionValue: bfclashEmberColor,
+    darkTint: BfClashThemeTint(
+      container: Color(0xFF241708),
+      containerHigh: Color(0xFF2C1C0B),
+      containerHighest: Color(0xFF3A2611),
+      outlineVariant: Color(0xFF4A3118),
+      secondaryContainer: Color(0xFF3B2609),
+    ),
+    aurora: [Color(0xFFF59E0B), Color(0xFFFB923C), Color(0xFFFB7185)],
+    accent: [Color(0xFFF59E0B), Color(0xFFFB7185)],
+    textPrimaryDark: Color(0xFFFDF0DC),
+    textSecondaryDark: Color(0xFFC9A882),
+    textTertiaryDark: Color(0xFF9C7D5E),
+    primaryDark: Color(0xFFF59E0B),
+    backgroundDark: Color(0xFF120A05),
+    cardDark: Color(0xFF1C1108),
+    borderDark: Color(0xFF3A2612),
+    primaryLight: Color(0xFFB45309),
+    backgroundLight: Color(0xFFFFFBED),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFFEF3C7),
+  ),
+  BfClashThemePreset(
+    id: 'neon',
+    name: 'Neon',
+    subtitle: '霓虹赛博',
+    selectionValue: bfclashNeonColor,
+    darkTint: BfClashThemeTint(
+      container: Color(0xFF0B1720),
+      containerHigh: Color(0xFF10202C),
+      containerHighest: Color(0xFF162C3C),
+      outlineVariant: Color(0xFF1E3A4E),
+      secondaryContainer: Color(0xFF0A2A38),
+    ),
+    aurora: [Color(0xFF22D3EE), Color(0xFF06B6D4), Color(0xFFA78BFA)],
+    accent: [Color(0xFF06B6D4), Color(0xFFA78BFA)],
+    textPrimaryDark: Color(0xFFE0F7FB),
+    textSecondaryDark: Color(0xFF8FCBD6),
+    textTertiaryDark: Color(0xFF6FA3AE),
+    primaryDark: Color(0xFF06B6D4),
+    backgroundDark: Color(0xFF070B0F),
+    cardDark: Color(0xFF0D1420),
+    borderDark: Color(0xFF1A2840),
+    primaryLight: Color(0xFF0891B2),
+    backgroundLight: Color(0xFFECFEFF),
+    cardLight: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFCFFAFE),
+  ),
 ];
 
 BfClashThemePreset? bfclashThemePresetFor(Color color) {
@@ -172,33 +374,29 @@ ColorScheme buildBfClashColorScheme({
   final background = preset.background(brightness);
   final card = preset.card(brightness);
   final border = preset.border(brightness);
-  final isParty =
-      (preset.id == 'party' || preset.id == 'gemini') &&
-      brightness == Brightness.dark;
+  final primary = preset.primary(brightness);
+  final tint = brightness == Brightness.dark ? preset.darkTint : null;
   return ColorScheme.fromSeed(
-    seedColor: preset.primary(brightness),
+    seedColor: primary,
     brightness: brightness,
     dynamicSchemeVariant: variant,
   ).copyWith(
-    primary: preset.primary(brightness),
+    primary: primary,
     surface: background,
     surfaceContainerLowest: background,
-    surfaceContainerLow: card,
-    surfaceContainer: isParty
-        ? const Color(0xFF191B28)
-        : Color.lerp(background, card, 0.72),
-    surfaceContainerHigh: isParty
-        ? const Color(0xFF202334)
-        : Color.lerp(card, border, 0.22),
-    surfaceContainerHighest: isParty ? const Color(0xFF2D3148) : border,
+    // 浅色模式也掺入少量主色，避免所有主题都退化成同一片纯白。
+    surfaceContainerLow: brightness == Brightness.light
+        ? Color.lerp(card, primary, 0.03)
+        : card,
+    surfaceContainer: tint?.container ?? Color.lerp(background, card, 0.72),
+    surfaceContainerHigh: tint?.containerHigh ?? Color.lerp(card, border, 0.22),
+    surfaceContainerHighest: tint?.containerHighest ?? border,
     outline: border,
-    outlineVariant: isParty
-        ? const Color(0xFF383C56)
-        : border.withValues(alpha: 0.72),
-    onSurface: isParty ? const Color(0xFFEDE9FE) : null,
-    onSurfaceVariant: isParty ? const Color(0xFFA5B4FC) : null,
-    secondaryContainer: isParty ? const Color(0xFF272147) : null,
-    onSecondaryContainer: isParty ? const Color(0xFFA5B4FC) : null,
+    outlineVariant: tint?.outlineVariant ?? border.withValues(alpha: 0.72),
+    onSurface: tint != null ? preset.textPrimaryDark : null,
+    onSurfaceVariant: tint != null ? preset.textSecondaryDark : null,
+    secondaryContainer: tint?.secondaryContainer,
+    onSecondaryContainer: tint != null ? preset.textSecondaryDark : null,
   );
 }
 
@@ -209,11 +407,13 @@ TextTheme buildBfClashTextTheme({
 }) {
   if (brightness != Brightness.dark) return base;
 
-  // 暗黑模式全局彻底消除生硬惨白：
-  // 主标题/主正文：柔和冰月白 (0xFFEDE9FE)
-  // 次级说明/描述：雾感紫蓝灰 (0xFFA5B4FC)
-  const primaryTextColor = Color(0xFFEDE9FE);
-  const secondaryTextColor = Color(0xFFA5B4FC);
+  // 暗黑模式全局彻底消除生硬惨白：文字色跟随当前预设，
+  // 默认沿用冰月白 + 雾感紫蓝灰。
+  final preset = bfclashThemePresetFor(color);
+  final primaryTextColor = preset?.textPrimaryDark ?? const Color(0xFFEDE9FE);
+  final secondaryTextColor =
+      preset?.textSecondaryDark ?? const Color(0xFFA5B4FC);
+  final tertiaryTextColor = preset?.textTertiaryDark ?? const Color(0xFF8E96B8);
 
   return base.copyWith(
     displayLarge: base.displayLarge?.copyWith(color: primaryTextColor),
@@ -230,6 +430,25 @@ TextTheme buildBfClashTextTheme({
     bodySmall: base.bodySmall?.copyWith(color: secondaryTextColor),
     labelLarge: base.labelLarge?.copyWith(color: primaryTextColor),
     labelMedium: base.labelMedium?.copyWith(color: secondaryTextColor),
-    labelSmall: base.labelSmall?.copyWith(color: secondaryTextColor),
+    labelSmall: base.labelSmall?.copyWith(color: tertiaryTextColor),
+  );
+}
+
+/// 按当前预设构建 [BfClashAccent]。
+///
+/// 浅色模式与未命中预设的自定义取色一律返回 [BfClashAccent.fallback]，
+/// 即不启用渐变装饰，保持原有观感。
+BfClashAccent buildBfClashAccent({
+  required Color color,
+  required Brightness brightness,
+}) {
+  final preset = bfclashThemePresetFor(color);
+  if (preset == null || brightness != Brightness.dark) {
+    return const BfClashAccent.fallback();
+  }
+  return BfClashAccent(
+    aurora: preset.aurora,
+    accent: preset.accent,
+    softLabel: preset.textSecondaryDark,
   );
 }

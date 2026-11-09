@@ -341,9 +341,9 @@ class ListItem<T> extends StatelessWidget {
     final effectiveSubtitleStyle =
         subtitleTextStyle ??
         (isDark
-            ? Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: const Color(0xFFA5B4FC))
+            ? Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: BfClashAccent.of(context).softLabel,
+              )
             : null);
     return ListTile(
       key: key,

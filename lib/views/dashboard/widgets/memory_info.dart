@@ -94,12 +94,8 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
                     valueListenable: _memoryStateNotifier,
                     builder: (_, memory, _) {
                       final traffic = memory.traffic;
-                      final isDark =
-                          Theme.of(context).brightness == Brightness.dark;
-                      final isParty =
-                          isDark &&
-                          context.colorScheme.primary.toARGB32() == 0xFF818CF8;
-                      if (isParty) {
+                      final accent = BfClashAccent.of(context);
+                      if (accent.enabled) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -108,16 +104,14 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
                               style: context.textTheme.bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.bold)
                                   .adjustSize(1),
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF818CF8), Color(0xFFE879F9)],
-                              ),
+                              gradient: LinearGradient(colors: accent.aurora!),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               traffic.unit,
                               style: context.textTheme.bodyMedium
                                   ?.copyWith(
-                                    color: const Color(0xFFA5B4FC),
+                                    color: accent.softLabel,
                                     fontWeight: FontWeight.w600,
                                   )
                                   .adjustSize(1),
