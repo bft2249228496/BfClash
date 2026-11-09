@@ -23,6 +23,10 @@ on:
         description: Android candidate run ID
         type: string
         default: ''
+      bridge_tag:
+        description: Optional legacy Android stable bridge tag
+        type: string
+        default: ''
       windows_run:
         description: Windows candidate run ID
         type: string
@@ -271,6 +275,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.source_sha }}
           ANDROID_RUN: ${{ inputs.android_run }}
           CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+          BRIDGE_TAG: ${{ inputs.bridge_tag }}
         shell: bash
         run: |
           set -euo pipefail
@@ -278,9 +283,14 @@ jobs:
           [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?\+[0-9]+$ ]]
           version=${CANDIDATE_VERSION%+*}
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ANDROID_RUN" | jq -e --arg sha "$SOURCE_SHA" '.head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/android.yml"))'
-          gh release view "v$version" --json isDraft,targetCommitish | jq -e --arg sha "$SOURCE_SHA" '.isDraft and .targetCommitish == $sha'
+          release_tag="v$version"
+          if [[ -n "$BRIDGE_TAG" ]]; then
+            [[ "$BRIDGE_TAG" == 'v0.3.4' && "$version" == '1.0.4' ]]
+            release_tag="$BRIDGE_TAG"
+          fi
+          gh release view "$release_tag" --json isDraft,targetCommitish | jq -e --arg sha "$SOURCE_SHA" '.isDraft and .targetCommitish == $sha'
           mkdir -p candidate
           gh run download "$ANDROID_RUN" -n bfclash-android -D candidate
           (cd candidate && sha256sum -c SHA256SUMS.txt)
           for abi in arm64-v8a armeabi-v7a x86_64; do test -s "candidate/BfClash-$version-android-$abi.apk"; done
-          gh release upload "v$version" candidate/*
+          gh release upload "$release_tag" candidate/*
