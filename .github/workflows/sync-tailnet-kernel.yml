@@ -1,0 +1,44 @@
+name: Sync BfClash kernel integration
+
+on:
+  schedule:
+    # The parent submodule sync runs an hour later.
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Verify the upstream merge without publishing
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bfclash-kernel-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bfclash-kernel
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.4'
+          cache-dependency-path: go.sum
+      - name: Verify merge safety fixtures
+        run: python3 .github/scripts/test_bfclash_sync.py
+      - name: Merge upstream
+        id: merge
+        run: bash .github/scripts/bfclash_sync_upstream.sh
+      - name: Verify Tailscale integration
+        run: |
+          CGO_ENABLED=0 go test -tags=with_gvisor ./adapter/outbound -run 'Test(TailscaleLocalClientHonorsCanceledContext|AutoCloseAdapterExposesSameUnderlyingInstance|ADBForward|StopADBForward)' -count=1
+          CGO_ENABLED=0 go test -tags=with_gvisor ./tunnel -run '^TestBfClashTailnet' -count=1
+      - name: Publish verified merge
+        if: steps.merge.outputs.updated == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.dry_run)
+        run: git push origin HEAD:refs/heads/bfclash-kernel
