@@ -73,6 +73,18 @@ jobs:
           export CANDIDATE_VERSION
           yq -i '.version = strenv(CANDIDATE_VERSION)' pubspec.yaml
       - run: flutter pub get
+      - name: Prepare verified SQLite assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tool/tests -p 'test_prepare_sqlite_assets.py'
+          sqlite_version=$(yq -r '.packages.sqlite3.version' pubspec.lock)
+          [[ "$sqlite_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          python3 tool/prepare_sqlite_assets.py \
+            --package "$HOME/.pub-cache/hosted/pub.dev/sqlite3-$sqlite_version" \
+            --cache .dart_tool/hooks_runner/shared/sqlite3/build
       - name: Verify release tag
         if: startsWith(github.ref, 'refs/tags/')
         run: dart run tool/verify_release_tag.dart --tag "${{ github.ref_name }}" --platform android
