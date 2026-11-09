@@ -164,6 +164,30 @@ void main() {
     expect(compareVersions('0.3.4-beta.1', '1.0.4-beta.1'), lessThan(0));
   });
 
+  test(
+    'legacy stable release can bridge to unified stable Android package',
+    () {
+      final bridge = {
+        'tag_name': 'v0.3.4',
+        'prerelease': false,
+        'assets': [
+          {
+            'name': 'BfClash-1.0.4-android-arm64-v8a.apk',
+            'browser_download_url': 'https://example.test/stable-arm64.apk',
+          },
+        ],
+      };
+      expect(isAndroidReleaseCompatible(bridge, androidStablePackage), isTrue);
+      expect(isAndroidReleaseCompatible(bridge, androidBetaPackage), isFalse);
+      expect(compareVersions('0.3.4', '0.3.3'), greaterThan(0));
+      expect(compareVersions('0.3.4', '1.0.4'), lessThan(0));
+      expect(
+        selectAndroidUpdateAsset(bridge['assets'] as List, ['arm64-v8a']),
+        'https://example.test/stable-arm64.apk',
+      );
+    },
+  );
+
   test('unified release selects an APK matching its own version', () {
     final unified = {
       'tag_name': 'v1.0.4-beta.1',

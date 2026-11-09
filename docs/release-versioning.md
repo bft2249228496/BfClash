@@ -1,10 +1,12 @@
 # 版本号与发布命名规范
 
-> 目的：五类产物（Android 正式 / RC / 测试 / Windows 正式 / 测试）在 GitHub Releases 页面和本地安装目录里都能**一眼分辨**，且互不干扰、可同机共存。规则尽量做到能被 CI 机器校验，不依赖人记。
+> 目的：五类产物（Android 正式 / RC / 测试 / Windows 正式 / 测试）在 GitHub Releases 页面和本地安装目录里都能**一眼分辨**，且互不干扰、可同机共存。
+>
+> **统一版本迁移：**自 1.0.4 起 Android 与 Windows 共用版本号，按对应平台的资产名、通道和安装身份识别。旧 Android 客户端只接受 0.x，需要发布标为 0.3.4 的兼容入口，其中的 APK 是实际版本为 1.0.4 的同一文件；新客户端更新后直接识别对应版本的 Android 资产。以下 0.x 示例为历史兼容说明。
 
 ## 1. 一句话原则
 
-**tag 只装语义版本，通道写在 semver 的预发布位，平台由版本主线号段区分；平台和通道不靠字符串包含判定。**
+**tag 只装语义版本，通道写在 semver 的预发布位；统一版本按对应平台资产区分。**
 
 ## 2. 版本号格式
 
@@ -28,7 +30,7 @@ v<MAJOR>.<MINOR>.<PATCH>[-<stage>.<n>]
 
 ## 3. 产物命名对照表
 
-平台靠**主线号段**区分，永不交叉：Android 走 `0.x`，Windows 走 `1.x`。CHANNEL 由有无 `-stage` 决定。
+历史版本按号段区分平台；统一版本可在同一个 tag 下提供多平台资产。CHANNEL 由有无 `-stage` 决定。
 
 | 产物 | tag | Release 标题 | 资产名（示意） | `prerelease` |
 | --- | --- | --- | --- | --- |
@@ -59,11 +61,13 @@ v<MAJOR>.<MINOR>.<PATCH>[-<stage>.<n>]
 | `1.0.0` | 仅 `1.x` 线上无 stage 后缀的 tag |
 | `1.0.1-beta.1861` | 仅 `1.x` 线上 `-beta.N` 的 tag |
 
+以上为历史客户端行为；统一版本的 Android 客户端也接受带匹配版本 Android 资产的 `1.x` 发布。
+
 推论：beta 用户**不会**被推送正式版，正式版用户**也不会**被推送测试版或 rc；rc 用户则会在正式版发布时被正常提示升级——这是 rc 存在的意义，否则候选版就是死胡同。
 
 判定实现要求：
 - **通道**看 tag 的 semver 预发布段：`-beta.N` = beta，`-rc.N` = rc，无后缀 = stable；release 的 `prerelease` 标志必须与此自洽（beta/rc 为 true，stable 为 false），不一致的条目直接跳过。
-- **平台**看 release 资产的扩展名（`.apk` = Android，`.exe`/`.zip` = Windows）**加上**版本主线号段，二者一致才接受。
+- **平台**看 release 资产：统一版本的 Android 包名必须以当前 release 版本及 `-android-` 开头；Windows 要求匹配 Windows 安装包。历史 0.x 安卓版本仍保留兼容判断。
 - **不再使用** `tag.contains('beta')` 这类字符串匹配，也不再使用 `GET /releases/latest`（它返回的是全仓库最新正式版，跨平台会误判）。统一用 `GET /releases?per_page=100` 后逐条过滤。
 
 ## 5. 同机共存
@@ -86,7 +90,7 @@ v<MAJOR>.<MINOR>.<PATCH>[-<stage>.<n>]
 发布 workflow 在构建前校验，任一不满足即失败：
 
 1. tag 匹配 `^v\d+\.\d+\.\d+(-(beta|rc)\.\d+)?$`；
-2. Android tag 的 MAJOR 必须为 `0`，Windows 的必须为 `1`；
+2. Android tag 的 MAJOR 可为历史的 `0` 或统一版本的 `1`，Windows 为 `1`；
 3. `pubspec.yaml` 的 `version` 去掉 `+build` 后等于 tag 去掉 `v`；
 4. tag 带 `-beta`/`-rc` ⇔ release 的 `prerelease = true`；
 5. 资产名以 `BfClash-<版本>-<平台>-` 开头，扩展名与平台匹配（Android `.apk`，Windows `.exe`/`.zip`）。

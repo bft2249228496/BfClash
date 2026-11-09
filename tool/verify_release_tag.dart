@@ -47,17 +47,15 @@ void main(List<String> args) {
 
   if (parsed != null) {
     if (platform != null) {
-      final expectedMajor = switch (platform) {
-        'android' => androidReleaseMajor,
-        'windows' => windowsReleaseMajor,
-        _ => null,
+      final acceptedMajors = switch (platform) {
+        'android' => {androidReleaseMajor, windowsReleaseMajor},
+        'windows' => {windowsReleaseMajor},
+        _ => <int>{},
       };
-      if (expectedMajor == null) {
+      if (acceptedMajors.isEmpty) {
         errors.add('未知平台 "$platform"，只支持 android / windows');
-      } else if (parsed.major != expectedMajor) {
-        errors.add(
-          '$platform 产品线必须使用 $expectedMajor.x 号段，实际为 ${parsed.major}.x',
-        );
+      } else if (!acceptedMajors.contains(parsed.major)) {
+        errors.add('$platform 不支持 ${parsed.major}.x 版本号段');
       }
     }
 
@@ -87,12 +85,16 @@ void main(List<String> args) {
   };
   // 只有 beta 用独立测试身份；rc 与正式版共用正式身份，否则无法互相覆盖升级。
   final usesBetaIdentity = parsed.channel == ReleaseChannel.beta;
-  final platformLabel = switch (parsed.major) {
-    androidReleaseMajor => 'Android',
-    windowsReleaseMajor => 'Windows',
-    _ => 'Unknown',
-  };
-  final packageOrAppId = parsed.major == androidReleaseMajor
+  final platformLabel = platform == 'android'
+      ? 'Android'
+      : platform == 'windows'
+      ? 'Windows'
+      : switch (parsed.major) {
+          androidReleaseMajor => 'Android',
+          windowsReleaseMajor => 'Windows',
+          _ => 'Unknown',
+        };
+  final packageOrAppId = platformLabel == 'Android'
       ? (usesBetaIdentity ? 'com.lansway.client.beta' : 'com.bfclash.client')
       : (usesBetaIdentity ? 'A19F870C-…' : '728B3532-…');
 
