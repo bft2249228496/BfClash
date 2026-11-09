@@ -25,8 +25,8 @@
   --sky:#38BDF8;
   --indigo:#818CF8;
   --purple:#C084FC;
-  --aurora:linear-gradient(135deg,#38BDF8 0%,#818CF8 50%,#C084FC 100%);
-  --aurora-soft:linear-gradient(135deg,rgba(56,189,248,.14),rgba(129,140,248,.14) 50%,rgba(192,132,252,.14));
+  --aurora:linear-gradient(135deg,#5EEAD4 0%,#818CF8 50%,#E879F9 100%);
+  --aurora-soft:linear-gradient(135deg,rgba(94,234,212,.14),rgba(129,140,248,.14) 50%,rgba(232,121,249,.14));
   --ok:#34D399;
   --warn:#FBBF24;
   --bad:#FB7185;
@@ -486,7 +486,7 @@ tr:hover .x-btn{opacity:1}
 <body class="">
 <svg width="0" height="0" style="position:absolute"><defs>
 <linearGradient id="navGrad" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#38BDF8"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#C084FC"/>
+<stop offset="0" stop-color="#5EEAD4"/><stop offset=".5" stop-color="#818CF8"/><stop offset="1" stop-color="#E879F9"/>
 </linearGradient></defs></svg>
 
 <div class="app">
@@ -856,7 +856,7 @@ tr:hover .x-btn{opacity:1}
                   </div>
                   <div class="set-row"><div class="txt"><div class="t">霓虹强调色</div><div class="d">用于主操作、状态与实时图表</div></div>
                     <div class="swatches">
-                      <div class="swatch on" style="background:linear-gradient(135deg,#38BDF8,#818CF8,#C084FC)"></div>
+                      <div class="swatch on" style="background:linear-gradient(135deg,#5EEAD4,#818CF8,#E879F9)"></div>
                       <div class="swatch" style="background:linear-gradient(135deg,#34D399,#22D3EE)"></div>
                       <div class="swatch" style="background:linear-gradient(135deg,#F472B6,#FB7185)"></div>
                       <div class="swatch" style="background:linear-gradient(135deg,#FBBF24,#F97316)"></div>
@@ -958,7 +958,7 @@ function draw(t){
     for(let i=0;i<N;i++){state['shown'+(arr===state.histD?'D':'U')][i]+=(arr[i]-state['shown'+(arr===state.histD?'D':'U')][i])*.12}
     const sh=arr===state.histD?state.shownD:state.shownU;
     const g=ctx.createLinearGradient(0,0,cw,0);
-    g.addColorStop(0,'#38BDF8');g.addColorStop(.5,'#818CF8');g.addColorStop(1,'#C084FC');
+    g.addColorStop(0,'#5EEAD4');g.addColorStop(.5,'#818CF8');g.addColorStop(1,'#E879F9');
     // fill
     ctx.beginPath();ctx.moveTo(X(0),h);
     sh.forEach((v,i)=>ctx.lineTo(X(i),Y(v)));
