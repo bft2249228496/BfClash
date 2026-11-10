@@ -268,7 +268,7 @@ func (t *Tailscale) StartADBForward(ctx context.Context, peer netip.Addr, port u
 		_ = listener.Close()
 		return err
 	}
-	forwardCtx, cancel := context.WithTimeout(t.ctx, 15*time.Minute)
+	forwardCtx, cancel := context.WithTimeout(t.ctx, 60*time.Minute)
 	t.adbForwards[port] = adbForwardState{cancel: cancel, forward: forward}
 	go func() {
 		forward.serve(forwardCtx)
