@@ -1310,7 +1310,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Не удалось подтвердить отключение; повторите попытку",
     ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
-      "Подключение только для выбранного устройства, до 15 минут. После включения откройте сопряжение беспроводной отладки Android. Порты определяются автоматически.",
+      "Подключение только для выбранного устройства, до 60 минут. После включения откройте сопряжение беспроводной отладки Android. Порты определяются автоматически.",
     ),
     "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("Выключено"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
@@ -1320,7 +1320,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Включить временную отладку",
     ),
     "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
-      "При выходе со страницы временная отладка отключится",
+      "Работает в фоне до 60 минут (можно отключить вручную на этой странице)",
     ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage(
       "Порт беспроводной отладки",

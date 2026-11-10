@@ -5953,7 +5953,7 @@ class AppLocalizations {
   /// `Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.`
   String get tailnetAdbDescription {
     return Intl.message(
-      'Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.',
+      'Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.',
       name: 'tailnetAdbDescription',
       desc: '',
       args: [],
@@ -6045,10 +6045,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Leaving this page stops temporary debugging`
+  /// `Keeps running in background for up to 60 minutes (can be stopped manually here)`
   String get tailnetAdbPageLifetime {
     return Intl.message(
-      'Leaving this page stops temporary debugging',
+      'Keeps running in background for up to 60 minutes (can be stopped manually here)',
       name: 'tailnetAdbPageLifetime',
       desc: '',
       args: [],

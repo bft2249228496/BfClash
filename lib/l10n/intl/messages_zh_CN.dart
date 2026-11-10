@@ -909,7 +909,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "关闭状态无法确认，请重试关闭",
     ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
-      "仅允许选中的设备连接，最多开放 15 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
+      "仅允许选中的设备连接，最长开放 60 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
     ),
     "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("未开启"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
@@ -917,7 +917,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("启用临时调试"),
     "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
-      "离开此页面会关闭临时调试",
+      "后台持续保持，最长 60 分钟（离开页面不中断，可随时在此关闭）",
     ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage("无线调试端口"),
     "tailnetAdbPorts": MessageLookupByLibrary.simpleMessage("已开放端口"),

@@ -1264,7 +1264,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Unable to confirm closure; try stopping again",
     ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
-      "Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.",
+      "Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.",
     ),
     "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("Off"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
@@ -1274,7 +1274,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Start temporary debugging",
     ),
     "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
-      "Leaving this page stops temporary debugging",
+      "Keeps running in background for up to 60 minutes (can be stopped manually here)",
     ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage(
       "Wireless debugging port",

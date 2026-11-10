@@ -77,7 +77,7 @@ class AdbDiscoveryPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             listeners.add(listener)
             nsd.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, listener)
         }
-        handler.postDelayed({ if (generation == current) { stop(); channel.invokeMethod("expired", null) } }, 15 * 60 * 1000L)
+        handler.postDelayed({ if (generation == current) { stop(); channel.invokeMethod("expired", null) } }, 60 * 60 * 1000L)
     }
 
     @Suppress("DEPRECATION")

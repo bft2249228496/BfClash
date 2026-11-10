@@ -711,7 +711,7 @@
   "tailnetStatusOther": "未连接",
   "tailnetRestoreFailed": "无法恢复之前的配置，请检查连接并重新应用配置。",
   "tailnetAdb": "临时 ADB 调试",
-  "tailnetAdbDescription": "仅允许选中的设备连接，最多开放 15 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
+  "tailnetAdbDescription": "仅允许选中的设备连接，最长开放 60 分钟。开启后进入手机的无线调试配对页面；程序会自动发现端口，无需返回本页输入。",
   "tailnetAdbPort": "无线调试端口",
   "tailnetAdbOpen": "启用临时调试",
   "tailnetAdbStop": "关闭 ADB 转发",
@@ -721,6 +721,6 @@
   "tailnetAdbWaiting": "已开启 · 正在等待无线调试服务",
   "tailnetAdbReady": "已开启 · 已开放转发端口",
   "tailnetAdbPorts": "已开放端口",
-  "tailnetAdbPageLifetime": "离开此页面会关闭临时调试",
+  "tailnetAdbPageLifetime": "后台持续保持，最长 60 分钟（离开页面不中断，可随时在此关闭）",
   "tailnetAdbCloseUnknown": "关闭状态无法确认，请重试关闭"
 }

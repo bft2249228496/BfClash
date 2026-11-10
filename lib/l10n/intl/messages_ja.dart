@@ -1053,7 +1053,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "停止を確認できません。もう一度停止してください",
     ),
     "tailnetAdbDescription": MessageLookupByLibrary.simpleMessage(
-      "選択したデバイスのみ最大15分間接続できます。開始後、Androidのワイヤレスデバッグのペア設定画面を開いてください。ポートは自動検出されます。",
+      "選択したデバイスのみ最大60分間接続できます。開始後、Androidのワイヤレスデバッグのペア設定画面を開いてください。ポートは自動検出されます。",
     ),
     "tailnetAdbInactive": MessageLookupByLibrary.simpleMessage("オフ"),
     "tailnetAdbInvalid": MessageLookupByLibrary.simpleMessage(
@@ -1061,7 +1061,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tailnetAdbOpen": MessageLookupByLibrary.simpleMessage("一時デバッグを開始"),
     "tailnetAdbPageLifetime": MessageLookupByLibrary.simpleMessage(
-      "このページを離れると一時デバッグは停止します",
+      "バックグラウンドで最大60分間維持されます（この画面でいつでも停止可能）",
     ),
     "tailnetAdbPort": MessageLookupByLibrary.simpleMessage("ワイヤレスデバッグポート"),
     "tailnetAdbPorts": MessageLookupByLibrary.simpleMessage("開放中のポート"),

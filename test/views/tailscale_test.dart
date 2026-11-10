@@ -107,6 +107,7 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async => true);
     addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    addTearDown(TailscaleAdbSession.instance.resetForTesting);
     final core = _TailnetCore();
     final container = ProviderContainer(
       overrides: [
@@ -180,11 +181,84 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Start temporary debugging'));
     await tester.pumpAndSettle();
-    await tester.pump(const Duration(minutes: 15));
+    await tester.pump(const Duration(minutes: 60));
     await tester.pumpAndSettle();
     expect(find.text('Off'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
+
+  testWidgets(
+    'ADB forwarding stays active when leaving and returning to TailscaleView',
+    (tester) async {
+      const channel = MethodChannel('com.bfclash.client/adb-discovery');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(channel, (call) async => true);
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      addTearDown(TailscaleAdbSession.instance.resetForTesting);
+      final core = _TailnetCore();
+      final container = ProviderContainer(
+        overrides: [
+          appSettingProvider.overrideWithBuild(
+            (_, _) => const AppSettingProps(tailscaleEnabled: true),
+          ),
+          coreStatusProvider.overrideWithBuild((_, _) => CoreStatus.connected),
+          coreHandlerProvider.overrideWithValue(CoreController.scoped(core)),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const TestApp(
+            locale: Locale('en'),
+            child: TailscaleView(androidForTesting: true),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final start = find.widgetWithText(TextButton, 'Temporary ADB debugging');
+      await tester.ensureVisible(start);
+      await tester.tap(start);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Start temporary debugging'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('On · Waiting for wireless debugging'),
+        findsOneWidget,
+      );
+
+      // Leave the page completely
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+      expect(TailscaleAdbSession.instance.isActive, isTrue);
+
+      // Return to TailscaleView
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const TestApp(
+            locale: Locale('en'),
+            child: TailscaleView(androidForTesting: true),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(
+        find.textContaining('On · Waiting for wireless debugging'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('nas ·'), findsOneWidget);
+
+      final stop = find.text('Stop ADB forwarding');
+      await tester.ensureVisible(stop);
+      await tester.tap(stop);
+      await tester.pumpAndSettle();
+      expect(find.text('Off'), findsOneWidget);
+      expect(TailscaleAdbSession.instance.isActive, isFalse);
+    },
+  );
   testWidgets('failed enable restores settings after leaving the page', (
     tester,
   ) async {

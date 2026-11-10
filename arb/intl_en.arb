@@ -711,7 +711,7 @@
   "tailnetStatusOther": "Not connected",
   "tailnetRestoreFailed": "Could not restore the previous profile. Check your connection and reapply the profile.",
   "tailnetAdb": "Temporary ADB debugging",
-  "tailnetAdbDescription": "Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.",
+  "tailnetAdbDescription": "Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.",
   "tailnetAdbPort": "Wireless debugging port",
   "tailnetAdbOpen": "Start temporary debugging",
   "tailnetAdbStop": "Stop ADB forwarding",
@@ -721,6 +721,6 @@
   "tailnetAdbWaiting": "On · Waiting for wireless debugging",
   "tailnetAdbReady": "On · Forwarding ports are open",
   "tailnetAdbPorts": "Open ports",
-  "tailnetAdbPageLifetime": "Leaving this page stops temporary debugging",
+  "tailnetAdbPageLifetime": "Keeps running in background for up to 60 minutes (can be stopped manually here)",
   "tailnetAdbCloseUnknown": "Unable to confirm closure; try stopping again"
 }
