@@ -6,7 +6,7 @@ on:
         description: Android candidate version for artifact-only validation
         required: true
         type: string
-        default: '1.0.4-beta.1+75'
+        default: '1.0.6-beta.1+84'
       publish_only:
         description: Publish already verified candidate artifacts
         type: boolean
@@ -283,13 +283,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 主题增强与 Tailscale 集成
+          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 网络检测 IP 隐私保护
           body: |
             BfClash ${{ steps.version.outputs.version }} 发布说明：
-            - 新增全新主题定制及预设色彩方案（支持深浅色与自定义）
-            - 集成 Tailscale 基础节点与状态显示，支持 100.64.0.0/10 及 ts.net 路由
-            - Android 端新增长效 1 小时无线调试及全局后台常驻转发，离开页面不中断
-            - 统一版本发布，包含 Windows 与 Android 全架构安装包
+            - 仪表盘「网络检测」新增公网 IP 隐私保护显隐切换（支持点击小眼睛在真实 IP 与脱敏掩码间切换，偏好自动持久化保存）
+            - 同步最新上游内核与稳定性优化
+            - 统一测试版本发布，包含 Windows 与 Android 全架构安装包
           prerelease: ${{ steps.version.outputs.prerelease }}
           make_latest: ${{ steps.version.outputs.prerelease == 'false' }}
           files: public/*
