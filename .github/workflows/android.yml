@@ -6,7 +6,7 @@ on:
         description: Android candidate version for artifact-only validation
         required: true
         type: string
-        default: '1.0.6-beta.1+84'
+        default: '1.0.6+85'
       publish_only:
         description: Publish already verified candidate artifacts
         type: boolean
@@ -288,7 +288,7 @@ jobs:
             BfClash ${{ steps.version.outputs.version }} 发布说明：
             - 仪表盘「网络检测」新增公网 IP 隐私保护显隐切换（支持点击小眼睛在真实 IP 与脱敏掩码间切换，偏好自动持久化保存）
             - 同步最新上游内核与稳定性优化
-            - 统一测试版本发布，包含 Windows 与 Android 全架构安装包
+            - 统一正式版本发布，包含 Windows 与 Android 全架构安装包
           prerelease: ${{ steps.version.outputs.prerelease }}
           make_latest: ${{ steps.version.outputs.prerelease == 'false' }}
           files: public/*
