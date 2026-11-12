@@ -170,6 +170,18 @@ class Preferences {
     await preferences?.setString('sub_store_remote_url', url);
   }
 
+  static const hideNetworkDetectionIpKey = 'hide_network_detection_ip';
+
+  Future<bool> getHideNetworkDetectionIp() async {
+    final preferences = await sharedPreferencesCompleter.future;
+    return preferences?.getBool(hideNetworkDetectionIpKey) ?? false;
+  }
+
+  Future<void> setHideNetworkDetectionIp(bool hide) async {
+    final preferences = await sharedPreferencesCompleter.future;
+    await preferences?.setBool(hideNetworkDetectionIpKey, hide);
+  }
+
   Future<void> clearPreferences() async {
     final sharedPreferencesIns = await sharedPreferencesCompleter.future;
     await sharedPreferencesIns?.clear();

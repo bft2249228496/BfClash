@@ -6,6 +6,32 @@ import 'package:bfclash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class HideNetworkDetectionIpNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _load();
+    return false;
+  }
+
+  Future<void> _load() async {
+    final hide = await preferences.getHideNetworkDetectionIp();
+    if (state != hide) {
+      state = hide;
+    }
+  }
+
+  Future<void> toggle() async {
+    final next = !state;
+    state = next;
+    await preferences.setHideNetworkDetectionIp(next);
+  }
+}
+
+final hideNetworkDetectionIpProvider =
+    NotifierProvider<HideNetworkDetectionIpNotifier, bool>(
+      HideNetworkDetectionIpNotifier.new,
+    );
+
 class NetworkDetection extends ConsumerStatefulWidget {
   const NetworkDetection({super.key, this.height});
 
@@ -30,6 +56,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     final networkDetection = ref.watch(networkDetectionProvider);
+    final hideIp = ref.watch(hideNetworkDetectionIpProvider);
     final ipInfo = networkDetection.ipInfo;
     final isLoading = networkDetection.isLoading;
     final emojiTextStyle = context.textTheme.titleMedium?.toLight.copyWith(
@@ -98,6 +125,26 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 2),
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: IconButton(
+                      tooltip: appLocalizations.actionView,
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        ref
+                            .read(hideNetworkDetectionIpProvider.notifier)
+                            .toggle();
+                      },
+                      icon: Icon(
+                        size: 16.ap,
+                        hideIp
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -110,10 +157,15 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                       ? Builder(
                           builder: (context) {
                             final accent = BfClashAccent.of(context);
+                            final displayIp = hideIp
+                                ? (ipInfo.ip.contains(':')
+                                      ? '****:****:****:****'
+                                      : '***.***.***.***')
+                                : ipInfo.ip;
                             if (accent.enabled) {
                               return TooltipText(
                                 text: GradientText(
-                                  ipInfo.ip,
+                                  displayIp,
                                   style: context.textTheme.bodyMedium
                                       ?.copyWith(fontWeight: FontWeight.bold)
                                       .adjustSize(1),
@@ -127,7 +179,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                             }
                             return TooltipText(
                               text: Text(
-                                ipInfo.ip,
+                                displayIp,
                                 style: context.textTheme.bodyMedium?.toLight
                                     .adjustSize(1),
                                 maxLines: 1,

@@ -5,8 +5,26 @@ import 'package:flutter_rust_bridge_hooks/flutter_rust_bridge_hooks.dart';
 
 void main(List<String> args) async {
   await build(args, (input, output) async {
-    if (input.userDefines['build_assets'] == false) {
-      stdout.writeln('Skipping the Rust build: user-define build_assets=false');
+    final workspaceDefines = input.userDefines['workspace_pubspec'];
+    final workspaceBuildAssets = workspaceDefines is Map
+        ? (workspaceDefines['defines'] is Map
+              ? workspaceDefines['defines']['build_assets']
+              : null)
+        : null;
+    final lookupCmd = Platform.isWindows ? 'where' : 'which';
+    final hasRustup = () {
+      try {
+        return Process.runSync(lookupCmd, ['rustup']).exitCode == 0;
+      } catch (_) {
+        return false;
+      }
+    }();
+    if (input.userDefines['build_assets'] == false ||
+        workspaceBuildAssets == false ||
+        !hasRustup) {
+      stdout.writeln(
+        'Skipping the Rust build: rustup unavailable or build_assets=false',
+      );
       return;
     }
     await FlutterRustBridgeNativeAssetsBuilder(
