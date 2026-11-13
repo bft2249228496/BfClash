@@ -56,9 +56,10 @@ type ChangeProxyParams struct {
 }
 
 type TailscaleADBParams struct {
-	Name string `json:"name"`
-	Peer string `json:"peer"`
-	Port uint16 `json:"port"`
+	Name  string `json:"name"`
+	Peer  string `json:"peer"`
+	Fixed bool   `json:"fixed"`
+	Port  uint16 `json:"port"`
 }
 
 type TestDelayParams struct {

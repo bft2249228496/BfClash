@@ -110,10 +110,11 @@ func (f *adbForward) forward(ctx context.Context, incoming net.Conn) {
 
 type adbForwardState struct {
 	cancel  context.CancelFunc
+	fixed   bool
 	forward *adbForward
 }
 
-func (t *appTailnetOutbound) StartADBForward(ctx context.Context, peer netip.Addr, port uint16) error {
+func (t *appTailnetOutbound) StartADBForward(ctx context.Context, peer netip.Addr, port uint16, fixed bool) error {
 	if runtime.GOOS != "android" {
 		return errors.New("ADB forwarding is Android only")
 	}
@@ -137,10 +138,21 @@ func (t *appTailnetOutbound) StartADBForward(ctx context.Context, peer netip.Add
 	if _, exists := t.adbForwards[port]; exists {
 		return errors.New("ADB port already forwarded")
 	}
+	listenPort := port
+	if fixed {
+		listenPort = 43785
+		for oldPort, state := range t.adbForwards {
+			if state.fixed {
+				state.cancel()
+				state.forward.close()
+				delete(t.adbForwards, oldPort)
+			}
+		}
+	}
 	if len(t.adbForwards) >= 2 {
 		return errors.New("too many ADB ports")
 	}
-	listener, err := t.server.Listen("tcp", fmt.Sprintf(":%d", port))
+	listener, err := t.server.Listen("tcp", fmt.Sprintf(":%d", listenPort))
 	if err != nil {
 		return err
 	}
@@ -150,7 +162,7 @@ func (t *appTailnetOutbound) StartADBForward(ctx context.Context, peer netip.Add
 		return err
 	}
 	forwardCtx, cancel := context.WithTimeout(context.Background(), 60*time.Minute)
-	t.adbForwards[port] = adbForwardState{cancel: cancel, forward: forward}
+	t.adbForwards[port] = adbForwardState{cancel: cancel, forward: forward, fixed: fixed}
 	go func() {
 		forward.serve(forwardCtx)
 		cancel()

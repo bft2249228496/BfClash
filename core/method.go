@@ -253,7 +253,7 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			peer, err := netip.ParseAddr(params.Peer)
 			controller, controllerErr := tailscaleADB(params.Name)
 			if err == nil && controllerErr == nil {
-				err = controller.StartADBForward(ctx, peer, params.Port)
+				err = controller.StartADBForward(ctx, peer, params.Port, params.Fixed)
 			} else if controllerErr != nil {
 				err = controllerErr
 			}

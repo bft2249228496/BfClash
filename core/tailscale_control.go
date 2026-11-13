@@ -106,7 +106,7 @@ func tailscaleUnderlying(name string) (C.ProxyAdapter, error) {
 }
 
 type tailscaleADBController interface {
-	StartADBForward(context.Context, netip.Addr, uint16) error
+	StartADBForward(context.Context, netip.Addr, uint16, bool) error
 	StopADBForwards()
 	StopADBForward(uint16)
 }

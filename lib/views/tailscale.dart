@@ -31,7 +31,11 @@ class TailscaleAdbSession with ChangeNotifier {
 
   String? get peer => _peer;
   String? get peerName => _peerName;
-  Set<int> get ports => Set.unmodifiable(_ports);
+  final Set<int> _connectPorts = {};
+  Set<int> get ports => Set.unmodifiable({
+    ..._ports.difference(_connectPorts),
+    if (_connectPorts.isNotEmpty) 43785,
+  });
   DateTime? get expiresAt => _expiresAt;
   bool get closeUnconfirmed => _closeUnconfirmed;
   bool get isActive => _peer != null;
@@ -68,15 +72,23 @@ class TailscaleAdbSession with ChangeNotifier {
       _queue = _queue
           .then((_) async {
             if (generation != _generation) return;
-            if (call.method == 'found') {
+            if (call.method == 'found' || call.method == 'foundConnect') {
+              final fixed = call.method == 'foundConnect';
               if (!await core.startTailscaleADB(
                 bfclashTailscaleOutboundName,
                 peer,
                 port,
+                fixed: fixed,
               )) {
                 throw StateError('ADB forward failed');
               }
               if (generation == _generation) {
+                if (fixed) {
+                  _ports.removeAll(_connectPorts);
+                  _connectPorts
+                    ..clear()
+                    ..add(port);
+                }
                 _ports.add(port);
                 notifyListeners();
               }
@@ -89,6 +101,7 @@ class TailscaleAdbSession with ChangeNotifier {
               }
               if (generation == _generation) {
                 _ports.remove(port);
+                _connectPorts.remove(port);
                 notifyListeners();
               }
             }
@@ -134,6 +147,7 @@ class TailscaleAdbSession with ChangeNotifier {
     _peerName = null;
     _expiresAt = null;
     _ports.clear();
+    _connectPorts.clear();
     _closeUnconfirmed = true;
     notifyListeners();
     try {
@@ -168,6 +182,7 @@ class TailscaleAdbSession with ChangeNotifier {
     _peerName = null;
     _expiresAt = null;
     _ports.clear();
+    _connectPorts.clear();
     _closeUnconfirmed = false;
     _closing = null;
     _queue = Future.value();
