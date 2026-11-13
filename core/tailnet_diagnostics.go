@@ -123,14 +123,21 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 						break
 					}
 				}
+			} else if err != nil {
+				diag.BackendState = "status_error"
 			} else {
-				diag.BackendState = "status_error: " + err.Error()
+				diag.BackendState = "status_missing"
 			}
 		} else if err != nil {
-			diag.BackendState = "client_error: " + err.Error()
+			diag.BackendState = "client_error"
 		}
 	} else {
 		diag.BackendState = "outbound_not_installed"
+	}
+
+	if diag.BackendState != "Running" {
+		diag.Summary = fmt.Sprintf("Tailscale probes deferred: backend=%q, assigned addresses=%d", diag.BackendState, len(diag.AssignedIPs))
+		return saveTailnetDiagnostics(diag)
 	}
 
 	// 3. 确定探测测试地址
@@ -333,7 +340,10 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 		}
 	}
 
-	// 7. 保存与本地持久化
+	return saveTailnetDiagnostics(diag)
+}
+
+func saveTailnetDiagnostics(diag *TailnetDiagnostics) *TailnetDiagnostics {
 	latestDiagnostics.Store(diag)
 
 	log.Infoln("[Tailscale-Diag] Summary: %s", diag.Summary)
