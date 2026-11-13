@@ -31,6 +31,10 @@ on:
         description: Windows candidate run ID
         type: string
         default: ''
+      include_windows:
+        description: Build and publish Windows artifacts in parallel
+        type: boolean
+        default: true
   push:
     branches: [main, 'integration/**']
     # Android 产品线固定 0.x 号段；Windows 的 1.x tag 不应触发 Android 构建。
@@ -211,13 +215,175 @@ jobs:
           make_latest: ${{ steps.identity.outputs.prerelease == 'false' }}
           generate_release_notes: true
 
+  build_windows:
+    if: github.event_name == 'workflow_dispatch' && !inputs.publish_only && !inputs.upload_draft_only && inputs.candidate_version != '' && (inputs.include_windows == true || inputs.include_windows == '')
+    name: Probe Windows AMD64 Build
+    runs-on: windows-2022
+    steps:
+      - name: Enable longpaths
+        run: git config --global core.longpaths true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: core/go.sum
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Verify installer cancellation and confirmed cleanup
+        run: ./tool/check_windows_uninstall.ps1
+
+      - name: Verify transactional update rollback and health gates
+        run: |
+          ./tool/check_windows_portable_update.ps1
+          ./tool/check_windows_update_health.ps1
+          ./tool/check_windows_update_payload.ps1
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Update Channel and Architecture Tests
+        run: flutter test test/common/android_update_identity_test.dart test/common/windows_update_policy_test.dart test/setup_test.dart test/common/request_test.dart test/common/request_beta_update_test.dart test/common/windows_update_test.dart test/common/windows_update_migration_test.dart test/common/windows_update_strategy_test.dart test/common/windows_portable_update_test.dart test/common/windows_update_health_test.dart test/common/windows_update_download_test.dart test/common/resumable_download_test.dart test/common/resumable_download_process_test.dart test/common/update_test.dart test/common/windows_preferences_test.dart test/common/loopback_test.dart
+
+      - name: Run Desktop Navigation Flow Widget Tests
+        run: flutter test test/views/desktop_navigation_flow_test.dart test/views/desktop_dashboard_visual_test.dart test/common/desktop_style_test.dart test/widgets/desktop_settings_list_test.dart test/widgets/profile_focus_test.dart test/widgets/edit_profile_focus_test.dart test/widgets/proxies_tab_test.dart test/views/proxies_group_offsets_test.dart test/pages/home_test.dart test/common/window_position_test.dart test/common/window_test.dart
+
+      - name: Run Desktop Shared Core Integration Tests
+        run: flutter test test/core/interface_message_test.dart test/views/desktop_shared_core_integration_test.dart test/widgets/desktop_connection_row_test.dart test/widgets/connection_actions_test.dart test/widgets/connections_view_test.dart test/views/logs_view_test.dart test/common/filter_test.dart test/models/rule_test.dart test/models/config_test.dart test/views/connections_test.dart test/views/requests_test.dart test/views/desktop_connection_polling_flow_test.dart test/widgets/connection_item_test.dart test/models/common_test.dart
+
+      - name: Run Desktop Sub-Store Lifecycle Tests
+        run: flutter test test/views/sub_store_backend_service_test.dart test/views/sub_store_status_test.dart test/providers/system_action_test.dart
+
+      - name: Run Backup and WebDAV UI Tests
+        run: flutter test test/views/webdav_roundtrip_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart test/common/dav_client_test.dart test/common/webdav_test.dart test/common/backup_task_test.dart
+
+      - name: Run Beta WebDAV UI Roundtrip
+        run: flutter test --dart-define=APP_BETA=true test/views/webdav_roundtrip_test.dart
+
+      - name: Run Core Setup and TUN Authorization Tests
+        run: flutter test test/providers/setup_action_test.dart
+
+      - name: Run Windows Build Probe via setup.dart
+        run: dart setup.dart windows --env stable --targets exe,zip -v
+
+      - name: Verify stable packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash.exe
+
+      - name: Verify stable native payload can load
+        run: ./tool/check_windows_update_payload.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Run Windows Native Proxy Tests
+        run: |
+          cmake -S windows -B build/windows/x64 -Dinclude_proxy_tests=ON
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test configuration failed" }
+          cmake --build build/windows/x64 --config Release --target proxy_test
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy test build failed" }
+          & ./build/windows/x64/plugins/proxy/Release/proxy_test.exe
+          if ($LASTEXITCODE -ne 0) { throw "Native proxy tests failed" }
+
+      - name: Test packaged Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Preserve stable probe artifacts
+        run: |
+          New-Item -ItemType Directory -Path dist/stable -Force | Out-Null
+          Get-ChildItem -Path dist -File | Move-Item -Destination dist/stable
+
+      - name: Reset build state before beta probe
+        run: |
+          flutter clean
+          flutter pub get
+      - name: Select isolated beta installer identity
+        run: Copy-Item windows/packaging/exe/make_config.beta.yaml windows/packaging/exe/make_config.yaml -Force
+
+      - name: Set isolated beta candidate version
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_version != ''
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        shell: pwsh
+        run: |
+          if ($env:CANDIDATE_VERSION -notmatch '^\d+\.\d+\.\d+(-beta\.\d+)?\+\d+$') { throw 'Invalid candidate version' }
+          $content = Get-Content pubspec.yaml -Raw
+          $updated = [regex]::Replace($content, '(?m)^version:\s*\S+\s*$', "version: $env:CANDIDATE_VERSION", 1)
+          if ($updated -eq $content) { throw 'Could not set candidate version' }
+          [System.IO.File]::WriteAllText((Resolve-Path pubspec.yaml), $updated)
+
+      - name: Run Windows Beta Build Probe via setup.dart
+        run: dart setup.dart windows --env pre --targets exe,zip -v
+
+      - name: Verify beta packaged version
+        run: ./tool/check_windows_package_version.ps1 -Executable build/windows/x64/runner/Release/BfClash-Beta.exe -Beta
+
+      - name: Verify beta native payload can load
+        run: ./tool/check_windows_update_payload.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Test packaged beta Windows Sub-Store
+        run: ./tool/check_windows_substore.ps1 -BundlePath (Resolve-Path build/windows/x64/runner/Release)
+
+      - name: Preserve beta probe artifacts
+        run: |
+          New-Item -ItemType Directory -Path dist/beta -Force | Out-Null
+          Get-ChildItem -Path dist -File | Move-Item -Destination dist/beta
+
+      - name: List Artifacts
+        if: always()
+        run: |
+          Get-ChildItem -Path dist -Recurse -ErrorAction SilentlyContinue
+
+      - name: Upload Windows Probe Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bfclash-windows-probe
+          path: |
+            dist/
+            .dart_tool/setup_build_cache/
+            hook.log
+            build/windows/
+
   publish_candidate:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_only
+    if: |
+      always() && !cancelled() &&
+      github.event_name == 'workflow_dispatch' &&
+      (
+        inputs.publish_only == true ||
+        (
+          inputs.upload_draft_only != true &&
+          inputs.candidate_version != '' &&
+          needs.build.result == 'success' &&
+          (inputs.include_windows == false || needs.build_windows.result == 'success')
+        )
+      )
+    needs: [build, build_windows]
     permissions: {actions: read, contents: write}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify candidate source and build results
+      - name: Verify candidate source and build results (External Run Mode)
+        if: inputs.publish_only
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_SHA: ${{ inputs.source_sha }}
@@ -231,18 +397,42 @@ jobs:
             id=${entry%%:*}; workflow=${entry#*:}
             gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id" | jq -e --arg sha "$SOURCE_SHA" --arg wf "$workflow" '.head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/" + $wf))'
           done
-      - name: Download and inspect packages
+      - name: Download external candidate packages
+        if: inputs.publish_only
         env:
           GH_TOKEN: ${{ github.token }}
           ANDROID_RUN: ${{ inputs.android_run }}
           WINDOWS_RUN: ${{ inputs.windows_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p candidate/android candidate/windows
+          gh run download "$ANDROID_RUN" -n bfclash-android -D candidate/android
+          gh run download "$WINDOWS_RUN" -n bfclash-windows-probe -D candidate/windows
+      - name: Download internal candidate packages (Unified Mode)
+        if: '!inputs.publish_only'
+        uses: actions/download-artifact@v4
+        with:
+          path: candidate
+      - name: Normalize internal artifact directories
+        if: '!inputs.publish_only'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p candidate/android candidate/windows
+          if [[ -d candidate/bfclash-android ]]; then
+            cp -r candidate/bfclash-android/* candidate/android/
+          fi
+          if [[ -d candidate/bfclash-windows-probe ]]; then
+            cp -r candidate/bfclash-windows-probe/* candidate/windows/
+          fi
+      - name: Inspect and assemble packages
+        env:
           CANDIDATE_VERSION: ${{ inputs.candidate_version }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p candidate/android candidate/windows public
-          gh run download "$ANDROID_RUN" -n bfclash-android -D candidate/android
-          gh run download "$WINDOWS_RUN" -n bfclash-windows-probe -D candidate/windows
+          mkdir -p public
           (cd candidate/android && sha256sum -c SHA256SUMS.txt)
           version=${CANDIDATE_VERSION%+*}
           for abi in arm64-v8a armeabi-v7a x86_64; do
@@ -250,16 +440,18 @@ jobs:
             test -s "$f"
             cp "$f" public/
           done
-          for ext in setup.exe zip; do
-            f="candidate/windows/dist/stable/BfClash-$version-windows-amd64-$ext"
-            if [[ "$ext" == zip ]]; then f="candidate/windows/dist/stable/BfClash-$version-windows-amd64.zip"; fi
-            if [[ ! -f "$f" ]]; then
-              f="candidate/windows/dist/beta/BfClash-$version-windows-amd64-$ext"
-              if [[ "$ext" == zip ]]; then f="candidate/windows/dist/beta/BfClash-$version-windows-amd64.zip"; fi
-            fi
-            test -s "$f"
-            cp "$f" public/
-          done
+          if [[ -d candidate/windows/dist ]]; then
+            for ext in setup.exe zip; do
+              f="candidate/windows/dist/stable/BfClash-$version-windows-amd64-$ext"
+              if [[ "$ext" == zip ]]; then f="candidate/windows/dist/stable/BfClash-$version-windows-amd64.zip"; fi
+              if [[ ! -f "$f" ]]; then
+                f="candidate/windows/dist/beta/BfClash-$version-windows-amd64-$ext"
+                if [[ "$ext" == zip ]]; then f="candidate/windows/dist/beta/BfClash-$version-windows-amd64.zip"; fi
+              fi
+              test -s "$f"
+              cp "$f" public/
+            done
+          fi
           (cd public && sha256sum * > SHA256SUMS.txt)
       - name: Resolve release version and channel
         id: version
@@ -283,7 +475,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          target_commitish: ${{ inputs.source_sha }}
+          target_commitish: ${{ inputs.source_sha != '' && inputs.source_sha || github.sha }}
           name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 网络检测 IP 隐私保护
           body: |
             BfClash ${{ steps.version.outputs.version }} 发布说明：
@@ -298,7 +490,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.bridge_tag }}
-          target_commitish: ${{ inputs.source_sha }}
+          target_commitish: ${{ inputs.source_sha != '' && inputs.source_sha || github.sha }}
           name: ${{ steps.version.outputs.bridge_title }}
           body: |
             这是旧版 Android 客户端的更新兼容入口。此处 APK 与 BfClash Android ${{ steps.version.outputs.version }} 完全相同，安装后显示的实际版本为 ${{ steps.version.outputs.version }}；兼容标签仅用于让旧版 0.x 客户端发现并升级到新版。
