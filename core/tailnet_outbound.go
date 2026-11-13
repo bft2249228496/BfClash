@@ -14,6 +14,7 @@ import (
 	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/adapter/outbound"
 	"github.com/metacubex/mihomo/component/dialer"
+	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/config"
 	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/dns"
@@ -165,7 +166,8 @@ func installAppTailnet(cfg *config.Config) func() {
 	const name = "BfClash-Tailscale"
 	if candidate := cfg.Proxies[name]; candidate != nil && candidate.Type() == C.Tailscale {
 		if previous == nil {
-			transport := dialer.NewDialer()
+			// Bootstrap Tailnet using system DNS before its own DNS is available.
+			transport := dialer.NewDialer(dialer.WithResolver(resolver.SystemResolver))
 			previous = newAppTailnetOutbound(name, &tsnet.Server{
 				Dir:          C.Path.Resolve("bfclash-tailscale"),
 				SystemDialer: transport.DialContext,
