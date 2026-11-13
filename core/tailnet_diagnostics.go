@@ -79,6 +79,7 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 	}
 	defer diagRunning.Store(false)
 
+	outbound := installedAppTailnet.Load()
 	tunReady, hookActive, protectOk := getTunDiagnosticState()
 	diag := &TailnetDiagnostics{
 		Timestamp:   time.Now().UTC().Format(time.RFC3339),
@@ -86,7 +87,7 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 		TunReady:    tunReady,
 		HookActive:  hookActive,
 		ProtectOK:   protectOk,
-		OutboundOK:  installedAppTailnet != nil,
+		OutboundOK:  outbound != nil,
 		AssignedIPs: []string{},
 		Probes:      []TailnetProbeResult{},
 	}
@@ -107,8 +108,8 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 	defer cancel()
 
 	var magicDNSTarget string
-	if installedAppTailnet != nil {
-		client, err := installedAppTailnet.LocalClient(ctx)
+	if outbound != nil {
+		client, err := outbound.LocalClient(ctx)
 		if err == nil && client != nil {
 			status, err := client.Status(ctx)
 			if err == nil && status != nil {
@@ -141,10 +142,11 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 	}
 
 	// 3. 确定探测测试地址
-	// 优先环境变量，默认回退 Mac 测试服务
+	// Only probe an explicitly configured test endpoint.
 	probeTarget := os.Getenv("BFCLASH_TAILNET_PROBE_TARGET")
 	if probeTarget == "" {
-		probeTarget = "100.69.122.72:18791"
+		diag.Summary = "Tailscale backend is running. No traffic probe target configured."
+		return saveTailnetDiagnostics(diag)
 	}
 
 	host, portStr, splitErr := net.SplitHostPort(probeTarget)
@@ -164,7 +166,7 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 	// 4. 对照组 A：直接走应用内 Tailscale 出站
 	var directTCPCode int
 	var directTCPOK bool
-	if installedAppTailnet != nil {
+	if outbound != nil {
 		// A.1 TCP 探测
 		tcpStart := time.Now()
 		probeA := TailnetProbeResult{
@@ -178,7 +180,7 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 			DstIP:   targetIP,
 			DstPort: port,
 		}
-		conn, err := installedAppTailnet.DialContext(tcpCtx, metadata)
+		conn, err := outbound.DialContext(tcpCtx, metadata)
 		probeA.DurationMs = time.Since(tcpStart).Milliseconds()
 		if err != nil {
 			probeA.Success = false
@@ -218,7 +220,7 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 			Target: dnsTarget,
 		}
 		dnsCtx, dnsCancel := context.WithTimeout(context.Background(), 4*time.Second)
-		dnsIPs, dnsErr := installedAppTailnet.resolver.LookupIP(dnsCtx, dnsTarget)
+		dnsIPs, dnsErr := outbound.resolver.LookupIP(dnsCtx, dnsTarget)
 		dnsCancel()
 		probeADNS.DurationMs = time.Since(dnsStart).Milliseconds()
 		if dnsErr != nil {
@@ -238,7 +240,7 @@ func runTailnetDiagnostics(trigger string) *TailnetDiagnostics {
 			Target: probeTarget,
 		}
 		udpCtx, udpCancel := context.WithTimeout(context.Background(), 4*time.Second)
-		pconn, udpErr := installedAppTailnet.ListenPacketContext(udpCtx, metadata)
+		pconn, udpErr := outbound.ListenPacketContext(udpCtx, metadata)
 		udpCancel()
 		probeAUDP.DurationMs = time.Since(udpStart).Milliseconds()
 		if udpErr != nil {

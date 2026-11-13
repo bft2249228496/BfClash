@@ -16,9 +16,9 @@ import (
 func TestAppTailnetConfigurationLifecycle(t *testing.T) {
 	const name = "BfClash-Tailscale"
 	t.Cleanup(func() {
-		if installedAppTailnet != nil {
-			_ = installedAppTailnet.Close()
-			installedAppTailnet = nil
+		if installedAppTailnet.Load() != nil {
+			_ = installedAppTailnet.Load().Close()
+			installedAppTailnet.Store(nil)
 		}
 	})
 	var first *appTailnetOutbound
@@ -51,7 +51,7 @@ func TestAppTailnetConfigurationLifecycle(t *testing.T) {
 	retire := installAppTailnet(cfg)
 	executor.ApplyConfig(cfg, false)
 	retire()
-	if tunnel.Proxies()[name] != nil || installedAppTailnet != nil {
+	if tunnel.Proxies()[name] != nil || installedAppTailnet.Load() != nil {
 		t.Fatal("disabled outbound remains registered")
 	}
 	if _, err := first.LocalClient(context.Background()); !errors.Is(err, net.ErrClosed) {
@@ -65,7 +65,7 @@ func TestAppTailnetModeFallback(t *testing.T) {
 		t.Fatal(err)
 	}
 	installAppTailnet(cfg)
-	t.Cleanup(func() { _ = installedAppTailnet.Close(); installedAppTailnet = nil })
+	t.Cleanup(func() { _ = installedAppTailnet.Load().Close(); installedAppTailnet.Store(nil) })
 	for _, tc := range []struct {
 		mode     tunnel.TunnelMode
 		fallback string

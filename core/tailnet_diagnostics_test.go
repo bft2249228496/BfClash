@@ -34,9 +34,9 @@ func TestTailnetDiagnosticsBasic(t *testing.T) {
 	applyAppTailnetMode(cfg)
 	defer func() {
 		retire()
-		if installedAppTailnet != nil {
-			_ = installedAppTailnet.Close()
-			installedAppTailnet = nil
+		if installedAppTailnet.Load() != nil {
+			_ = installedAppTailnet.Load().Close()
+			installedAppTailnet.Store(nil)
 		}
 	}()
 

@@ -59,8 +59,8 @@ rules: ['MATCH,DIRECT']
 	t.Cleanup(func() { _ = proxy.Close() })
 	installAppTailnet(cfg)
 	t.Cleanup(func() {
-		_ = installedAppTailnet.Close()
-		installedAppTailnet = nil
+		_ = installedAppTailnet.Load().Close()
+		installedAppTailnet.Store(nil)
 	})
 	_, rules := appTailnetRouting(cfg)
 	if len(rules) < 4 || rules[0].Adapter() != "BfClash-Tailscale" {

@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/netip"
 	"sync"
+	"sync/atomic"
 
 	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/adapter/outbound"
@@ -160,7 +161,7 @@ var _ C.ProxyAdapter = (*appTailnetOutbound)(nil)
 func (t *appTailnetOutbound) BfClashAutoRoute() bool { return true }
 
 func installAppTailnet(cfg *config.Config) func() {
-	previous := installedAppTailnet
+	previous := installedAppTailnet.Load()
 	const name = "BfClash-Tailscale"
 	if candidate := cfg.Proxies[name]; candidate != nil && candidate.Type() == C.Tailscale {
 		if previous == nil {
@@ -183,10 +184,10 @@ func installAppTailnet(cfg *config.Config) func() {
 		cfg.Proxies[name] = adapter.NewProxy(previous)
 
 		log.Infoln("[Tailscale] outbound installed for TCP, UDP and DNS")
-		installedAppTailnet = previous
+		installedAppTailnet.Store(previous)
 		return func() {}
 	}
-	installedAppTailnet = nil
+	installedAppTailnet.Store(nil)
 	return func() {
 		if previous != nil {
 			_ = previous.Close()
@@ -194,7 +195,7 @@ func installAppTailnet(cfg *config.Config) func() {
 	}
 }
 
-var installedAppTailnet *appTailnetOutbound
+var installedAppTailnet atomic.Pointer[appTailnetOutbound]
 
 func appTailnetRules(name string) []C.Rule {
 	ipv4, _ := common.NewIPCIDR("100.64.0.0/10", name, common.WithIPCIDRNoResolve(true))
@@ -204,10 +205,11 @@ func appTailnetRules(name string) []C.Rule {
 
 func appTailnetRouting(cfg *config.Config) (tunnel.TunnelMode, []C.Rule) {
 	mode := cfg.General.Mode
-	if installedAppTailnet == nil {
+	active := installedAppTailnet.Load()
+	if active == nil {
 		return mode, cfg.Rules
 	}
-	rules := appTailnetRules(installedAppTailnet.Name())
+	rules := appTailnetRules(active.Name())
 	switch mode {
 	case tunnel.Direct:
 		return tunnel.Rule, append(rules, common.NewMatch("DIRECT"))
@@ -222,7 +224,7 @@ func applyAppTailnetMode(cfg *config.Config) {
 	mode, rules := appTailnetRouting(cfg)
 	tunnel.UpdateRules(rules, cfg.SubRules, cfg.RuleProviders)
 	tunnel.SetMode(mode)
-	if installedAppTailnet != nil {
+	if installedAppTailnet.Load() != nil {
 		triggerTailnetDiagnostics("config_reload")
 	}
 }
