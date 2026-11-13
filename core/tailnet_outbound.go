@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net"
 	"net/netip"
 	"sync"
@@ -15,6 +16,7 @@ import (
 	"github.com/metacubex/mihomo/config"
 	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/dns"
+	"github.com/metacubex/mihomo/log"
 	"github.com/metacubex/mihomo/rules/common"
 	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/tailscale/client/local"
@@ -83,25 +85,25 @@ func (t *appTailnetOutbound) ResolveUDP(ctx context.Context, m *C.Metadata) erro
 
 func (t *appTailnetOutbound) DialContext(ctx context.Context, m *C.Metadata) (C.Conn, error) {
 	if err := t.start(ctx); err != nil {
-		return nil, err
+		return nil, t.transferError("TCP", "startup", err)
 	}
 	destination := *m
 	if err := t.ResolveUDP(ctx, &destination); err != nil {
-		return nil, err
+		return nil, t.transferError("TCP", "DNS", err)
 	}
 	conn, err := t.server.Dial(ctx, "tcp", netip.AddrPortFrom(destination.DstIP, destination.DstPort).String())
 	if err != nil {
-		return nil, err
+		return nil, t.transferError("TCP", "dial", err)
 	}
 	return outbound.NewConn(conn, t), nil
 }
 
 func (t *appTailnetOutbound) ListenPacketContext(ctx context.Context, m *C.Metadata) (C.PacketConn, error) {
 	if err := t.start(ctx); err != nil {
-		return nil, err
+		return nil, t.transferError("UDP", "startup", err)
 	}
 	if err := t.ResolveUDP(ctx, m); err != nil {
-		return nil, err
+		return nil, t.transferError("UDP", "DNS", err)
 	}
 	v4, v6 := t.server.TailscaleIPs()
 	source := v4
@@ -113,9 +115,15 @@ func (t *appTailnetOutbound) ListenPacketContext(ctx context.Context, m *C.Metad
 	}
 	conn, err := t.server.ListenPacket("udp", netip.AddrPortFrom(source, 0).String())
 	if err != nil {
-		return nil, err
+		return nil, t.transferError("UDP", "bind", err)
 	}
 	return outbound.NewPacketConn(conn, t), nil
+}
+
+func (t *appTailnetOutbound) transferError(protocol, stage string, err error) error {
+	log.Warnln("[Tailscale] %s %s failed (%T, timeout=%t, canceled=%t)", protocol, stage, err,
+		errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled))
+	return fmt.Errorf("Tailscale %s %s: %w", protocol, stage, err)
 }
 
 func (t *appTailnetOutbound) Close() error {
@@ -162,6 +170,7 @@ func installAppTailnet(cfg *config.Config) func() {
 		previous.unregister = registerAppTailnetDNS(name, previous.LocalClient)
 		cfg.Proxies[name] = adapter.NewProxy(previous)
 
+		log.Infoln("[Tailscale] outbound installed for TCP, UDP and DNS")
 		installedAppTailnet = previous
 		return func() {}
 	}

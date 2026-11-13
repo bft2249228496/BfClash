@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/metacubex/mihomo/log"
 	"net/netip"
 	"runtime"
 	"sync/atomic"
@@ -211,6 +212,7 @@ var methodHandlers = map[CoreMethod]methodHandler{
 				response.failure("tailscale_status_failed", "Unable to read Tailscale status", nil)
 				return
 			}
+			log.Debugln("[Tailscale] backend=%s, assigned addresses=%d", status.BackendState, len(status.TailscaleIPs))
 			response.success(tailscaleStatusView(status))
 		})
 	}),
