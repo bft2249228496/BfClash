@@ -338,7 +338,7 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
           .timeout(const Duration(seconds: 35))) {
         throw StateError('login request failed');
       }
-      for (var attempt = 0; attempt < 10 && mounted; attempt++) {
+      for (var attempt = 0; attempt < 30 && mounted; attempt++) {
         final status = await core
             .getTailscaleStatus(bfclashTailscaleOutboundName)
             .timeout(const Duration(seconds: 5));
@@ -507,6 +507,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       'Starting' => labels.tailnetStatusStarting,
       _ => labels.tailnetStatusOther,
     };
+    final health = (_status?['health'] as List<dynamic>? ?? const [])
+        .whereType<String>();
     final peers = (_status?['peers'] as List<dynamic>? ?? const [])
         .whereType<Map>()
         .toList();
@@ -524,6 +526,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
               onChanged: _busy ? null : _setEnabled,
             ),
           ),
+          if (enabled)
+            for (final warning in health) ListTile(subtitle: Text(warning)),
           if (_busy) const LinearProgressIndicator(),
           if (_error != null)
             Padding(padding: const EdgeInsets.all(12), child: Text(_error!)),

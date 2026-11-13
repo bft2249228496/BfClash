@@ -38,6 +38,7 @@ type tailscalePeer struct {
 }
 
 type tailscaleStatus struct {
+	Health  []string        `json:"health,omitempty"`
 	State   string          `json:"state"`
 	AuthURL string          `json:"authUrl,omitempty"`
 	IPs     []string        `json:"ips"`
@@ -49,6 +50,7 @@ func tailscaleStatusView(status *ipnstate.Status) tailscaleStatus {
 	if status == nil {
 		return result
 	}
+	result.Health = status.Health
 	result.State, result.AuthURL = status.BackendState, status.AuthURL
 	for _, ip := range status.TailscaleIPs {
 		result.IPs = append(result.IPs, ip.String())
