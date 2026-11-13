@@ -57,9 +57,14 @@ rules: ['MATCH,DIRECT']
 		t.Fatal("Tailscale outbound missing")
 	}
 	t.Cleanup(func() { _ = proxy.Close() })
-	autoRoute, ok := proxy.Adapter().(interface{ BfClashAutoRoute() bool })
-	if !ok || !autoRoute.BfClashAutoRoute() {
-		t.Fatal("Tailscale automatic routing not enabled")
+	installAppTailnet(cfg)
+	t.Cleanup(func() {
+		_ = installedAppTailnet.Close()
+		installedAppTailnet = nil
+	})
+	_, rules := appTailnetRouting(cfg)
+	if len(rules) < 4 || rules[0].Adapter() != "BfClash-Tailscale" {
+		t.Fatal("application did not install Tailscale routing rules")
 	}
 	if len(cfg.DNS.NameServerPolicy) != 1 || len(cfg.DNS.NameServerPolicy[0].NameServers) != 1 {
 		t.Fatalf("unexpected DNS policy: %+v", cfg.DNS.NameServerPolicy)

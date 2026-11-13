@@ -292,7 +292,7 @@ func updateConfig(params *UpdateParams) error {
 	}
 	if params.Mode != nil {
 		general.Mode = *params.Mode
-		tunnel.SetMode(general.Mode)
+		applyAppTailnetMode(currentConfig)
 	}
 	if params.LogLevel != nil {
 		general.LogLevel = *params.LogLevel
@@ -397,8 +397,11 @@ func applyConfig(params *SetupParams) error {
 		cfg = fallback
 	}
 
+	retireTailnet := installAppTailnet(cfg)
 	currentConfig = cfg
 	hub.ApplyConfig(cfg)
+	applyAppTailnetMode(cfg)
+	retireTailnet()
 	patchSelectGroup(params.SelectedMap)
 	updateListeners(cfg)
 	reconcileGeoUpdater()

@@ -8,6 +8,7 @@ import (
 
 	"github.com/metacubex/mihomo/adapter/outbound"
 	C "github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/tailscale/client/local"
 	"github.com/metacubex/tailscale/ipn/ipnstate"
 )
@@ -89,16 +90,19 @@ func tailscaleClient(ctx context.Context, name string) (*local.Client, error) {
 	return client.LocalClient(ctx)
 }
 
-func tailscaleUnderlying(name string) (outbound.ProxyAdapter, error) {
-	proxy := lookupProxy(name)
+func tailscaleUnderlying(name string) (C.ProxyAdapter, error) {
+	proxy := tunnel.Proxies()[name]
+	if proxy == nil {
+		proxy = lookupProxy(name)
+	}
 	if proxy == nil {
 		return nil, errTailscaleOutboundUnavailable
 	}
-	wrapped, ok := proxy.Adapter().(interface{ Underlying() outbound.ProxyAdapter })
-	if !ok {
-		return nil, errTailscaleOutboundUnavailable
+	adapter := proxy.Adapter()
+	if wrapped, ok := adapter.(interface{ Underlying() outbound.ProxyAdapter }); ok {
+		return wrapped.Underlying(), nil
 	}
-	return wrapped.Underlying(), nil
+	return adapter, nil
 }
 
 type tailscaleADBController interface {

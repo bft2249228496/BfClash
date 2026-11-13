@@ -103,8 +103,8 @@ jobs:
           flutter test --reporter compact
       - name: Test Tailscale ADB isolation
         run: |
-          cd core/Clash.Meta
-          CGO_ENABLED=0 go test -tags=with_gvisor ./adapter/outbound -run '^Test(ADBForward|StopADBForward)' -count=1
+          cd core
+          CGO_ENABLED=0 go test -tags=with_gvisor . -run '^Test(ADBForward|StopADBForward)' -count=1
       - name: Build
         env: {ANDROID_NDK_HOME: '${{ steps.ndk.outputs.ndk-path }}'}
         run: |
