@@ -295,7 +295,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     try {
       final status = await ref
           .read(coreHandlerProvider)
-          .getTailscaleStatus(bfclashTailscaleOutboundName);
+          .getTailscaleStatus(bfclashTailscaleOutboundName)
+          .timeout(const Duration(seconds: 35));
       if (mounted) setState(() => _status = status);
     } catch (_) {
       if (mounted) {
@@ -317,13 +318,15 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     });
     try {
       final core = _core;
-      if (!await core.startTailscaleLogin(bfclashTailscaleOutboundName)) {
+      if (!await core
+          .startTailscaleLogin(bfclashTailscaleOutboundName)
+          .timeout(const Duration(seconds: 35))) {
         throw StateError('login request failed');
       }
       for (var attempt = 0; attempt < 10 && mounted; attempt++) {
-        final status = await core.getTailscaleStatus(
-          bfclashTailscaleOutboundName,
-        );
+        final status = await core
+            .getTailscaleStatus(bfclashTailscaleOutboundName)
+            .timeout(const Duration(seconds: 5));
         if (!mounted) return;
         setState(() => _status = status);
         if ((status['authUrl'] as String? ?? '').isNotEmpty ||
