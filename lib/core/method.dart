@@ -19,6 +19,7 @@ enum CoreMethod {
   startTailscaleADB,
   stopTailscaleADB,
   stopTailscaleADBPort,
+  getTailscaleDiagnostics,
   changeProxy,
   getTraffic,
   getTotalTraffic,

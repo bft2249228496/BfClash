@@ -282,6 +282,11 @@ var methodHandlers = map[CoreMethod]methodHandler{
 		controller.StopADBForward(params.Port)
 		response.success(true)
 	}),
+	getTailscaleDiagnosticsMethod: withoutArguments(func(response MethodResponse) {
+		safeGo(response, func() {
+			response.success(getTailscaleDiagnosticsResult())
+		})
+	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {
 			response.success(handleChangeProxy(params))

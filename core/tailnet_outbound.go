@@ -72,6 +72,10 @@ func (t *appTailnetOutbound) ResolveUDP(ctx context.Context, m *C.Metadata) erro
 	if m.Host == "" || m.DstIP.IsValid() {
 		return nil
 	}
+	if addr, err := netip.ParseAddr(m.Host); err == nil {
+		m.DstIP = addr
+		return nil
+	}
 	ips, err := t.resolver.LookupIP(ctx, m.Host)
 	if err != nil {
 		return err
@@ -91,7 +95,15 @@ func (t *appTailnetOutbound) DialContext(ctx context.Context, m *C.Metadata) (C.
 	if err := t.ResolveUDP(ctx, &destination); err != nil {
 		return nil, t.transferError("TCP", "DNS", err)
 	}
-	conn, err := t.server.Dial(ctx, "tcp", netip.AddrPortFrom(destination.DstIP, destination.DstPort).String())
+	target := ""
+	if destination.DstIP.IsValid() {
+		target = netip.AddrPortFrom(destination.DstIP, destination.DstPort).String()
+	} else if destination.Host != "" {
+		target = net.JoinHostPort(destination.Host, fmt.Sprintf("%d", destination.DstPort))
+	} else {
+		return nil, t.transferError("TCP", "target", errors.New("invalid target address"))
+	}
+	conn, err := t.server.Dial(ctx, "tcp", target)
 	if err != nil {
 		return nil, t.transferError("TCP", "dial", err)
 	}
@@ -210,4 +222,7 @@ func applyAppTailnetMode(cfg *config.Config) {
 	mode, rules := appTailnetRouting(cfg)
 	tunnel.UpdateRules(rules, cfg.SubRules, cfg.RuleProviders)
 	tunnel.SetMode(mode)
+	if installedAppTailnet != nil {
+		triggerTailnetDiagnostics("config_reload")
+	}
 }

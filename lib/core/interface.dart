@@ -130,6 +130,14 @@ abstract class CoreHandlerInterface with CoreInterface {
         false;
   }
 
+  Future<Map<String, dynamic>> getTailscaleDiagnostics() async {
+    final result = await _invokeMethod<Map<String, dynamic>>(
+      method: CoreMethod.getTailscaleDiagnostics,
+      timeout: const Duration(seconds: 20),
+    );
+    return result ?? const {};
+  }
+
   Future<Map<String, dynamic>> getTailscaleStatus(String outboundName) async {
     final result = await _invokeMethod<Map<String, dynamic>>(
       method: CoreMethod.getTailscaleStatus,

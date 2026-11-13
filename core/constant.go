@@ -103,6 +103,7 @@ const (
 	startTailscaleADBMethod        CoreMethod = "startTailscaleADB"
 	stopTailscaleADBMethod         CoreMethod = "stopTailscaleADB"
 	stopTailscaleADBPortMethod     CoreMethod = "stopTailscaleADBPort"
+	getTailscaleDiagnosticsMethod  CoreMethod = "getTailscaleDiagnostics"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"

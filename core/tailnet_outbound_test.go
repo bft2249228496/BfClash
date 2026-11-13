@@ -8,6 +8,7 @@ import (
 	"net"
 	"testing"
 
+	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/hub/executor"
 	"github.com/metacubex/mihomo/tunnel"
 )
@@ -76,5 +77,16 @@ func TestAppTailnetModeFallback(t *testing.T) {
 		if mode != tunnel.Rule || len(rules) != 4 || rules[3].Adapter() != tc.fallback {
 			t.Fatalf("unexpected routing for %v: effective mode %v, rules %v", tc.mode, mode, rules)
 		}
+	}
+}
+
+func TestAppTailnetResolveUDPLiteralIP(t *testing.T) {
+	app := &appTailnetOutbound{}
+	meta := &C.Metadata{Host: "100.69.122.72"}
+	if err := app.ResolveUDP(context.Background(), meta); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if meta.DstIP.String() != "100.69.122.72" {
+		t.Fatalf("expected 100.69.122.72, got %s", meta.DstIP)
 	}
 }
