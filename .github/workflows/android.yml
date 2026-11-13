@@ -283,6 +283,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
+          target_commitish: ${{ inputs.source_sha }}
           name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 网络检测 IP 隐私保护
           body: |
             BfClash ${{ steps.version.outputs.version }} 发布说明：
@@ -297,6 +298,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.bridge_tag }}
+          target_commitish: ${{ inputs.source_sha }}
           name: ${{ steps.version.outputs.bridge_title }}
           body: |
             这是旧版 Android 客户端的更新兼容入口。此处 APK 与 BfClash Android ${{ steps.version.outputs.version }} 完全相同，安装后显示的实际版本为 ${{ steps.version.outputs.version }}；兼容标签仅用于让旧版 0.x 客户端发现并升级到新版。
