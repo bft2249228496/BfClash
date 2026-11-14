@@ -171,6 +171,7 @@ func installAppTailnet(cfg *config.Config) func() {
 			previous = newAppTailnetOutbound(name, &tsnet.Server{
 				Dir:          C.Path.Resolve("bfclash-tailscale"),
 				SystemDialer: transport.DialContext,
+				LookupHook:   resolver.SystemResolver.LookupIP,
 				SystemPacketListener: func(ctx context.Context, network, address string) (net.PacketConn, error) {
 					return transport.ListenPacket(ctx, network, address, netip.AddrPort{})
 				},

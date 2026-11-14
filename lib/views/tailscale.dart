@@ -416,14 +416,17 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
           .logoutTailscale(bfclashTailscaleOutboundName)) {
         throw StateError('logout failed');
       }
-      if (mounted) setState(() => _status = null);
+      if (!mounted) return;
+      _status = null;
     } catch (_) {
       if (mounted) {
         setState(() => _error = context.appLocalizations.tailnetRequestFailed);
       }
+      return;
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+    if (mounted) await _refresh();
   }
 
   Future<void> _openADB(String peer, String hostname) async {

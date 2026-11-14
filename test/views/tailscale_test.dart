@@ -15,6 +15,7 @@ import '../helpers/test_app.dart';
 
 class _TailnetCore extends CoreHandlerInterface {
   bool failStatus = false;
+  bool signedOut = false;
   int calls = 0;
   bool failAdbStop = false;
 
@@ -44,11 +45,16 @@ class _TailnetCore extends CoreHandlerInterface {
       return true as T;
     }
     if (method == CoreMethod.stopTailscaleADB) return (!failAdbStop) as T;
+    if (method == CoreMethod.logoutTailscale) {
+      signedOut = true;
+      return true as T;
+    }
     if (method == CoreMethod.getTailscaleStatus) {
       calls++;
       if (failStatus) {
         throw const CoreMethodException(code: 'failed', message: 'failed');
       }
+      if (signedOut) return <String, dynamic>{'state': 'NeedsLogin'} as T;
       return {
             'state': 'Running',
             'ips': ['100.64.0.1'],
@@ -308,6 +314,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Enable Tailscale to connect.'), findsOneWidget);
     expect(fake.calls, 0);
+  });
+
+  testWidgets('signing out refreshes the backend status', (tester) async {
+    final fake = _TailnetCore();
+    final container = ProviderContainer(
+      overrides: [
+        appSettingProvider.overrideWithBuild(
+          (_, _) => const AppSettingProps(tailscaleEnabled: true),
+        ),
+        coreStatusProvider.overrideWithBuild((_, _) => CoreStatus.connected),
+        coreHandlerProvider.overrideWithValue(CoreController.scoped(fake)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const TestApp(locale: Locale('en'), child: TailscaleView()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('nas'), findsOneWidget);
+    expect(find.text('Connected'), findsOneWidget);
+    await tester.tap(find.text('Sign out'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Confirm'));
+    await tester.pumpAndSettle();
+    expect(fake.signedOut, isTrue);
+    expect(fake.calls, 2);
+    expect(find.text('Sign-in required'), findsOneWidget);
+    expect(find.text('nas'), findsNothing);
   });
 
   testWidgets('failed refresh clears stale connected state', (tester) async {

@@ -40,6 +40,9 @@ func TestAppTailnetConfigurationLifecycle(t *testing.T) {
 		}
 		if i == 0 {
 			first = app
+			if app.server.LookupHook == nil {
+				t.Fatal("Tailscale control traffic must resolve through the system resolver")
+			}
 		} else if app != first {
 			t.Fatal("configuration reload replaced the Tailscale instance")
 		}
