@@ -12,6 +12,7 @@ import (
 
 	"github.com/metacubex/mihomo/log"
 	"github.com/metacubex/mihomo/tunnel"
+	"github.com/metacubex/tailscale/ipn"
 )
 
 type MethodCall struct {
@@ -221,8 +222,16 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
 			client, err := tailscaleClient(ctx, *name)
-			// Interactive authentication resumes the backend after authorization.
-			// Setting WantRunning here would start a competing background login.
+			if err == nil {
+				prefs, readErr := client.GetPrefs(ctx)
+				err = readErr
+				if err == nil && prefs.LoggedOut && !prefs.WantRunning {
+					// Recreate the control client with the logged-out preference
+					// intact so Start does not initiate background authentication.
+					prefs.WantRunning = true
+					err = client.Start(ctx, ipn.Options{UpdatePrefs: prefs})
+				}
+			}
 			if err == nil {
 				err = client.StartLoginInteractive(ctx)
 			}
