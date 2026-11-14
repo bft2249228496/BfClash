@@ -231,6 +231,7 @@ func handleStartTun(callback unsafe.Pointer, fd int, stack, address, dns string)
 		callback: callback,
 	}
 	if tunHandler.start(fd, stack, address, dns) {
+		triggerTailnetDiagnostics("vpn_start")
 		return true
 	}
 	// start() already cleared the handler, so nothing protects sockets from

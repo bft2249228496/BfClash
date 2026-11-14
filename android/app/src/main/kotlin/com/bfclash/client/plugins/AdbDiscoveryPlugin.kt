@@ -96,7 +96,7 @@ class AdbDiscoveryPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     if (live.contains(key) && serviceInfo.port in 1..65535 && isLocalAddress(serviceInfo.host?.hostAddress)) {
                         val alreadyKnown = resolved.containsValue(serviceInfo.port)
                         resolved[key] = serviceInfo.port
-                        if (!alreadyKnown) channel.invokeMethod("found", serviceInfo.port)
+                        if (!alreadyKnown) channel.invokeMethod(if (service.serviceType == "_adb-tls-connect._tcp.") "foundConnect" else "found", serviceInfo.port)
                     }
                     resolveNext(current)
                 } }

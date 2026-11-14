@@ -10,7 +10,9 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/metacubex/mihomo/log"
 	"github.com/metacubex/mihomo/tunnel"
+	"github.com/metacubex/tailscale/ipn"
 )
 
 type MethodCall struct {
@@ -211,6 +213,7 @@ var methodHandlers = map[CoreMethod]methodHandler{
 				response.failure("tailscale_status_failed", "Unable to read Tailscale status", nil)
 				return
 			}
+			log.Debugln("[Tailscale] backend=%s, assigned addresses=%d", status.BackendState, len(status.TailscaleIPs))
 			response.success(tailscaleStatusView(status))
 		})
 	}),
@@ -219,6 +222,16 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
 			client, err := tailscaleClient(ctx, *name)
+			if err == nil {
+				prefs, readErr := client.GetPrefs(ctx)
+				err = readErr
+				if err == nil && prefs.LoggedOut && !prefs.WantRunning {
+					// Recreate the control client with the logged-out preference
+					// intact so Start does not initiate background authentication.
+					prefs.WantRunning = true
+					err = client.Start(ctx, ipn.Options{UpdatePrefs: prefs})
+				}
+			}
 			if err == nil {
 				err = client.StartLoginInteractive(ctx)
 			}
@@ -251,7 +264,7 @@ var methodHandlers = map[CoreMethod]methodHandler{
 			peer, err := netip.ParseAddr(params.Peer)
 			controller, controllerErr := tailscaleADB(params.Name)
 			if err == nil && controllerErr == nil {
-				err = controller.StartADBForward(ctx, peer, params.Port)
+				err = controller.StartADBForward(ctx, peer, params.Port, params.Fixed)
 			} else if controllerErr != nil {
 				err = controllerErr
 			}
@@ -279,6 +292,11 @@ var methodHandlers = map[CoreMethod]methodHandler{
 		}
 		controller.StopADBForward(params.Port)
 		response.success(true)
+	}),
+	getTailscaleDiagnosticsMethod: withoutArguments(func(response MethodResponse) {
+		safeGo(response, func() {
+			response.success(getTailscaleDiagnosticsResult())
+		})
 	}),
 	changeProxyMethod: withArguments(func(params *ChangeProxyParams, response MethodResponse) {
 		safeGo(response, func() {

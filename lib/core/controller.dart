@@ -134,14 +134,21 @@ class CoreController {
   Future<bool> logoutTailscale(String outboundName) =>
       _interface.logoutTailscale(outboundName);
 
-  Future<bool> startTailscaleADB(String name, String peer, int port) =>
-      _interface.startTailscaleADB(name, peer, port);
+  Future<bool> startTailscaleADB(
+    String name,
+    String peer,
+    int port, {
+    bool fixed = false,
+  }) => _interface.startTailscaleADB(name, peer, port, fixed: fixed);
 
   Future<bool> stopTailscaleADB(String name) =>
       _interface.stopTailscaleADB(name);
 
   Future<bool> stopTailscaleADBPort(String name, int port) =>
       _interface.stopTailscaleADBPort(name, port);
+
+  Future<Map<String, dynamic>> getTailscaleDiagnostics() =>
+      _interface.getTailscaleDiagnostics();
 
   Future<List<Group>> getProxiesGroups({
     required ProxiesSortType sortType,

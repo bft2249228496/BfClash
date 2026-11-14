@@ -31,7 +31,11 @@ class TailscaleAdbSession with ChangeNotifier {
 
   String? get peer => _peer;
   String? get peerName => _peerName;
-  Set<int> get ports => Set.unmodifiable(_ports);
+  final Set<int> _connectPorts = {};
+  Set<int> get ports => Set.unmodifiable({
+    ..._ports.difference(_connectPorts),
+    if (_connectPorts.isNotEmpty) 43785,
+  });
   DateTime? get expiresAt => _expiresAt;
   bool get closeUnconfirmed => _closeUnconfirmed;
   bool get isActive => _peer != null;
@@ -68,15 +72,23 @@ class TailscaleAdbSession with ChangeNotifier {
       _queue = _queue
           .then((_) async {
             if (generation != _generation) return;
-            if (call.method == 'found') {
+            if (call.method == 'found' || call.method == 'foundConnect') {
+              final fixed = call.method == 'foundConnect';
               if (!await core.startTailscaleADB(
                 bfclashTailscaleOutboundName,
                 peer,
                 port,
+                fixed: fixed,
               )) {
                 throw StateError('ADB forward failed');
               }
               if (generation == _generation) {
+                if (fixed) {
+                  _ports.removeAll(_connectPorts);
+                  _connectPorts
+                    ..clear()
+                    ..add(port);
+                }
                 _ports.add(port);
                 notifyListeners();
               }
@@ -89,6 +101,7 @@ class TailscaleAdbSession with ChangeNotifier {
               }
               if (generation == _generation) {
                 _ports.remove(port);
+                _connectPorts.remove(port);
                 notifyListeners();
               }
             }
@@ -134,6 +147,7 @@ class TailscaleAdbSession with ChangeNotifier {
     _peerName = null;
     _expiresAt = null;
     _ports.clear();
+    _connectPorts.clear();
     _closeUnconfirmed = true;
     notifyListeners();
     try {
@@ -168,6 +182,7 @@ class TailscaleAdbSession with ChangeNotifier {
     _peerName = null;
     _expiresAt = null;
     _ports.clear();
+    _connectPorts.clear();
     _closeUnconfirmed = false;
     _closing = null;
     _queue = Future.value();
@@ -295,7 +310,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     try {
       final status = await ref
           .read(coreHandlerProvider)
-          .getTailscaleStatus(bfclashTailscaleOutboundName);
+          .getTailscaleStatus(bfclashTailscaleOutboundName)
+          .timeout(const Duration(seconds: 35));
       if (mounted) setState(() => _status = status);
     } catch (_) {
       if (mounted) {
@@ -317,13 +333,15 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     });
     try {
       final core = _core;
-      if (!await core.startTailscaleLogin(bfclashTailscaleOutboundName)) {
+      if (!await core
+          .startTailscaleLogin(bfclashTailscaleOutboundName)
+          .timeout(const Duration(seconds: 35))) {
         throw StateError('login request failed');
       }
-      for (var attempt = 0; attempt < 10 && mounted; attempt++) {
-        final status = await core.getTailscaleStatus(
-          bfclashTailscaleOutboundName,
-        );
+      for (var attempt = 0; attempt < 30 && mounted; attempt++) {
+        final status = await core
+            .getTailscaleStatus(bfclashTailscaleOutboundName)
+            .timeout(const Duration(seconds: 5));
         if (!mounted) return;
         setState(() => _status = status);
         if ((status['authUrl'] as String? ?? '').isNotEmpty ||
@@ -398,14 +416,17 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
           .logoutTailscale(bfclashTailscaleOutboundName)) {
         throw StateError('logout failed');
       }
-      if (mounted) setState(() => _status = null);
+      if (!mounted) return;
+      _status = null;
     } catch (_) {
       if (mounted) {
         setState(() => _error = context.appLocalizations.tailnetRequestFailed);
       }
+      return;
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+    if (mounted) await _refresh();
   }
 
   Future<void> _openADB(String peer, String hostname) async {
@@ -489,6 +510,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
       'Starting' => labels.tailnetStatusStarting,
       _ => labels.tailnetStatusOther,
     };
+    final health = (_status?['health'] as List<dynamic>? ?? const [])
+        .whereType<String>();
     final peers = (_status?['peers'] as List<dynamic>? ?? const [])
         .whereType<Map>()
         .toList();
@@ -506,6 +529,8 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
               onChanged: _busy ? null : _setEnabled,
             ),
           ),
+          if (enabled)
+            for (final warning in health) ListTile(subtitle: Text(warning)),
           if (_busy) const LinearProgressIndicator(),
           if (_error != null)
             Padding(padding: const EdgeInsets.all(12), child: Text(_error!)),

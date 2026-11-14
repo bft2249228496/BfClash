@@ -84,10 +84,15 @@ abstract class CoreHandlerInterface with CoreInterface {
         arguments: {'name': name, 'peer': '', 'port': port},
       ) ??
       false;
-  Future<bool> startTailscaleADB(String name, String peer, int port) async =>
+  Future<bool> startTailscaleADB(
+    String name,
+    String peer,
+    int port, {
+    bool fixed = false,
+  }) async =>
       await _invokeMethod<bool>(
         method: CoreMethod.startTailscaleADB,
-        arguments: {'name': name, 'peer': peer, 'port': port},
+        arguments: {'name': name, 'peer': peer, 'port': port, 'fixed': fixed},
         timeout: const Duration(seconds: 35),
       ) ??
       false;
@@ -128,6 +133,14 @@ abstract class CoreHandlerInterface with CoreInterface {
           timeout: const Duration(seconds: 35),
         ) ??
         false;
+  }
+
+  Future<Map<String, dynamic>> getTailscaleDiagnostics() async {
+    final result = await _invokeMethod<Map<String, dynamic>>(
+      method: CoreMethod.getTailscaleDiagnostics,
+      timeout: const Duration(seconds: 20),
+    );
+    return result ?? const {};
   }
 
   Future<Map<String, dynamic>> getTailscaleStatus(String outboundName) async {
