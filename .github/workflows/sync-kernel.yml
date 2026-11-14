@@ -1,9 +1,6 @@
 name: Sync Upstream Kernel
 
 on:
-  schedule:
-    # 每天凌晨 04:00 (UTC 20:00) 自动检测上游内核更新
-    - cron: '0 20 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

@@ -1,9 +1,6 @@
 name: Sync BfClash kernel integration
 
 on:
-  schedule:
-    # The parent submodule sync runs an hour later.
-    - cron: '0 19 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
