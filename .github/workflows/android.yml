@@ -55,6 +55,16 @@ jobs:
     if: github.ref != 'refs/tags/v0.3.4' && (github.event_name != 'workflow_dispatch' || (!inputs.publish_only && !inputs.upload_draft_only))
     runs-on: ubuntu-latest
     steps:
+      - name: Require main for stable candidates
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        run: |
+          if [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ && "$GITHUB_REF" != refs/heads/main ]]; then
+            echo "::error::Stable releases must be built and published from main."
+            exit 1
+          fi
       - uses: actions/checkout@v4
         with: {submodules: recursive, fetch-depth: 0}
       - uses: actions/setup-java@v4
@@ -220,6 +230,16 @@ jobs:
     name: Probe Windows AMD64 Build
     runs-on: windows-2022
     steps:
+      - name: Require main for stable candidates
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        run: |
+          if [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ && "$GITHUB_REF" != refs/heads/main ]]; then
+            echo "::error::Stable releases must be built and published from main."
+            exit 1
+          fi
       - name: Enable longpaths
         run: git config --global core.longpaths true
 
@@ -286,6 +306,17 @@ jobs:
       - name: Run Core Setup and TUN Authorization Tests
         run: flutter test test/providers/setup_action_test.dart
 
+      - name: Set isolated candidate version
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_version != ''
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        shell: pwsh
+        run: |
+          if ($env:CANDIDATE_VERSION -notmatch '^\d+\.\d+\.\d+(-beta\.\d+)?\+\d+$') { throw 'Invalid candidate version' }
+          $content = Get-Content pubspec.yaml -Raw
+          $updated = [regex]::Replace($content, '(?m)^version:\s*\S+\s*$', "version: $env:CANDIDATE_VERSION", 1)
+          [System.IO.File]::WriteAllText((Resolve-Path pubspec.yaml), $updated)
+
       - name: Run Windows Build Probe via setup.dart
         run: dart setup.dart windows --env stable --targets exe,zip -v
 
@@ -318,18 +349,6 @@ jobs:
           flutter pub get
       - name: Select isolated beta installer identity
         run: Copy-Item windows/packaging/exe/make_config.beta.yaml windows/packaging/exe/make_config.yaml -Force
-
-      - name: Set isolated beta candidate version
-        if: github.event_name == 'workflow_dispatch' && inputs.candidate_version != ''
-        env:
-          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
-        shell: pwsh
-        run: |
-          if ($env:CANDIDATE_VERSION -notmatch '^\d+\.\d+\.\d+(-beta\.\d+)?\+\d+$') { throw 'Invalid candidate version' }
-          $content = Get-Content pubspec.yaml -Raw
-          $updated = [regex]::Replace($content, '(?m)^version:\s*\S+\s*$', "version: $env:CANDIDATE_VERSION", 1)
-          if ($updated -eq $content) { throw 'Could not set candidate version' }
-          [System.IO.File]::WriteAllText((Resolve-Path pubspec.yaml), $updated)
 
       - name: Run Windows Beta Build Probe via setup.dart
         run: dart setup.dart windows --env pre --targets exe,zip -v
@@ -381,11 +400,22 @@ jobs:
     permissions: {actions: read, contents: write}
     runs-on: ubuntu-latest
     steps:
+      - name: Require main for stable candidates
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+        run: |
+          if [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ && "$GITHUB_REF" != refs/heads/main ]]; then
+            echo "::error::Stable releases must be built and published from main."
+            exit 1
+          fi
       - uses: actions/checkout@v4
       - name: Verify candidate source and build results (External Run Mode)
         if: inputs.publish_only
         env:
           GH_TOKEN: ${{ github.token }}
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           ANDROID_RUN: ${{ inputs.android_run }}
           WINDOWS_RUN: ${{ inputs.windows_run }}
@@ -393,9 +423,13 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ && "$ANDROID_RUN" =~ ^[0-9]+$ && "$WINDOWS_RUN" =~ ^[0-9]+$ ]]
+          required_branch=
+          if [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ ]]; then
+            required_branch=main
+          fi
           for entry in "$ANDROID_RUN:android.yml" "$WINDOWS_RUN:windows-probe.yml"; do
             id=${entry%%:*}; workflow=${entry#*:}
-            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id" | jq -e --arg sha "$SOURCE_SHA" --arg wf "$workflow" '.head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/" + $wf))'
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$id" | jq -e --arg sha "$SOURCE_SHA" --arg branch "$required_branch" --arg wf "$workflow" '($branch == "" or .head_branch == $branch) and .head_sha == $sha and .event == "workflow_dispatch" and .status == "completed" and .conclusion == "success" and (.path | endswith("/" + $wf))'
           done
       - name: Download external candidate packages
         if: inputs.publish_only
@@ -409,6 +443,24 @@ jobs:
           mkdir -p candidate/android candidate/windows
           gh run download "$ANDROID_RUN" -n bfclash-android -D candidate/android
           gh run download "$WINDOWS_RUN" -n bfclash-windows-probe -D candidate/windows
+      - name: Verify release tag source
+        shell: bash
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+          SOURCE_SHA: ${{ inputs.publish_only && inputs.source_sha || github.sha }}
+          INCLUDE_WINDOWS: ${{ inputs.publish_only || inputs.include_windows }}
+        run: |
+          set -euo pipefail
+          if [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ && "$INCLUDE_WINDOWS" != true ]]; then
+            echo "::error::Stable releases require both Android and Windows packages."
+            exit 1
+          fi
+          tag="refs/tags/v${CANDIDATE_VERSION%+*}"
+          refs=$(git ls-remote origin "$tag" "$tag^{}")
+          if [[ -n "$refs" && "$(awk 'END {print $1}' <<< "$refs")" != "$SOURCE_SHA" ]]; then
+            echo "::error::Existing release tag points to a different commit."
+            exit 1
+          fi
       - name: Download internal candidate packages (Unified Mode)
         if: '!inputs.publish_only'
         uses: actions/download-artifact@v4
@@ -475,7 +527,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          target_commitish: ${{ inputs.source_sha != '' && inputs.source_sha || github.sha }}
+          target_commitish: ${{ inputs.publish_only && inputs.source_sha || github.sha }}
           name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 网络检测 IP 隐私保护
           body: |
             BfClash ${{ steps.version.outputs.version }} 发布说明：
@@ -490,7 +542,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.bridge_tag }}
-          target_commitish: ${{ inputs.source_sha != '' && inputs.source_sha || github.sha }}
+          target_commitish: ${{ inputs.publish_only && inputs.source_sha || github.sha }}
           name: ${{ steps.version.outputs.bridge_title }}
           body: |
             这是旧版 Android 客户端的更新兼容入口。此处 APK 与 BfClash Android ${{ steps.version.outputs.version }} 完全相同，安装后显示的实际版本为 ${{ steps.version.outputs.version }}；兼容标签仅用于让旧版 0.x 客户端发现并升级到新版。
