@@ -497,6 +497,14 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
     }
   }
 
+  String _deviceName(Map peer) {
+    final dnsName = peer['dnsName'] as String? ?? '';
+    final machineName = dnsName.split('.').first;
+    return machineName.isEmpty
+        ? (peer['hostname'] as String? ?? '')
+        : machineName;
+  }
+
   @override
   Widget build(BuildContext context) {
     final labels = context.appLocalizations;
@@ -589,7 +597,7 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
             if (peers.isEmpty) ListTile(title: Text(labels.tailnetNoDevices)),
             for (final peer in peers) ...[
               ListTile(
-                title: Text(peer['hostname'] as String? ?? ''),
+                title: Text(_deviceName(peer)),
                 subtitle: Text(
                   (peer['ips'] as List<dynamic>? ?? const [])
                       .whereType<String>()
@@ -610,15 +618,25 @@ class _TailscaleViewState extends ConsumerState<TailscaleView> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: _busy
+                    onPressed: _busy || _adbSession.closeUnconfirmed
+                        ? null
+                        : (peer['ips'] as List<dynamic>).contains(
+                            _adbSession.peer,
+                          )
+                        ? _stopADB
+                        : _adbSession.isActive
                         ? null
                         : () => _openADB(
                             (peer['ips'] as List<dynamic>)
                                 .whereType<String>()
                                 .firstWhere((ip) => ip.contains('.')),
-                            peer['hostname'] as String? ?? '',
+                            _deviceName(peer),
                           ),
-                    child: Text(labels.tailnetAdb),
+                    child: Text(
+                      (peer['ips'] as List<dynamic>).contains(_adbSession.peer)
+                          ? labels.tailnetAdbStop
+                          : labels.tailnetAdb,
+                    ),
                   ),
                 ),
             ],

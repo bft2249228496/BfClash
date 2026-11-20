@@ -61,6 +61,7 @@ class _TailnetCore extends CoreHandlerInterface {
             'peers': [
               {
                 'hostname': 'nas',
+                'dnsName': 'renamed-nas.example.ts.net.',
                 'ips': ['100.64.0.2'],
                 'online': true,
               },
@@ -146,7 +147,7 @@ void main() {
       find.textContaining('On · Waiting for wireless debugging'),
       findsOneWidget,
     );
-    expect(find.textContaining('nas ·'), findsOneWidget);
+    expect(find.textContaining('renamed-nas ·'), findsOneWidget);
     await messenger.handlePlatformMessage(
       channel.name,
       const StandardMethodCodec().encodeMethodCall(
@@ -168,7 +169,7 @@ void main() {
       find.textContaining('On · Waiting for wireless debugging'),
       findsOneWidget,
     );
-    final stop = find.text('Stop ADB forwarding');
+    final stop = find.text('Stop ADB forwarding').first;
     core.failAdbStop = true;
     await tester.ensureVisible(stop);
     await tester.tap(stop);
@@ -255,9 +256,9 @@ void main() {
         find.textContaining('On · Waiting for wireless debugging'),
         findsOneWidget,
       );
-      expect(find.textContaining('nas ·'), findsOneWidget);
+      expect(find.textContaining('renamed-nas ·'), findsOneWidget);
 
-      final stop = find.text('Stop ADB forwarding');
+      final stop = find.text('Stop ADB forwarding').first;
       await tester.ensureVisible(stop);
       await tester.tap(stop);
       await tester.pumpAndSettle();
