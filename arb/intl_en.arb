@@ -723,5 +723,6 @@
   "tailnetAdbPorts": "Open ports",
   "tailnetAdbPageLifetime": "Keeps running in background for up to 60 minutes (can be stopped manually here)",
   "tailnetAdbCloseUnknown": "Unable to confirm closure; try stopping again",
-  "exportDiagnosticReport": "Export diagnostic report"
+  "exportDiagnosticReport": "Export diagnostic report",
+  "recentlyClosedConnections": "Recently closed connections"
 }

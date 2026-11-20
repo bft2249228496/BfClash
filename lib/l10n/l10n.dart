@@ -6074,6 +6074,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Recently closed connections`
+  String get recentlyClosedConnections {
+    return Intl.message(
+      'Recently closed connections',
+      name: 'recentlyClosedConnections',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

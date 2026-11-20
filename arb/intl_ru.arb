@@ -723,5 +723,6 @@
   "tailnetAdbPorts": "Открытые порты",
   "tailnetAdbPageLifetime": "Работает в фоне до 60 минут (можно отключить вручную на этой странице)",
   "tailnetAdbCloseUnknown": "Не удалось подтвердить отключение; повторите попытку",
-  "exportDiagnosticReport": "Экспорт отчёта диагностики"
+  "exportDiagnosticReport": "Экспорт отчёта диагностики",
+  "recentlyClosedConnections": "Недавно закрытые соединения"
 }

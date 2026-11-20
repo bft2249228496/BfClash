@@ -645,6 +645,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quickFill": MessageLookupByLibrary.simpleMessage("一键填入"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("彩虹"),
     "realtimeRate": MessageLookupByLibrary.simpleMessage("实时速率"),
+    "recentlyClosedConnections": MessageLookupByLibrary.simpleMessage(
+      "最近关闭的连接",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redir端口"),
     "redo": MessageLookupByLibrary.simpleMessage("重做"),
     "refresh": MessageLookupByLibrary.simpleMessage("刷新"),

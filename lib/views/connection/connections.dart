@@ -27,6 +27,9 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   bool _retrying = false;
   Future<List<TrackerInfo>>? _pendingRead;
   bool _closingAll = false;
+  bool _showHistory = false;
+  Map<String, TrackerInfo> _activeConnections = {};
+  final List<TrackerInfo> _history = [];
   final Set<String> _closingIds = {};
   final _listController = TrackerInfoListController();
   final ScrollController _scrollController = ScrollController();
@@ -36,6 +39,20 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
 
   List<Widget> _buildActions() {
     return [
+      IconButton(
+        tooltip: _showHistory
+            ? context.appLocalizations.connections
+            : context.appLocalizations.recentlyClosedConnections,
+        onPressed: () {
+          setState(() => _showHistory = !_showHistory);
+          _listController.setTrackerInfos(
+            _showHistory
+                ? List.of(_history)
+                : _activeConnections.values.toList(),
+          );
+        },
+        icon: Icon(_showHistory ? Icons.list : Icons.history),
+      ),
       IconButton(
         tooltip: context.appLocalizations.refresh,
         onPressed: _retrying ? null : _retryConnections,
@@ -49,7 +66,9 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       ),
       IconButton(
         tooltip: context.appLocalizations.closeConnections,
-        onPressed: _closingAll ? null : () => _closeConnections(),
+        onPressed: _showHistory || _closingAll
+            ? null
+            : () => _closeConnections(),
         icon: const Icon(Icons.delete_sweep_outlined),
       ),
     ];
@@ -119,7 +138,14 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         final start = b.start.compareTo(a.start);
         return start != 0 ? start : a.id.compareTo(b.id);
       });
-    _listController.setTrackerInfos(sorted);
+    final active = {for (final connection in sorted) connection.id: connection};
+    final closed = _activeConnections.values.where(
+      (connection) => !active.containsKey(connection.id),
+    );
+    _history.insertAll(0, closed);
+    if (_history.length > 200) _history.removeRange(200, _history.length);
+    _activeConnections = active;
+    _listController.setTrackerInfos(_showHistory ? List.of(_history) : sorted);
   }
 
   Future<void> _closeConnections([String? id]) async {
@@ -168,7 +194,9 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
-      title: appLocalizations.connections,
+      title: _showHistory
+          ? appLocalizations.recentlyClosedConnections
+          : appLocalizations.connections,
       onKeywordsUpdate: _listController.updateKeywords,
       searchState: AppBarSearchState(onSearch: _listController.search),
       actions: _buildActions(),
@@ -207,23 +235,26 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
                     detailTitle: appLocalizations.details(
                       appLocalizations.connection,
                     ),
-                    trailingBuilder: (trackerInfo) {
-                      final closing =
-                          _closingAll || _closingIds.contains(trackerInfo.id);
-                      return GestureDetector(
-                        // A disabled child must not pass a second click to row details.
-                        excludeFromSemantics: true,
-                        onTap: closing ? () {} : null,
-                        child: IconButton(
-                          tooltip: appLocalizations.blockConnection,
-                          visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.block, size: 20),
-                          onPressed: closing
-                              ? null
-                              : () => _closeConnections(trackerInfo.id),
-                        ),
-                      );
-                    },
+                    trailingBuilder: _showHistory
+                        ? null
+                        : (trackerInfo) {
+                            final closing =
+                                _closingAll ||
+                                _closingIds.contains(trackerInfo.id);
+                            return GestureDetector(
+                              // A disabled child must not pass a second click to row details.
+                              excludeFromSemantics: true,
+                              onTap: closing ? () {} : null,
+                              child: IconButton(
+                                tooltip: appLocalizations.blockConnection,
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(Icons.block, size: 20),
+                                onPressed: closing
+                                    ? null
+                                    : () => _closeConnections(trackerInfo.id),
+                              ),
+                            );
+                          },
                   ),
                 );
               },

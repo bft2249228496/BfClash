@@ -747,6 +747,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quickFill": MessageLookupByLibrary.simpleMessage("クイック入力"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("レインボー"),
     "realtimeRate": MessageLookupByLibrary.simpleMessage("リアルタイム速度"),
+    "recentlyClosedConnections": MessageLookupByLibrary.simpleMessage(
+      "最近終了した接続",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redirポート"),
     "redo": MessageLookupByLibrary.simpleMessage("やり直す"),
     "refresh": MessageLookupByLibrary.simpleMessage("更新"),
