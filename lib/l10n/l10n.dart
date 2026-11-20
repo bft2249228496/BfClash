@@ -5950,7 +5950,7 @@ class AppLocalizations {
     );
   }
 
-  /// `Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.`
+  /// `Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.`
   String get tailnetAdbDescription {
     return Intl.message(
       'Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.',
@@ -6060,6 +6060,16 @@ class AppLocalizations {
     return Intl.message(
       'Unable to confirm closure; try stopping again',
       name: 'tailnetAdbCloseUnknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export diagnostic report`
+  String get exportDiagnosticReport {
+    return Intl.message(
+      'Export diagnostic report',
+      name: 'exportDiagnosticReport',
       desc: '',
       args: [],
     );

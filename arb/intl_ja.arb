@@ -722,5 +722,6 @@
   "tailnetAdbReady": "オン · 転送ポートを開放中",
   "tailnetAdbPorts": "開放中のポート",
   "tailnetAdbPageLifetime": "バックグラウンドで最大60分間維持されます（この画面でいつでも停止可能）",
-  "tailnetAdbCloseUnknown": "停止を確認できません。もう一度停止してください"
+  "tailnetAdbCloseUnknown": "停止を確認できません。もう一度停止してください",
+  "exportDiagnosticReport": "診断レポートをエクスポート"
 }

@@ -722,5 +722,6 @@
   "tailnetAdbReady": "已开启 · 已开放转发端口",
   "tailnetAdbPorts": "已开放端口",
   "tailnetAdbPageLifetime": "后台持续保持，最长 60 分钟（离开页面不中断，可随时在此关闭）",
-  "tailnetAdbCloseUnknown": "关闭状态无法确认，请重试关闭"
+  "tailnetAdbCloseUnknown": "关闭状态无法确认，请重试关闭",
+  "exportDiagnosticReport": "导出诊断报告"
 }
