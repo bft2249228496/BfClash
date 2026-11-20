@@ -24,12 +24,12 @@
 
 ---
 
-> ### 📌 Notice & Disclaimer (项目定位与免责声明)
-> 1. **Personal Custom Build**: This project is personal hobbyist software based on FlClash, customized purely for the author's personal preferences, aesthetics, and everyday learning/use.
-> 2. **No Maintenance or Support Obligation**: The author maintains a busy daily schedule. **There is NO commitment, guarantee, or obligation to handle feature requests, bug fixes, or technical support.**
-> 3. **As-is & Casual Updates**: Releases and code updates happen purely at the author's leisure and personal need. No SLA, update schedule, or long-term roadmap is guaranteed.
-> 4. **Fork Welcome**: If you have specific ideas, needs, or improvements, you are warmly encouraged to fork the repository and build your own version under the GPL-3.0 License.
-> 5. **Disclaimer**: The software is provided "AS IS", without warranty of any kind. The author shall not be held liable for any damages or issues arising from the use of this software.
+> ### 📌 项目定位与免责声明
+> 1. **个人定制项目。** 本项目基于 FlClash，按作者的个人偏好和审美定制，主要用于日常学习和使用。
+> 2. **维护与支持。** 作者会视个人时间处理功能建议、问题修复和技术支持，相关事项不作承诺或保证。
+> 3. **更新安排。** 版本发布和代码更新视作者的空闲时间和实际需要而定，暂无服务级别承诺、固定更新计划或长期路线图。
+> 4. **欢迎 Fork。** 如果你有具体想法、需求或改进建议，欢迎 Fork 本仓库，并依据 GPL-3.0 许可证构建自己的版本。
+> 5. **免责声明。** 本软件按现状提供，不附带任何形式的保证。作者不对因使用本软件而产生的损失或问题承担责任。
 
 ---
 
