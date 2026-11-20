@@ -528,12 +528,10 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           target_commitish: ${{ inputs.publish_only && inputs.source_sha || github.sha }}
-          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 网络检测 IP 隐私保护
+          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — Tailscale 设备列表与临时 ADB
           body: |
-            BfClash ${{ steps.version.outputs.version }} 发布说明：
-            - 仪表盘「网络检测」新增公网 IP 隐私保护显隐切换（支持点击小眼睛在真实 IP 与脱敏掩码间切换，偏好自动持久化保存）
-            - 同步最新上游内核与稳定性优化
-            - 统一正式版本发布，包含 Windows 与 Android 全架构安装包
+            - 临时 ADB 转发开启后，当前设备的按钮显示「关闭 ADB 转发」。
+            - 设备列表优先显示 Tailscale 管理后台的设备名称，刷新状态后可看到改名结果。
           prerelease: ${{ steps.version.outputs.prerelease }}
           make_latest: ${{ steps.version.outputs.prerelease == 'false' }}
           files: public/*

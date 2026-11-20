@@ -336,7 +336,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('nas'), findsOneWidget);
+    expect(find.text('renamed-nas'), findsOneWidget);
     expect(find.text('Connected'), findsOneWidget);
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
@@ -345,7 +345,7 @@ void main() {
     expect(fake.signedOut, isTrue);
     expect(fake.calls, 2);
     expect(find.text('Sign-in required'), findsOneWidget);
-    expect(find.text('nas'), findsNothing);
+    expect(find.text('renamed-nas'), findsNothing);
   });
 
   testWidgets('failed refresh clears stale connected state', (tester) async {
@@ -367,12 +367,12 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('nas'), findsOneWidget);
+    expect(find.text('renamed-nas'), findsOneWidget);
     expect(find.text('Connected'), findsOneWidget);
     fake.failStatus = true;
     await tester.tap(find.text('Refresh status'));
     await tester.pumpAndSettle();
-    expect(find.text('nas'), findsNothing);
+    expect(find.text('renamed-nas'), findsNothing);
     expect(find.text('Connected'), findsNothing);
     expect(
       find.text('Unable to contact Tailscale. Check the core and try again.'),
