@@ -725,5 +725,7 @@
   "tailnetAdbCloseUnknown": "Unable to confirm closure; try stopping again",
   "exportDiagnosticReport": "Export diagnostic report",
   "recentlyClosedConnections": "Recently closed connections",
-  "connectionLocalRuleHint": "Save as a local rule. It takes effect the next time this profile is applied in Rule mode."
+  "connectionLocalRuleHint": "Save as a local rule. It takes effect the next time this profile is applied in Rule mode.",
+  "connectionRuleSaved": "Local rule saved",
+  "connectionRuleExists": "Rule already exists"
 }

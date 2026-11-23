@@ -725,5 +725,7 @@
   "tailnetAdbCloseUnknown": "停止を確認できません。もう一度停止してください",
   "exportDiagnosticReport": "診断レポートをエクスポート",
   "recentlyClosedConnections": "最近終了した接続",
-  "connectionLocalRuleHint": "ローカルルールとして保存し、次にルールモードでこのプロファイルを適用したときに有効になります。"
+  "connectionLocalRuleHint": "ローカルルールとして保存し、次にルールモードでこのプロファイルを適用したときに有効になります。",
+  "connectionRuleSaved": "ローカルルールを保存しました",
+  "connectionRuleExists": "ルールは既に存在します"
 }

@@ -1,3 +1,4 @@
+import 'package:bfclash/features/overwrite/rule.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/database/database.dart';
@@ -281,36 +282,77 @@ class TrackerInfoDetailView extends ConsumerWidget {
     ];
   }
 
-  Future<void> _addDirectRule(
+  Future<void> _addLocalRule(
     BuildContext context,
     WidgetRef ref,
     Profile profile,
     String host,
   ) async {
     final labels = context.appLocalizations;
-    final rule = Rule.init().copyWith(content: host);
+    final config = await globalState.safeRun(
+      () => ref.read(clashConfigProvider(profile.id).future),
+      title: labels.addRule,
+    );
+    if (!context.mounted) return;
+    final rule = await dialogs.showCommonDialog<Rule>(
+      context: context,
+      child: AddOrEditRuleDialog(
+        isDraft: true,
+        rule: Rule(content: host),
+        actions: const [RuleAction.DOMAIN, RuleAction.DOMAIN_SUFFIX],
+        extraTargets: {
+          for (final group in config?.proxyGroups ?? const <ProxyGroup>[])
+            group.name,
+        }.toList(),
+      ),
+    );
+    if (rule == null || !context.mounted) return;
+    final content = rule.content?.trim() ?? '';
+    if (!RegExp(r'^[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$').hasMatch(content)) {
+      dialogs.showNotifier(labels.contentNotEmpty, level: MessageLevel.error);
+      return;
+    }
+    final draft = rule.copyWith(content: content.toLowerCase());
     final confirmed = await dialogs.showMessage(
       context: context,
       title: labels.addRule,
+      confirmText: labels.save,
       message: TextSpan(
         text:
-            '${profile.realLabel}\n${rule.rawValue}\n\n${labels.connectionLocalRuleHint}',
+            '${profile.realLabel}\n${draft.rawValue}\n\n${labels.connectionLocalRuleHint}',
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    await globalState.safeRun(() async {
+    final saved = await globalState.safeRun(() async {
       final dao = database.rulesDao;
-      await database.transaction(() async {
+      return database.transaction(() async {
         final rules = await dao.queryProfileAddedRules(profile.id).get();
-        if (rules.any((item) => item.rawValue == rule.rawValue)) return;
-        final newRule = rule.copyWith(id: snowflake.id);
+        if (rules.any((item) => item.rawValue == draft.rawValue)) return -1;
+        final newRule = draft.copyWith(id: snowflake.id);
         await dao.putProfileAddedRule(
           profile.id,
           newRule.autoOrder(newRule, null, rules.firstOrNull?.order),
         );
+        return newRule.id;
       });
-      if (context.mounted) ref.invalidate(setupStateProvider(profile.id));
     }, title: labels.addRule);
+    if (saved == null || !context.mounted) return;
+    ref.invalidate(setupStateProvider(profile.id));
+    final undo = await dialogs.showMessage(
+      context: context,
+      title: saved == -1
+          ? labels.connectionRuleExists
+          : labels.connectionRuleSaved,
+      message: TextSpan(text: '${profile.realLabel}\n${draft.rawValue}'),
+      confirmText: saved == -1 ? labels.confirm : labels.undo,
+      cancelText: labels.confirm,
+      cancelable: saved != -1,
+    );
+    if (undo != true || saved == -1 || !context.mounted) return;
+    await globalState.safeRun(() async {
+      await database.rulesDao.delRules([saved]);
+      if (context.mounted) ref.invalidate(setupStateProvider(profile.id));
+    }, title: labels.undo);
   }
 
   @override
@@ -335,7 +377,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
       children: [
         if (canAddRule)
           TextButton(
-            onPressed: () => _addDirectRule(context, ref, profile, host),
+            onPressed: () => _addLocalRule(context, ref, profile, host),
             child: Text(appLocalizations.addRule),
           ),
         generateSectionV3(

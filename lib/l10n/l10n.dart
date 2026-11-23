@@ -6094,6 +6094,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Local rule saved`
+  String get connectionRuleSaved {
+    return Intl.message(
+      'Local rule saved',
+      name: 'connectionRuleSaved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule already exists`
+  String get connectionRuleExists {
+    return Intl.message(
+      'Rule already exists',
+      name: 'connectionRuleExists',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

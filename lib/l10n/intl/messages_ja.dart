@@ -273,6 +273,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "接続を更新できません。リストが古い可能性があります。",
     ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage("ルールは既に存在します"),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage(
+      "ローカルルールを保存しました",
+    ),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "接続情報を取得できません",
     ),

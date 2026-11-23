@@ -217,7 +217,17 @@ class RuleStatusItem extends StatelessWidget {
 class AddOrEditRuleDialog extends StatefulWidget {
   final Rule? rule;
 
-  const AddOrEditRuleDialog({super.key, this.rule});
+  final List<String> extraTargets;
+  final List<RuleAction> actions;
+  final bool isDraft;
+
+  const AddOrEditRuleDialog({
+    super.key,
+    this.rule,
+    this.extraTargets = const [],
+    this.actions = const [],
+    this.isDraft = false,
+  });
 
   @override
   State<AddOrEditRuleDialog> createState() => _AddOrEditRuleDialogState();
@@ -250,6 +260,13 @@ class _AddOrEditRuleDialogState extends State<AddOrEditRuleDialog> {
       ...RuleTarget.values.map(
         (item) => DropdownMenuEntry(value: item.name, label: item.name),
       ),
+      ...widget.extraTargets
+          .where(
+            (name) =>
+                !RuleTarget.values.any((target) => target.name == name) &&
+                name != RuleAction.MATCH.value,
+          )
+          .map((name) => DropdownMenuEntry(value: name, label: name)),
       DropdownMenuEntry(
         value: RuleAction.MATCH.value,
         label: context.appLocalizations.matchTarget,
@@ -312,7 +329,7 @@ class _AddOrEditRuleDialogState extends State<AddOrEditRuleDialog> {
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonDialog(
-      title: widget.rule != null
+      title: widget.rule != null && !widget.isDraft
           ? appLocalizations.editRule
           : appLocalizations.addRule,
       actions: [
@@ -344,7 +361,9 @@ class _AddOrEditRuleDialogState extends State<AddOrEditRuleDialog> {
                             filter: false,
                             child: OptionsDialog<RuleAction>(
                               title: appLocalizations.ruleName,
-                              options: RuleAction.addedRuleActions,
+                              options: widget.actions.isEmpty
+                                  ? RuleAction.addedRuleActions
+                                  : widget.actions,
                               textBuilder: (item) => item.value,
                               value: _ruleAction,
                             ),

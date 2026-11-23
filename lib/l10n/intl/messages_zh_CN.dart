@@ -245,6 +245,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "无法刷新连接，列表可能已过期。",
     ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage("规则已存在"),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage("已保存本地规则"),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "暂时无法获取连接",
     ),

@@ -347,6 +347,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Не удалось обновить соединения. Список может быть устаревшим.",
     ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage(
+      "Правило уже существует",
+    ),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage(
+      "Локальное правило сохранено",
+    ),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "Данные о соединениях недоступны",
     ),

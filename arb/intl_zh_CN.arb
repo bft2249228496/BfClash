@@ -725,5 +725,7 @@
   "tailnetAdbCloseUnknown": "关闭状态无法确认，请重试关闭",
   "exportDiagnosticReport": "导出诊断报告",
   "recentlyClosedConnections": "最近关闭的连接",
-  "connectionLocalRuleHint": "保存为本地附加规则，下次应用此配置并使用规则模式时生效。"
+  "connectionLocalRuleHint": "保存为本地附加规则，下次应用此配置并使用规则模式时生效。",
+  "connectionRuleSaved": "已保存本地规则",
+  "connectionRuleExists": "规则已存在"
 }

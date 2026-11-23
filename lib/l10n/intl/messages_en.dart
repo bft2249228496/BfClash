@@ -341,6 +341,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Unable to refresh connections. The list may be out of date.",
     ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage(
+      "Rule already exists",
+    ),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage(
+      "Local rule saved",
+    ),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "Connection data is unavailable",
     ),
