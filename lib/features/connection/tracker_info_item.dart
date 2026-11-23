@@ -1,7 +1,9 @@
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/database/database.dart';
+import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/models/models.dart';
-import 'package:bfclash/providers/config.dart';
+import 'package:bfclash/state.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -226,7 +228,7 @@ class TrackerInfoItem extends ConsumerWidget {
   }
 }
 
-class TrackerInfoDetailView extends StatelessWidget {
+class TrackerInfoDetailView extends ConsumerWidget {
   final TrackerInfo trackerInfo;
 
   const TrackerInfoDetailView({super.key, required this.trackerInfo});
@@ -279,15 +281,63 @@ class TrackerInfoDetailView extends StatelessWidget {
     ];
   }
 
+  Future<void> _addDirectRule(
+    BuildContext context,
+    WidgetRef ref,
+    Profile profile,
+    String host,
+  ) async {
+    final labels = context.appLocalizations;
+    final rule = Rule.init().copyWith(content: host);
+    final confirmed = await dialogs.showMessage(
+      context: context,
+      title: labels.addRule,
+      message: TextSpan(
+        text:
+            '${profile.realLabel}\n${rule.rawValue}\n\n${labels.connectionLocalRuleHint}',
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    await globalState.safeRun(() async {
+      final dao = database.rulesDao;
+      await database.transaction(() async {
+        final rules = await dao.queryProfileAddedRules(profile.id).get();
+        if (rules.any((item) => item.rawValue == rule.rawValue)) return;
+        final newRule = rule.copyWith(id: snowflake.id);
+        await dao.putProfileAddedRule(
+          profile.id,
+          newRule.autoOrder(newRule, null, rules.firstOrNull?.order),
+        );
+      });
+      if (context.mounted) ref.invalidate(setupStateProvider(profile.id));
+    }, title: labels.addRule);
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final appLocalizations = context.appLocalizations;
     final metadata = trackerInfo.metadata;
+    final profile = ref.watch(currentProfileProvider);
+    final host = metadata.host.trim().toLowerCase().replaceFirst(
+      RegExp(r'\.$'),
+      '',
+    );
+    final canAddRule =
+        profile != null &&
+        profile.overwriteType == OverwriteType.standard &&
+        host.length <= 253 &&
+        RegExp(r'^[a-z0-9-]+(?:\.[a-z0-9-]+)+$').hasMatch(host) &&
+        !RegExp(r'^[0-9.]+$').hasMatch(host);
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
       ).copyWith(bottom: 20, top: context.sheetTopPadding),
       children: [
+        if (canAddRule)
+          TextButton(
+            onPressed: () => _addDirectRule(context, ref, profile, host),
+            child: Text(appLocalizations.addRule),
+          ),
         generateSectionV3(
           title: appLocalizations.basicInfo,
           items: _buildRows([

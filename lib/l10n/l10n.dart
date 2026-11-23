@@ -6084,6 +6084,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Save as a local rule. It takes effect the next time this profile is applied in Rule mode.`
+  String get connectionLocalRuleHint {
+    return Intl.message(
+      'Save as a local rule. It takes effect the next time this profile is applied in Rule mode.',
+      name: 'connectionLocalRuleHint',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

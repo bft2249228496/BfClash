@@ -724,5 +724,6 @@
   "tailnetAdbPageLifetime": "バックグラウンドで最大60分間維持されます（この画面でいつでも停止可能）",
   "tailnetAdbCloseUnknown": "停止を確認できません。もう一度停止してください",
   "exportDiagnosticReport": "診断レポートをエクスポート",
-  "recentlyClosedConnections": "最近終了した接続"
+  "recentlyClosedConnections": "最近終了した接続",
+  "connectionLocalRuleHint": "ローカルルールとして保存し、次にルールモードでこのプロファイルを適用したときに有効になります。"
 }

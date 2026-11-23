@@ -9,6 +9,7 @@ import 'app_localizations.dart';
 import 'l10n_labels.dart';
 import 'app_ports.dart';
 import 'constant.dart';
+import 'channel_config.dart';
 import 'provider_reader.dart';
 import 'system.dart';
 import 'window.dart';
@@ -80,7 +81,7 @@ class AppTray implements TrayPort {
           ),
           isTemplate: isMacOS,
         ),
-        toolTip: appName,
+        toolTip: system.isWindows ? WindowsChannelConfig.appName : appName,
         menu: _buildMenu(trayState: trayState, read: read),
       ),
     );

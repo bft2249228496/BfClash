@@ -528,10 +528,11 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           target_commitish: ${{ inputs.publish_only && inputs.source_sha || github.sha }}
-          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — Tailscale 设备列表与临时 ADB
+          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 连接诊断与本地规则
           body: |
-            - 临时 ADB 转发开启后，当前设备的按钮显示「关闭 ADB 转发」。
-            - 设备列表优先显示 Tailscale 管理后台的设备名称，刷新状态后可看到改名结果。
+            - Windows 托盘提示区分正式版与 Beta。
+            - 从连接详情预览并保存域名直连规则到当前配置的附加规则。
+            - 保留诊断报告导出与最近关闭的连接。
           prerelease: ${{ steps.version.outputs.prerelease }}
           make_latest: ${{ steps.version.outputs.prerelease == 'false' }}
           files: public/*

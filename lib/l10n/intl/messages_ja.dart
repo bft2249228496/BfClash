@@ -267,6 +267,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "connecting": MessageLookupByLibrary.simpleMessage("接続中..."),
     "connection": MessageLookupByLibrary.simpleMessage("接続"),
     "connectionConsole": MessageLookupByLibrary.simpleMessage("接続コンソール"),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "ローカルルールとして保存し、次にルールモードでこのプロファイルを適用したときに有効になります。",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "接続を更新できません。リストが古い可能性があります。",
     ),

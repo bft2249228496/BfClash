@@ -335,6 +335,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionConsole": MessageLookupByLibrary.simpleMessage(
       "Connection console",
     ),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "Save as a local rule. It takes effect the next time this profile is applied in Rule mode.",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Unable to refresh connections. The list may be out of date.",
     ),

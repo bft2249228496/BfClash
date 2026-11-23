@@ -724,5 +724,6 @@
   "tailnetAdbPageLifetime": "Работает в фоне до 60 минут (можно отключить вручную на этой странице)",
   "tailnetAdbCloseUnknown": "Не удалось подтвердить отключение; повторите попытку",
   "exportDiagnosticReport": "Экспорт отчёта диагностики",
-  "recentlyClosedConnections": "Недавно закрытые соединения"
+  "recentlyClosedConnections": "Недавно закрытые соединения",
+  "connectionLocalRuleHint": "Локальное правило вступит в силу при следующем применении профиля в режиме правил."
 }

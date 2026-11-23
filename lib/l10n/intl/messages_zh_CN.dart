@@ -239,6 +239,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "connecting": MessageLookupByLibrary.simpleMessage("连接中..."),
     "connection": MessageLookupByLibrary.simpleMessage("连接"),
     "connectionConsole": MessageLookupByLibrary.simpleMessage("连接控制台"),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "保存为本地附加规则，下次应用此配置并使用规则模式时生效。",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "无法刷新连接，列表可能已过期。",
     ),

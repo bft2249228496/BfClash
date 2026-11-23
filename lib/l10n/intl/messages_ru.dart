@@ -341,6 +341,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionConsole": MessageLookupByLibrary.simpleMessage(
       "Консоль подключения",
     ),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "Локальное правило вступит в силу при следующем применении профиля в режиме правил.",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Не удалось обновить соединения. Список может быть устаревшим.",
     ),
