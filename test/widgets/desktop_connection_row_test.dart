@@ -1,3 +1,4 @@
+import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/features/connection/tracker_info_item.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,7 @@ void main() {
       );
       await tester.pumpWidget(
         TestApp(
+          overrides: [currentProfileProvider.overrideWith((_) => null)],
           wrapInProviderScope: true,
           includeNavigatorKey: false,
           locale: const Locale('en'),

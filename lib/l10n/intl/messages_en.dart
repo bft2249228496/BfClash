@@ -335,8 +335,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionConsole": MessageLookupByLibrary.simpleMessage(
       "Connection console",
     ),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "Save as a local rule. It takes effect the next time this profile is applied in Rule mode.",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Unable to refresh connections. The list may be out of date.",
+    ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage(
+      "Rule already exists",
+    ),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage(
+      "Local rule saved",
     ),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "Connection data is unavailable",
@@ -478,6 +487,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "expand": MessageLookupByLibrary.simpleMessage("Standard"),
     "expectedStatus": MessageLookupByLibrary.simpleMessage("Expected status"),
     "expireTime": MessageLookupByLibrary.simpleMessage("Expiration time"),
+    "exportDiagnosticReport": MessageLookupByLibrary.simpleMessage(
+      "Export diagnostic report",
+    ),
     "exportFile": MessageLookupByLibrary.simpleMessage("Export file"),
     "exportLogs": MessageLookupByLibrary.simpleMessage("Export logs"),
     "exportSuccess": MessageLookupByLibrary.simpleMessage("Export successful"),
@@ -899,6 +911,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quickFill": MessageLookupByLibrary.simpleMessage("Quick fill"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Rainbow"),
     "realtimeRate": MessageLookupByLibrary.simpleMessage("Live rates"),
+    "recentlyClosedConnections": MessageLookupByLibrary.simpleMessage(
+      "Recently closed connections",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redir port"),
     "redo": MessageLookupByLibrary.simpleMessage("Redo"),
     "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),

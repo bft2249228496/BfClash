@@ -722,5 +722,10 @@
   "tailnetAdbReady": "On · Forwarding ports are open",
   "tailnetAdbPorts": "Open ports",
   "tailnetAdbPageLifetime": "Keeps running in background for up to 60 minutes (can be stopped manually here)",
-  "tailnetAdbCloseUnknown": "Unable to confirm closure; try stopping again"
+  "tailnetAdbCloseUnknown": "Unable to confirm closure; try stopping again",
+  "exportDiagnosticReport": "Export diagnostic report",
+  "recentlyClosedConnections": "Recently closed connections",
+  "connectionLocalRuleHint": "Save as a local rule. It takes effect the next time this profile is applied in Rule mode.",
+  "connectionRuleSaved": "Local rule saved",
+  "connectionRuleExists": "Rule already exists"
 }

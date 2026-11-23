@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
@@ -65,6 +67,11 @@ class _LogsViewState extends ConsumerState<LogsView> {
   List<Widget> _buildActions() {
     return [
       IconButton(
+        tooltip: context.appLocalizations.exportDiagnosticReport,
+        onPressed: () => _handleExport(diagnostics: true),
+        icon: const Icon(Icons.assignment_outlined),
+      ),
+      IconButton(
         tooltip: context.appLocalizations.exportLogs,
         onPressed: () {
           _handleExport();
@@ -81,11 +88,18 @@ class _LogsViewState extends ConsumerState<LogsView> {
     super.dispose();
   }
 
-  Future<void> _handleExport() async {
+  Future<void> _handleExport({bool diagnostics = false}) async {
     final appLocalizations = context.appLocalizations;
-    final res = await globalState.safeRun<bool>(() async {
-      return ref.read(logsProvider.notifier).exportLogs();
-    }, title: appLocalizations.exportLogs);
+    final res = await globalState.safeRun<bool>(
+      () async {
+        return diagnostics
+            ? _exportDiagnosticReport()
+            : ref.read(logsProvider.notifier).exportLogs();
+      },
+      title: diagnostics
+          ? appLocalizations.exportDiagnosticReport
+          : appLocalizations.exportLogs,
+    );
     if (res != true) return;
     unawaited(
       dialogs.showMessage(
@@ -93,6 +107,38 @@ class _LogsViewState extends ConsumerState<LogsView> {
         message: TextSpan(text: appLocalizations.exportSuccess),
       ),
     );
+  }
+
+  Future<bool> _exportDiagnosticReport() async {
+    final config = ref.read(patchClashConfigProvider);
+    final report = {
+      'schemaVersion': 1,
+      'capturedAt': DateTime.now().toUtc().toIso8601String(),
+      'appVersion': globalState.packageInfo.version,
+      'appBuild': globalState.packageInfo.buildNumber,
+      'platform': Platform.operatingSystem,
+      'coreStatus': ref.read(coreStatusProvider).name,
+      'coreRuntime': ref.read(runTimeProvider),
+      'proxyMode': config.mode.name,
+      'mixedPort': config.mixedPort,
+      'tunConfigured': config.tun.enable,
+      'systemProxyConfigured': ref.read(networkSettingProvider).systemProxy,
+      'tailscaleConfigured': ref.read(appSettingProvider).tailscaleEnabled,
+    };
+    final directory = await Directory.systemTemp.createTemp('bfclash-report-');
+    try {
+      final file = File('${directory.path}/bfclash-diagnostics.json');
+      await file.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(report),
+      );
+      return await picker.saveFileWithPath(
+            'bfclash-diagnostics.json',
+            file.path,
+          ) !=
+          null;
+    } finally {
+      await directory.delete(recursive: true);
+    }
   }
 
   void updateLogsThrottler() {

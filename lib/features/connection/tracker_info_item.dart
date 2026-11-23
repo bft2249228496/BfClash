@@ -1,7 +1,10 @@
+import 'package:bfclash/features/overwrite/rule.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/database/database.dart';
+import 'package:bfclash/providers/providers.dart';
 import 'package:bfclash/models/models.dart';
-import 'package:bfclash/providers/config.dart';
+import 'package:bfclash/state.dart';
 import 'package:bfclash/widgets/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
@@ -226,7 +229,7 @@ class TrackerInfoItem extends ConsumerWidget {
   }
 }
 
-class TrackerInfoDetailView extends StatelessWidget {
+class TrackerInfoDetailView extends ConsumerWidget {
   final TrackerInfo trackerInfo;
 
   const TrackerInfoDetailView({super.key, required this.trackerInfo});
@@ -279,15 +282,104 @@ class TrackerInfoDetailView extends StatelessWidget {
     ];
   }
 
+  Future<void> _addLocalRule(
+    BuildContext context,
+    WidgetRef ref,
+    Profile profile,
+    String host,
+  ) async {
+    final labels = context.appLocalizations;
+    final config = await globalState.safeRun(
+      () => ref.read(clashConfigProvider(profile.id).future),
+      title: labels.addRule,
+    );
+    if (!context.mounted) return;
+    final rule = await dialogs.showCommonDialog<Rule>(
+      context: context,
+      child: AddOrEditRuleDialog(
+        isDraft: true,
+        rule: Rule(content: host),
+        actions: const [RuleAction.DOMAIN, RuleAction.DOMAIN_SUFFIX],
+        extraTargets: {
+          for (final group in config?.proxyGroups ?? const <ProxyGroup>[])
+            group.name,
+        }.toList(),
+      ),
+    );
+    if (rule == null || !context.mounted) return;
+    final content = rule.content?.trim() ?? '';
+    if (!RegExp(r'^[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$').hasMatch(content)) {
+      dialogs.showNotifier(labels.contentNotEmpty, level: MessageLevel.error);
+      return;
+    }
+    final draft = rule.copyWith(content: content.toLowerCase());
+    final confirmed = await dialogs.showMessage(
+      context: context,
+      title: labels.addRule,
+      confirmText: labels.save,
+      message: TextSpan(
+        text:
+            '${profile.realLabel}\n${draft.rawValue}\n\n${labels.connectionLocalRuleHint}',
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final saved = await globalState.safeRun(() async {
+      final dao = database.rulesDao;
+      return database.transaction(() async {
+        final rules = await dao.queryProfileAddedRules(profile.id).get();
+        if (rules.any((item) => item.rawValue == draft.rawValue)) return -1;
+        final newRule = draft.copyWith(id: snowflake.id);
+        await dao.putProfileAddedRule(
+          profile.id,
+          newRule.autoOrder(newRule, null, rules.firstOrNull?.order),
+        );
+        return newRule.id;
+      });
+    }, title: labels.addRule);
+    if (saved == null || !context.mounted) return;
+    ref.invalidate(setupStateProvider(profile.id));
+    final undo = await dialogs.showMessage(
+      context: context,
+      title: saved == -1
+          ? labels.connectionRuleExists
+          : labels.connectionRuleSaved,
+      message: TextSpan(text: '${profile.realLabel}\n${draft.rawValue}'),
+      confirmText: saved == -1 ? labels.confirm : labels.undo,
+      cancelText: labels.confirm,
+      cancelable: saved != -1,
+    );
+    if (undo != true || saved == -1 || !context.mounted) return;
+    await globalState.safeRun(() async {
+      await database.rulesDao.delRules([saved]);
+      if (context.mounted) ref.invalidate(setupStateProvider(profile.id));
+    }, title: labels.undo);
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final appLocalizations = context.appLocalizations;
     final metadata = trackerInfo.metadata;
+    final profile = ref.watch(currentProfileProvider);
+    final host = metadata.host.trim().toLowerCase().replaceFirst(
+      RegExp(r'\.$'),
+      '',
+    );
+    final canAddRule =
+        profile != null &&
+        profile.overwriteType == OverwriteType.standard &&
+        host.length <= 253 &&
+        RegExp(r'^[a-z0-9-]+(?:\.[a-z0-9-]+)+$').hasMatch(host) &&
+        !RegExp(r'^[0-9.]+$').hasMatch(host);
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
       ).copyWith(bottom: 20, top: context.sheetTopPadding),
       children: [
+        if (canAddRule)
+          TextButton(
+            onPressed: () => _addLocalRule(context, ref, profile, host),
+            child: Text(appLocalizations.addRule),
+          ),
         generateSectionV3(
           title: appLocalizations.basicInfo,
           items: _buildRows([

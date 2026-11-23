@@ -5950,7 +5950,7 @@ class AppLocalizations {
     );
   }
 
-  /// `Only the selected device can connect for up to 15 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.`
+  /// `Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.`
   String get tailnetAdbDescription {
     return Intl.message(
       'Only the selected device can connect for up to 60 minutes. After starting, open Android wireless debugging pairing. Ports are discovered automatically.',
@@ -6060,6 +6060,56 @@ class AppLocalizations {
     return Intl.message(
       'Unable to confirm closure; try stopping again',
       name: 'tailnetAdbCloseUnknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export diagnostic report`
+  String get exportDiagnosticReport {
+    return Intl.message(
+      'Export diagnostic report',
+      name: 'exportDiagnosticReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recently closed connections`
+  String get recentlyClosedConnections {
+    return Intl.message(
+      'Recently closed connections',
+      name: 'recentlyClosedConnections',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save as a local rule. It takes effect the next time this profile is applied in Rule mode.`
+  String get connectionLocalRuleHint {
+    return Intl.message(
+      'Save as a local rule. It takes effect the next time this profile is applied in Rule mode.',
+      name: 'connectionLocalRuleHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local rule saved`
+  String get connectionRuleSaved {
+    return Intl.message(
+      'Local rule saved',
+      name: 'connectionRuleSaved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule already exists`
+  String get connectionRuleExists {
+    return Intl.message(
+      'Rule already exists',
+      name: 'connectionRuleExists',
       desc: '',
       args: [],
     );

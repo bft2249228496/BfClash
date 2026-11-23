@@ -1,3 +1,4 @@
+import 'package:bfclash/providers/providers.dart';
 import 'package:flutter/services.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/features/features.dart';
@@ -62,6 +63,7 @@ void main() {
       );
       await tester.pumpWidget(
         TestApp(
+          overrides: [currentProfileProvider.overrideWith((_) => null)],
           homeBuilder: (child) => Scaffold(body: child),
           child: SheetProvider(
             type: SheetType.page,
@@ -97,6 +99,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       TestApp(
+        overrides: [currentProfileProvider.overrideWith((_) => null)],
         homeBuilder: (child) => Scaffold(body: child),
         child: SheetProvider(
           type: SheetType.page,
@@ -138,6 +141,7 @@ void main() {
   testWidgets('TrackerInfoDetailView omits empty fields', (tester) async {
     await tester.pumpWidget(
       TestApp(
+        overrides: [currentProfileProvider.overrideWith((_) => null)],
         homeBuilder: (child) => Scaffold(body: child),
         child: SheetProvider(
           type: SheetType.page,
@@ -160,6 +164,7 @@ void main() {
     final clicked = <String>[];
     await tester.pumpWidget(
       TestApp(
+        overrides: [currentProfileProvider.overrideWith((_) => null)],
         wrapInProviderScope: true,
         homeBuilder: (child) => Scaffold(body: child),
         child: TrackerInfoItem(

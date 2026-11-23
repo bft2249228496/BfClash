@@ -341,8 +341,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionConsole": MessageLookupByLibrary.simpleMessage(
       "Консоль подключения",
     ),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "Локальное правило вступит в силу при следующем применении профиля в режиме правил.",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "Не удалось обновить соединения. Список может быть устаревшим.",
+    ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage(
+      "Правило уже существует",
+    ),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage(
+      "Локальное правило сохранено",
     ),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "Данные о соединениях недоступны",
@@ -490,6 +499,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "expand": MessageLookupByLibrary.simpleMessage("Стандартный"),
     "expectedStatus": MessageLookupByLibrary.simpleMessage("Ожидаемый статус"),
     "expireTime": MessageLookupByLibrary.simpleMessage("Срок действия"),
+    "exportDiagnosticReport": MessageLookupByLibrary.simpleMessage(
+      "Экспорт отчёта диагностики",
+    ),
     "exportFile": MessageLookupByLibrary.simpleMessage("Экспорт файла"),
     "exportLogs": MessageLookupByLibrary.simpleMessage("Экспорт логов"),
     "exportSuccess": MessageLookupByLibrary.simpleMessage("Экспорт выполнен"),
@@ -930,6 +942,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("Радуга"),
     "realtimeRate": MessageLookupByLibrary.simpleMessage(
       "Скорость в реальном времени",
+    ),
+    "recentlyClosedConnections": MessageLookupByLibrary.simpleMessage(
+      "Недавно закрытые соединения",
     ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Порт Redir"),
     "redo": MessageLookupByLibrary.simpleMessage("Повторить"),

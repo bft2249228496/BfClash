@@ -239,9 +239,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "connecting": MessageLookupByLibrary.simpleMessage("连接中..."),
     "connection": MessageLookupByLibrary.simpleMessage("连接"),
     "connectionConsole": MessageLookupByLibrary.simpleMessage("连接控制台"),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "保存为本地附加规则，下次应用此配置并使用规则模式时生效。",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "无法刷新连接，列表可能已过期。",
     ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage("规则已存在"),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage("已保存本地规则"),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "暂时无法获取连接",
     ),
@@ -346,6 +351,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "expand": MessageLookupByLibrary.simpleMessage("标准"),
     "expectedStatus": MessageLookupByLibrary.simpleMessage("预期状态"),
     "expireTime": MessageLookupByLibrary.simpleMessage("到期时间"),
+    "exportDiagnosticReport": MessageLookupByLibrary.simpleMessage("导出诊断报告"),
     "exportFile": MessageLookupByLibrary.simpleMessage("导出文件"),
     "exportLogs": MessageLookupByLibrary.simpleMessage("导出日志"),
     "exportSuccess": MessageLookupByLibrary.simpleMessage("导出成功"),
@@ -644,6 +650,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quickFill": MessageLookupByLibrary.simpleMessage("一键填入"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("彩虹"),
     "realtimeRate": MessageLookupByLibrary.simpleMessage("实时速率"),
+    "recentlyClosedConnections": MessageLookupByLibrary.simpleMessage(
+      "最近关闭的连接",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redir端口"),
     "redo": MessageLookupByLibrary.simpleMessage("重做"),
     "refresh": MessageLookupByLibrary.simpleMessage("刷新"),

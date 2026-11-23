@@ -267,8 +267,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "connecting": MessageLookupByLibrary.simpleMessage("接続中..."),
     "connection": MessageLookupByLibrary.simpleMessage("接続"),
     "connectionConsole": MessageLookupByLibrary.simpleMessage("接続コンソール"),
+    "connectionLocalRuleHint": MessageLookupByLibrary.simpleMessage(
+      "ローカルルールとして保存し、次にルールモードでこのプロファイルを適用したときに有効になります。",
+    ),
     "connectionRefreshFailedTip": MessageLookupByLibrary.simpleMessage(
       "接続を更新できません。リストが古い可能性があります。",
+    ),
+    "connectionRuleExists": MessageLookupByLibrary.simpleMessage("ルールは既に存在します"),
+    "connectionRuleSaved": MessageLookupByLibrary.simpleMessage(
+      "ローカルルールを保存しました",
     ),
     "connectionSnapshotUnavailable": MessageLookupByLibrary.simpleMessage(
       "接続情報を取得できません",
@@ -388,6 +395,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "expand": MessageLookupByLibrary.simpleMessage("標準"),
     "expectedStatus": MessageLookupByLibrary.simpleMessage("期待するステータス"),
     "expireTime": MessageLookupByLibrary.simpleMessage("有効期限"),
+    "exportDiagnosticReport": MessageLookupByLibrary.simpleMessage(
+      "診断レポートをエクスポート",
+    ),
     "exportFile": MessageLookupByLibrary.simpleMessage("ファイルをエクスポート"),
     "exportLogs": MessageLookupByLibrary.simpleMessage("ログをエクスポート"),
     "exportSuccess": MessageLookupByLibrary.simpleMessage("エクスポートが完了しました"),
@@ -744,6 +754,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "quickFill": MessageLookupByLibrary.simpleMessage("クイック入力"),
     "rainbowScheme": MessageLookupByLibrary.simpleMessage("レインボー"),
     "realtimeRate": MessageLookupByLibrary.simpleMessage("リアルタイム速度"),
+    "recentlyClosedConnections": MessageLookupByLibrary.simpleMessage(
+      "最近終了した接続",
+    ),
     "redirPort": MessageLookupByLibrary.simpleMessage("Redirポート"),
     "redo": MessageLookupByLibrary.simpleMessage("やり直す"),
     "refresh": MessageLookupByLibrary.simpleMessage("更新"),
