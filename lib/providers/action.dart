@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bfclash/common/windows_lifecycle_log.dart';
 import 'package:dio/dio.dart';
 
 import 'package:bfclash/common/boot_guard.dart';

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bfclash/common/windows_lifecycle_log.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/pages/error.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,6 +14,7 @@ import 'common/common.dart';
 import 'common/window.dart';
 
 void main(List<String> args) {
+  recordWindowsLifecycle('startup.begin');
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +22,11 @@ void main(List<String> args) {
         linkManager.seedInitialLink(args);
       }
       FlutterError.onError = (details) {
+        recordWindowsLifecycle(
+          'flutter.error',
+          error: details.exception,
+          stack: details.stack,
+        );
         Future.microtask(() {
           commonPrint.log(
             'exception: ${details.exception} stack: ${details.stack}',
@@ -33,6 +40,7 @@ void main(List<String> args) {
         final container = await bootstrap.init(version);
         HttpOverrides.global = BfClashHttpOverrides(container);
         request.attach(container.read);
+        recordWindowsLifecycle('startup.uiMountRequested');
         runApp(
           UncontrolledProviderScope(
             container: container,
@@ -40,6 +48,7 @@ void main(List<String> args) {
           ),
         );
       } catch (e, s) {
+        recordWindowsLifecycle('startup.failed', error: e, stack: s);
         runApp(
           MaterialApp(
             home: InitErrorScreen(error: e, stack: s),

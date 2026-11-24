@@ -213,6 +213,21 @@ $locked = $false
 function L([string]$m) {
   try { Add-Content -LiteralPath $log -Value ('[{0}] {1}' -f (Get-Date -Format 'HH:mm:ss'), $m) -Encoding UTF8 } catch {}
 }
+function Write-UpdateStage([string]$event) {
+  try {
+    if (-not $env:LOCALAPPDATA) { return }
+    $channel = if ([IO.Path]::GetFileNameWithoutExtension($exe) -ieq 'BfClash-Beta') { 'beta' } else { 'stable' }
+    $root = Join-Path $env:LOCALAPPDATA ('BfClashDiagnostics\' + $channel)
+    [IO.Directory]::CreateDirectory($root) | Out-Null
+    $journal = Join-Path $root 'update.jsonl'
+    if ((Test-Path -LiteralPath $journal) -and (Get-Item -LiteralPath $journal).Length -ge 1MB) {
+      [IO.File]::Delete($journal + '.previous')
+      [IO.File]::Move($journal, $journal + '.previous')
+    }
+    $entry = @{time=[DateTime]::UtcNow.ToString('o'); pid=$PID; event=$event; nonce=$nonce; version=$version} | ConvertTo-Json -Compress
+    [IO.File]::AppendAllText($journal, $entry + [Environment]::NewLine)
+  } catch {}
+}
 function Get-InstalledProcesses {
   @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
     $path = $null
@@ -266,6 +281,7 @@ function Wait-AppReady {
             Start-Sleep -Milliseconds 500
             if (@(Get-App | Where-Object { $_.Id -eq $ready.processId }).Count -ne 1) { throw 'updated app exited after initialization' }
           }
+          Write-UpdateStage 'health.confirmed'
           L 'app initialization and core connection confirmed'
           return
         }
@@ -405,6 +421,7 @@ try {
   $mutex = [Threading.Mutex]::new($false, ('Global\BfClashUpdate-' + $key))
   try { $locked = $mutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $locked = $true }
   if (-not $locked) { throw 'another update is already running' }
+  Write-UpdateStage 'update.begin'
   L ('transaction start: ' + $transaction)
   New-Item -ItemType Directory -Path $stage -Force | Out-Null
   Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -477,10 +494,12 @@ try {
   if ($downloadDir -and [IO.Path]::GetFileName($downloadDir) -match '^bfclash-update-[a-f0-9]{64}$' -and [IO.Path]::GetDirectoryName($zip) -ieq $downloadDir -and -not $dir.StartsWith($downloadDir + '\', [StringComparison]::OrdinalIgnoreCase) -and -not $dataDir.StartsWith($downloadDir + '\', [StringComparison]::OrdinalIgnoreCase)) {
     try { Remove-Item -LiteralPath $downloadDir -Recurse -Force } catch { L ('download cleanup deferred: ' + $_) }
   }
+  Write-UpdateStage 'update.committed'
   L ('portable update committed; original files retained: ' + $backup)
   exit 0
 } catch {
   $message = $_.Exception.Message
+  Write-UpdateStage 'update.failed'
   L ('update error: ' + $message)
   Preparation-Result 'failed' $message
   if ($locked -and $stopped) {
@@ -505,9 +524,10 @@ try {
         Start-App
         Wait-RestoredApp
       }
+      Write-UpdateStage 'rollback.confirmed'
       L 'rollback confirmed'
       try { Remove-Item -LiteralPath $transaction -Recurse -Force } catch { L ('rollback cleanup deferred: ' + $_) }
-    } catch { $message += '; recovery failed: ' + $_.Exception.Message; L $message }
+    } catch { Write-UpdateStage 'rollback.failed'; $message += '; recovery failed: ' + $_.Exception.Message; L $message }
   } elseif ($locked -and @(Get-App).Count -eq 0 -and (Test-Path -LiteralPath $exe)) {
     try { Start-App; Wait-RestoredApp } catch { L ('restart unchanged app failed: ' + $_) }
   }
