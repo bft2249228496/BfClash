@@ -136,9 +136,10 @@ type CoreMethod string
 type MessageType string
 
 type Delay struct {
-	Url   string `json:"url"`
-	Name  string `json:"name"`
-	Value int32  `json:"value"`
+	Diagnostic string `json:"diagnostic,omitempty"`
+	Url        string `json:"url"`
+	Name       string `json:"name"`
+	Value      int32  `json:"value"`
 }
 
 type Message struct {

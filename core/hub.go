@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"net"
 	"net/url"
 	"os"
@@ -295,8 +296,10 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 		Value: -1,
 	}
 
+	proxyID := sha256.Sum256([]byte(params.ProxyName))
 	proxy := lookupProxy(params.ProxyName)
 	if proxy == nil {
+		delayData.Diagnostic = fmt.Sprintf("[DelayTest] node=%x stage=lookup reason=missing", proxyID[:8])
 		reportMissingDelayTestProxy(params.ProxyName)
 		return delayData
 	}
@@ -311,10 +314,9 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 	queueCtx, cancelQueue := context.WithTimeout(context.Background(), timeout)
 	granted := acquireDelayTestSlot(queueCtx)
 	cancelQueue()
-	proxyID := sha256.Sum256([]byte(params.ProxyName))
 	if !granted {
-		log.Warnln("[DelayTest] node=%x protocol=%s stage=queue reason=timeout", proxyID[:8], proxy.Type())
-		return nil
+		delayData.Diagnostic = fmt.Sprintf("[DelayTest] node=%x protocol=%s stage=queue reason=timeout", proxyID[:8], proxy.Type())
+		return delayData
 	}
 	defer releaseDelayTestSlot()
 
@@ -323,7 +325,7 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 
 	delay, err := proxy.URLTest(ctx, url, anyDelayTestStatus)
 	if err != nil {
-		log.Warnln("[DelayTest] node=%x protocol=%s stage=probe reason=%s errorType=%T", proxyID[:8], proxy.Type(), delayFailureReason(err), err)
+		delayData.Diagnostic = fmt.Sprintf("[DelayTest] node=%x protocol=%s stage=probe reason=%s errorType=%T", proxyID[:8], proxy.Type(), delayFailureReason(err), err)
 		return delayData
 	}
 
