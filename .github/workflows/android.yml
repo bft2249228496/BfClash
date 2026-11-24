@@ -35,6 +35,10 @@ on:
         description: Build and publish Windows artifacts in parallel
         type: boolean
         default: true
+      append_android_to_beta:
+        description: Build Android from an existing Beta tag and add its APKs to that release
+        type: boolean
+        default: false
   push:
     branches: [main, 'integration/**']
     # Android 产品线固定 0.x 号段；Windows 的 1.x tag 不应触发 Android 构建。
@@ -66,7 +70,22 @@ jobs:
             exit 1
           fi
       - uses: actions/checkout@v4
-        with: {submodules: recursive, fetch-depth: 0}
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ inputs.append_android_to_beta && inputs.source_sha || '' }}
+      - name: Verify existing Beta source
+        if: inputs.append_android_to_beta
+        env:
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\+[0-9]+$ ]]
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$(git rev-parse HEAD)" == "$SOURCE_SHA" ]]
+          [[ "$(git rev-parse "refs/tags/v${CANDIDATE_VERSION%+*}^{commit}")" == "$SOURCE_SHA" ]]
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: actions/setup-go@v5
@@ -226,7 +245,7 @@ jobs:
           generate_release_notes: true
 
   build_windows:
-    if: github.event_name == 'workflow_dispatch' && !inputs.publish_only && !inputs.upload_draft_only && inputs.candidate_version != '' && (inputs.include_windows == true || inputs.include_windows == '')
+    if: github.event_name == 'workflow_dispatch' && !inputs.publish_only && !inputs.upload_draft_only && !inputs.append_android_to_beta && inputs.candidate_version != '' && (inputs.include_windows == true || inputs.include_windows == '')
     name: Probe Windows AMD64 Build
     runs-on: windows-2022
     steps:
@@ -387,6 +406,7 @@ jobs:
     if: |
       always() && !cancelled() &&
       github.event_name == 'workflow_dispatch' &&
+      !inputs.append_android_to_beta &&
       (
         inputs.publish_only == true ||
         (
@@ -548,6 +568,42 @@ jobs:
           prerelease: ${{ steps.version.outputs.prerelease }}
           make_latest: false
           files: public/*.apk
+
+  append_android_beta:
+    if: github.event_name == 'workflow_dispatch' && inputs.append_android_to_beta
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: bfclash-android, path: candidate}
+      - name: Upload signed Android packages to the existing Beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=${CANDIDATE_VERSION%+*}
+          tag="v$version"
+          gh release view "$tag" --json isDraft,isPrerelease,targetCommitish,assets | jq -e --arg sha "$SOURCE_SHA" '
+            (.isDraft | not) and .isPrerelease and .targetCommitish == $sha
+            and any(.assets[]; .name | endswith("-windows-amd64.zip"))
+          '
+          (cd candidate && sha256sum -c SHA256SUMS.txt)
+          packages=()
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            file="candidate/BfClash-$version-android-$abi.apk"
+            test -s "$file"
+            packages+=("$file")
+          done
+          cp candidate/SHA256SUMS.txt candidate/SHA256SUMS.android.txt
+          gh release upload "$tag" "${packages[@]}" candidate/SHA256SUMS.android.txt
+          gh release view "$tag" --json body --jq '.body' > notes.md
+          printf '\nAndroid Beta 包含 ARM64、ARMv7 和 x86_64，与 Windows 包来自同一源码提交。\n' >> notes.md
+          gh release edit "$tag" --title "BfClash Beta $version" --notes-file notes.md
 
   upload_android_draft:
     if: github.event_name == 'workflow_dispatch' && inputs.upload_draft_only && !inputs.publish_only
