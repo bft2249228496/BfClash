@@ -218,11 +218,22 @@ jobs:
             cd public
             test -s "$prefix-setup.exe"
             test "$(head -c 2 "$prefix-setup.exe")" = MZ
-            unzip -tq "$prefix.zip"
-            zipinfo -1 "$prefix.zip" > bundle-files.txt
-            for file in BfClash-Beta.exe BfClashCoreBeta.exe proxy_plugin.dll; do
-              grep -Fx "$file" <(sed 's@.*/@@' bundle-files.txt)
-            done
+            python3 - "$prefix.zip" <<'PY'
+          from pathlib import PurePosixPath
+          import sys
+          import zipfile
+
+          with zipfile.ZipFile(sys.argv[1]) as bundle:
+              files = [entry for entry in bundle.infolist() if not entry.is_dir()]
+              names = {PurePosixPath(entry.filename).name for entry in files}
+              required = {'BfClash-Beta.exe', 'BfClashCoreBeta.exe', 'proxy_plugin.dll'}
+              if missing := required - names:
+                  raise SystemExit(f'Missing Beta bundle components: {sorted(missing)}')
+              for entry in files:
+                  with bundle.open(entry) as stream:
+                      while stream.read(1024 * 1024):
+                          pass
+          PY
             sha256sum "$prefix-setup.exe" "$prefix.zip" > SHA256SUMS.txt
           )
           note="$RUNNER_TEMP/bfclash-windows-beta-notes.md"
