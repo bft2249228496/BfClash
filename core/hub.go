@@ -3,6 +3,9 @@ package main
 import (
 	"cmp"
 	"context"
+	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"net"
 	"net/url"
@@ -12,6 +15,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -259,6 +263,27 @@ func reportMissingDelayTestProxy(name string) {
 	logError("delay test: %q is not part of the applied config", name)
 }
 
+func delayFailureReason(err error) string {
+	var dnsError *net.DNSError
+	var certificateError *tls.CertificateVerificationError
+	var unknownAuthority x509.UnknownAuthorityError
+	var networkError net.Error
+	switch {
+	case errors.As(err, &dnsError):
+		return "dns"
+	case errors.As(err, &certificateError), errors.As(err, &unknownAuthority):
+		return "certificate"
+	case errors.Is(err, context.Canceled):
+		return "canceled"
+	case strings.Contains(strings.ToLower(err.Error()), "handshake"):
+		return "handshake"
+	case errors.Is(err, context.DeadlineExceeded), errors.As(err, &networkError) && networkError.Timeout():
+		return "timeout"
+	default:
+		return "other"
+	}
+}
+
 func handleTestDelay(params *TestDelayParams) *Delay {
 	url := params.TestUrl
 	if url == "" {
@@ -286,7 +311,9 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 	queueCtx, cancelQueue := context.WithTimeout(context.Background(), timeout)
 	granted := acquireDelayTestSlot(queueCtx)
 	cancelQueue()
+	proxyID := sha256.Sum256([]byte(params.ProxyName))
 	if !granted {
+		log.Warnln("[DelayTest] node=%x protocol=%s stage=queue reason=timeout", proxyID[:8], proxy.Type())
 		return nil
 	}
 	defer releaseDelayTestSlot()
@@ -296,6 +323,7 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 
 	delay, err := proxy.URLTest(ctx, url, anyDelayTestStatus)
 	if err != nil {
+		log.Warnln("[DelayTest] node=%x protocol=%s stage=probe reason=%s errorType=%T", proxyID[:8], proxy.Type(), delayFailureReason(err), err)
 		return delayData
 	}
 

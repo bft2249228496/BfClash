@@ -6,6 +6,7 @@ import 'package:win32_registry/win32_registry.dart';
 
 import 'app_localizations.dart';
 import 'exception.dart';
+import 'windows_lifecycle_log.dart';
 
 int? readWindowsApplicationControlState() => LOCAL_MACHINE.getInt(
   'VerifiedAndReputablePolicyState',
@@ -107,9 +108,12 @@ Future<void> launchWindowsUpdate({
       currentAppLocalizations.windowsUnsignedUpdateBlocked,
     );
   }
+  recordWindowsLifecycle('update.installer.launchRequested');
   if (!launcher(filePath, '/DIR="$installDirectory" /NORESTART')) {
+    recordWindowsLifecycle('update.installer.launchRejected');
     throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
   }
+  recordWindowsLifecycle('update.installer.launchAccepted');
   await exitApplication();
 }
 
