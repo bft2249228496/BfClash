@@ -96,6 +96,7 @@ Future<void> launchWindowsUpdate({
   String expectedPublisher = windowsUpdatePublisher,
   Future<bool> Function(String, String)? signatureVerifier,
   bool allowUnsignedWhenEnforced = false,
+  String? Function() prepareInstallerLog = _prepareInstallerLog,
 }) async {
   if (expectedPublisher.isEmpty) {
     ensureUnsignedWindowsUpdateAllowed(
@@ -111,7 +112,7 @@ Future<void> launchWindowsUpdate({
     );
   }
   recordWindowsLifecycle('update.installer.launchRequested');
-  final installerLog = _prepareInstallerLog();
+  final installerLog = prepareInstallerLog();
   final logArgument = installerLog == null ? '' : ' /LOG="$installerLog"';
   if (!launcher(filePath, '/DIR="$installDirectory" /NORESTART$logArgument')) {
     recordWindowsLifecycle('update.installer.launchRejected');

@@ -15,6 +15,7 @@ void main() {
     () async {
       final actions = <String>[];
       await launchWindowsUpdate(
+        prepareInstallerLog: () => null,
         filePath: 'owned.exe',
         installDirectory: 'owned',
         expectedPublisher: 'CN=Owner',
@@ -127,6 +128,7 @@ void main() {
     () async {
       final actions = <String>[];
       await launchWindowsUpdate(
+        prepareInstallerLog: () => null,
         filePath: 'owned setup.exe',
         installDirectory: 'owned app',
         policyStateReader: () => 1,
@@ -187,6 +189,7 @@ void main() {
       for (final state in [null, 0, 2]) {
         final actions = <String>[];
         await launchWindowsUpdate(
+          prepareInstallerLog: () => null,
           filePath: 'owned setup.exe',
           installDirectory: 'owned app',
           policyStateReader: () => state,
