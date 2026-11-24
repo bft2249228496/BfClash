@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/common/windows_lifecycle_log.dart';
 import 'package:bfclash/core/core.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/models/models.dart';
@@ -76,9 +77,17 @@ class _CoreContainerState extends ConsumerState<CoreManager>
     }, duration: const Duration(milliseconds: 5000));
   }
 
+  static final _delayFailure = RegExp(
+    r'^\[DelayTest\] node=[0-9a-f]{16} protocol=[A-Za-z0-9_-]+ '
+    r'stage=(queue|probe) reason=[a-z]+(?: errorType=[*A-Za-z0-9_.]+)?$',
+  );
+
   @override
   void onLog(Log log) {
     ref.read(logsProvider.notifier).add(log);
+    if (_delayFailure.hasMatch(log.payload)) {
+      recordWindowsLifecycle(log.payload);
+    }
     if (log.logLevel == LogLevel.error) {
       throttler.call(
         FunctionTag.coreErrorNotifier,

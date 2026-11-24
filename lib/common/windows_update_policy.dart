@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:path/path.dart' as path;
 import 'package:win32_registry/win32_registry.dart';
 
 import 'app_localizations.dart';
 import 'exception.dart';
+import 'channel_config.dart';
 import 'windows_lifecycle_log.dart';
 
 int? readWindowsApplicationControlState() => LOCAL_MACHINE.getInt(
@@ -109,12 +111,39 @@ Future<void> launchWindowsUpdate({
     );
   }
   recordWindowsLifecycle('update.installer.launchRequested');
-  if (!launcher(filePath, '/DIR="$installDirectory" /NORESTART')) {
+  final installerLog = _prepareInstallerLog();
+  final logArgument = installerLog == null ? '' : ' /LOG="$installerLog"';
+  if (!launcher(filePath, '/DIR="$installDirectory" /NORESTART$logArgument')) {
     recordWindowsLifecycle('update.installer.launchRejected');
     throw MessageException(currentAppLocalizations.windowsUpdateLaunchFailed);
   }
   recordWindowsLifecycle('update.installer.launchAccepted');
   await exitApplication();
+}
+
+String? _prepareInstallerLog() {
+  if (!Platform.isWindows) return null;
+  final localAppData = Platform.environment['LOCALAPPDATA'];
+  if (localAppData == null || localAppData.isEmpty) return null;
+  try {
+    final directory = Directory(
+      path.join(
+        localAppData,
+        'BfClashDiagnostics',
+        WindowsChannelConfig.updateChannel,
+      ),
+    )..createSync(recursive: true);
+    final log = File(path.join(directory.path, 'installer.log'));
+    if (log.existsSync()) {
+      final previous = File('${log.path}.previous');
+      if (previous.existsSync()) previous.deleteSync();
+      log.renameSync(previous.path);
+    }
+    return log.path;
+  } on FileSystemException catch (error) {
+    recordWindowsLifecycle('update.installer.logUnavailable', error: error);
+    return null;
+  }
 }
 
 Future<bool> verifyWindowsInstallerSignature(
