@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bfclash/core/desktop/transport.dart';
+import 'package:bfclash/core/method.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
@@ -80,6 +81,32 @@ void main() {
       expect((await connected).pid, 4321);
       expect(transport.state, DesktopTransportState.connected);
     });
+
+    test(
+      'closing transport fails current and future connection waiters',
+      () async {
+        final open = transport.open();
+        rawEvents.add(_frame(0x00));
+        await open;
+        final disconnected = throwsA(
+          isA<CoreMethodException>().having(
+            (error) => error.code,
+            'code',
+            'transport_disconnected',
+          ),
+        );
+        final waiting = expectLater(
+          transport.waitUntilConnected(const Duration(seconds: 1)),
+          disconnected,
+        );
+        await transport.close();
+        await waiting;
+        await expectLater(
+          transport.waitUntilConnected(const Duration(seconds: 1)),
+          disconnected,
+        );
+      },
+    );
 
     test('forwards outgoing messages after ready', () async {
       final open = transport.open();

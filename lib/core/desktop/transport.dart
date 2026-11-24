@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/core/method.dart';
 import 'package:rust_api/rust_api.dart';
 
 const _typeReady = 0x00;
@@ -347,6 +348,11 @@ final class IPCCoreTransport implements DesktopCoreTransport {
 
   @override
   Future<TransportConnected> waitUntilConnected(Duration timeout) {
+    const closed = CoreMethodException(
+      code: 'transport_disconnected',
+      message: 'Core transport closed while waiting for a connection',
+    );
+    if (_state == DesktopTransportState.closed) return Future.error(closed);
     final connection = _connection;
     if (connection != null) {
       return Future.value(connection);
@@ -358,6 +364,7 @@ final class IPCCoreTransport implements DesktopCoreTransport {
     return events
         .firstWhere(
           (event) => event is TransportConnected || event is TransportFailed,
+          orElse: () => throw closed,
         )
         .then<TransportConnected>((event) {
           if (event case TransportConnected()) {
