@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:bfclash/bootstrap.dart';
 import 'package:bfclash/common/common.dart';
+import 'package:bfclash/enum/enum.dart';
+import 'package:bfclash/providers/action.dart';
 import 'package:bfclash/providers/app.dart';
 import 'package:bfclash/providers/config.dart';
 import 'package:bfclash/state.dart';
@@ -13,6 +17,26 @@ final _packageInfo = PackageInfo(
   version: '1.2.3',
   buildNumber: '1',
 );
+
+class _StartupSetupAction extends SetupAction {
+  final authorization = Completer<AuthorizeCode>();
+  int calls = 0;
+
+  @override
+  Future<AuthorizeCode> authorizeCore() {
+    calls++;
+    return authorization.future;
+  }
+}
+
+class _StartupCoreAction extends CoreAction {
+  final authorizationAtStart = <TunAuthorizationState>[];
+
+  @override
+  Future<void> startCore() async {
+    authorizationAtStart.add(ref.read(authorizedTunEnableProvider));
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +96,64 @@ void main() {
         isFalse,
         reason: 'startup must not have run a second time',
       );
+    });
+  });
+
+  group('Windows Core startup', () {
+    late _StartupSetupAction setup;
+    late _StartupCoreAction core;
+
+    setUp(() {
+      container.dispose();
+      setup = _StartupSetupAction();
+      core = _StartupCoreAction();
+      container = ProviderContainer(
+        overrides: [
+          setupActionProvider.overrideWith(() => setup),
+          coreActionProvider.overrideWith(() => core),
+        ],
+      );
+      globalState.container = container;
+    });
+
+    test(
+      'waits for TUN authorization before launching the first Core',
+      () async {
+        container
+            .read(patchClashConfigProvider.notifier)
+            .update((state) => state.copyWith.tun(enable: true));
+        final startup = bootstrap.startCoreForStartup(prepareWindowsTun: true);
+        await pumpEventQueue();
+        expect(setup.calls, 1);
+        expect(core.authorizationAtStart, isEmpty);
+
+        setup.authorization.complete(AuthorizeCode.success);
+        await startup;
+        expect(core.authorizationAtStart, [TunAuthorizationState.authorized]);
+        expect(await setup.requestAdmin(true), isTrue);
+        expect(setup.calls, 1);
+      },
+    );
+
+    test(
+      'starts the fallback Core when TUN authorization is unavailable',
+      () async {
+        container
+            .read(patchClashConfigProvider.notifier)
+            .update((state) => state.copyWith.tun(enable: true));
+        setup.authorization.complete(AuthorizeCode.error);
+        await bootstrap.startCoreForStartup(prepareWindowsTun: true);
+        expect(core.authorizationAtStart, [TunAuthorizationState.unauthorized]);
+      },
+    );
+
+    test('skips TUN preparation when it is disabled', () async {
+      container
+          .read(patchClashConfigProvider.notifier)
+          .update((state) => state.copyWith.tun(enable: false));
+      await bootstrap.startCoreForStartup(prepareWindowsTun: true);
+      expect(setup.calls, 0);
+      expect(core.authorizationAtStart, [TunAuthorizationState.none]);
     });
   });
 

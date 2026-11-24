@@ -431,7 +431,6 @@ class SetupAction extends _$SetupAction {
     return system.authorizeCore();
   }
 
-  @visibleForTesting
   Future<bool> requestAdmin(bool enableTun) async {
     if (!enableTun) {
       final authorization = ref.read(authorizedTunEnableProvider.notifier);
