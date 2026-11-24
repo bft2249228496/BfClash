@@ -309,6 +309,62 @@ void main() {
     },
   );
 
+  test('upgrades only the legacy gstatic health-check URL', () async {
+    const legacy = 'http://www.gstatic.com/generate_204';
+    const customUrl = 'http://example.com/probe';
+    final rawConfig = <String, dynamic>{
+      'proxy-groups': [
+        {'name': 'Automatic', 'type': 'url-test', 'url': legacy},
+        {'name': 'Custom', 'type': 'fallback', 'url': customUrl},
+      ],
+      'proxy-providers': {
+        'remote': {
+          'type': 'http',
+          'url': customUrl,
+          'health-check': {'url': legacy, 'interval': 60},
+        },
+      },
+    };
+    final state = MakeRealProfileState(
+      profilesPath: '/profiles',
+      profileId: 7,
+      rawConfig: rawConfig,
+      realPatchConfig: const PatchClashConfig(),
+      overrideDns: false,
+      appendSystemDns: false,
+      proxyGroups: const [],
+      rules: const [],
+      addedRules: const [],
+      defaultUA: 'BfClash-Test',
+    );
+    final config = loadYaml((await makeRealProfileTask(state)).yaml) as YamlMap;
+    expect(config['proxy-groups'][0]['url'], defaultTestUrl);
+    expect(config['proxy-groups'][1]['url'], customUrl);
+    expect(config['proxy-providers']['remote']['url'], customUrl);
+    expect(config['proxy-providers']['remote']['health-check'], {
+      'url': defaultTestUrl,
+      'interval': 60,
+    });
+    expect(rawConfig['proxy-groups'][0]['url'], legacy);
+    expect(
+      rawConfig['proxy-providers']['remote']['health-check']['url'],
+      legacy,
+    );
+
+    final override = state.copyWith(
+      proxyGroups: const [
+        ProxyGroup(
+          id: 1,
+          name: 'Override',
+          type: GroupType.URLTest,
+          url: legacy,
+        ),
+      ],
+    );
+    final overridden = loadYaml((await makeRealProfileTask(override)).yaml);
+    expect(overridden['proxy-groups'][0]['url'], defaultTestUrl);
+  });
+
   test(
     'makeRealProfileTask routes MATCH placeholders to matchTarget',
     () async {
