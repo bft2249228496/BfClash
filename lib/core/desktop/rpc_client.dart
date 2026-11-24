@@ -244,6 +244,14 @@ final class CoreRpcClient implements CoreRpcChannel {
 
   void _handleTransportEvent(DesktopTransportEvent event) {
     switch (event) {
+      case TransportReplaced():
+        recordWindowsLifecycle('core.transportReplaced');
+        _failPending(
+          const CoreMethodException(
+            code: 'transport_disconnected',
+            message: 'Core transport is switching sessions',
+          ),
+        );
       case TransportDisconnected():
         recordWindowsLifecycle('core.disconnected');
         _failPending(
@@ -252,8 +260,12 @@ final class CoreRpcClient implements CoreRpcChannel {
             message: 'Core transport disconnected',
           ),
         );
-      case TransportFailed(:final error):
-        recordWindowsLifecycle('core.transportFailed', error: error);
+      case TransportFailed(:final error, :final stackTrace):
+        recordWindowsLifecycle(
+          'core.transportFailed',
+          error: error,
+          stack: stackTrace,
+        );
         _failPending(
           CoreMethodException(
             code: 'transport_error',

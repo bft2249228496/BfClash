@@ -39,6 +39,10 @@ final class TransportDisconnected extends DesktopTransportEvent {
   const TransportDisconnected(this.generation);
 }
 
+final class TransportReplaced extends DesktopTransportEvent {
+  const TransportReplaced();
+}
+
 final class TransportFailed extends DesktopTransportEvent {
   final Object error;
   final StackTrace stackTrace;
@@ -109,12 +113,7 @@ final class DesktopCoreTransportBinding implements DesktopCoreTransport {
     final previous = _transport;
     if (previous.state == DesktopTransportState.connected &&
         !_eventController.isClosed) {
-      _eventController.add(
-        TransportFailed(
-          StateError('Connected IPC transport was replaced'),
-          StackTrace.current,
-        ),
-      );
+      _eventController.add(const TransportReplaced());
     }
     await _eventSubscription?.cancel();
     await _frameSubscription?.cancel();

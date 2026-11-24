@@ -84,7 +84,9 @@ final class _TransportConnectionWaiter {
               _stackTrace = stackTrace;
               _settled.complete();
             }
-          case TransportReady() || TransportDisconnected():
+          case TransportReady() ||
+              TransportDisconnected() ||
+              TransportReplaced():
             break;
         }
       },
@@ -723,7 +725,10 @@ final class DesktopCoreLifecycle implements DesktopCoreLifecycleController {
           cause: error,
           stackTrace: stackTrace,
         );
-      case TransportReady() || TransportConnected() || TransportDisconnected():
+      case TransportReady() ||
+          TransportConnected() ||
+          TransportDisconnected() ||
+          TransportReplaced():
         break;
     }
   }

@@ -274,18 +274,17 @@ void main() {
     },
   );
 
-  test('replacing a connected transport emits a typed failure', () async {
+  test('replacing a connected transport emits a session transition', () async {
     final first = FakeDesktopCoreTransport.connected();
     final second = FakeDesktopCoreTransport();
     final binding = DesktopCoreTransportBinding(first);
-    final failure = binding.events
-        .where((event) => event is TransportFailed)
-        .cast<TransportFailed>()
+    final replacement = binding.events
+        .where((event) => event is TransportReplaced)
         .first;
 
     await binding.replace(second);
 
-    expect((await failure).error.toString(), contains('replaced'));
+    expect(await replacement, isA<TransportReplaced>());
     await binding.close();
   });
 
