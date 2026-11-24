@@ -11,6 +11,10 @@ on:
         description: Optional unified beta version and build (for example 1.0.4-beta.1+75)
         type: string
         default: ''
+      publish_run:
+        description: ID of the successful Windows probe to publish without rebuilding
+        type: string
+        default: ''
   push:
     branches:
       - feat/windows-desktop-v0227
@@ -32,7 +36,7 @@ env:
 
 jobs:
   probe-windows:
-    if: github.event_name != 'workflow_dispatch' || !inputs.installer_only
+    if: github.event_name != 'workflow_dispatch' || (!inputs.installer_only && inputs.publish_run == '')
     name: Probe Windows AMD64 Build
     runs-on: windows-2022
     steps:
@@ -180,8 +184,60 @@ jobs:
             hook.log
             build/windows/
 
+  publish-windows-beta:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_run != '' && !inputs.installer_only
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN: ${{ inputs.publish_run }}
+      CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+    steps:
+      - name: Verify source, package, and publish the beta
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]]
+          [[ "$CANDIDATE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\+[0-9]+$ ]]
+          source_sha=$(gh run view "$SOURCE_RUN" --json headSha,status,conclusion,workflowName,event,jobs --jq '
+            select(.status == "completed" and .conclusion == "success" and
+              .workflowName == "Windows Build Probe" and .event == "workflow_dispatch" and
+              any(.jobs[].steps[]; .name == "Verify beta packaged version" and .conclusion == "success") and
+              any(.jobs[].steps[]; .name == "Verify beta native payload can load" and .conclusion == "success"))
+            | .headSha')
+          [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
+          gh run download "$SOURCE_RUN" --name bfclash-windows-probe --dir candidate
+          version=${CANDIDATE_VERSION%+*}
+          prefix="BfClash-$version-windows-amd64"
+          mkdir public
+          cp "candidate/dist/beta/$prefix-setup.exe" "candidate/dist/beta/$prefix.zip" public/
+          (
+            cd public
+            test -s "$prefix-setup.exe"
+            test "$(head -c 2 "$prefix-setup.exe")" = MZ
+            unzip -tq "$prefix.zip"
+            zipinfo -1 "$prefix.zip" > bundle-files.txt
+            for file in BfClash-Beta.exe BfClashCoreBeta.exe proxy_plugin.dll; do
+              grep -Fx "$file" <(sed 's@.*/@@' bundle-files.txt)
+            done
+            sha256sum "$prefix-setup.exe" "$prefix.zip" > SHA256SUMS.txt
+          )
+          note="$RUNNER_TEMP/bfclash-windows-beta-notes.md"
+          cat > "$note" <<EOF
+          - 修复 Windows 启动恢复代理时，配置和监听请求与 Core 会话切换重叠导致的报错。应用会等待新 Core 初始化后再应用配置。
+          - 包含 Windows AMD64 安装包和应用内更新使用的 ZIP。
+
+          源码提交 \`$source_sha\`。[Windows 构建记录](https://github.com/$GH_REPO/actions/runs/$SOURCE_RUN)
+          EOF
+          gh release create "v$version" "public/$prefix-setup.exe" "public/$prefix.zip" public/SHA256SUMS.txt \
+            --target "$source_sha" --title "BfClash Windows $version — 启动连接修复" \
+            --prerelease --latest=false --notes-file "$note"
+
   installer-safety:
-    if: github.event_name == 'workflow_dispatch' && inputs.installer_only
+    if: github.event_name == 'workflow_dispatch' && inputs.installer_only && inputs.publish_run == ''
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
