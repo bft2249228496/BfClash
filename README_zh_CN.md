@@ -18,7 +18,6 @@
   <a href="https://github.com/bft2249228496/BfClash/releases"><img src="https://img.shields.io/github/v/release/bft2249228496/BfClash?style=flat-square&color=818CF8" alt="最新版本"></a>
   <a href="https://github.com/bft2249228496/BfClash/releases"><img src="https://img.shields.io/github/downloads/bft2249228496/BfClash/total?style=flat-square&logo=github&color=38BDF8" alt="总下载量"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/bft2249228496/BfClash?style=flat-square&color=C084FC" alt="开源许可"></a>
-  <a href="https://t.me/bf2249"><img src="https://img.shields.io/badge/Telegram-@bf2249-blue?style=flat-square&logo=telegram" alt="Telegram 频道"></a>
 </p>
 
 ---
@@ -54,7 +53,6 @@
 ## 👨💻 作者信息
 
 - **作者**：不负 ([@bft2249228496](https://github.com/bft2249228496))
-- **Telegram**：[@bf2249](https://t.me/bf2249)
 - **源码仓库**：[https://github.com/bft2249228496/BfClash](https://github.com/bft2249228496/BfClash)
 
 ---
