@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/core/controller.dart';
+import 'package:bfclash/core/desktop/model.dart';
 import 'package:bfclash/core/interface.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/l10n/l10n.dart';
@@ -24,6 +25,21 @@ import 'package:riverpod/riverpod.dart';
 import '../helpers/test_profiles.dart';
 
 class _MockCoreHandlerInterface extends Mock implements CoreHandlerInterface {}
+
+class _RestartingCoreAction extends CoreAction {
+  final connected = Completer<CoreLifecycleResult>();
+  final initializing = Completer<void>();
+  final initialized = Completer<void>();
+
+  @override
+  Future<CoreLifecycleResult> restartLifecycle() => connected.future;
+
+  @override
+  Future<void> initCore() {
+    initializing.complete();
+    return initialized.future;
+  }
+}
 
 // checkAndUpdateAndCopy checks the file system before it refreshes, so its
 // failure tests need appPath to resolve to a real, writable directory.
@@ -677,6 +693,58 @@ void main() {
       script: null,
       overrideDns: false,
       dns: Dns(),
+    );
+
+    test(
+      'startup setup waits for the replacement Core to initialize',
+      () async {
+        final core = _MockCoreHandlerInterface();
+        final restarting = _RestartingCoreAction();
+        var configCalls = 0;
+        when(() => core.setupConfig(any())).thenAnswer((_) async {
+          expect(restarting.initialized.isCompleted, isTrue);
+          configCalls++;
+          return '';
+        });
+        final scoped = ProviderContainer(
+          overrides: [
+            currentProfileProvider.overrideWithValue(null),
+            setupStateProvider.overrideWith((_, _) => nullProfileSetupState),
+            coreHandlerProvider.overrideWithValue(CoreController.scoped(core)),
+            coreActionProvider.overrideWith(() => restarting),
+          ],
+        );
+        addTearDown(scoped.dispose);
+        final coreAction = scoped.read(coreActionProvider.notifier);
+        final restart = coreAction.restartCore();
+        final config = File(await appPath.configFilePath);
+        if (await config.exists()) await config.delete();
+        final setup = scoped
+            .read(setupActionProvider.notifier)
+            .applyProfile(force: true);
+
+        final limit = Stopwatch()..start();
+        while (!await config.exists()) {
+          expect(limit.elapsed, lessThan(const Duration(seconds: 5)));
+          await Future<void>.delayed(const Duration(milliseconds: 5));
+        }
+        expect(configCalls, 0);
+
+        restarting.connected.complete(
+          const CoreLifecycleResult(
+            revision: 1,
+            outcome: CoreLifecycleOutcome.applied,
+          ),
+        );
+        await restarting.initializing.future;
+        await pumpEventQueue();
+        expect(configCalls, 0);
+
+        restarting.initialized.complete();
+        expect(await setup, isTrue);
+        expect(await restart, isTrue);
+        expect(configCalls, 2);
+      },
     );
 
     test(

@@ -6,6 +6,7 @@ class CoreAction extends _$CoreAction {
 
   int _requestedRestartRevision = 0;
   Future<bool>? _restartOperation;
+  Future<bool>? _restartReadiness;
 
   @override
   void build() {}
@@ -92,10 +93,10 @@ class CoreAction extends _$CoreAction {
   }
 
   Future<bool> _runRestartWorker() async {
+    final readiness = _restartAndInitialize();
+    _restartReadiness = readiness;
     try {
-      ref.read(coreStatusProvider.notifier).value = CoreStatus.connecting;
-      final result = await restartLifecycle();
-      if (!await _applyLifecycleResult(result, statusFirst: true)) {
+      if (!await readiness) {
         return false;
       }
 
@@ -119,7 +120,14 @@ class CoreAction extends _$CoreAction {
       ref.read(coreStatusProvider.notifier).value = CoreStatus.disconnected;
       rethrow;
     } finally {
+      _restartReadiness = null;
       _restartOperation = null;
     }
+  }
+
+  Future<bool> _restartAndInitialize() async {
+    ref.read(coreStatusProvider.notifier).value = CoreStatus.connecting;
+    final result = await restartLifecycle();
+    return _applyLifecycleResult(result, statusFirst: true);
   }
 }
