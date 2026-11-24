@@ -15,6 +15,10 @@ on:
         description: ID of the successful Windows probe to publish without rebuilding
         type: string
         default: ''
+      release_notes:
+        description: Summary of changes for the Windows beta release
+        type: string
+        default: ''
   push:
     branches:
       - feat/windows-desktop-v0227
@@ -195,6 +199,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       SOURCE_RUN: ${{ inputs.publish_run }}
       CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+      RELEASE_NOTES: ${{ inputs.release_notes }}
     steps:
       - name: Verify source, package, and publish the beta
         shell: bash
@@ -237,12 +242,13 @@ jobs:
             sha256sum "$prefix-setup.exe" "$prefix.zip" > SHA256SUMS.txt
           )
           note="$RUNNER_TEMP/bfclash-windows-beta-notes.md"
-          cat > "$note" <<EOF
-          - 修复 Windows 启动恢复代理时，配置和监听请求与 Core 会话切换重叠导致的报错。应用会等待新 Core 初始化后再应用配置。
-          - 包含 Windows AMD64 安装包和应用内更新使用的 ZIP。
-
-          源码提交 \`$source_sha\`。[Windows 构建记录](https://github.com/$GH_REPO/actions/runs/$SOURCE_RUN)
-          EOF
+          {
+            if [[ -n "$RELEASE_NOTES" ]]; then
+              printf '%s\n\n' "$RELEASE_NOTES"
+            fi
+            printf '包含 Windows AMD64 安装包和应用内更新使用的 ZIP。\n\n'
+            printf '源码提交 `%s`。[Windows 构建记录](https://github.com/%s/actions/runs/%s)\n' "$source_sha" "$GH_REPO" "$SOURCE_RUN"
+          } > "$note"
           gh release create "v$version" "public/$prefix-setup.exe" "public/$prefix.zip" public/SHA256SUMS.txt \
             --target "$source_sha" --title "BfClash Windows $version — 启动连接修复" \
             --prerelease --latest=false --notes-file "$note"
