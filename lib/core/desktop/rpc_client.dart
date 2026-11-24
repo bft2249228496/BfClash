@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:bfclash/common/windows_lifecycle_log.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/core/event.dart';
 import 'package:bfclash/core/method.dart';
@@ -102,6 +103,9 @@ final class CoreRpcClient implements CoreRpcChannel {
           )
           as T?;
     } on TimeoutException {
+      if (method == CoreMethod.setupConfig) {
+        recordWindowsLifecycle('rpc.setupConfig.timeout');
+      }
       commonPrint.log(
         'Core method ${method.name} timed out after '
         '${stopwatch.elapsedMilliseconds}ms',
@@ -112,7 +116,12 @@ final class CoreRpcClient implements CoreRpcChannel {
     } on CoreMethodException {
       _pending.remove(id);
       rethrow;
-    } catch (error) {
+    } catch (error, stack) {
+      recordWindowsLifecycle(
+        'rpc.${method.name}.transportError',
+        error: error,
+        stack: stack,
+      );
       _removePending(id, completer);
       throw CoreMethodException(
         code: 'transport_error',
@@ -235,14 +244,28 @@ final class CoreRpcClient implements CoreRpcChannel {
 
   void _handleTransportEvent(DesktopTransportEvent event) {
     switch (event) {
+      case TransportReplaced():
+        recordWindowsLifecycle('core.transportReplaced');
+        _failPending(
+          const CoreMethodException(
+            code: 'transport_disconnected',
+            message: 'Core transport is switching sessions',
+          ),
+        );
       case TransportDisconnected():
+        recordWindowsLifecycle('core.disconnected');
         _failPending(
           const CoreMethodException(
             code: 'transport_disconnected',
             message: 'Core transport disconnected',
           ),
         );
-      case TransportFailed(:final error):
+      case TransportFailed(:final error, :final stackTrace):
+        recordWindowsLifecycle(
+          'core.transportFailed',
+          error: error,
+          stack: stackTrace,
+        );
         _failPending(
           CoreMethodException(
             code: 'transport_error',
@@ -250,8 +273,10 @@ final class CoreRpcClient implements CoreRpcChannel {
             details: error.toString(),
           ),
         );
-      case TransportReady() || TransportConnected():
-        break;
+      case TransportReady():
+        recordWindowsLifecycle('core.transportReady');
+      case TransportConnected():
+        recordWindowsLifecycle('core.connected');
     }
   }
 

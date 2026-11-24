@@ -528,6 +528,7 @@ class SetupAction extends _$SetupAction {
           if (profileId != null) {
             await appPath.ensureProviderDirs(profileId);
           }
+          recordWindowsLifecycle('config.send');
           final message = await _core.setupConfig(
             params: _setupParams,
             preloadInvoke: preloadInvoke,
@@ -535,7 +536,9 @@ class SetupAction extends _$SetupAction {
           if (message.isNotEmpty) {
             throw MessageException(message);
           }
+          recordWindowsLifecycle('config.applied');
         } catch (e, s) {
+          recordWindowsLifecycle('config.failed', error: e, stack: s);
           setupFailed = true;
           if (preloadInvoke != null) {
             handoffFailure = (e, s);

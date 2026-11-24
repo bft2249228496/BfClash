@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bfclash/common/windows_lifecycle_log.dart';
 import 'package:path/path.dart' as path;
 
 Future<bool> reportWindowsUpdateHealth({
@@ -34,6 +35,7 @@ Future<bool> reportWindowsUpdateHealth({
       flush: true,
     );
     await temporary.rename(result.path);
+    recordWindowsLifecycle('update.health.$nonce');
     return true;
   } on Exception {
     return false;
