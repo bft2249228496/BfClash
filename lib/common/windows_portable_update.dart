@@ -281,7 +281,6 @@ function Wait-AppReady {
             Start-Sleep -Milliseconds 500
             if (@(Get-App | Where-Object { $_.Id -eq $ready.processId }).Count -ne 1) { throw 'updated app exited after initialization' }
           }
-          Write-UpdateStage 'health.confirmed'
           L 'app initialization and core connection confirmed'
           return
         }
@@ -487,6 +486,7 @@ try {
   $launchAttempted = $true
   Start-App
   Wait-AppReady
+  Write-UpdateStage 'health.confirmed'
   Remove-Item -LiteralPath $pending -Force
   Remove-Item -LiteralPath $health -Force -ErrorAction SilentlyContinue
   try { Update-DisplayVersion } catch { L ('display version update failed: ' + $_) }
