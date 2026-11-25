@@ -454,6 +454,7 @@
   "restoreAllData": "Восстановить все данные",
   "addProfile": "Добавить профиль",
   "delayTest": "Тест задержки",
+  "delayTesting": "Проверка",
   "proxyGroupEmpty": "Группа прокси пуста",
   "proxyGroupNameEmpty": "Название группы прокси не может быть пустым",
   "proxyGroupNameDuplicate": "Название группы прокси уже используется",

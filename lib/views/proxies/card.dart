@@ -30,48 +30,59 @@ class ProxyCard extends ConsumerWidget {
   }
 
   Widget _buildDelayText() {
-    return SizedBox(
-      height: measure.labelSmallHeight,
-      child: Consumer(
-        builder: (context, ref, _) {
-          final delay = ref.watch(
-            delayProvider(proxyName: proxy.name, testUrl: testUrl),
+    return Consumer(
+      builder: (context, ref, _) {
+        final delay = ref.watch(
+          delayProvider(proxyName: proxy.name, testUrl: testUrl),
+        );
+        final pending = ref.watch(
+          delayTestPendingProvider(proxyName: proxy.name, testUrl: testUrl),
+        );
+        final l10n = context.appLocalizations;
+        final onTap = pending ? null : () => _handleTestCurrentDelay(ref);
+        if (pending) {
+          return _DelayBadge(
+            tooltip: l10n.delayTest,
+            label: l10n.delayTesting,
+            color: context.colorScheme.onSurfaceVariant,
+            icon: SizedBox(
+              height: 14,
+              width: 14,
+              child: FittedBox(
+                child: CommonCircleLoading(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            onTap: onTap,
           );
-          final pending = ref.watch(
-            delayTestPendingProvider(proxyName: proxy.name, testUrl: testUrl),
+        }
+        if (delay == null) {
+          return _DelayBadge(
+            tooltip: l10n.delayTest,
+            label: l10n.delayTest,
+            color: context.colorScheme.onSurfaceVariant,
+            icon: Icon(
+              Icons.bolt,
+              size: 14,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+            onTap: onTap,
           );
-          return FadeBox(
-            alignment: type == ProxyCardType.expand
-                ? Alignment.centerLeft
-                : Alignment.centerRight,
-            child: pending || delay == null
-                ? SizedBox(
-                    height: measure.labelSmallHeight,
-                    width: measure.labelSmallHeight,
-                    child: pending
-                        ? const CommonCircleLoading()
-                        : IconButton(
-                            tooltip: context.appLocalizations.delayTest,
-                            icon: const Icon(Icons.bolt),
-                            iconSize: globalState.measure.labelSmallHeight,
-                            padding: EdgeInsets.zero,
-                            onPressed: () => _handleTestCurrentDelay(ref),
-                          ),
-                  )
-                : GestureDetector(
-                    onTap: () => _handleTestCurrentDelay(ref),
-                    child: Text(
-                      delay > 0 ? '$delay ms' : 'Timeout',
-                      maxLines: 1,
-                      style: context.textTheme.labelSmall?.copyWith(
-                        overflow: TextOverflow.ellipsis,
-                        color: getDelayColor(delay),
-                      ),
-                    ),
-                  ),
-          );
-        },
-      ),
+        }
+        final color = getDelayColor(delay, Theme.of(context).brightness);
+        return _DelayBadge(
+          tooltip: delay > 0 ? l10n.delayTest : l10n.retry,
+          label: delay > 0 ? '$delay ms' : l10n.retry,
+          color: color,
+          icon: Icon(
+            delay > 0 ? Icons.bolt : Icons.refresh,
+            size: 14,
+            color: color,
+          ),
+          onTap: onTap,
+        );
+      },
     );
   }
 
@@ -165,7 +176,9 @@ class ProxyCard extends ConsumerWidget {
                   delayText,
                 ] else
                   SizedBox(
-                    height: measure.bodySmallHeight,
+                    height: measure.bodySmallHeight < 26.0
+                        ? 26.0
+                        : measure.bodySmallHeight,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -246,6 +259,87 @@ class _ProxyComputedMark extends ConsumerWidget {
           color: Theme.of(context).colorScheme.secondaryContainer,
         ),
         child: const SelectIcon(),
+      ),
+    );
+  }
+}
+
+class _DelayBadge extends StatefulWidget {
+  const _DelayBadge({
+    required this.tooltip,
+    required this.label,
+    required this.color,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String tooltip;
+  final String label;
+  final Color color;
+  final Widget icon;
+  final VoidCallback? onTap;
+
+  @override
+  State<_DelayBadge> createState() => _DelayBadgeState();
+}
+
+class _DelayBadgeState extends State<_DelayBadge> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = widget.onTap != null;
+    final hovered = _hovering && active;
+    final surface = Color.alphaBlend(
+      widget.color.withValues(alpha: hovered ? 0.16 : 0.1),
+      context.colorScheme.surfaceContainerHigh,
+    );
+    return Tooltip(
+      message: widget.tooltip,
+      child: MouseRegion(
+        cursor: active ? SystemMouseCursors.click : MouseCursor.defer,
+        onEnter: active
+            ? (_) {
+                setState(() => _hovering = true);
+              }
+            : null,
+        onExit: active
+            ? (_) {
+                setState(() => _hovering = false);
+              }
+            : null,
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Container(
+            height: 26,
+            padding: const EdgeInsets.only(left: 8, right: 10),
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: widget.color.withValues(alpha: hovered ? 0.7 : 0.4),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                widget.icon,
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: widget.color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

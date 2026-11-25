@@ -300,6 +300,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "defaultText": MessageLookupByLibrary.simpleMessage("默认"),
     "delay": MessageLookupByLibrary.simpleMessage("延迟"),
     "delayTest": MessageLookupByLibrary.simpleMessage("延迟测试"),
+    "delayTesting": MessageLookupByLibrary.simpleMessage("测速中"),
     "delete": MessageLookupByLibrary.simpleMessage("删除"),
     "deleteMultipTip": m4,
     "deleteTip": m5,

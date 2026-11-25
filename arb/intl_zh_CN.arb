@@ -454,6 +454,7 @@
   "restoreAllData": "恢复所有数据",
   "addProfile": "添加配置",
   "delayTest": "延迟测试",
+  "delayTesting": "测速中",
   "proxyGroupEmpty": "策略组为空",
   "proxyGroupNameEmpty": "策略组名称不能为空",
   "proxyGroupNameDuplicate": "策略组名称重复",

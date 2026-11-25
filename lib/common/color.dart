@@ -112,9 +112,14 @@ extension ColorSchemeExtension on ColorScheme {
       : this;
 }
 
-Color? getDelayColor(int? delay) {
-  if (delay == null) return null;
-  if (delay < 0) return Colors.red;
-  if (delay < 600) return Colors.green;
-  return const Color(0xFFC57F0A);
+Color getDelayColor(int delay, Brightness brightness) {
+  // Material 的标准红绿在浅色卡片上对比度不足（< 4.5），按明暗各取一套。
+  final dark = brightness == Brightness.dark;
+  if (delay < 0) {
+    return dark ? const Color(0xFFFF7A6E) : const Color(0xFFB3261E);
+  }
+  if (delay < 600) {
+    return dark ? const Color(0xFF5BC96A) : const Color(0xFF1A6B33);
+  }
+  return dark ? const Color(0xFFE39A3B) : const Color(0xFF7F5500);
 }

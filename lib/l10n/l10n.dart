@@ -3615,6 +3615,11 @@ class AppLocalizations {
     return Intl.message('Delay test', name: 'delayTest', desc: '', args: []);
   }
 
+  /// `Testing`
+  String get delayTesting {
+    return Intl.message('Testing', name: 'delayTesting', desc: '', args: []);
+  }
+
   /// `Proxy group is empty`
   String get proxyGroupEmpty {
     return Intl.message(
