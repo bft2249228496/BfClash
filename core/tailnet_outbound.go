@@ -13,6 +13,7 @@ import (
 
 	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/adapter/outbound"
+	"github.com/metacubex/mihomo/component/ca"
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/config"
@@ -166,17 +167,33 @@ func installAppTailnet(cfg *config.Config) func() {
 	const name = "BfClash-Tailscale"
 	if candidate := cfg.Proxies[name]; candidate != nil && candidate.Type() == C.Tailscale {
 		if previous == nil {
-			// Bootstrap Tailnet using system DNS before its own DNS is available.
-			transport := dialer.NewDialer(dialer.WithResolver(resolver.SystemResolver))
+			transport := dialer.NewDialer()
 			previous = newAppTailnetOutbound(name, &tsnet.Server{
-				Dir:          C.Path.Resolve("bfclash-tailscale"),
-				SystemDialer: transport.DialContext,
-				LookupHook:   resolver.SystemResolver.LookupIP,
+				Dir:      C.Path.Resolve("bfclash-tailscale"),
+				Hostname: "BfClash",
+				SystemDialer: func(ctx context.Context, network, address string) (net.Conn, error) {
+					log.Debugln("[Tailscale] SystemDialer: dial %s %s", network, address)
+					conn, err := transport.DialContext(ctx, network, address)
+					if err != nil {
+						log.Warnln("[Tailscale] SystemDialer: dial %s %s failed: %v", network, address, err)
+					}
+					return conn, err
+				},
+				LookupHook: func(ctx context.Context, host string) ([]netip.Addr, error) {
+					ips, err := resolver.LookupIPWithResolver(ctx, host, resolver.ProxyServerHostResolver)
+					log.Debugln("[Tailscale] LookupHook: %s -> %v (err: %v)", host, ips, err)
+					return ips, err
+				},
 				SystemPacketListener: func(ctx context.Context, network, address string) (net.PacketConn, error) {
 					return transport.ListenPacket(ctx, network, address, netip.AddrPort{})
 				},
-				Logf:     func(string, ...any) {},
-				UserLogf: func(string, ...any) {},
+				ExtraRootCAs: ca.GetCertPool(),
+				Logf: func(format string, args ...any) {
+					log.Debugln("[Tailscale] "+format, args...)
+				},
+				UserLogf: func(format string, args ...any) {
+					log.Infoln("[Tailscale] "+format, args...)
+				},
 			})
 		}
 		_ = candidate.Close()
