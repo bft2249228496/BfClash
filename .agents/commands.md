@@ -195,6 +195,10 @@ change the machine-wide `/tmp` mount or unrelated service environments.
 
 ## Changelog And Release
 
+Release notes on GitHub Releases come from `docs/releases/<version>.md`, one file per released version (no `v` prefix, matching the existing 0.2.x notes) (optional first-line `# subtitle`),
+committed with the release commit. The publish job fails when the file is missing and never falls back to fixed text.
+The `tool/changelog.dart` pipeline described below is not used by the current release flow.
+
 The changelog is derived from Conventional Commits by `tool/changelog.dart` and written to two committed files:
 `CHANGELOG.md` for readers and `changelog.json` for the renderers. See `.agents/rules.md` for the `Changelog:` trailers
 that decide the wording.

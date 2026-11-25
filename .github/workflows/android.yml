@@ -523,16 +523,34 @@ jobs:
           echo "bridge_title=$bridge_title" >> "$GITHUB_OUTPUT"
         env:
           CANDIDATE_VERSION: ${{ inputs.candidate_version }}
+      - name: Load release notes for this version
+        id: notes
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          notes_file="docs/releases/${VERSION}.md"
+          if [[ ! -s "$notes_file" ]]; then
+            echo "::error::Missing release notes: $notes_file. Add one file per released tag (see docs/releases/README.md)."
+            exit 1
+          fi
+          subtitle="$(sed -n '1s/^# //p' "$notes_file")"
+          body_file="$RUNNER_TEMP/release-body.md"
+          if [[ -n "$subtitle" ]]; then
+            sed '1d' "$notes_file" | sed '1{/^$/d;}' > "$body_file"
+          else
+            cp "$notes_file" "$body_file"
+          fi
+          echo "subtitle=$subtitle" >> "$GITHUB_OUTPUT"
+          echo "body_file=$body_file" >> "$GITHUB_OUTPUT"
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           target_commitish: ${{ inputs.publish_only && inputs.source_sha || github.sha }}
-          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }} — 连接诊断与本地规则
-          body: |
-            - Windows 托盘提示区分正式版与 Beta。
-            - 从连接详情预览并保存域名直连规则到当前配置的附加规则。
-            - 保留诊断报告导出与最近关闭的连接。
+          name: BfClash ${{ steps.version.outputs.channel }}${{ steps.version.outputs.version }}${{ steps.notes.outputs.subtitle != '' && ' — ' || '' }}${{ steps.notes.outputs.subtitle }}
+          body_path: ${{ steps.notes.outputs.body_file }}
           prerelease: ${{ steps.version.outputs.prerelease }}
           make_latest: ${{ steps.version.outputs.prerelease == 'false' }}
           files: public/*

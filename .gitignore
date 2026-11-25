@@ -45,8 +45,10 @@ app.*.map.json
 .claude/settings.local.json
 .claude/worktrees/
 
-# Documentation (generated/planning artifacts)
-docs/
+# Documentation (generated/planning artifacts); release notes and the versioning spec are maintained
+docs/*
+!docs/release-versioning.md
+!docs/releases/
 
 
 # Android Studio will place build artifacts here
