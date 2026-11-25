@@ -236,19 +236,27 @@ class SetupAction extends _$SetupAction {
   @visibleForTesting
   Future<void> updateConfig() async {
     await globalState.safeRun(() async {
-      final updateParams = ref.read(updateParamsProvider);
-      final shouldContinueSetup = await requestAdmin(updateParams.tun.enable);
-      if (!shouldContinueSetup) {
+      final shouldRestart = await _setupScheduler.run(() async {
+        final updateParams = ref.read(updateParamsProvider);
+        if (!await requestAdmin(updateParams.tun.enable)) {
+          return true;
+        }
+        final readiness = ref
+            .read(coreActionProvider.notifier)
+            ._restartReadiness;
+        if (readiness != null && !await readiness) return false;
+        final message = await _core.updateConfig(
+          updateParams.copyWith.tun(
+            enable: _getEffectiveTunEnable(updateParams.tun.enable),
+          ),
+        );
+        ref.read(checkIpNumProvider.notifier).add();
+        if (message.isNotEmpty) throw MessageException(message);
+        return false;
+      });
+      if (shouldRestart) {
         await _restartCoreAfterAuthorization();
-        return;
       }
-      final message = await _core.updateConfig(
-        updateParams.copyWith.tun(
-          enable: _getEffectiveTunEnable(updateParams.tun.enable),
-        ),
-      );
-      ref.read(checkIpNumProvider.notifier).add();
-      if (message.isNotEmpty) throw MessageException(message);
     });
   }
 
@@ -423,7 +431,6 @@ class SetupAction extends _$SetupAction {
     return system.authorizeCore();
   }
 
-  @visibleForTesting
   Future<bool> requestAdmin(bool enableTun) async {
     if (!enableTun) {
       final authorization = ref.read(authorizedTunEnableProvider.notifier);
@@ -527,6 +534,13 @@ class SetupAction extends _$SetupAction {
           final profileId = profile?.id;
           if (profileId != null) {
             await appPath.ensureProviderDirs(profileId);
+          }
+          final readiness = ref
+              .read(coreActionProvider.notifier)
+              ._restartReadiness;
+          if (readiness != null && !await readiness) {
+            setupFailed = true;
+            return;
           }
           recordWindowsLifecycle('config.send');
           final message = await _core.setupConfig(

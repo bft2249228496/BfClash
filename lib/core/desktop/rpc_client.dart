@@ -113,7 +113,10 @@ final class CoreRpcClient implements CoreRpcChannel {
       );
       _removePending(id, completer);
       return null;
-    } on CoreMethodException {
+    } on CoreMethodException catch (error) {
+      if (error.isCoreUnavailable) {
+        recordWindowsLifecycle('rpc.${method.name}.${error.code}');
+      }
       _pending.remove(id);
       rethrow;
     } catch (error, stack) {

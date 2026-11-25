@@ -3,7 +3,11 @@ package main
 import (
 	"cmp"
 	"context"
+	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
+	"fmt"
 	"net"
 	"net/url"
 	"os"
@@ -12,6 +16,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -259,6 +264,27 @@ func reportMissingDelayTestProxy(name string) {
 	logError("delay test: %q is not part of the applied config", name)
 }
 
+func delayFailureReason(err error) string {
+	var dnsError *net.DNSError
+	var certificateError *tls.CertificateVerificationError
+	var unknownAuthority x509.UnknownAuthorityError
+	var networkError net.Error
+	switch {
+	case errors.As(err, &dnsError):
+		return "dns"
+	case errors.As(err, &certificateError), errors.As(err, &unknownAuthority):
+		return "certificate"
+	case errors.Is(err, context.Canceled):
+		return "canceled"
+	case strings.Contains(strings.ToLower(err.Error()), "handshake"):
+		return "handshake"
+	case errors.Is(err, context.DeadlineExceeded), errors.As(err, &networkError) && networkError.Timeout():
+		return "timeout"
+	default:
+		return "other"
+	}
+}
+
 func handleTestDelay(params *TestDelayParams) *Delay {
 	url := params.TestUrl
 	if url == "" {
@@ -270,8 +296,10 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 		Value: -1,
 	}
 
+	proxyID := sha256.Sum256([]byte(params.ProxyName))
 	proxy := lookupProxy(params.ProxyName)
 	if proxy == nil {
+		delayData.Diagnostic = fmt.Sprintf("[DelayTest] node=%x stage=lookup reason=missing", proxyID[:8])
 		reportMissingDelayTestProxy(params.ProxyName)
 		return delayData
 	}
@@ -287,7 +315,8 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 	granted := acquireDelayTestSlot(queueCtx)
 	cancelQueue()
 	if !granted {
-		return nil
+		delayData.Diagnostic = fmt.Sprintf("[DelayTest] node=%x protocol=%s stage=queue reason=timeout", proxyID[:8], proxy.Type())
+		return delayData
 	}
 	defer releaseDelayTestSlot()
 
@@ -296,6 +325,7 @@ func handleTestDelay(params *TestDelayParams) *Delay {
 
 	delay, err := proxy.URLTest(ctx, url, anyDelayTestStatus)
 	if err != nil {
+		delayData.Diagnostic = fmt.Sprintf("[DelayTest] node=%x protocol=%s stage=probe reason=%s errorType=%T", proxyID[:8], proxy.Type(), delayFailureReason(err), err)
 		return delayData
 	}
 

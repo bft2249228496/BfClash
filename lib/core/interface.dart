@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:bfclash/common/windows_lifecycle_log.dart';
 import 'package:bfclash/common/common.dart';
 import 'package:bfclash/models/models.dart';
+import 'package:bfclash/enum/enum.dart';
 
 import 'desktop/model.dart';
 import 'method.dart';
@@ -76,6 +78,11 @@ mixin CoreInterface {
 
   FutureOr<bool> resetConnections();
 }
+
+final _delayDiagnostic = RegExp(
+  r'^\[DelayTest\] node=[0-9a-f]{16}(?: protocol=[A-Za-z0-9_-]+)? '
+  r'stage=(lookup|queue|probe) reason=[a-z]+(?: errorType=[*A-Za-z0-9_.]+)?$',
+);
 
 abstract class CoreHandlerInterface with CoreInterface {
   Future<bool> stopTailscaleADBPort(String name, int port) async =>
@@ -449,6 +456,14 @@ abstract class CoreHandlerInterface with CoreInterface {
       arguments: delayParams,
       timeout: delayTestGuardDuration,
     );
+    final diagnostic = data?['diagnostic'];
+    if (diagnostic is String && _delayDiagnostic.hasMatch(diagnostic)) {
+      recordWindowsLifecycle(diagnostic);
+      commonPrint.log(diagnostic, logLevel: LogLevel.warning);
+      if (diagnostic.contains(' stage=queue ')) return null;
+    } else if (data == null) {
+      recordWindowsLifecycle('delayTest.rpc.noResponse');
+    }
     return data == null ? null : Delay.fromJson(data);
   }
 

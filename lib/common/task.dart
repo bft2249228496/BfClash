@@ -333,9 +333,40 @@ Future<({String yaml, String md5})> _makeRealProfileTask(
   if (data.proxyGroups.isNotEmpty) {
     rawConfig['proxy-groups'] = data.proxyGroups;
   }
+  _upgradeLegacyHealthCheckUrls(rawConfig);
   rawConfig['rules'] = rules;
   final yaml = await _encodeYaml(Map<String, dynamic>.from(rawConfig));
   return (yaml: yaml, md5: yaml.toMd5());
+}
+
+void _upgradeLegacyHealthCheckUrls(Map config) {
+  const legacyUrl = 'http://www.gstatic.com/generate_204';
+  final groups = config['proxy-groups'];
+  if (groups is List) {
+    config['proxy-groups'] = [
+      for (final group in groups)
+        if (group is Map && group['url'] == legacyUrl)
+          {...group, 'url': defaultTestUrl}
+        else if (group is ProxyGroup && group.url == legacyUrl)
+          group.copyWith(url: defaultTestUrl)
+        else
+          group,
+    ];
+  }
+  final providers = config['proxy-providers'];
+  if (providers is Map) {
+    config['proxy-providers'] = providers.map((name, provider) {
+      if (provider is! Map) return MapEntry(name, provider);
+      final healthCheck = provider['health-check'];
+      if (healthCheck is! Map || healthCheck['url'] != legacyUrl) {
+        return MapEntry(name, provider);
+      }
+      return MapEntry(name, {
+        ...provider,
+        'health-check': {...healthCheck, 'url': defaultTestUrl},
+      });
+    });
+  }
 }
 
 Future<List<String>> shakingProfileTask(

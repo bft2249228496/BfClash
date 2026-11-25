@@ -148,9 +148,6 @@ class Bootstrap {
 
   Future<void> _initApp() async {
     unawaited(_container.read(systemActionProvider.notifier).updateTray());
-    unawaited(
-      _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),
-    );
     unawaited(_container.read(commonActionProvider.notifier).autoCheckUpdate());
     unawaited(
       autoLaunch?.updateStatus(_container.read(appSettingProvider).autoLaunch),
@@ -164,7 +161,9 @@ class Bootstrap {
     await _handlerDisclaimer();
     await _showCrashRecoveryTip();
     await _showCrashlyticsTip();
-    await _container.read(coreActionProvider.notifier).startCore();
+    await startCoreForStartup(
+      prepareWindowsTun: Platform.isWindows && !_bootDecision.isDegraded,
+    );
     final updateRunning = Platform.isWindows
         ? await readWindowsUpdateRunningIntent(
             executablePath: Platform.resolvedExecutable,
@@ -188,7 +187,21 @@ class Bootstrap {
         processId: pid,
       );
     }
+    unawaited(
+      _container.read(profilesActionProvider.notifier).autoUpdateProfiles(),
+    );
     permissions.check(_container.read);
+  }
+
+  @visibleForTesting
+  Future<void> startCoreForStartup({required bool prepareWindowsTun}) async {
+    if (prepareWindowsTun &&
+        _container.read(patchClashConfigProvider).tun.enable) {
+      await globalState.safeRun(
+        () => _container.read(setupActionProvider.notifier).requestAdmin(true),
+      );
+    }
+    await _container.read(coreActionProvider.notifier).startCore();
   }
 
   Future<void> _showCrashRecoveryTip() async {

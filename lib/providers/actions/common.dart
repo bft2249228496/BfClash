@@ -456,6 +456,8 @@ class CommonAction extends _$CommonAction {
       ),
     );
     var downloadDialogClosed = false;
+    final windowsUpdate = windowsAsset != null;
+    if (windowsUpdate) recordWindowsLifecycle('update.download.begin');
     try {
       final file = windowsPortableAsset != null
           ? await downloadWindowsUpdate(
@@ -483,6 +485,7 @@ class CommonAction extends _$CommonAction {
       if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
       await dialogFuture;
       downloadDialogClosed = true;
+      if (windowsUpdate) recordWindowsLifecycle('update.download.completed');
       if (windowsPortableAsset != null) {
         await launchWindowsPortableUpdate(
           zipPath: file.path,
@@ -516,7 +519,16 @@ class CommonAction extends _$CommonAction {
           currentAppLocalizations.androidUpdateLaunchFailed,
         );
       }
-    } catch (error) {
+    } catch (error, stack) {
+      if (windowsUpdate) {
+        recordWindowsLifecycle(
+          downloadDialogClosed
+              ? 'update.launch.failed'
+              : 'update.download.failed',
+          error: error,
+          stack: stack,
+        );
+      }
       if (!downloadDialogClosed) {
         if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
         await dialogFuture;

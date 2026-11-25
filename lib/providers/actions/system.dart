@@ -40,6 +40,7 @@ class SystemAction extends _$SystemAction {
 
   @protected
   Future<void> cleanupExitResources(bool needSave) async {
+    recordWindowsLifecycle('shutdown.begin');
     final saveOperation = needSave ? _savePreferencesSafely() : null;
     final tray = trayPort;
     if (tray != null) {
@@ -57,6 +58,7 @@ class SystemAction extends _$SystemAction {
       if (proxy != null) proxy!.stopProxy(),
       if (system.isDesktop) stopLocalSubStore(),
     ]);
+    recordWindowsLifecycle('shutdown.resourcesClosed');
   }
 
   @protected
