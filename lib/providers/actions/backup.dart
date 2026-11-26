@@ -71,7 +71,8 @@ class BackupAction extends _$BackupAction {
     }
     ref.read(davSettingProvider.notifier).update((_) => config.davProps);
     ref.read(patchClashConfigProvider.notifier).value = config.patchClashConfig;
-    ref.read(appSettingProvider.notifier).value = config.appSettingProps;
+    ref.read(appSettingProvider.notifier).value = config.appSettingProps
+        .copyWith(restoreStrategy: restoreStrategy);
     ref.read(currentProfileIdProvider.notifier).value = config.currentProfileId;
     ref.read(themeSettingProvider.notifier).value = config.themeProps;
     ref.read(windowSettingProvider.notifier).value = config.windowProps;

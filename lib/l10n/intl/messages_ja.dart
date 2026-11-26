@@ -796,6 +796,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAVからデータを復元します",
     ),
     "restoreOnlyConfig": MessageLookupByLibrary.simpleMessage("プロファイルのみ復元"),
+    "restoreOverrideConfirmTip": MessageLookupByLibrary.simpleMessage(
+      "上書きモードでは、バックアップに存在しないローカルのプロファイル、スクリプト、ルール、プロキシグループが削除されます。続行しますか？",
+    ),
     "restoreStrategy": MessageLookupByLibrary.simpleMessage("復元方式"),
     "restoreStrategyCompatible": MessageLookupByLibrary.simpleMessage("互換"),
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("上書き"),

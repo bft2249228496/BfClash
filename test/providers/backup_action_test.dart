@@ -261,6 +261,34 @@ void main() {
       expect(target.read(overrideDnsProvider), isTrue);
     });
 
+    test('preserves the local restoreStrategy on RestoreOption.all', () async {
+      final source = buildContainer();
+      source
+          .read(appSettingProvider.notifier)
+          .update(
+            (state) =>
+                state.copyWith(restoreStrategy: RestoreStrategy.compatible),
+          );
+      final configMap = configMapOf(source);
+
+      final target = buildContainer();
+      target
+          .read(appSettingProvider.notifier)
+          .update(
+            (state) =>
+                state.copyWith(restoreStrategy: RestoreStrategy.override),
+          );
+
+      await actionOf(
+        target,
+      ).applyRestore(MigrationData(configMap: configMap), RestoreOption.all);
+
+      expect(
+        target.read(appSettingProvider).restoreStrategy,
+        RestoreStrategy.override,
+      );
+    });
+
     test('leaves the settings untouched for an onlyProfiles restore', () async {
       final source = buildContainer();
       source.read(currentProfileIdProvider.notifier).value = 42;
