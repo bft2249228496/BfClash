@@ -30,15 +30,19 @@ class BackupAction extends _$BackupAction {
     return backupTask(configMap, [...profileFileNames, ...scriptFileNames]);
   }
 
+  @visibleForTesting
+  Future<MigrationData> loadRestoreData() => restoreTask();
+
   Future<void> restore(RestoreOption option) async {
     final restoreDirPath = await appPath.restoreDirPath;
     final restoreDir = Directory(restoreDirPath);
     try {
-      final migrationData = await restoreTask();
+      final migrationData = await loadRestoreData();
       if (!await restoreDir.exists()) {
         throw MessageException(currentAppLocalizations.restoreException);
       }
       await applyRestore(migrationData, option);
+      await ref.read(setupActionProvider.notifier).applyProfile(force: true);
     } finally {
       await restoreDir.safeDelete(recursive: true);
     }
