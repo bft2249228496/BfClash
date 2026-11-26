@@ -2785,6 +2785,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Override mode will delete local profiles, scripts, rules, and proxy groups that do not exist in the backup. Continue?`
+  String get restoreOverrideConfirmTip {
+    return Intl.message(
+      'Override mode will delete local profiles, scripts, rules, and proxy groups that do not exist in the backup. Continue?',
+      name: 'restoreOverrideConfirmTip',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Logs test`
   String get logsTest {
     return Intl.message('Logs test', name: 'logsTest', desc: '', args: []);

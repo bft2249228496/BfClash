@@ -2,13 +2,47 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/native.dart';
+import 'package:bfclash/common/common.dart';
 import 'package:bfclash/database/database.dart';
 import 'package:bfclash/enum/enum.dart';
 import 'package:bfclash/models/models.dart';
 import 'package:bfclash/providers/action.dart';
 import 'package:bfclash/providers/config.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:riverpod/riverpod.dart';
+
+class _TestPaths extends PathProviderPlatform {
+  _TestPaths(this.root);
+
+  final String root;
+
+  @override
+  Future<String?> getTemporaryPath() async => root;
+
+  @override
+  Future<String?> getApplicationSupportPath() async => p.join(root, 'support');
+
+  @override
+  Future<String?> getApplicationCachePath() async => root;
+}
+
+class _SpySetupAction extends SetupAction {
+  int applyCount = 0;
+  bool? lastForce;
+
+  @override
+  Future<bool> applyProfile({
+    bool silence = false,
+    bool force = false,
+    Future<void> Function()? preloadInvoke,
+  }) async {
+    applyCount++;
+    lastForce = force;
+    return true;
+  }
+}
 
 class _StubbedArchiveBackupAction extends BackupAction {
   _StubbedArchiveBackupAction(this.archivePath);
@@ -17,6 +51,19 @@ class _StubbedArchiveBackupAction extends BackupAction {
 
   @override
   Future<String> backup() async => archivePath;
+}
+
+class _StubbedRestoreBackupAction extends BackupAction {
+  _StubbedRestoreBackupAction(this.data);
+
+  final MigrationData data;
+
+  @override
+  Future<MigrationData> loadRestoreData() async {
+    final restoreDir = Directory(await appPath.restoreDirPath);
+    await restoreDir.create(recursive: true);
+    return data;
+  }
 }
 
 Profile _profile(int id, String label) => Profile(
@@ -214,6 +261,34 @@ void main() {
       expect(target.read(overrideDnsProvider), isTrue);
     });
 
+    test('preserves the local restoreStrategy on RestoreOption.all', () async {
+      final source = buildContainer();
+      source
+          .read(appSettingProvider.notifier)
+          .update(
+            (state) =>
+                state.copyWith(restoreStrategy: RestoreStrategy.compatible),
+          );
+      final configMap = configMapOf(source);
+
+      final target = buildContainer();
+      target
+          .read(appSettingProvider.notifier)
+          .update(
+            (state) =>
+                state.copyWith(restoreStrategy: RestoreStrategy.override),
+          );
+
+      await actionOf(
+        target,
+      ).applyRestore(MigrationData(configMap: configMap), RestoreOption.all);
+
+      expect(
+        target.read(appSettingProvider).restoreStrategy,
+        RestoreStrategy.override,
+      );
+    });
+
     test('leaves the settings untouched for an onlyProfiles restore', () async {
       final source = buildContainer();
       source.read(currentProfileIdProvider.notifier).value = 42;
@@ -279,6 +354,34 @@ void main() {
             'otherwise the profiles are replaced and currentProfileId still '
             'points at a row that was just deleted',
       );
+    });
+  });
+
+  group('restore reloads the running core', () {
+    test('calls applyProfile(force: true) after restoring', () async {
+      final root = Directory.systemTemp.createTempSync('bfclash_restore_test');
+      addTearDown(() => root.deleteSync(recursive: true));
+      final prevPlatform = PathProviderPlatform.instance;
+      PathProviderPlatform.instance = _TestPaths(root.path);
+      addTearDown(() => PathProviderPlatform.instance = prevPlatform);
+
+      final spySetup = _SpySetupAction();
+      final stubBackup = _StubbedRestoreBackupAction(
+        MigrationData(profiles: [_profile(1, 'Restored')]),
+      );
+      final container = ProviderContainer(
+        overrides: [
+          setupActionProvider.overrideWith(() => spySetup),
+          backupActionProvider.overrideWith(() => stubBackup),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await actionOf(container).restore(RestoreOption.onlyProfiles);
+
+      expect(spySetup.applyCount, 1);
+      expect(spySetup.lastForce, isTrue);
+      expect(await testDatabase.profilesDao.query().get(), hasLength(1));
     });
   });
 }

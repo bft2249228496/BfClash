@@ -357,6 +357,7 @@
   "restoreStrategy": "恢复策略",
   "restoreStrategyOverride": "覆盖",
   "restoreStrategyCompatible": "兼容",
+  "restoreOverrideConfirmTip": "覆盖模式会删除备份中不存在的本地配置、脚本、规则和代理组，是否继续？",
   "logsTest": "日志测试",
   "emptyTip": "{label}不能为空",
   "urlTip": "{label}必须为URL",

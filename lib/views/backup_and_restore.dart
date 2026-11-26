@@ -103,11 +103,29 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
     );
   }
 
-  Future<void> _handleRestoreOnWebDAV() async {
-    final restoreOption = await dialogs.showCommonDialog<RestoreOption>(
+  Future<RestoreOption?> _pickRestoreOption() async {
+    final option = await dialogs.showCommonDialog<RestoreOption>(
       child: const RestoreOptionsDialog(),
     );
-    if (restoreOption == null || !context.mounted) return;
+    if (option == null || !mounted) return null;
+    final restoreStrategy = ref.read(
+      appSettingProvider.select((state) => state.restoreStrategy),
+    );
+    if (restoreStrategy == RestoreStrategy.override) {
+      final confirmed = await dialogs.showMessage(
+        title: currentAppLocalizations.restore,
+        message: TextSpan(
+          text: currentAppLocalizations.restoreOverrideConfirmTip,
+        ),
+      );
+      if (confirmed != true || !mounted) return null;
+    }
+    return option;
+  }
+
+  Future<void> _handleRestoreOnWebDAV() async {
+    final restoreOption = await _pickRestoreOption();
+    if (restoreOption == null) return;
     unawaited(_restoreOnWebDAV(restoreOption));
   }
 
@@ -162,10 +180,8 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
   }
 
   Future<void> _handleRestoreOnLocal() async {
-    final option = await dialogs.showCommonDialog<RestoreOption>(
-      child: const RestoreOptionsDialog(),
-    );
-    if (option == null || !mounted) return;
+    final option = await _pickRestoreOption();
+    if (option == null) return;
     unawaited(_restoreOnLocal(option));
   }
 

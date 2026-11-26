@@ -271,6 +271,10 @@ void main() {
           await tester.tap(find.text(loc.restore).first);
           await tester.pumpAndSettle();
           await tester.tap(find.text(loc.restoreAllData));
+          await tester.pumpAndSettle();
+          if (find.text(loc.restoreOverrideConfirmTip).evaluate().isNotEmpty) {
+            await tester.tap(find.text(loc.confirm));
+          }
           await waitForDialog();
         }
 

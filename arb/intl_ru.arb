@@ -357,6 +357,7 @@
   "restoreStrategy": "Стратегия восстановления",
   "restoreStrategyOverride": "Перезапись",
   "restoreStrategyCompatible": "Совместимость",
+  "restoreOverrideConfirmTip": "Режим перезаписи удалит локальные профили, скрипты, правила и группы прокси, которых нет в резервной копии. Продолжить?",
   "logsTest": "Тест логов",
   "emptyTip": "Поле «{label}» не может быть пустым",
   "urlTip": "Значение «{label}» должно быть URL",

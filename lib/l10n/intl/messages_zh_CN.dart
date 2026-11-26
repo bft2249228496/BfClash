@@ -688,6 +688,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "通过WebDAV恢复数据",
     ),
     "restoreOnlyConfig": MessageLookupByLibrary.simpleMessage("仅恢复配置文件"),
+    "restoreOverrideConfirmTip": MessageLookupByLibrary.simpleMessage(
+      "覆盖模式会删除备份中不存在的本地配置、脚本、规则和代理组，是否继续？",
+    ),
     "restoreStrategy": MessageLookupByLibrary.simpleMessage("恢复策略"),
     "restoreStrategyCompatible": MessageLookupByLibrary.simpleMessage("兼容"),
     "restoreStrategyOverride": MessageLookupByLibrary.simpleMessage("覆盖"),

@@ -357,6 +357,7 @@
   "restoreStrategy": "復元方式",
   "restoreStrategyOverride": "上書き",
   "restoreStrategyCompatible": "互換",
+  "restoreOverrideConfirmTip": "上書きモードでは、バックアップに存在しないローカルのプロファイル、スクリプト、ルール、プロキシグループが削除されます。続行しますか？",
   "logsTest": "ログテスト",
   "emptyTip": "{label}は空にできません",
   "urlTip": "{label}はURLである必要があります",

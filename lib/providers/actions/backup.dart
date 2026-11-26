@@ -30,15 +30,19 @@ class BackupAction extends _$BackupAction {
     return backupTask(configMap, [...profileFileNames, ...scriptFileNames]);
   }
 
+  @visibleForTesting
+  Future<MigrationData> loadRestoreData() => restoreTask();
+
   Future<void> restore(RestoreOption option) async {
     final restoreDirPath = await appPath.restoreDirPath;
     final restoreDir = Directory(restoreDirPath);
     try {
-      final migrationData = await restoreTask();
+      final migrationData = await loadRestoreData();
       if (!await restoreDir.exists()) {
         throw MessageException(currentAppLocalizations.restoreException);
       }
       await applyRestore(migrationData, option);
+      await ref.read(setupActionProvider.notifier).applyProfile(force: true);
     } finally {
       await restoreDir.safeDelete(recursive: true);
     }
@@ -67,7 +71,8 @@ class BackupAction extends _$BackupAction {
     }
     ref.read(davSettingProvider.notifier).update((_) => config.davProps);
     ref.read(patchClashConfigProvider.notifier).value = config.patchClashConfig;
-    ref.read(appSettingProvider.notifier).value = config.appSettingProps;
+    ref.read(appSettingProvider.notifier).value = config.appSettingProps
+        .copyWith(restoreStrategy: restoreStrategy);
     ref.read(currentProfileIdProvider.notifier).value = config.currentProfileId;
     ref.read(themeSettingProvider.notifier).value = config.themeProps;
     ref.read(windowSettingProvider.notifier).value = config.windowProps;
